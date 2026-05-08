@@ -1,1 +1,2435 @@
+⚠ Fast Refresh had to perform a full reload when ./frontend/src/hooks/useTheme.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
 [browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error: {"code":"SystemTimeoutError","message":"Your request timed out."}
+    at ignore-listed frames
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 212d4f25fd7a920c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 92f63235d917b7dc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: c81f71bc5c570fd6] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: cd1548267fdfbc7a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 7a35813ec5f1a976] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 42333e30ceb7aeef] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 645def8404f638e1] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: c4f8ac0a59601b18] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 3e4c87bc863d70d6] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Session validation failed: Error [ConvexError]: [Request ID: 5f831af47d01ba0a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:32:12)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:50:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  30 |
+  31 |   if (serverSecret) {
+> 32 |     return await convex.query(api.sessions.getSession, {
+     |            ^
+  33 |       sessionToken,
+  34 |       serverSecret,
+  35 |     }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: e8b245f33c4ba87d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 2d011ce7c6981f57] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Failed to parse fast-path user cookie: Error [ConvexError]: [Request ID: 0339aa37fc7ddbaa] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:90:14)
+    at async buildWorkspacePlatformResponse (src\app\api\auth\session\route.ts:504:19)
+    at async GET (src\app\api\auth\session\route.ts:703:28)
+  88 |   if (serverSecret) {
+  89 |     try {
+> 90 |       return await convex.query(getSessionRef, {
+     |              ^
+  91 |         sessionToken,
+  92 |         serverSecret,
+  93 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 80167269fd5dbf24] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 66f3775298524676] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: e7143e10f5c5e188] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: b5bd1589d2a3a052] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 4a79d35abdbf54b4] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 1832af73711c3901] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 1427a65f9bff4e51] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: c6ecd1f58c6a4d36] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 2f476d4c397fd5c0] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 696b68b5849b034e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 9a4fc8bb820cd65f] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: fe7c0ef7c51c67bb] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 2d5ec13dc4b975ab] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: a0dbc424b027d3b5] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 959a74df6bf12546] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 04db0588bde2e78f] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 193d7dce9dadd21a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 512dc02b026a9feb] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 35397489ec2f068d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 0b864589352846e3] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 7c6019cf3c04eb26] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: f620cc05c86b3cfc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 1c610f7fd0cf4357] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 46abbd37f51b37db] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 6c919af8716df3b1] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 55d285c6e6c30776] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 9edb3fba8a794654] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: b8f0e19588fbc3b4] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: d097bb169aa0fc6a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: [TypeError: fetch failed] {
+  [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted address: warmhearted-hummingbird-522.convex.cloud:443, timeout: 10000ms)
+      at ignore-listed frames {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Session validation failed: [TypeError: fetch failed] {
+  [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted address: warmhearted-hummingbird-522.convex.cloud:443, timeout: 10000ms)
+      at ignore-listed frames {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: [TypeError: fetch failed] {
+  [cause]: Error [ConnectTimeoutError]: Connect Timeout Error (attempted address: warmhearted-hummingbird-522.convex.cloud:443, timeout: 10000ms)
+      at ignore-listed frames {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: e79929a10b3cb41d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 3b6f7f6f71a75e99] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: d684b1e628f5c679] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-full.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: b4ede2d4e1989457] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 5d326eb8928e4c52] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 15f4dcf6aa21de5d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 14383fe0cb6f6e86] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 1e62fe2791acd668] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 9491a97960d2f7c8] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 1330af7c432770a8] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 42bdbdba531b5c67] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 46976262e6f84b6e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 82b321161d4b5d20] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 457e6edfb4d5973d] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: c7874905a73071c9] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 150c851484abe721] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 4c14a83b8cfba497] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 467523ea3e9b6fc6] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 63b693d423c9cf4f] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: eeea2dc1ae078742] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: efe760569a1f9989] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: c54fb2fd6cab69eb] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: f2492a68a2c5650f] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: ef19c08b9f59a8ca] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: 547674edd1a45e20] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: 11106951ddb49947] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: 07773ab5b1f4efcc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: d9d1aefd7b1f97ea] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: 9af702a21491a5fb] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[logout] Failed to invalidate server session: Error [ConvexError]: [Request ID: 2c6ad4280e02717e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:151:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 372e39c0f0fa2f30] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: 2f65b0f4b7b65eaa] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: c390759806d7118e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: bfe12737f57c7a61] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: ea6468e7604cbe8e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:57:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: ea6468e7604cbe8e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: ea6468e7604cbe8e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: ea6468e7604cbe8e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async PlatformLayout (src\app\platform\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[serverRouteAuth] Trusted session validation failed, trying dev fallback: Error [ConvexError]: [Request ID: ea6468e7604cbe8e] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getValidatedServerSession (src\lib\serverRouteAuth.ts:33:14)
+    at async ensureAuthorizedRouteSession (src\lib\serverRouteAuth.ts:60:28)
+    at async AdminLayout (src\app\admin\layout.tsx:17:3)
+  31 |   if (serverSecret) {
+  32 |     try {
+> 33 |       return await convex.query(api.sessions.getSession, {
+     |              ^
+  34 |         sessionToken,
+  35 |         serverSecret,
+  36 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 365fab84174f2516] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: cf06a5b547d82e2b] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: f087fa3540673363] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 11769758fd78e49a] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 223c69f59649f50c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 2ccdb4552612babc] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 7123bdfcd79d79d4] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "http://localhost:3000/logo-icon.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[api/auth/session] Falling back to synthetic admin workspace session: Error [ConvexError]: [Request ID: 619a185f6d843127] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:48:4) {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}

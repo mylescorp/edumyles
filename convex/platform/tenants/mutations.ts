@@ -1914,6 +1914,7 @@ export const inviteTenantAdmin = mutation({
     lastName: v.string(),
     personalMessage: v.optional(v.string()),
     expiresInDays: v.optional(v.number()),
+    sendEmail: v.optional(v.boolean()),
     role: v.union(
       v.literal("school_admin"),
       v.literal("principal"),
@@ -2045,28 +2046,37 @@ export const inviteTenantAdmin = mutation({
 
     const inviteUrl = buildTenantInviteUrl(inviteToken);
     const tenantUrl = buildTenantUrl(tenant.subdomain);
-    await ctx.scheduler.runAfter(0, internal.actions.communications.email.sendEmailInternal, {
-      tenantId: tenantCtx.tenantId,
-      actorId: tenantCtx.userId,
-      actorEmail: tenantCtx.email,
-      to: [args.email],
-      subject: `Your EduMyles admin invite for ${tenant.name}`,
-      template: "tenant_invite",
-      data: {
-        firstName: args.firstName,
-        schoolName: tenant.name,
-        role: args.role,
-        inviteUrl,
-        tenantUrl,
-        setupUrl: `${getAppUrl()}/admin/setup`,
-        appUrl: getAppUrl(),
-        expiryDate: formatEmailDate(expiresAt),
-        personalMessage: args.personalMessage,
-      },
-    });
+    if (!tenantInviteId) {
+      throw new Error("INVITE_NOT_CREATED: Tenant invite record was not created");
+    }
+    const createdTenantInviteId = tenantInviteId;
+    const emailQueued = args.sendEmail ?? true;
+    if (emailQueued) {
+      await ctx.scheduler.runAfter(0, internal.actions.communications.email.sendEmailInternal, {
+        tenantId: tenantCtx.tenantId,
+        actorId: tenantCtx.userId,
+        actorEmail: tenantCtx.email,
+        to: [args.email],
+        subject: `Your EduMyles admin invite for ${tenant.name}`,
+        template: "tenant_invite",
+        data: {
+          firstName: args.firstName,
+          schoolName: tenant.name,
+          role: args.role,
+          inviteUrl,
+          tenantUrl,
+          setupUrl: `${getAppUrl()}/admin/setup`,
+          appUrl: getAppUrl(),
+          expiryDate: formatEmailDate(expiresAt),
+          personalMessage: args.personalMessage,
+        },
+      });
+      await ctx.db.patch(createdTenantInviteId, { emailSentAt: now, updatedAt: now });
+    }
 
     return {
       success: true,
+      emailQueued,
       email: args.email,
       role: args.role,
       tenantName: tenant.name,

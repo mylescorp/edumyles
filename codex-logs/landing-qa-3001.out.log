@@ -187,3 +187,6 @@
  GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 500 in 115ms (next.js: 90ms, application-code: 25ms)
  GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 500 in 116ms (next.js: 87ms, application-code: 29ms)
 ✓ Compiled in 1574ms
+ GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 200 in 2.3s (next.js: 1465ms, application-code: 840ms)
+ GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 200 in 360ms (next.js: 9ms, application-code: 351ms)
+ GET /reseller 200 in 2.4s (next.js: 264ms, application-code: 2.1s)

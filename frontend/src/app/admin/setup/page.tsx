@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, Circle, Loader2, Plus, SkipForward, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  ChevronDown,
+  Circle,
+  Loader2,
+  Plus,
+  SkipForward,
+  Trash2,
+} from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useConvexMutation, useQuery } from "@/hooks/useSSRSafeConvex";
@@ -11,10 +21,17 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { getNextSetupStepIndex, shouldRedirectCompletedSetup } from "@/lib/adminSetupFlow";
 import { toast } from "sonner";
 
 type StepKey =
@@ -116,18 +133,81 @@ type BrandingForm = {
 };
 
 const STEP_CONFIG: StepConfig[] = [
-  { key: "schoolProfile", title: "School profile", description: "Capture your school identity and official contact details.", points: 8 },
-  { key: "academicYear", title: "Academic year", description: "Set the academic calendar and structure your current operating year.", points: 7 },
-  { key: "gradingSystem", title: "Grading system", description: "Define how performance should be assessed before marks start flowing in.", points: 5 },
-  { key: "subjects", title: "Subjects", description: "Load the subjects your teachers will work with from day one.", points: 5 },
-  { key: "classes", title: "Classes", description: "Set up levels, streams, and classroom capacity.", points: 6 },
-  { key: "feeStructure", title: "Fee structure", description: "Draft at least one fee structure so finance workflows have a starting point.", points: 7, skippable: true },
-  { key: "staffAdded", title: "Staff", description: "Invite key staff members into the school workspace.", points: 5, skippable: true },
-  { key: "studentsAdded", title: "Students", description: "Bring in your initial student roster to reach activation readiness.", points: 7 },
-  { key: "modulesConfigured", title: "Modules", description: "Review recommended modules for your school profile and trial setup.", points: 0 },
-  { key: "portalCustomized", title: "Customize portal", description: "Apply school branding so portals feel like your own product.", points: 0 },
-  { key: "parentsInvited", title: "Parents", description: "Invite parents after student data and contacts are in place.", points: 0, skippable: true },
-  { key: "firstAction", title: "First action", description: "Take the first operational action and transition into day-to-day usage.", points: 1 },
+  {
+    key: "schoolProfile",
+    title: "School profile",
+    description: "Capture your school identity and official contact details.",
+    points: 8,
+  },
+  {
+    key: "academicYear",
+    title: "Academic year",
+    description: "Set the academic calendar and structure your current operating year.",
+    points: 7,
+  },
+  {
+    key: "gradingSystem",
+    title: "Grading system",
+    description: "Define how performance should be assessed before marks start flowing in.",
+    points: 5,
+  },
+  {
+    key: "subjects",
+    title: "Subjects",
+    description: "Load the subjects your teachers will work with from day one.",
+    points: 5,
+  },
+  {
+    key: "classes",
+    title: "Classes",
+    description: "Set up levels, streams, and classroom capacity.",
+    points: 6,
+  },
+  {
+    key: "feeStructure",
+    title: "Fee structure",
+    description: "Draft at least one fee structure so finance workflows have a starting point.",
+    points: 7,
+    skippable: true,
+  },
+  {
+    key: "staffAdded",
+    title: "Staff",
+    description: "Invite key staff members into the school workspace.",
+    points: 5,
+    skippable: true,
+  },
+  {
+    key: "studentsAdded",
+    title: "Students",
+    description: "Bring in your initial student roster to reach activation readiness.",
+    points: 7,
+  },
+  {
+    key: "modulesConfigured",
+    title: "Modules",
+    description: "Review recommended modules for your school profile and trial setup.",
+    points: 0,
+  },
+  {
+    key: "portalCustomized",
+    title: "Customize portal",
+    description: "Apply school branding so portals feel like your own product.",
+    points: 0,
+  },
+  {
+    key: "parentsInvited",
+    title: "Parents",
+    description: "Invite parents after student data and contacts are in place.",
+    points: 0,
+    skippable: true,
+  },
+  {
+    key: "firstAction",
+    title: "First action",
+    description: "Take the first operational action and transition into day-to-day usage.",
+    points: 1,
+  },
 ];
 
 const SCHOOL_LEVEL_OPTIONS = [
@@ -153,7 +233,9 @@ function createSchoolProfileForm(profile?: Partial<SchoolProfileForm>): SchoolPr
 }
 
 function getSelectedLevelLabels(levels: string[]) {
-  return SCHOOL_LEVEL_OPTIONS.filter((option) => levels.includes(option.value)).map((option) => option.label);
+  return SCHOOL_LEVEL_OPTIONS.filter((option) => levels.includes(option.value)).map(
+    (option) => option.label
+  );
 }
 
 function createAcademicYearForm(payload?: Partial<AcademicYearForm>): AcademicYearForm {
@@ -259,7 +341,9 @@ function updateSubjectRow(
   key: keyof SubjectRow,
   value: string
 ) {
-  setRows((current) => current.map((row, rowIndex) => (rowIndex === index ? { ...row, [key]: value } : row)));
+  setRows((current) =>
+    current.map((row, rowIndex) => (rowIndex === index ? { ...row, [key]: value } : row))
+  );
 }
 
 function updateClassRow(
@@ -268,7 +352,9 @@ function updateClassRow(
   key: keyof ClassRow,
   value: string
 ) {
-  setRows((current) => current.map((row, rowIndex) => (rowIndex === index ? { ...row, [key]: value } : row)));
+  setRows((current) =>
+    current.map((row, rowIndex) => (rowIndex === index ? { ...row, [key]: value } : row))
+  );
 }
 
 function updateStaffInviteRow(
@@ -277,7 +363,9 @@ function updateStaffInviteRow(
   key: keyof StaffInviteRow,
   value: string
 ) {
-  setRows((current) => current.map((row, rowIndex) => (rowIndex === index ? { ...row, [key]: value } : row)));
+  setRows((current) =>
+    current.map((row, rowIndex) => (rowIndex === index ? { ...row, [key]: value } : row))
+  );
 }
 
 function updateStudentRow(
@@ -286,7 +374,9 @@ function updateStudentRow(
   key: keyof StudentRow,
   value: string
 ) {
-  setRows((current) => current.map((row, rowIndex) => (rowIndex === index ? { ...row, [key]: value } : row)));
+  setRows((current) =>
+    current.map((row, rowIndex) => (rowIndex === index ? { ...row, [key]: value } : row))
+  );
 }
 
 export default function AdminSetupPage() {
@@ -304,15 +394,23 @@ export default function AdminSetupPage() {
     sessionToken ? { sessionToken, tenantId: tenantId ?? undefined } : "skip"
   );
 
-  const saveSchoolProfile = useConvexMutation(api.modules.platform.onboarding.saveSchoolProfileStep);
+  const saveSchoolProfile = useConvexMutation(
+    api.modules.platform.onboarding.saveSchoolProfileStep
+  );
   const saveAcademicYear = useConvexMutation(api.modules.platform.onboarding.saveAcademicYearStep);
-  const saveGradingSystem = useConvexMutation(api.modules.platform.onboarding.saveGradingSystemStep);
+  const saveGradingSystem = useConvexMutation(
+    api.modules.platform.onboarding.saveGradingSystemStep
+  );
   const saveSubjects = useConvexMutation(api.modules.platform.onboarding.saveSubjectsStep);
   const saveClasses = useConvexMutation(api.modules.platform.onboarding.saveClassesStep);
   const saveFeeStructure = useConvexMutation(api.modules.platform.onboarding.saveFeeStructureStep);
   const saveStudents = useConvexMutation(api.modules.platform.onboarding.saveStudentsStep);
-  const savePortalCustomization = useConvexMutation(api.modules.platform.onboarding.savePortalCustomizationStep);
-  const sendParentInvites = useConvexMutation(api.modules.platform.onboarding.sendParentInvitesStep);
+  const savePortalCustomization = useConvexMutation(
+    api.modules.platform.onboarding.savePortalCustomizationStep
+  );
+  const sendParentInvites = useConvexMutation(
+    api.modules.platform.onboarding.sendParentInvitesStep
+  );
   const bulkInviteStaff = useConvexMutation(api.staffInvites.bulkInviteStaff);
   const updateStep = useConvexMutation(api.modules.platform.onboarding.updateOnboardingStep);
   const skipStep = useConvexMutation(api.modules.platform.onboarding.skipOnboardingStep);
@@ -321,7 +419,8 @@ export default function AdminSetupPage() {
   const [saving, setSaving] = useState(false);
   const [schoolProfile, setSchoolProfile] = useState<SchoolProfileForm>(createSchoolProfileForm());
   const [academicYear, setAcademicYear] = useState<AcademicYearForm>(createAcademicYearForm());
-  const [gradingSystem, setGradingSystemState] = useState<GradingSystemForm>(createGradingSystemForm());
+  const [gradingSystem, setGradingSystemState] =
+    useState<GradingSystemForm>(createGradingSystemForm());
   const [subjects, setSubjects] = useState<SubjectRow[]>([createSubjectRow()]);
   const [classes, setClasses] = useState<ClassRow[]>([createClassRow()]);
   const [feeStructure, setFeeStructure] = useState<FeeStructureForm>(createFeeStructureForm());
@@ -412,6 +511,12 @@ export default function AdminSetupPage() {
     }
   }, [onboarding?.currentStep]);
 
+  useEffect(() => {
+    if (shouldRedirectCompletedSetup(onboarding?.wizardCompleted)) {
+      window.location.assign("/admin/setup/complete");
+    }
+  }, [onboarding?.wizardCompleted]);
+
   const stepStates = useMemo(() => onboarding?.steps ?? {}, [onboarding?.steps]);
   const completedCount = useMemo(
     () => STEP_CONFIG.filter((step) => stepStates?.[step.key]?.completed).length,
@@ -433,18 +538,21 @@ export default function AdminSetupPage() {
       .filter((moduleRecord: any) => !moduleRecord.isCore)
       .filter((moduleRecord: any) => {
         if (!schoolType) return true;
-        if (schoolType === "primary") return moduleRecord.category !== "Portals" || moduleRecord.slug === "mod_parent_portal";
+        if (schoolType === "primary")
+          return moduleRecord.category !== "Portals" || moduleRecord.slug === "mod_parent_portal";
         return true;
       })
       .slice(0, 8);
   }, [marketplaceModules, schoolProfile.schoolType]);
 
   function moveNext(currentStep?: number) {
-    if (currentStep) {
-      setActiveStepIndex(Math.max(0, Math.min(STEP_CONFIG.length - 1, currentStep - 1)));
-      return;
-    }
-    setActiveStepIndex((current) => Math.min(STEP_CONFIG.length - 1, current + 1));
+    setActiveStepIndex(
+      getNextSetupStepIndex({
+        activeStepIndex,
+        currentStep,
+        totalSteps: STEP_CONFIG.length,
+      })
+    );
   }
 
   async function completeCurrentStep(count?: number) {
@@ -485,7 +593,11 @@ export default function AdminSetupPage() {
 
       switch (activeStep.key) {
         case "schoolProfile":
-          if (!schoolProfile.schoolType || !schoolProfile.boardingType || !schoolProfile.officialEmail) {
+          if (
+            !schoolProfile.schoolType ||
+            !schoolProfile.boardingType ||
+            !schoolProfile.officialEmail
+          ) {
             toast.error("School type, boarding type, and official email are required.");
             return;
           }
@@ -509,7 +621,11 @@ export default function AdminSetupPage() {
             toast.error("Year name, start date, and end date are required.");
             return;
           }
-          await saveAcademicYear({ sessionToken, tenantId: tenantId ?? undefined, ...academicYear });
+          await saveAcademicYear({
+            sessionToken,
+            tenantId: tenantId ?? undefined,
+            ...academicYear,
+          });
           await completeCurrentStep();
           return;
         case "gradingSystem":
@@ -534,7 +650,11 @@ export default function AdminSetupPage() {
             toast.error("Add at least one subject before continuing.");
             return;
           }
-          await saveSubjects({ sessionToken, tenantId: tenantId ?? undefined, subjects: validSubjects });
+          await saveSubjects({
+            sessionToken,
+            tenantId: tenantId ?? undefined,
+            subjects: validSubjects,
+          });
           await completeCurrentStep(validSubjects.length);
           return;
         }
@@ -552,12 +672,21 @@ export default function AdminSetupPage() {
             toast.error("Add at least one class before continuing.");
             return;
           }
-          await saveClasses({ sessionToken, tenantId: tenantId ?? undefined, classes: validClasses });
+          await saveClasses({
+            sessionToken,
+            tenantId: tenantId ?? undefined,
+            classes: validClasses,
+          });
           await completeCurrentStep(validClasses.length);
           return;
         }
         case "feeStructure":
-          if (!feeStructure.name || !feeStructure.amount || !feeStructure.grade || !feeStructure.academicYear) {
+          if (
+            !feeStructure.name ||
+            !feeStructure.amount ||
+            !feeStructure.grade ||
+            !feeStructure.academicYear
+          ) {
             toast.error("Complete the fee structure name, amount, academic year, and grade.");
             return;
           }
@@ -586,13 +715,19 @@ export default function AdminSetupPage() {
             toast.error("Add at least one staff invite before continuing, or skip this step.");
             return;
           }
-          const result = await bulkInviteStaff({ sessionToken, tenantId: tenantId ?? undefined, staff: validStaff });
+          const result = await bulkInviteStaff({
+            sessionToken,
+            tenantId: tenantId ?? undefined,
+            staff: validStaff,
+          });
           if (result.failed.length > 0 && result.sent === 0) {
             toast.error(result.failed[0]?.error ?? "Failed to send staff invites.");
             return;
           }
           if (result.failed.length > 0) {
-            toast.warning(`Invited ${result.sent} staff members. ${result.failed.length} could not be invited.`);
+            toast.warning(
+              `Invited ${result.sent} staff members. ${result.failed.length} could not be invited.`
+            );
           }
           await completeCurrentStep(result.sent);
           return;
@@ -615,7 +750,11 @@ export default function AdminSetupPage() {
             toast.error("Add at least one student with name and date of birth.");
             return;
           }
-          const result = await saveStudents({ sessionToken, tenantId: tenantId ?? undefined, students: validStudents });
+          const result = await saveStudents({
+            sessionToken,
+            tenantId: tenantId ?? undefined,
+            students: validStudents,
+          });
           await completeCurrentStep(result.count);
           return;
         }
@@ -647,7 +786,7 @@ export default function AdminSetupPage() {
           }
           return;
         case "firstAction":
-          toast.info("The first action step will auto-complete once you begin using the school workspace.");
+          await completeCurrentStep(1);
           return;
       }
     } catch (error) {
@@ -699,7 +838,9 @@ export default function AdminSetupPage() {
         <Card>
           <CardHeader>
             <CardTitle>Setup is unavailable right now</CardTitle>
-            <CardDescription>Refresh the page or sign in again to continue onboarding.</CardDescription>
+            <CardDescription>
+              Refresh the page or sign in again to continue onboarding.
+            </CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -714,7 +855,8 @@ export default function AdminSetupPage() {
             <div>
               <CardTitle>{wizardContext.tenantName} Setup Wizard</CardTitle>
               <CardDescription>
-                Complete onboarding step by step, activate your trial, and move into daily operations with confidence.
+                Complete onboarding step by step, activate your trial, and move into daily
+                operations with confidence.
               </CardDescription>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -726,7 +868,9 @@ export default function AdminSetupPage() {
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm text-slate-600">
-              <span>{completedCount} of {STEP_CONFIG.length} steps complete</span>
+              <span>
+                {completedCount} of {STEP_CONFIG.length} steps complete
+              </span>
               <span>Current step {Math.min(activeStepIndex + 1, STEP_CONFIG.length)}</span>
             </div>
             <Progress value={progress} className="h-3" />
@@ -757,7 +901,9 @@ export default function AdminSetupPage() {
         <Card className="h-fit border-slate-200/70 bg-white/90">
           <CardHeader>
             <CardTitle className="text-base">Steps</CardTitle>
-            <CardDescription>Move in order. Completed steps remain available for review and edits.</CardDescription>
+            <CardDescription>
+              Move in order. Completed steps remain available for review and edits.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {STEP_CONFIG.map((step, index) => {
@@ -777,12 +923,20 @@ export default function AdminSetupPage() {
                   {completed ? (
                     <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-600" />
                   ) : (
-                    <Circle className={`mt-0.5 h-4 w-4 ${isCurrent ? "text-amber-600" : "text-slate-400"}`} />
+                    <Circle
+                      className={`mt-0.5 h-4 w-4 ${isCurrent ? "text-amber-600" : "text-slate-400"}`}
+                    />
                   )}
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">{index + 1}. {step.title}</span>
-                      {step.skippable ? <Badge variant="outline" className="text-[10px]">Skippable</Badge> : null}
+                      <span className="text-sm font-medium">
+                        {index + 1}. {step.title}
+                      </span>
+                      {step.skippable ? (
+                        <Badge variant="outline" className="text-[10px]">
+                          Skippable
+                        </Badge>
+                      ) : null}
                     </div>
                     <p className="mt-1 text-xs text-slate-500">{step.description}</p>
                   </div>
@@ -806,8 +960,15 @@ export default function AdminSetupPage() {
             {activeStep.key === "schoolProfile" ? (
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="School Type">
-                  <Select value={schoolProfile.schoolType} onValueChange={(value) => setSchoolProfile((current) => ({ ...current, schoolType: value }))}>
-                    <SelectTrigger><SelectValue placeholder="Select school type" /></SelectTrigger>
+                  <Select
+                    value={schoolProfile.schoolType}
+                    onValueChange={(value) =>
+                      setSchoolProfile((current) => ({ ...current, schoolType: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select school type" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="primary">Primary</SelectItem>
                       <SelectItem value="secondary">Secondary</SelectItem>
@@ -818,8 +979,15 @@ export default function AdminSetupPage() {
                   </Select>
                 </Field>
                 <Field label="Boarding Type">
-                  <Select value={schoolProfile.boardingType} onValueChange={(value) => setSchoolProfile((current) => ({ ...current, boardingType: value }))}>
-                    <SelectTrigger><SelectValue placeholder="Select boarding type" /></SelectTrigger>
+                  <Select
+                    value={schoolProfile.boardingType}
+                    onValueChange={(value) =>
+                      setSchoolProfile((current) => ({ ...current, boardingType: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select boarding type" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="day">Day</SelectItem>
                       <SelectItem value="boarding">Boarding</SelectItem>
@@ -830,7 +998,11 @@ export default function AdminSetupPage() {
                 <Field label="Levels">
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button type="button" variant="outline" className="w-full justify-between font-normal">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-between font-normal"
+                      >
                         <span className="truncate text-left">
                           {schoolProfile.levels.length > 0
                             ? getSelectedLevelLabels(schoolProfile.levels).join(", ")
@@ -846,7 +1018,10 @@ export default function AdminSetupPage() {
                           {SCHOOL_LEVEL_OPTIONS.map((option) => {
                             const checked = schoolProfile.levels.includes(option.value);
                             return (
-                              <label key={option.value} className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-1.5 hover:bg-slate-50">
+                              <label
+                                key={option.value}
+                                className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-1.5 hover:bg-slate-50"
+                              >
                                 <Checkbox
                                   checked={checked}
                                   onCheckedChange={(nextChecked) => {
@@ -868,22 +1043,61 @@ export default function AdminSetupPage() {
                   </Popover>
                 </Field>
                 <Field label="Official Email">
-                  <Input type="email" value={schoolProfile.officialEmail} onChange={(event) => setSchoolProfile((current) => ({ ...current, officialEmail: event.target.value }))} />
+                  <Input
+                    type="email"
+                    value={schoolProfile.officialEmail}
+                    onChange={(event) =>
+                      setSchoolProfile((current) => ({
+                        ...current,
+                        officialEmail: event.target.value,
+                      }))
+                    }
+                  />
                 </Field>
                 <Field label="Phone">
-                  <Input value={schoolProfile.phone} onChange={(event) => setSchoolProfile((current) => ({ ...current, phone: event.target.value }))} />
+                  <Input
+                    value={schoolProfile.phone}
+                    onChange={(event) =>
+                      setSchoolProfile((current) => ({ ...current, phone: event.target.value }))
+                    }
+                  />
                 </Field>
                 <Field label="Website">
-                  <Input value={schoolProfile.website} onChange={(event) => setSchoolProfile((current) => ({ ...current, website: event.target.value }))} placeholder="https://school.example" />
+                  <Input
+                    value={schoolProfile.website}
+                    onChange={(event) =>
+                      setSchoolProfile((current) => ({ ...current, website: event.target.value }))
+                    }
+                    placeholder="https://school.example"
+                  />
                 </Field>
                 <Field label="County">
-                  <Input value={schoolProfile.county} onChange={(event) => setSchoolProfile((current) => ({ ...current, county: event.target.value }))} />
+                  <Input
+                    value={schoolProfile.county}
+                    onChange={(event) =>
+                      setSchoolProfile((current) => ({ ...current, county: event.target.value }))
+                    }
+                  />
                 </Field>
                 <Field label="Registration Number">
-                  <Input value={schoolProfile.registrationNumber} onChange={(event) => setSchoolProfile((current) => ({ ...current, registrationNumber: event.target.value }))} />
+                  <Input
+                    value={schoolProfile.registrationNumber}
+                    onChange={(event) =>
+                      setSchoolProfile((current) => ({
+                        ...current,
+                        registrationNumber: event.target.value,
+                      }))
+                    }
+                  />
                 </Field>
                 <Field label="Logo URL" className="md:col-span-2">
-                  <Input value={schoolProfile.logoUrl} onChange={(event) => setSchoolProfile((current) => ({ ...current, logoUrl: event.target.value }))} placeholder="https://..." />
+                  <Input
+                    value={schoolProfile.logoUrl}
+                    onChange={(event) =>
+                      setSchoolProfile((current) => ({ ...current, logoUrl: event.target.value }))
+                    }
+                    placeholder="https://..."
+                  />
                 </Field>
               </div>
             ) : null}
@@ -891,11 +1105,24 @@ export default function AdminSetupPage() {
             {activeStep.key === "academicYear" ? (
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Year Name">
-                  <Input value={academicYear.yearName} onChange={(event) => setAcademicYear((current) => ({ ...current, yearName: event.target.value }))} placeholder="2026 Academic Year" />
+                  <Input
+                    value={academicYear.yearName}
+                    onChange={(event) =>
+                      setAcademicYear((current) => ({ ...current, yearName: event.target.value }))
+                    }
+                    placeholder="2026 Academic Year"
+                  />
                 </Field>
                 <Field label="Structure">
-                  <Select value={academicYear.structure} onValueChange={(value) => setAcademicYear((current) => ({ ...current, structure: value }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select
+                    value={academicYear.structure}
+                    onValueChange={(value) =>
+                      setAcademicYear((current) => ({ ...current, structure: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="termly">3 Terms</SelectItem>
                       <SelectItem value="semester">2 Semesters</SelectItem>
@@ -904,10 +1131,22 @@ export default function AdminSetupPage() {
                   </Select>
                 </Field>
                 <Field label="Start Date">
-                  <Input type="date" value={academicYear.startDate} onChange={(event) => setAcademicYear((current) => ({ ...current, startDate: event.target.value }))} />
+                  <Input
+                    type="date"
+                    value={academicYear.startDate}
+                    onChange={(event) =>
+                      setAcademicYear((current) => ({ ...current, startDate: event.target.value }))
+                    }
+                  />
                 </Field>
                 <Field label="End Date">
-                  <Input type="date" value={academicYear.endDate} onChange={(event) => setAcademicYear((current) => ({ ...current, endDate: event.target.value }))} />
+                  <Input
+                    type="date"
+                    value={academicYear.endDate}
+                    onChange={(event) =>
+                      setAcademicYear((current) => ({ ...current, endDate: event.target.value }))
+                    }
+                  />
                 </Field>
               </div>
             ) : null}
@@ -915,8 +1154,15 @@ export default function AdminSetupPage() {
             {activeStep.key === "gradingSystem" ? (
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Preset">
-                  <Select value={gradingSystem.preset} onValueChange={(value) => setGradingSystemState((current) => ({ ...current, preset: value }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select
+                    value={gradingSystem.preset}
+                    onValueChange={(value) =>
+                      setGradingSystemState((current) => ({ ...current, preset: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="kenya_secondary">Kenya Secondary</SelectItem>
                       <SelectItem value="cbc_primary">Kenya CBC Primary</SelectItem>
@@ -926,10 +1172,28 @@ export default function AdminSetupPage() {
                   </Select>
                 </Field>
                 <Field label="Pass Mark (%)">
-                  <Input type="number" value={gradingSystem.passMark} onChange={(event) => setGradingSystemState((current) => ({ ...current, passMark: event.target.value }))} />
+                  <Input
+                    type="number"
+                    value={gradingSystem.passMark}
+                    onChange={(event) =>
+                      setGradingSystemState((current) => ({
+                        ...current,
+                        passMark: event.target.value,
+                      }))
+                    }
+                  />
                 </Field>
                 <Field label="Scale Label" className="md:col-span-2">
-                  <Input value={gradingSystem.scaleLabel} onChange={(event) => setGradingSystemState((current) => ({ ...current, scaleLabel: event.target.value }))} placeholder="A-E, A-D, GPA 4.0" />
+                  <Input
+                    value={gradingSystem.scaleLabel}
+                    onChange={(event) =>
+                      setGradingSystemState((current) => ({
+                        ...current,
+                        scaleLabel: event.target.value,
+                      }))
+                    }
+                    placeholder="A-E, A-D, GPA 4.0"
+                  />
                 </Field>
               </div>
             ) : null}
@@ -937,24 +1201,60 @@ export default function AdminSetupPage() {
             {activeStep.key === "subjects" ? (
               <div className="space-y-4">
                 {subjects.map((subject, index) => (
-                  <div key={index} className="grid gap-3 rounded-2xl border p-4 md:grid-cols-[1.2fr_0.8fr_1fr_auto]">
+                  <div
+                    key={index}
+                    className="grid gap-3 rounded-2xl border p-4 md:grid-cols-[1.2fr_0.8fr_1fr_auto]"
+                  >
                     <Field label="Subject Name">
-                      <Input value={subject.name} onChange={(event) => updateSubjectRow(setSubjects, index, "name", event.target.value)} placeholder="Mathematics" />
+                      <Input
+                        value={subject.name}
+                        onChange={(event) =>
+                          updateSubjectRow(setSubjects, index, "name", event.target.value)
+                        }
+                        placeholder="Mathematics"
+                      />
                     </Field>
                     <Field label="Code">
-                      <Input value={subject.code} onChange={(event) => updateSubjectRow(setSubjects, index, "code", event.target.value)} placeholder="MATH" />
+                      <Input
+                        value={subject.code}
+                        onChange={(event) =>
+                          updateSubjectRow(setSubjects, index, "code", event.target.value)
+                        }
+                        placeholder="MATH"
+                      />
                     </Field>
                     <Field label="Department">
-                      <Input value={subject.department} onChange={(event) => updateSubjectRow(setSubjects, index, "department", event.target.value)} placeholder="Sciences" />
+                      <Input
+                        value={subject.department}
+                        onChange={(event) =>
+                          updateSubjectRow(setSubjects, index, "department", event.target.value)
+                        }
+                        placeholder="Sciences"
+                      />
                     </Field>
                     <div className="flex items-end">
-                      <Button type="button" variant="outline" size="icon" onClick={() => setSubjects((current) => current.length === 1 ? current : current.filter((_, rowIndex) => rowIndex !== index))}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() =>
+                          setSubjects((current) =>
+                            current.length === 1
+                              ? current
+                              : current.filter((_, rowIndex) => rowIndex !== index)
+                          )
+                        }
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 ))}
-                <Button type="button" variant="outline" onClick={() => setSubjects((current) => [...current, createSubjectRow()])}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setSubjects((current) => [...current, createSubjectRow()])}
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Subject
                 </Button>
@@ -966,29 +1266,73 @@ export default function AdminSetupPage() {
                 {classes.map((classRow, index) => (
                   <div key={index} className="grid gap-3 rounded-2xl border p-4 md:grid-cols-5">
                     <Field label="Class Name">
-                      <Input value={classRow.name} onChange={(event) => updateClassRow(setClasses, index, "name", event.target.value)} placeholder="Form 1 East" />
+                      <Input
+                        value={classRow.name}
+                        onChange={(event) =>
+                          updateClassRow(setClasses, index, "name", event.target.value)
+                        }
+                        placeholder="Form 1 East"
+                      />
                     </Field>
                     <Field label="Level">
-                      <Input value={classRow.level} onChange={(event) => updateClassRow(setClasses, index, "level", event.target.value)} placeholder="Form 1" />
+                      <Input
+                        value={classRow.level}
+                        onChange={(event) =>
+                          updateClassRow(setClasses, index, "level", event.target.value)
+                        }
+                        placeholder="Form 1"
+                      />
                     </Field>
                     <Field label="Stream">
-                      <Input value={classRow.stream} onChange={(event) => updateClassRow(setClasses, index, "stream", event.target.value)} placeholder="East" />
+                      <Input
+                        value={classRow.stream}
+                        onChange={(event) =>
+                          updateClassRow(setClasses, index, "stream", event.target.value)
+                        }
+                        placeholder="East"
+                      />
                     </Field>
                     <Field label="Capacity">
-                      <Input type="number" value={classRow.capacity} onChange={(event) => updateClassRow(setClasses, index, "capacity", event.target.value)} placeholder="40" />
+                      <Input
+                        type="number"
+                        value={classRow.capacity}
+                        onChange={(event) =>
+                          updateClassRow(setClasses, index, "capacity", event.target.value)
+                        }
+                        placeholder="40"
+                      />
                     </Field>
                     <Field label="Academic Year">
-                      <Input value={classRow.academicYear} onChange={(event) => updateClassRow(setClasses, index, "academicYear", event.target.value)} placeholder={academicYear.yearName || "2026"} />
+                      <Input
+                        value={classRow.academicYear}
+                        onChange={(event) =>
+                          updateClassRow(setClasses, index, "academicYear", event.target.value)
+                        }
+                        placeholder={academicYear.yearName || "2026"}
+                      />
                     </Field>
                   </div>
                 ))}
                 <div className="flex gap-2">
-                  <Button type="button" variant="outline" onClick={() => setClasses((current) => [...current, createClassRow({ academicYear: academicYear.yearName })])}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      setClasses((current) => [
+                        ...current,
+                        createClassRow({ academicYear: academicYear.yearName }),
+                      ])
+                    }
+                  >
                     <Plus className="mr-2 h-4 w-4" />
                     Add Class
                   </Button>
                   {classes.length > 1 ? (
-                    <Button type="button" variant="ghost" onClick={() => setClasses((current) => current.slice(0, -1))}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setClasses((current) => current.slice(0, -1))}
+                    >
                       Remove Last
                     </Button>
                   ) : null}
@@ -999,20 +1343,55 @@ export default function AdminSetupPage() {
             {activeStep.key === "feeStructure" ? (
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Fee Structure Name">
-                  <Input value={feeStructure.name} onChange={(event) => setFeeStructure((current) => ({ ...current, name: event.target.value }))} placeholder="Day Scholar Term 1" />
+                  <Input
+                    value={feeStructure.name}
+                    onChange={(event) =>
+                      setFeeStructure((current) => ({ ...current, name: event.target.value }))
+                    }
+                    placeholder="Day Scholar Term 1"
+                  />
                 </Field>
                 <Field label="Amount (KES)">
-                  <Input type="number" value={feeStructure.amount} onChange={(event) => setFeeStructure((current) => ({ ...current, amount: event.target.value }))} placeholder="25000" />
+                  <Input
+                    type="number"
+                    value={feeStructure.amount}
+                    onChange={(event) =>
+                      setFeeStructure((current) => ({ ...current, amount: event.target.value }))
+                    }
+                    placeholder="25000"
+                  />
                 </Field>
                 <Field label="Academic Year">
-                  <Input value={feeStructure.academicYear} onChange={(event) => setFeeStructure((current) => ({ ...current, academicYear: event.target.value }))} placeholder={academicYear.yearName || "2026"} />
+                  <Input
+                    value={feeStructure.academicYear}
+                    onChange={(event) =>
+                      setFeeStructure((current) => ({
+                        ...current,
+                        academicYear: event.target.value,
+                      }))
+                    }
+                    placeholder={academicYear.yearName || "2026"}
+                  />
                 </Field>
                 <Field label="Grade / Level">
-                  <Input value={feeStructure.grade} onChange={(event) => setFeeStructure((current) => ({ ...current, grade: event.target.value }))} placeholder="Form 1" />
+                  <Input
+                    value={feeStructure.grade}
+                    onChange={(event) =>
+                      setFeeStructure((current) => ({ ...current, grade: event.target.value }))
+                    }
+                    placeholder="Form 1"
+                  />
                 </Field>
                 <Field label="Frequency" className="md:col-span-2">
-                  <Select value={feeStructure.frequency} onValueChange={(value) => setFeeStructure((current) => ({ ...current, frequency: value }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select
+                    value={feeStructure.frequency}
+                    onValueChange={(value) =>
+                      setFeeStructure((current) => ({ ...current, frequency: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="one_time">One time</SelectItem>
                       <SelectItem value="monthly">Monthly</SelectItem>
@@ -1029,17 +1408,51 @@ export default function AdminSetupPage() {
                 {staffInvites.map((invite, index) => (
                   <div key={index} className="grid gap-3 rounded-2xl border p-4 md:grid-cols-5">
                     <Field label="Email">
-                      <Input type="email" value={invite.email} onChange={(event) => updateStaffInviteRow(setStaffInvites, index, "email", event.target.value)} placeholder="teacher@school.ac.ke" />
+                      <Input
+                        type="email"
+                        value={invite.email}
+                        onChange={(event) =>
+                          updateStaffInviteRow(setStaffInvites, index, "email", event.target.value)
+                        }
+                        placeholder="teacher@school.ac.ke"
+                      />
                     </Field>
                     <Field label="First Name">
-                      <Input value={invite.firstName} onChange={(event) => updateStaffInviteRow(setStaffInvites, index, "firstName", event.target.value)} />
+                      <Input
+                        value={invite.firstName}
+                        onChange={(event) =>
+                          updateStaffInviteRow(
+                            setStaffInvites,
+                            index,
+                            "firstName",
+                            event.target.value
+                          )
+                        }
+                      />
                     </Field>
                     <Field label="Last Name">
-                      <Input value={invite.lastName} onChange={(event) => updateStaffInviteRow(setStaffInvites, index, "lastName", event.target.value)} />
+                      <Input
+                        value={invite.lastName}
+                        onChange={(event) =>
+                          updateStaffInviteRow(
+                            setStaffInvites,
+                            index,
+                            "lastName",
+                            event.target.value
+                          )
+                        }
+                      />
                     </Field>
                     <Field label="Role">
-                      <Select value={invite.role} onValueChange={(value) => updateStaffInviteRow(setStaffInvites, index, "role", value)}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                      <Select
+                        value={invite.role}
+                        onValueChange={(value) =>
+                          updateStaffInviteRow(setStaffInvites, index, "role", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="teacher">Teacher</SelectItem>
                           <SelectItem value="principal">Principal</SelectItem>
@@ -1050,16 +1463,33 @@ export default function AdminSetupPage() {
                       </Select>
                     </Field>
                     <Field label="Department">
-                      <Input value={invite.department} onChange={(event) => updateStaffInviteRow(setStaffInvites, index, "department", event.target.value)} />
+                      <Input
+                        value={invite.department}
+                        onChange={(event) =>
+                          updateStaffInviteRow(
+                            setStaffInvites,
+                            index,
+                            "department",
+                            event.target.value
+                          )
+                        }
+                      />
                     </Field>
                   </div>
                 ))}
-                <Button type="button" variant="outline" onClick={() => setStaffInvites((current) => [...current, createStaffInviteRow()])}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStaffInvites((current) => [...current, createStaffInviteRow()])}
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Staff Invite
                 </Button>
                 {wizardContext.setupData?.staffInvites?.length ? (
-                  <p className="text-sm text-slate-500">{wizardContext.setupData.staffInvites.length} pending invite(s) already exist for this school.</p>
+                  <p className="text-sm text-slate-500">
+                    {wizardContext.setupData.staffInvites.length} pending invite(s) already exist
+                    for this school.
+                  </p>
                 ) : null}
               </div>
             ) : null}
@@ -1069,20 +1499,53 @@ export default function AdminSetupPage() {
                 {students.map((student, index) => (
                   <div key={index} className="grid gap-3 rounded-2xl border p-4 md:grid-cols-3">
                     <Field label="Admission Number">
-                      <Input value={student.admissionNumber} onChange={(event) => updateStudentRow(setStudents, index, "admissionNumber", event.target.value)} />
+                      <Input
+                        value={student.admissionNumber}
+                        onChange={(event) =>
+                          updateStudentRow(
+                            setStudents,
+                            index,
+                            "admissionNumber",
+                            event.target.value
+                          )
+                        }
+                      />
                     </Field>
                     <Field label="First Name">
-                      <Input value={student.firstName} onChange={(event) => updateStudentRow(setStudents, index, "firstName", event.target.value)} />
+                      <Input
+                        value={student.firstName}
+                        onChange={(event) =>
+                          updateStudentRow(setStudents, index, "firstName", event.target.value)
+                        }
+                      />
                     </Field>
                     <Field label="Last Name">
-                      <Input value={student.lastName} onChange={(event) => updateStudentRow(setStudents, index, "lastName", event.target.value)} />
+                      <Input
+                        value={student.lastName}
+                        onChange={(event) =>
+                          updateStudentRow(setStudents, index, "lastName", event.target.value)
+                        }
+                      />
                     </Field>
                     <Field label="Date of Birth">
-                      <Input type="date" value={student.dateOfBirth} onChange={(event) => updateStudentRow(setStudents, index, "dateOfBirth", event.target.value)} />
+                      <Input
+                        type="date"
+                        value={student.dateOfBirth}
+                        onChange={(event) =>
+                          updateStudentRow(setStudents, index, "dateOfBirth", event.target.value)
+                        }
+                      />
                     </Field>
                     <Field label="Gender">
-                      <Select value={student.gender} onValueChange={(value) => updateStudentRow(setStudents, index, "gender", value)}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                      <Select
+                        value={student.gender}
+                        onValueChange={(value) =>
+                          updateStudentRow(setStudents, index, "gender", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="female">Female</SelectItem>
                           <SelectItem value="male">Male</SelectItem>
@@ -1090,20 +1553,46 @@ export default function AdminSetupPage() {
                       </Select>
                     </Field>
                     <Field label="Class Name">
-                      <Input value={student.className} onChange={(event) => updateStudentRow(setStudents, index, "className", event.target.value)} placeholder="Form 1 East" />
+                      <Input
+                        value={student.className}
+                        onChange={(event) =>
+                          updateStudentRow(setStudents, index, "className", event.target.value)
+                        }
+                        placeholder="Form 1 East"
+                      />
                     </Field>
                     <Field label="Guardian Name">
-                      <Input value={student.guardianName} onChange={(event) => updateStudentRow(setStudents, index, "guardianName", event.target.value)} />
+                      <Input
+                        value={student.guardianName}
+                        onChange={(event) =>
+                          updateStudentRow(setStudents, index, "guardianName", event.target.value)
+                        }
+                      />
                     </Field>
                     <Field label="Guardian Email">
-                      <Input type="email" value={student.guardianEmail} onChange={(event) => updateStudentRow(setStudents, index, "guardianEmail", event.target.value)} />
+                      <Input
+                        type="email"
+                        value={student.guardianEmail}
+                        onChange={(event) =>
+                          updateStudentRow(setStudents, index, "guardianEmail", event.target.value)
+                        }
+                      />
                     </Field>
                     <Field label="Guardian Phone">
-                      <Input value={student.guardianPhone} onChange={(event) => updateStudentRow(setStudents, index, "guardianPhone", event.target.value)} />
+                      <Input
+                        value={student.guardianPhone}
+                        onChange={(event) =>
+                          updateStudentRow(setStudents, index, "guardianPhone", event.target.value)
+                        }
+                      />
                     </Field>
                   </div>
                 ))}
-                <Button type="button" variant="outline" onClick={() => setStudents((current) => [...current, createStudentRow()])}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStudents((current) => [...current, createStudentRow()])}
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Student
                 </Button>
@@ -1113,7 +1602,8 @@ export default function AdminSetupPage() {
             {activeStep.key === "modulesConfigured" ? (
               <div className="space-y-4">
                 <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                  Recommended modules are free during trial. Review the suggestions below, then continue to keep onboarding moving.
+                  Recommended modules are free during trial. Review the suggestions below, then
+                  continue to keep onboarding moving.
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
                   {recommendedModules.map((moduleRecord: any) => (
@@ -1137,22 +1627,58 @@ export default function AdminSetupPage() {
             {activeStep.key === "portalCustomized" ? (
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Brand Name">
-                  <Input value={branding.brandName} onChange={(event) => setBranding((current) => ({ ...current, brandName: event.target.value }))} placeholder={wizardContext.tenantName} />
+                  <Input
+                    value={branding.brandName}
+                    onChange={(event) =>
+                      setBranding((current) => ({ ...current, brandName: event.target.value }))
+                    }
+                    placeholder={wizardContext.tenantName}
+                  />
                 </Field>
                 <Field label="Logo URL">
-                  <Input value={branding.logoUrl} onChange={(event) => setBranding((current) => ({ ...current, logoUrl: event.target.value }))} placeholder="https://..." />
+                  <Input
+                    value={branding.logoUrl}
+                    onChange={(event) =>
+                      setBranding((current) => ({ ...current, logoUrl: event.target.value }))
+                    }
+                    placeholder="https://..."
+                  />
                 </Field>
                 <Field label="Primary Color">
-                  <Input value={branding.primaryColor} onChange={(event) => setBranding((current) => ({ ...current, primaryColor: event.target.value }))} placeholder="#0F3D2E" />
+                  <Input
+                    value={branding.primaryColor}
+                    onChange={(event) =>
+                      setBranding((current) => ({ ...current, primaryColor: event.target.value }))
+                    }
+                    placeholder="#0F3D2E"
+                  />
                 </Field>
                 <Field label="Secondary Color">
-                  <Input value={branding.secondaryColor} onChange={(event) => setBranding((current) => ({ ...current, secondaryColor: event.target.value }))} placeholder="#D1A23C" />
+                  <Input
+                    value={branding.secondaryColor}
+                    onChange={(event) =>
+                      setBranding((current) => ({ ...current, secondaryColor: event.target.value }))
+                    }
+                    placeholder="#D1A23C"
+                  />
                 </Field>
                 <Field label="Accent Color">
-                  <Input value={branding.accentColor} onChange={(event) => setBranding((current) => ({ ...current, accentColor: event.target.value }))} placeholder="#1F7A52" />
+                  <Input
+                    value={branding.accentColor}
+                    onChange={(event) =>
+                      setBranding((current) => ({ ...current, accentColor: event.target.value }))
+                    }
+                    placeholder="#1F7A52"
+                  />
                 </Field>
                 <Field label="Footer Text" className="md:col-span-2">
-                  <Textarea value={branding.footerText} onChange={(event) => setBranding((current) => ({ ...current, footerText: event.target.value }))} placeholder="Powered by EduMyles for Riverside Secondary School" />
+                  <Textarea
+                    value={branding.footerText}
+                    onChange={(event) =>
+                      setBranding((current) => ({ ...current, footerText: event.target.value }))
+                    }
+                    placeholder="Powered by EduMyles for Riverside Secondary School"
+                  />
                 </Field>
               </div>
             ) : null}
@@ -1160,21 +1686,31 @@ export default function AdminSetupPage() {
             {activeStep.key === "parentsInvited" ? (
               <div className="space-y-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
                 <p className="text-sm text-slate-700">
-                  Invite parents using the guardian contacts already captured from your student roster. EduMyles will create pending parent access and send activation links by email and SMS where available.
+                  Invite parents using the guardian contacts already captured from your student
+                  roster. EduMyles will create pending parent access and send activation links by
+                  email and SMS where available.
                 </p>
                 <div className="grid gap-3 md:grid-cols-3">
                   <div className="rounded-xl border bg-white p-4">
-                    <p className="text-xs uppercase tracking-wide text-slate-500">Guardian contacts</p>
-                    <p className="mt-2 text-2xl font-semibold text-slate-900">{wizardContext.setupData?.studentsAdded?.length ?? 0}</p>
+                    <p className="text-xs uppercase tracking-wide text-slate-500">
+                      Guardian contacts
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold text-slate-900">
+                      {wizardContext.setupData?.studentsAdded?.length ?? 0}
+                    </p>
                     <p className="mt-1 text-sm text-slate-500">students captured in onboarding</p>
                   </div>
                   <div className="rounded-xl border bg-white p-4">
                     <p className="text-xs uppercase tracking-wide text-slate-500">Delivery</p>
-                    <p className="mt-2 text-sm text-slate-700">Email + SMS are sent automatically when contact details are present.</p>
+                    <p className="mt-2 text-sm text-slate-700">
+                      Email + SMS are sent automatically when contact details are present.
+                    </p>
                   </div>
                   <div className="rounded-xl border bg-white p-4">
                     <p className="text-xs uppercase tracking-wide text-slate-500">Join route</p>
-                    <p className="mt-2 text-sm text-slate-700 font-medium">/join/{wizardContext.tenantSlug}</p>
+                    <p className="mt-2 text-sm text-slate-700 font-medium">
+                      /join/{wizardContext.tenantSlug}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1183,16 +1719,29 @@ export default function AdminSetupPage() {
             {activeStep.key === "firstAction" ? (
               <div className="space-y-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
                 <p className="text-sm text-slate-700">
-                  This final step now completes automatically after the first real attendance mark, invoice creation, or academic assignment in the live workspace.
+                  This final step now completes automatically after the first real attendance mark,
+                  invoice creation, or academic assignment in the live workspace.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <Button type="button" variant="outline" onClick={() => window.location.assign("/admin/academics")}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => window.location.assign("/admin/academics")}
+                  >
                     Post Assignment
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => window.location.assign("/admin/finance/invoices/create")}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => window.location.assign("/admin/finance/invoices/create")}
+                  >
                     Create Fee Invoice
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => window.location.assign("/portal/teacher/attendance")}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => window.location.assign("/portal/teacher/attendance")}
+                  >
                     Mark Attendance
                   </Button>
                 </div>
@@ -1201,11 +1750,19 @@ export default function AdminSetupPage() {
 
             <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" onClick={() => setActiveStepIndex((current) => Math.max(0, current - 1))} disabled={activeStepIndex === 0 || saving}>
+                <Button
+                  variant="outline"
+                  onClick={() => setActiveStepIndex((current) => Math.max(0, current - 1))}
+                  disabled={activeStepIndex === 0 || saving}
+                >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back
                 </Button>
-                <Button variant="ghost" onClick={() => window.location.assign("/admin")} disabled={saving}>
+                <Button
+                  variant="ghost"
+                  onClick={() => window.location.assign("/admin")}
+                  disabled={saving}
+                >
                   Save & Continue Later
                 </Button>
               </div>
@@ -1217,7 +1774,11 @@ export default function AdminSetupPage() {
                   </Button>
                 ) : null}
                 <Button onClick={handleSaveCurrentStep} disabled={saving}>
-                  {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
+                  {saving ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                  )}
                   Save & Continue
                 </Button>
               </div>

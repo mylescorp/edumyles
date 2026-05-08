@@ -3,10 +3,25 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { AUTH_STORAGE_STATE_PATH } from "./fixtures/auth.fixture";
 
+function buildUserCookie(sessionToken: string, role: string) {
+  const tenantId = role === "master_admin" ? "PLATFORM" : (process.env.E2E_TENANT_ID ?? "TENANT-733447");
+  return JSON.stringify({
+    email: process.env.E2E_ADMIN_EMAIL ?? "admin@edumyles.local",
+    firstName: "Platform",
+    lastName: "Admin",
+    role,
+    tenantId,
+    sessionToken,
+    activeTenantId: tenantId,
+    accessibleTenantIds: [tenantId],
+  });
+}
+
 function buildStorageState(sessionToken?: string, role?: string) {
   if (!sessionToken) {
     return { cookies: [], origins: [] };
   }
+  const resolvedRole = role ?? "school_admin";
 
   return {
     cookies: [
@@ -21,7 +36,16 @@ function buildStorageState(sessionToken?: string, role?: string) {
       },
       {
         name: "edumyles_role",
-        value: role ?? "school_admin",
+        value: resolvedRole,
+        domain: "localhost",
+        path: "/",
+        httpOnly: false,
+        secure: false,
+        sameSite: "Lax" as const,
+      },
+      {
+        name: "edumyles_user",
+        value: buildUserCookie(sessionToken, resolvedRole),
         domain: "localhost",
         path: "/",
         httpOnly: false,

@@ -2,6 +2,7 @@ import { internalMutation, mutation, query } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import { v } from "convex/values";
 import { requireTenantSession } from "../../helpers/tenantGuard";
+import { requirePermission, type Permission } from "../../helpers/authorize";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
 
@@ -140,6 +141,25 @@ const STEP_TITLES: Record<OnboardingStepName, string> = {
   parentsInvited: "Parents",
   firstAction: "First action",
 };
+
+const STEP_WRITE_PERMISSIONS: Record<OnboardingStepName, Permission> = {
+  schoolProfile: "settings:write",
+  academicYear: "settings:write",
+  gradingSystem: "settings:write",
+  subjects: "settings:write",
+  classes: "settings:write",
+  feeStructure: "finance:write",
+  staffAdded: "users:manage",
+  studentsAdded: "students:write",
+  modulesConfigured: "settings:write",
+  portalCustomized: "settings:write",
+  parentsInvited: "users:manage",
+  firstAction: "settings:write",
+};
+
+function requireOnboardingStepWrite(tenant: Awaited<ReturnType<typeof requireTenantSession>>, step: OnboardingStepName) {
+  requirePermission(tenant, STEP_WRITE_PERMISSIONS[step]);
+}
 
 const TRIAL_INTERVENTION_COPY: Record<
   (typeof TRIAL_INTERVENTION_TRIGGERS)[number]["trigger"],
@@ -1136,6 +1156,7 @@ export const saveSchoolProfileStep = mutation({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken, tenantId: args.tenantId });
+    requireOnboardingStepWrite(tenant, "schoolProfile");
     const tenantRecord = await ensureTenantRecord(ctx, tenant);
 
     const tenantProfile = tenantRecord as any;
@@ -1201,6 +1222,7 @@ export const saveAcademicYearStep = mutation({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken, tenantId: args.tenantId });
+    requireOnboardingStepWrite(tenant, "academicYear");
     const onboarding = await ensureOnboardingRecord(ctx, tenant.tenantId);
     const stepPayloads = normalizeStepPayloads(onboarding?.stepPayloads);
 
@@ -1241,6 +1263,7 @@ export const saveGradingSystemStep = mutation({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken, tenantId: args.tenantId });
+    requireOnboardingStepWrite(tenant, "gradingSystem");
     const onboarding = await ensureOnboardingRecord(ctx, tenant.tenantId);
     const stepPayloads = normalizeStepPayloads(onboarding?.stepPayloads);
 
@@ -1284,6 +1307,7 @@ export const saveSubjectsStep = mutation({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken, tenantId: args.tenantId });
+    requireOnboardingStepWrite(tenant, "subjects");
     const onboarding = await ensureOnboardingRecord(ctx, tenant.tenantId);
     const stepPayloads = normalizeStepPayloads(onboarding?.stepPayloads);
     const existingSubjects = await ctx.db
@@ -1346,6 +1370,7 @@ export const saveClassesStep = mutation({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken, tenantId: args.tenantId });
+    requireOnboardingStepWrite(tenant, "classes");
     const onboarding = await ensureOnboardingRecord(ctx, tenant.tenantId);
     const stepPayloads = normalizeStepPayloads(onboarding?.stepPayloads);
     const existingClasses = await ctx.db
@@ -1407,6 +1432,7 @@ export const saveFeeStructureStep = mutation({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken, tenantId: args.tenantId });
+    requireOnboardingStepWrite(tenant, "feeStructure");
     const onboarding = await ensureOnboardingRecord(ctx, tenant.tenantId);
     const stepPayloads = normalizeStepPayloads(onboarding?.stepPayloads);
     const existingFeeStructure = await ctx.db
@@ -1474,64 +1500,128 @@ export const saveStudentsStep = mutation({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken, tenantId: args.tenantId });
+    requireOnboardingStepWrite(tenant, "studentsAdded");
     const onboarding = await ensureOnboardingRecord(ctx, tenant.tenantId);
     const stepPayloads = normalizeStepPayloads(onboarding?.stepPayloads);
     const existingClasses = await ctx.db
       .query("classes")
       .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
       .collect();
+    const existingStudents: any[] = await ctx.db
+      .query("students")
+      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+      .collect();
+    const existingGuardians: any[] = await ctx.db
+      .query("guardians")
+      .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenant.tenantId))
+      .collect();
 
-    let createdCount = 0;
+    const savedStudents: StepPayloadMap["studentsAdded"] = [];
+    let savedCount = 0;
     for (const student of args.students) {
       const admissionNumber =
         student.admissionNumber?.trim() ||
+        existingStudents.find(
+          (entry: any) =>
+            entry.firstName.trim().toLowerCase() === student.firstName.trim().toLowerCase() &&
+            entry.lastName.trim().toLowerCase() === student.lastName.trim().toLowerCase() &&
+            entry.dateOfBirth === student.dateOfBirth
+        )?.admissionNumber ||
         `ADM-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
       const classRecord = student.className
         ? existingClasses.find((item: any) => item.name === student.className)
         : null;
-      const studentId = await ctx.db.insert("students", {
-        tenantId: tenant.tenantId,
+      const existingStudent = existingStudents.find(
+        (entry: any) => entry.admissionNumber.trim().toLowerCase() === admissionNumber.trim().toLowerCase()
+      );
+      const now = Date.now();
+      const studentPatch = {
         admissionNumber,
         firstName: student.firstName.trim(),
         lastName: student.lastName.trim(),
         dateOfBirth: student.dateOfBirth,
         gender: student.gender,
-        classId: classRecord?._id,
+        classId: classRecord?._id ? String(classRecord._id) : undefined,
         status: "active",
-        guardianUserId: undefined,
-        photoUrl: undefined,
-        enrolledAt: Date.now(),
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      });
-
-      if (student.guardianName || student.guardianEmail || student.guardianPhone) {
-        await ctx.db.insert("guardians", {
+        updatedAt: now,
+      };
+      const studentId = existingStudent
+        ? await (async () => {
+            await ctx.db.patch(existingStudent._id, studentPatch);
+            return existingStudent._id;
+          })()
+        : await ctx.db.insert("students", {
+            tenantId: tenant.tenantId,
+            ...studentPatch,
+            guardianUserId: undefined,
+            photoUrl: undefined,
+            enrolledAt: now,
+            createdAt: now,
+          });
+      if (!existingStudent) {
+        existingStudents.push({
+          _id: studentId,
+          _creationTime: now,
           tenantId: tenant.tenantId,
-          firstName: student.guardianName?.split(" ")[0] || "Parent",
-          lastName: student.guardianName?.split(" ").slice(1).join(" ") || "",
-          email: student.guardianEmail || "",
-          phone: student.guardianPhone || "",
-          relationship: "parent",
-          studentIds: [String(studentId)],
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
+          ...studentPatch,
+          enrolledAt: now,
+          createdAt: now,
         });
       }
-      createdCount += 1;
+
+      if (student.guardianName || student.guardianEmail || student.guardianPhone) {
+        const guardianEmail = student.guardianEmail?.trim().toLowerCase() || "";
+        const guardianPhone = student.guardianPhone?.trim() || "";
+        const existingGuardian = existingGuardians.find((guardian: any) => {
+          if (guardianEmail && guardian.email.toLowerCase() === guardianEmail) return true;
+          if (guardianPhone && guardian.phone === guardianPhone) return true;
+          return false;
+        });
+        const nextStudentIds = Array.from(
+          new Set([...(existingGuardian?.studentIds ?? []), String(studentId)])
+        );
+        const guardianPatch = {
+          firstName: student.guardianName?.split(" ")[0] || "Parent",
+          lastName: student.guardianName?.split(" ").slice(1).join(" ") || "",
+          email: guardianEmail,
+          phone: guardianPhone,
+          relationship: "parent",
+          studentIds: nextStudentIds,
+          updatedAt: now,
+        };
+
+        if (existingGuardian) {
+          await ctx.db.patch(existingGuardian._id, guardianPatch);
+        } else {
+          const guardianId = await ctx.db.insert("guardians", {
+            tenantId: tenant.tenantId,
+            ...guardianPatch,
+            createdAt: now,
+          });
+          existingGuardians.push({
+            _id: guardianId,
+            _creationTime: now,
+            tenantId: tenant.tenantId,
+            ...guardianPatch,
+            createdAt: now,
+          });
+        }
+      }
+      savedStudents.push({
+        admissionNumber,
+        firstName: student.firstName.trim(),
+        lastName: student.lastName.trim(),
+        dateOfBirth: student.dateOfBirth,
+        gender: student.gender,
+        className: student.className?.trim(),
+        guardianName: student.guardianName?.trim(),
+        guardianEmail: student.guardianEmail?.trim(),
+        guardianPhone: student.guardianPhone?.trim(),
+      });
+      savedCount += 1;
     }
 
-    stepPayloads.studentsAdded = args.students.map((student) => ({
-      admissionNumber: student.admissionNumber?.trim(),
-      firstName: student.firstName.trim(),
-      lastName: student.lastName.trim(),
-      dateOfBirth: student.dateOfBirth,
-      gender: student.gender,
-      className: student.className?.trim(),
-      guardianName: student.guardianName?.trim(),
-      guardianEmail: student.guardianEmail?.trim(),
-      guardianPhone: student.guardianPhone?.trim(),
-    }));
+    stepPayloads.studentsAdded = savedStudents;
 
     await ctx.db.patch(onboarding._id, {
       stepPayloads,
@@ -1539,7 +1629,7 @@ export const saveStudentsStep = mutation({
       updatedAt: Date.now(),
     });
 
-    return { success: true, count: createdCount };
+    return { success: true, count: savedCount };
   },
 });
 
@@ -1556,6 +1646,7 @@ export const savePortalCustomizationStep = mutation({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken, tenantId: args.tenantId });
+    requireOnboardingStepWrite(tenant, "portalCustomized");
     const onboarding = await ensureOnboardingRecord(ctx, tenant.tenantId);
     const stepPayloads = normalizeStepPayloads(onboarding?.stepPayloads);
     const existingConfig = await ctx.db
@@ -1634,6 +1725,7 @@ export const sendParentInvitesStep = mutation({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken, tenantId: args.tenantId });
+    requireOnboardingStepWrite(tenant, "parentsInvited");
     const onboarding = await ensureOnboardingRecord(ctx, tenant.tenantId);
     const now = Date.now();
     const doSms = args.sendSms ?? true;
@@ -1831,6 +1923,7 @@ export const updateOnboardingStep = mutation({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken, tenantId: args.tenantId });
+    requireOnboardingStepWrite(tenant, args.step);
     const now = Date.now();
     const existing = await ctx.db
       .query("tenant_onboarding")
@@ -1931,6 +2024,7 @@ export const skipOnboardingStep = mutation({
   },
   handler: async (ctx, args) => {
     const tenant = await requireTenantSession(ctx, { sessionToken: args.sessionToken, tenantId: args.tenantId });
+    requireOnboardingStepWrite(tenant, args.step);
     const now = Date.now();
     const existing = await ctx.db
       .query("tenant_onboarding")

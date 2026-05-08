@@ -1,12 +1,13 @@
-
-> landing@1.0.0 dev
-> next dev --port 3001
-
 ▲ Next.js 16.2.2 (Turbopack)
 - Local:         http://localhost:3001
-- Network:       http://10.90.97.247:3001
-✓ Ready in 1472ms
+- Network:       http://10.79.169.247:3001
+✓ Ready in 1824ms
 
-○ Compiling / ...
- HEAD / 200 in 9.1s (next.js: 7.8s, application-code: 1272ms)
- HEAD / 200 in 804ms (next.js: 23ms, application-code: 782ms)
+ HEAD / 200 in 5.1s (next.js: 921ms, application-code: 4.2s)
+ HEAD / 200 in 759ms (next.js: 13ms, application-code: 746ms)
+ GET / 200 in 778ms (next.js: 14ms, application-code: 765ms)
+ GET /book-demo?cta=navbar_book_demo&cta_label=Book+Demo&origin=%2F 200 in 180ms (next.js: 98ms, application-code: 82ms)
+ POST /api/demo-request 200 in 6.5s (next.js: 297ms, application-code: 6.2s)
+ GET /book-demo 200 in 276ms (next.js: 8ms, application-code: 268ms)
+ GET /book-demo?firstName=Jane&lastName=Demo&email=jane%40school.ac.ke&phone=%2B254700000000&schoolName=Nairobi+Green+Academy&jobTitle=Principal&schoolType=primary&preferredDemoDate=&country=Kenya&county=&studentCount=&currentSystem=&needs= 200 in 205ms (next.js: 8ms, application-code: 197ms)
+[?25h

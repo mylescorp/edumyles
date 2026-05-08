@@ -38,6 +38,10 @@ function loadCalEmbedScript() {
     const existing = document.querySelector<HTMLScriptElement>(`script[src="${scriptSrc}"]`);
 
     if (existing) {
+      if (window.Cal?.loaded) {
+        resolve();
+        return;
+      }
       existing.addEventListener("load", () => resolve(), { once: true });
       existing.addEventListener("error", () => reject(new Error("Calendar embed failed to load")), {
         once: true,
@@ -49,17 +53,8 @@ function loadCalEmbedScript() {
       window.Cal ??
       (function calQueue(...args: unknown[]) {
         const cal = window.Cal as CalApi;
-        if (!cal.loaded) {
-          cal.ns = cal.ns ?? {};
-          cal.q = cal.q ?? [];
-          const script = document.createElement("script");
-          script.src = scriptSrc;
-          script.async = true;
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error("Calendar embed failed to load"));
-          document.head.appendChild(script);
-          cal.loaded = true;
-        }
+        cal.ns = cal.ns ?? {};
+        cal.q = cal.q ?? [];
         if (args[0] === "init") {
           const namespace = args[1];
           const api: CalApi = function namespaceQueue(...namespaceArgs: unknown[]) {
@@ -81,6 +76,13 @@ function loadCalEmbedScript() {
       } as CalApi);
 
     window.Cal = Cal;
+    const script = document.createElement("script");
+    script.src = scriptSrc;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Calendar embed failed to load"));
+    document.head.appendChild(script);
+    Cal.loaded = true;
   });
 }
 
@@ -142,6 +144,11 @@ export default function CalDemoEmbed({
             if (!cancelled) setStatus("ready");
           },
         });
+        window.setTimeout(() => {
+          if (!cancelled && containerRef.current?.querySelector("iframe")) {
+            setStatus((current) => (current === "loading" ? "ready" : current));
+          }
+        }, 2500);
         scopedCal("on", {
           action: "bookingSuccessfulV2",
           callback: (event: CustomEvent) => {
@@ -235,6 +242,7 @@ export default function CalDemoEmbed({
         </div>
       ) : null}
 
+      {status !== "error" ? (
       <div className="relative border-t border-[#edf4ef] bg-white">
         {status === "loading" ? (
           <div className="absolute inset-x-0 top-0 z-10 flex min-h-[320px] items-center justify-center bg-white/85 px-6 text-center backdrop-blur-sm">
@@ -255,6 +263,7 @@ export default function CalDemoEmbed({
           aria-busy={status === "loading"}
         />
       </div>
+      ) : null}
     </div>
   );
 }

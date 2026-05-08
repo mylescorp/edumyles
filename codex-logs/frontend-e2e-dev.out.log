@@ -1,0 +1,41 @@
+
+> frontend@0.1.0 dev
+> next dev --port 3005
+
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3005
+- Network:       http://10.79.169.247:3005
+- Environments: .env.local
+✓ Ready in 1410ms
+- Experiments (use with caution):
+  · clientTraceMetadata
+  · optimizePackageImports
+  · serverActions
+
+ GET /platform/users 200 in 7.8s (next.js: 1414ms, proxy.ts: 3.3s, application-code: 3.0s)
+ GET /api/auth/session?workspace=platform 200 in 571ms (next.js: 451ms, application-code: 120ms)
+ GET /api/auth/session?workspace=platform 200 in 64ms (next.js: 48ms, application-code: 16ms)
+ GET /api/auth/session?workspace=platform 200 in 29ms (next.js: 16ms, application-code: 13ms)
+ GET /platform/impersonation 200 in 16.8s (next.js: 72ms, proxy.ts: 16.5s, application-code: 166ms)
+ GET /api/auth/session?workspace=platform 200 in 21ms (next.js: 7ms, application-code: 13ms)
+ GET /api/auth/session?workspace=platform 200 in 16ms (next.js: 6ms, application-code: 11ms)
+ GET /platform/users 200 in 1385ms (next.js: 7ms, proxy.ts: 1238ms, application-code: 140ms)
+ GET /api/auth/session?workspace=platform 200 in 12ms (next.js: 4ms, application-code: 7ms)
+ GET /api/auth/session?workspace=platform 200 in 11ms (next.js: 4ms, application-code: 7ms)
+ GET /api/auth/session?workspace=platform 200 in 16ms (next.js: 5ms, application-code: 11ms)
+ GET /platform/operations 200 in 2.5s (next.js: 105ms, proxy.ts: 2.2s, application-code: 263ms)
+ GET /api/auth/session?workspace=platform 200 in 14ms (next.js: 4ms, application-code: 10ms)
+ GET /api/auth/session?workspace=platform 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /platform/security 200 in 2.2s (next.js: 65ms, proxy.ts: 1971ms, application-code: 186ms)
+ GET /api/auth/session?workspace=platform 200 in 14ms (next.js: 5ms, application-code: 8ms)
+ GET /api/auth/session?workspace=platform 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ GET /admin 200 in 2.3s (next.js: 342ms, proxy.ts: 1376ms, application-code: 547ms)
+ GET /platform/security 200 in 2.6s (next.js: 11ms, proxy.ts: 2.4s, application-code: 199ms)
+ GET /platform/impersonation 200 in 4.3s (next.js: 15ms, proxy.ts: 2.7s, application-code: 1574ms)
+ GET /platform/operations 200 in 4.3s (next.js: 195ms, proxy.ts: 2.7s, application-code: 1418ms)
+ GET /platform/users 200 in 4.8s (next.js: 268ms, proxy.ts: 3.0s, application-code: 1516ms)
+ GET /admin?error=unauthorized 200 in 7.1s (next.js: 196ms, proxy.ts: 1621ms, application-code: 5.3s)
+ GET /api/auth/session?workspace=platform 200 in 106ms (next.js: 45ms, application-code: 61ms)
+ GET /api/auth/session?workspace=platform 200 in 58ms (next.js: 14ms, application-code: 44ms)
+✓ Compiled in 7.5s
+✓ Compiled in 614ms

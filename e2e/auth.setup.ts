@@ -11,8 +11,25 @@ import { AUTH_STORAGE_STATE_PATH } from "./fixtures/auth.fixture";
 
 const authFile = AUTH_STORAGE_STATE_PATH;
 
+function buildUserCookie(token: string, role: string) {
+  return JSON.stringify({
+    email: process.env.E2E_ADMIN_EMAIL ?? "admin@edumyles.local",
+    firstName: "Platform",
+    lastName: "Admin",
+    role,
+    tenantId: role === "master_admin" ? "PLATFORM" : (process.env.E2E_TENANT_ID ?? "TENANT-733447"),
+    sessionToken: token,
+    activeTenantId:
+      role === "master_admin" ? "PLATFORM" : (process.env.E2E_TENANT_ID ?? "TENANT-733447"),
+    accessibleTenantIds: [
+      role === "master_admin" ? "PLATFORM" : (process.env.E2E_TENANT_ID ?? "TENANT-733447"),
+    ],
+  });
+}
+
 setup("authenticate as school admin", async ({ page }) => {
   const token = process.env.E2E_SESSION_TOKEN;
+  const role = process.env.E2E_ROLE ?? "school_admin";
 
   if (!token) {
     // No token provided — write an empty storage state so tests can still
@@ -36,7 +53,16 @@ setup("authenticate as school admin", async ({ page }) => {
     },
     {
       name: "edumyles_role",
-      value: process.env.E2E_ROLE ?? "school_admin",
+      value: role,
+      domain: "localhost",
+      path: "/",
+      httpOnly: false,
+      secure: false,
+      sameSite: "Lax",
+    },
+    {
+      name: "edumyles_user",
+      value: buildUserCookie(token, role),
       domain: "localhost",
       path: "/",
       httpOnly: false,

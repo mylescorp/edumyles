@@ -41,6 +41,13 @@ type AuthStoreState = {
 };
 
 const AUTH_CACHE_KEY = "edumyles_auth_session";
+const CLIENT_AUTH_COOKIE_NAMES = [
+  "edumyles_user",
+  "edumyles_role",
+  "edumyles_admin_tenant",
+  "edumyles_admin_workspace_mode",
+  "edumyles_dev_bootstrap",
+];
 
 const authListeners = new Set<(state: AuthStoreState) => void>();
 let authState: AuthStoreState = {
@@ -109,6 +116,20 @@ function writeStoredSession(session: Session | null) {
   }
 }
 
+function clearClientCookie(name: string) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${name}=; Path=/; Max-Age=0; SameSite=Lax`;
+}
+
+function clearClientAuthCache() {
+  if (typeof window === "undefined") return;
+
+  writeStoredSession(null);
+  for (const cookieName of CLIENT_AUTH_COOKIE_NAMES) {
+    clearClientCookie(cookieName);
+  }
+}
+
 function buildFallbackSessionFromCookies(): Session | null {
   const userCookie = readCookie("edumyles_user");
   const roleCookie = normalizeRole(readCookie("edumyles_role"));
@@ -135,24 +156,19 @@ function buildFallbackSessionFromCookies(): Session | null {
     return {
       sessionToken:
         user.sessionToken ||
-        (storedSession?.email === user.email
-          ? storedSession.sessionToken
-          : ""),
-      tenantId:
-        storedSession?.email === user.email
-          ? storedSession.tenantId || tenantId
-          : tenantId,
+        (storedSession?.email === user.email ? storedSession.sessionToken : ""),
+      tenantId: storedSession?.email === user.email ? storedSession.tenantId || tenantId : tenantId,
       activeTenantId:
         storedSession?.email === user.email
           ? storedSession.activeTenantId || storedSession.tenantId || tenantId
           : tenantId,
-      networkId:
-        storedSession?.email === user.email ? storedSession.networkId ?? null : null,
-      identityId:
-        storedSession?.email === user.email ? storedSession.identityId ?? null : null,
+      networkId: storedSession?.email === user.email ? (storedSession.networkId ?? null) : null,
+      identityId: storedSession?.email === user.email ? (storedSession.identityId ?? null) : null,
       accessibleTenantIds:
         storedSession?.email === user.email
-          ? storedSession.accessibleTenantIds ?? [storedSession.activeTenantId || storedSession.tenantId || tenantId]
+          ? (storedSession.accessibleTenantIds ?? [
+              storedSession.activeTenantId || storedSession.tenantId || tenantId,
+            ])
           : [tenantId],
       userId: user.email,
       email: user.email,
@@ -235,11 +251,16 @@ async function loadAuthSession(force = false) {
         ? {
             ...nextSession,
             tenantId: adminWorkspaceTenantId || nextSession.tenantId,
-            activeTenantId: adminWorkspaceTenantId || nextSession.activeTenantId || nextSession.tenantId,
+            activeTenantId:
+              adminWorkspaceTenantId || nextSession.activeTenantId || nextSession.tenantId,
           }
-        : buildFallbackSessionFromCookies();
+        : null;
 
-      writeStoredSession(resolvedSession);
+      if (resolvedSession) {
+        writeStoredSession(resolvedSession);
+      } else {
+        clearClientAuthCache();
+      }
 
       setAuthState({
         session: resolvedSession,
@@ -315,9 +336,8 @@ export function useAuth() {
   );
 
   const logout = useCallback(async () => {
-    writeStoredSession(null);
+    clearClientAuthCache();
     setAuthState({ session: null, isLoading: false });
-    localStorage.clear();
     sessionStorage.clear();
 
     try {
@@ -330,7 +350,9 @@ export function useAuth() {
     }
 
     const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL;
-    window.location.replace(landingUrl && landingUrl.startsWith("http") ? landingUrl : "/auth/login");
+    window.location.replace(
+      landingUrl && landingUrl.startsWith("http") ? landingUrl : "/auth/login"
+    );
   }, []);
 
   const buildUserObject = () => {
@@ -428,11 +450,11 @@ export function useAuth() {
     role: session?.role ?? null,
     tenantId: session?.activeTenantId ?? session?.tenantId ?? null,
     baseTenantId: session?.tenantId ?? null,
-      activeTenantId: session?.activeTenantId ?? session?.tenantId ?? null,
-      networkId: session?.networkId ?? null,
-      identityId: session?.identityId ?? null,
-      accessibleTenantIds: session?.accessibleTenantIds ?? (session ? [session.tenantId] : []),
-      logout,
+    activeTenantId: session?.activeTenantId ?? session?.tenantId ?? null,
+    networkId: session?.networkId ?? null,
+    identityId: session?.identityId ?? null,
+    accessibleTenantIds: session?.accessibleTenantIds ?? (session ? [session.tenantId] : []),
+    logout,
     sessionToken: session?.sessionToken ?? null,
     platformProfile,
     tenantProfile,

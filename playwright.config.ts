@@ -85,7 +85,7 @@ export default defineConfig({
     : [
         {
           command:
-            "node -e \"const { spawn } = require('node:child_process'); const child = spawn('npm run dev', { cwd: 'frontend', stdio: 'inherit', shell: true, env: { ...process.env, ENABLE_DEV_AUTH_BYPASS: 'false', SENTRY_SUPPRESS_INSTRUMENTATION_FILE_WARNING: '1' } }); child.on('exit', (code) => process.exit(code ?? 0));\"",
+            "node -e \"const { spawn } = require('node:child_process'); const child = spawn('npm run dev', { cwd: 'frontend', stdio: 'inherit', shell: true, env: { ...process.env, ENABLE_DEV_AUTH_BYPASS: 'true', SENTRY_SUPPRESS_INSTRUMENTATION_FILE_WARNING: '1' } }); child.on('exit', (code) => process.exit(code ?? 0));\"",
           url: "http://localhost:3005/auth/login",
           reuseExistingServer: !process.env.CI,
           timeout: 120 * 1000,

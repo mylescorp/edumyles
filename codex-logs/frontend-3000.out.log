@@ -1,12 +1,491 @@
 ▲ Next.js 16.2.2 (Turbopack)
 - Local:         http://localhost:3000
-- Network:       http://10.90.97.247:3000
+- Network:       http://10.79.169.247:3000
 - Environments: .env.local
-✓ Ready in 1015ms
+✓ Ready in 1743ms
 - Experiments (use with caution):
   · clientTraceMetadata
   · optimizePackageImports
   · serverActions
 
- HEAD /auth/login 200 in 3.1s (next.js: 1652ms, application-code: 1426ms)
- GET /auth/error?reason=not_configured 200 in 918ms (next.js: 532ms, application-code: 386ms)
+ HEAD /auth/login 200 in 5.4s (next.js: 1854ms, application-code: 3.6s)
+ HEAD /auth/login 200 in 5.4s (next.js: 2.4s, application-code: 3.0s)
+ GET /platform 200 in 2.8s (next.js: 344ms, proxy.ts: 1111ms, application-code: 1357ms)
+✓ Compiled in 1066ms
+ GET /platform 200 in 3.3s (next.js: 225ms, proxy.ts: 2.2s, application-code: 894ms)
+✓ Compiled in 3.1s
+ GET /platform 200 in 10.1s (next.js: 227ms, proxy.ts: 8.3s, application-code: 1563ms)
+ GET /platform 200 in 8.1s (next.js: 12ms, proxy.ts: 7.9s, application-code: 148ms)
+ GET /platform 200 in 3.7s (next.js: 7ms, proxy.ts: 3.6s, application-code: 92ms)
+ GET /platform 200 in 11.5s (next.js: 14ms, proxy.ts: 11.3s, application-code: 165ms)
+ GET /platform 200 in 7.0s (next.js: 83ms, proxy.ts: 6.8s, application-code: 94ms)
+ GET /platform 200 in 6.5s (next.js: 17ms, proxy.ts: 5.3s, application-code: 1203ms)
+ GET /platform 200 in 10.1s (next.js: 81ms, proxy.ts: 8.9s, application-code: 1135ms)
+ GET /auth/login 200 in 1102ms (next.js: 153ms, application-code: 949ms)
+ GET /platform 200 in 10.7s (next.js: 207ms, proxy.ts: 10.3s, application-code: 175ms)
+ GET /platform 200 in 3.9s (next.js: 18ms, proxy.ts: 3.5s, application-code: 372ms)
+ GET /platform 200 in 3.9s (next.js: 77ms, proxy.ts: 3.5s, application-code: 316ms)
+ GET /platform 200 in 47s (next.js: 27ms, proxy.ts: 46s, application-code: 570ms)
+ GET /platform 200 in 36.4s (next.js: 153ms, proxy.ts: 35.8s, application-code: 440ms)
+ GET /platform 200 in 36.5s (next.js: 95ms, proxy.ts: 35.9s, application-code: 503ms)
+ GET /platform 200 in 36.5s (next.js: 286ms, proxy.ts: 35.9s, application-code: 330ms)
+ GET /platform 200 in 36.4s (next.js: 467ms, proxy.ts: 35.8s, application-code: 133ms)
+ GET /platform 200 in 36.4s (next.js: 370ms, proxy.ts: 35.8s, application-code: 235ms)
+ GET /api/auth/session?workspace=admin 200 in 16.1s (next.js: 206ms, application-code: 15.9s)
+ GET /platform 200 in 15.8s (next.js: 21ms, proxy.ts: 15.6s, application-code: 204ms)
+ GET /platform 200 in 16.9s (next.js: 13ms, proxy.ts: 16.5s, application-code: 347ms)
+ GET /platform 200 in 16.9s (next.js: 223ms, proxy.ts: 16.6s, application-code: 142ms)
+ GET /platform 200 in 20.3s (next.js: 17ms, proxy.ts: 20.0s, application-code: 320ms)
+ GET /platform 200 in 20.3s (next.js: 228ms, proxy.ts: 20.0s, application-code: 105ms)
+ GET /platform 200 in 3.4s (next.js: 80ms, proxy.ts: 3.0s, application-code: 260ms)
+ GET /platform 200 in 22.8s (next.js: 13ms, proxy.ts: 22.7s, application-code: 87ms)
+○ Compiling /admin/setup ...
+ GET /platform 200 in 7.5s (next.js: 106ms, proxy.ts: 7.0s, application-code: 453ms)
+ GET /platform 200 in 10.9s (next.js: 207ms, proxy.ts: 10.3s, application-code: 375ms)
+ GET /platform 200 in 12.0s (next.js: 347ms, proxy.ts: 11.5s, application-code: 233ms)
+ GET /platform 200 in 8.6s (next.js: 85ms, proxy.ts: 7.5s, application-code: 1085ms)
+ GET /admin/setup 200 in 17.4s (next.js: 5.5s, proxy.ts: 10.6s, application-code: 1242ms)
+ GET /platform 200 in 7.8s (next.js: 18ms, proxy.ts: 7.5s, application-code: 264ms)
+ GET /platform 200 in 10.3s (next.js: 133ms, proxy.ts: 10.0s, application-code: 156ms)
+ GET /platform 200 in 6.1s (next.js: 36ms, proxy.ts: 5.5s, application-code: 517ms)
+ GET /platform 200 in 6.6s (next.js: 124ms, proxy.ts: 6.0s, application-code: 428ms)
+ GET /platform 200 in 6.6s (next.js: 230ms, proxy.ts: 6.0s, application-code: 321ms)
+ GET /platform 200 in 6.6s (next.js: 320ms, proxy.ts: 6.1s, application-code: 227ms)
+ GET /dashboard 200 in 7.4s (next.js: 2.6s, proxy.ts: 4.6s, application-code: 176ms)
+ GET /api/auth/session 200 in 19ms (next.js: 5ms, application-code: 14ms)
+ GET /platform 200 in 7.4s (next.js: 45ms, proxy.ts: 6.5s, application-code: 853ms)
+ GET /platform 200 in 11.9s (next.js: 143ms, proxy.ts: 11.0s, application-code: 753ms)
+ GET /platform 200 in 7.4s (next.js: 585ms, proxy.ts: 6.5s, application-code: 301ms)
+ GET /platform 200 in 7.4s (next.js: 364ms, proxy.ts: 6.5s, application-code: 531ms)
+ GET /platform 200 in 11.9s (next.js: 673ms, proxy.ts: 11.0s, application-code: 213ms)
+ GET /platform 200 in 7.4s (next.js: 223ms, proxy.ts: 6.5s, application-code: 684ms)
+ GET /platform 200 in 2.7s (next.js: 15ms, proxy.ts: 2.6s, application-code: 107ms)
+ GET /platform 200 in 7.0s (next.js: 10ms, proxy.ts: 6.8s, application-code: 139ms)
+ GET /api/auth/session?workspace=admin 200 in 618ms (next.js: 5ms, application-code: 613ms)
+ GET /dashboard 200 in 8.4s (next.js: 19ms, proxy.ts: 8.3s, application-code: 66ms)
+ GET /api/auth/session 200 in 17ms (next.js: 5ms, application-code: 12ms)
+ GET /platform 200 in 5.2s (next.js: 8ms, proxy.ts: 4.5s, application-code: 677ms)
+ GET /dashboard 200 in 7.3s (next.js: 273ms, proxy.ts: 6.9s, application-code: 145ms)
+ GET /admin/setup 200 in 15.5s (next.js: 26ms, proxy.ts: 14.1s, application-code: 1385ms)
+ GET /dashboard 200 in 6.9s (next.js: 235ms, proxy.ts: 6.4s, application-code: 286ms)
+ GET /dashboard 200 in 5.6s (next.js: 62ms, proxy.ts: 4.9s, application-code: 700ms)
+ GET /api/auth/session 200 in 29ms (next.js: 13ms, application-code: 16ms)
+ GET /api/auth/session 200 in 22ms (next.js: 10ms, application-code: 12ms)
+ GET /platform 200 in 2.7s (next.js: 10ms, proxy.ts: 2.1s, application-code: 605ms)
+ GET /platform 200 in 5.7s (next.js: 15ms, proxy.ts: 5.2s, application-code: 435ms)
+ GET /platform 200 in 5.9s (next.js: 8ms, proxy.ts: 5.2s, application-code: 610ms)
+ GET /dashboard 200 in 1693ms (next.js: 13ms, proxy.ts: 1582ms, application-code: 99ms)
+ GET /dashboard 200 in 4.8s (next.js: 11ms, proxy.ts: 4.7s, application-code: 121ms)
+ GET /api/auth/session 200 in 29ms (next.js: 6ms, application-code: 23ms)
+ GET /platform 200 in 5.0s (next.js: 20ms, proxy.ts: 4.2s, application-code: 699ms)
+ GET /platform 200 in 4.8s (next.js: 38ms, proxy.ts: 4.2s, application-code: 607ms)
+✓ Compiled in 2.2s
+ GET /dashboard 200 in 3.0s (next.js: 10ms, proxy.ts: 2.9s, application-code: 93ms)
+ GET /dashboard 200 in 2.5s (next.js: 115ms, proxy.ts: 2.3s, application-code: 113ms)
+ GET /dashboard 200 in 4.3s (next.js: 16ms, proxy.ts: 4.1s, application-code: 223ms)
+ GET /dashboard 200 in 1406ms (next.js: 10ms, proxy.ts: 1272ms, application-code: 124ms)
+ GET /api/auth/session 200 in 23ms (next.js: 7ms, application-code: 16ms)
+ GET /platform 200 in 6.2s (next.js: 470ms, proxy.ts: 3.5s, application-code: 2.2s)
+ GET /platform 200 in 3.4s (next.js: 16ms, proxy.ts: 2.5s, application-code: 847ms)
+[api/auth/session] Convex unavailable, trying fallback: Error [ConvexError]: [Request ID: eb9aaae806ea269c] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:90:14)
+    at async GET (src\app\api\auth\session\route.ts:735:25)
+  88 |   if (serverSecret) {
+  89 |     try {
+> 90 |       return await convex.query(getSessionRef, {
+     |              ^
+  91 |         sessionToken,
+  92 |         serverSecret,
+  93 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+ GET /api/auth/session?workspace=platform 200 in 1546ms (next.js: 5ms, application-code: 1540ms)
+ GET /platform 200 in 12.5s (next.js: 176ms, proxy.ts: 7.5s, application-code: 4.8s)
+ GET /admin 200 in 10.6s (next.js: 581ms, proxy.ts: 7.0s, application-code: 3.0s)
+ GET /api/auth/session?workspace=admin 200 in 365ms (next.js: 7ms, application-code: 358ms)
+ GET /admin/setup 200 in 8.4s (next.js: 338ms, proxy.ts: 7.9s, application-code: 178ms)
+ GET /admin/setup 200 in 3.3s (next.js: 11ms, proxy.ts: 3.2s, application-code: 108ms)
+ GET /api/auth/session?workspace=admin 200 in 785ms (next.js: 6ms, application-code: 779ms)
+○ Compiling /admin/setup/complete ...
+ GET /admin/setup/complete 200 in 36.1s (next.js: 26.9s, proxy.ts: 4.7s, application-code: 4.5s)
+ GET /api/auth/session?workspace=admin 200 in 585ms (next.js: 11ms, application-code: 574ms)
+ GET /admin/setup 200 in 3.9s (next.js: 12ms, proxy.ts: 2.8s, application-code: 1088ms)
+ GET /api/auth/session?workspace=admin 200 in 374ms (next.js: 10ms, application-code: 364ms)
+ GET /api/auth/session?workspace=admin 200 in 476ms (next.js: 7ms, application-code: 469ms)
+ GET /admin/setup 200 in 5.2s (next.js: 10ms, proxy.ts: 3.5s, application-code: 1642ms)
+ GET /api/auth/session?workspace=admin 200 in 405ms (next.js: 8ms, application-code: 398ms)
+ GET /api/auth/session?workspace=admin 200 in 630ms (next.js: 6ms, application-code: 624ms)
+ GET /admin/setup 200 in 2.8s (next.js: 13ms, proxy.ts: 1658ms, application-code: 1080ms)
+ GET /api/auth/session?workspace=admin 200 in 378ms (next.js: 7ms, application-code: 371ms)
+ GET /api/auth/session?workspace=admin 200 in 422ms (next.js: 6ms, application-code: 415ms)
+ GET /auth/login 200 in 550ms (next.js: 17ms, application-code: 533ms)
+ GET /platform 200 in 2.4s (next.js: 56ms, proxy.ts: 1021ms, application-code: 1344ms)
+ GET /api/auth/session?workspace=platform 200 in 17ms (next.js: 6ms, application-code: 11ms)
+ GET /api/auth/session?workspace=platform 200 in 19ms (next.js: 9ms, application-code: 9ms)
+ GET /api/auth/session?workspace=admin 200 in 570ms (next.js: 5ms, application-code: 565ms)
+ GET /admin/setup 200 in 3.3s (next.js: 383ms, proxy.ts: 872ms, application-code: 2.0s)
+ GET /api/auth/session?workspace=admin 200 in 374ms (next.js: 5ms, application-code: 369ms)
+ GET /api/auth/session?workspace=admin 200 in 427ms (next.js: 5ms, application-code: 422ms)
+ GET /admin/setup/complete 200 in 2.9s (next.js: 14ms, proxy.ts: 2.3s, application-code: 636ms)
+ GET /api/auth/session?workspace=admin 200 in 591ms (next.js: 6ms, application-code: 584ms)
+ GET /admin/setup/complete 200 in 2.3s (next.js: 9ms, proxy.ts: 1313ms, application-code: 980ms)
+ GET /platform 200 in 2.6s (next.js: 19ms, proxy.ts: 1341ms, application-code: 1220ms)
+ GET /api/auth/session?workspace=admin 200 in 363ms (next.js: 6ms, application-code: 357ms)
+ GET /dashboard 200 in 552ms (next.js: 11ms, proxy.ts: 389ms, application-code: 152ms)
+ GET /api/auth/session?workspace=admin 200 in 365ms (next.js: 5ms, application-code: 360ms)
+[api/auth/session] Convex unavailable, trying fallback: Error [ConvexError]: [Request ID: bee06bd33aef5615] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:90:14)
+    at async GET (src\app\api\auth\session\route.ts:735:25)
+  88 |   if (serverSecret) {
+  89 |     try {
+> 90 |       return await convex.query(getSessionRef, {
+     |              ^
+  91 |         sessionToken,
+  92 |         serverSecret,
+  93 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+ GET /api/auth/session 200 in 723ms (next.js: 4ms, application-code: 719ms)
+ GET /auth/login/api 307 in 180ms (next.js: 163ms, application-code: 17ms)
+ GET /platform 200 in 1479ms (next.js: 11ms, proxy.ts: 502ms, application-code: 966ms)
+ GET /api/auth/session?workspace=platform 200 in 17ms (next.js: 7ms, application-code: 10ms)
+ GET /api/auth/session?workspace=platform 200 in 15ms (next.js: 5ms, application-code: 10ms)
+ POST /auth/logout 200 in 3.3s (next.js: 2.9s, application-code: 397ms)
+ GET /auth/login/api?returnTo=%2Fplatform 307 in 19ms (next.js: 7ms, application-code: 12ms)
+ POST /auth/logout 200 in 3.9s (next.js: 2.9s, application-code: 969ms)
+ GET /platform 200 in 789ms (next.js: 9ms, proxy.ts: 738ms, application-code: 42ms)
+ GET /auth/login 200 in 118ms (next.js: 7ms, application-code: 111ms)
+ GET /auth/login 200 in 155ms (next.js: 7ms, application-code: 148ms)
+ GET /auth/login 200 in 183ms (next.js: 6ms, application-code: 177ms)
+ GET /auth/login 200 in 247ms (next.js: 7ms, application-code: 240ms)
+ GET /auth/login 200 in 343ms (next.js: 7ms, application-code: 337ms)
+ GET /auth/login 200 in 297ms (next.js: 6ms, application-code: 291ms)
+ GET /auth/login 200 in 204ms (next.js: 6ms, application-code: 198ms)
+ GET /auth/login 200 in 227ms (next.js: 8ms, application-code: 220ms)
+ GET /auth/login 200 in 238ms (next.js: 6ms, application-code: 232ms)
+ GET /auth/login 200 in 331ms (next.js: 7ms, application-code: 324ms)
+ GET /auth/login 200 in 289ms (next.js: 7ms, application-code: 282ms)
+ GET /auth/login 200 in 228ms (next.js: 7ms, application-code: 221ms)
+ GET /auth/login 200 in 282ms (next.js: 8ms, application-code: 274ms)
+ GET /auth/login 200 in 233ms (next.js: 8ms, application-code: 225ms)
+ GET /auth/login 200 in 237ms (next.js: 9ms, application-code: 227ms)
+ GET /auth/login 200 in 240ms (next.js: 7ms, application-code: 233ms)
+ GET /auth/login 200 in 213ms (next.js: 7ms, application-code: 206ms)
+ GET /auth/login 200 in 298ms (next.js: 11ms, application-code: 287ms)
+ GET /auth/login 200 in 278ms (next.js: 8ms, application-code: 270ms)
+ GET /auth/login 200 in 223ms (next.js: 9ms, application-code: 214ms)
+ GET /auth/login 200 in 205ms (next.js: 7ms, application-code: 198ms)
+ GET /auth/login 200 in 251ms (next.js: 7ms, application-code: 243ms)
+ GET /auth/login 200 in 189ms (next.js: 6ms, application-code: 183ms)
+ GET /auth/login 200 in 285ms (next.js: 7ms, application-code: 278ms)
+ GET /auth/login 200 in 255ms (next.js: 6ms, application-code: 249ms)
+ GET /auth/login 200 in 187ms (next.js: 7ms, application-code: 180ms)
+ GET /auth/login 200 in 271ms (next.js: 9ms, application-code: 262ms)
+ GET /auth/login 200 in 238ms (next.js: 10ms, application-code: 228ms)
+ GET /auth/login 200 in 216ms (next.js: 7ms, application-code: 208ms)
+ GET /auth/login 200 in 212ms (next.js: 8ms, application-code: 204ms)
+ GET /auth/login 200 in 239ms (next.js: 7ms, application-code: 232ms)
+ GET /auth/login 200 in 282ms (next.js: 8ms, application-code: 274ms)
+ GET /auth/login 200 in 239ms (next.js: 8ms, application-code: 231ms)
+ GET /auth/login 200 in 237ms (next.js: 7ms, application-code: 230ms)
+ GET /auth/login 200 in 247ms (next.js: 9ms, application-code: 237ms)
+ GET /auth/login 200 in 237ms (next.js: 7ms, application-code: 230ms)
+ GET /auth/login 200 in 307ms (next.js: 9ms, application-code: 297ms)
+ GET /auth/login 200 in 320ms (next.js: 8ms, application-code: 312ms)
+ GET /auth/login 200 in 246ms (next.js: 8ms, application-code: 238ms)
+ GET /auth/login 200 in 217ms (next.js: 7ms, application-code: 210ms)
+ GET /auth/login 200 in 329ms (next.js: 8ms, application-code: 322ms)
+ GET /auth/login 200 in 225ms (next.js: 6ms, application-code: 219ms)
+ GET /auth/login 200 in 309ms (next.js: 6ms, application-code: 302ms)
+ GET /auth/login 200 in 249ms (next.js: 8ms, application-code: 241ms)
+ GET /auth/login 200 in 244ms (next.js: 10ms, application-code: 234ms)
+ GET /auth/login 200 in 246ms (next.js: 9ms, application-code: 237ms)
+ GET /auth/login 200 in 261ms (next.js: 8ms, application-code: 253ms)
+ GET /admin/setup 200 in 31.4s (next.js: 11ms, proxy.ts: 10.2s, application-code: 21.3s)
+ GET /auth/login 200 in 257ms (next.js: 8ms, application-code: 249ms)
+ GET /dashboard 200 in 5.7s (next.js: 17ms, proxy.ts: 5.5s, application-code: 215ms)
+ GET /api/auth/session 200 in 86ms (next.js: 6ms, application-code: 79ms)
+ GET /auth/login 200 in 305ms (next.js: 7ms, application-code: 299ms)
+ GET /auth/login 200 in 223ms (next.js: 7ms, application-code: 217ms)
+ GET /platform 200 in 30.1s (next.js: 9ms, proxy.ts: 10.3s, application-code: 19.8s)
+ GET /auth/login 200 in 263ms (next.js: 6ms, application-code: 257ms)
+ GET /api/auth/session?workspace=platform 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ GET /auth/login 200 in 198ms (next.js: 6ms, application-code: 193ms)
+ GET /auth/login 200 in 233ms (next.js: 7ms, application-code: 226ms)
+ GET /auth/login 200 in 231ms (next.js: 7ms, application-code: 224ms)
+ GET /auth/login 200 in 252ms (next.js: 9ms, application-code: 244ms)
+ GET /auth/login 200 in 221ms (next.js: 10ms, application-code: 211ms)
+ GET /auth/login 200 in 309ms (next.js: 9ms, application-code: 300ms)
+ GET /auth/login 200 in 325ms (next.js: 8ms, application-code: 317ms)
+ GET /api/auth/session?workspace=admin 200 in 2.2s (next.js: 6ms, application-code: 2.2s)
+ GET /auth/login 200 in 265ms (next.js: 7ms, application-code: 258ms)
+ GET /auth/login 200 in 295ms (next.js: 8ms, application-code: 287ms)
+ GET /auth/login 200 in 314ms (next.js: 13ms, application-code: 302ms)
+ GET /admin 200 in 2.8s (next.js: 33ms, proxy.ts: 2.7s, application-code: 88ms)
+ GET /api/auth/session?workspace=admin 200 in 1186ms (next.js: 5ms, application-code: 1181ms)
+ GET /auth/login 200 in 503ms (next.js: 11ms, application-code: 492ms)
+ GET /auth/login 200 in 269ms (next.js: 7ms, application-code: 261ms)
+ GET /auth/login 200 in 282ms (next.js: 8ms, application-code: 274ms)
+ GET /auth/login 200 in 264ms (next.js: 8ms, application-code: 256ms)
+ GET /auth/login 200 in 414ms (next.js: 8ms, application-code: 407ms)
+ GET /auth/login 200 in 354ms (next.js: 10ms, application-code: 344ms)
+ GET /auth/login 200 in 325ms (next.js: 7ms, application-code: 318ms)
+ GET /auth/login 200 in 280ms (next.js: 8ms, application-code: 272ms)
+ GET /admin/marketplace 200 in 2.0s (next.js: 224ms, proxy.ts: 1736ms, application-code: 74ms)
+ GET /auth/login 200 in 264ms (next.js: 7ms, application-code: 257ms)
+ GET /api/auth/session?workspace=admin 200 in 553ms (next.js: 5ms, application-code: 548ms)
+ GET /auth/login 200 in 336ms (next.js: 7ms, application-code: 329ms)
+ GET /auth/login 200 in 890ms (next.js: 71ms, application-code: 819ms)
+ GET /auth/login 200 in 255ms (next.js: 12ms, application-code: 244ms)
+ GET /auth/login 200 in 252ms (next.js: 7ms, application-code: 246ms)
+ GET /auth/login 200 in 231ms (next.js: 8ms, application-code: 223ms)
+ GET /auth/login 200 in 238ms (next.js: 7ms, application-code: 231ms)
+ GET /auth/login 200 in 213ms (next.js: 7ms, application-code: 207ms)
+ GET /auth/login 200 in 242ms (next.js: 9ms, application-code: 233ms)
+ GET /platform 200 in 2.4s (next.js: 10ms, proxy.ts: 1053ms, application-code: 1370ms)
+ GET /api/auth/session?workspace=platform 200 in 19ms (next.js: 8ms, application-code: 11ms)
+ GET /api/auth/session?workspace=platform 200 in 14ms (next.js: 5ms, application-code: 9ms)
+ GET /platform/analytics 200 in 2.2s (next.js: 149ms, proxy.ts: 735ms, application-code: 1286ms)
+ GET /api/auth/session?workspace=platform 200 in 14ms (next.js: 6ms, application-code: 8ms)
+ GET /api/auth/session?workspace=platform 200 in 15ms (next.js: 6ms, application-code: 9ms)
+ GET /platform/users 200 in 1682ms (next.js: 142ms, proxy.ts: 416ms, application-code: 1124ms)
+ GET /api/auth/session?workspace=platform 200 in 15ms (next.js: 6ms, application-code: 9ms)
+ GET /api/auth/session?workspace=platform 200 in 12ms (next.js: 5ms, application-code: 7ms)
+ GET /platform/tenants 200 in 1676ms (next.js: 130ms, proxy.ts: 399ms, application-code: 1147ms)
+ GET /api/auth/session?workspace=platform 200 in 14ms (next.js: 4ms, application-code: 10ms)
+ GET /api/auth/session?workspace=platform 200 in 13ms (next.js: 5ms, application-code: 8ms)
+○ Compiling /platform/onboarding ...
+ GET /platform/onboarding 200 in 14.4s (next.js: 12.4s, proxy.ts: 410ms, application-code: 1634ms)
+ GET /api/auth/session?workspace=platform 200 in 16ms (next.js: 6ms, application-code: 10ms)
+ GET /api/auth/session?workspace=platform 200 in 13ms (next.js: 5ms, application-code: 8ms)
+ GET /platform/operations 200 in 2.6s (next.js: 183ms, proxy.ts: 1085ms, application-code: 1289ms)
+ GET /api/auth/session?workspace=platform 200 in 12ms (next.js: 4ms, application-code: 8ms)
+ GET /api/auth/session?workspace=platform 200 in 14ms (next.js: 5ms, application-code: 8ms)
+ GET /platform/security 200 in 4.2s (next.js: 231ms, proxy.ts: 2.3s, application-code: 1652ms)
+ GET /api/auth/session?workspace=platform 200 in 16ms (next.js: 7ms, application-code: 9ms)
+ GET /api/auth/session?workspace=platform 200 in 15ms (next.js: 5ms, application-code: 9ms)
+ GET /platform/marketplace/modules 200 in 8.4s (next.js: 2.6s, proxy.ts: 1439ms, application-code: 4.4s)
+ GET /api/auth/session?workspace=platform 200 in 14ms (next.js: 5ms, application-code: 9ms)
+ GET /api/auth/session?workspace=platform 200 in 17ms (next.js: 7ms, application-code: 10ms)
+ GET /platform/ai-support 200 in 8.5s (next.js: 2.8s, proxy.ts: 714ms, application-code: 5.0s)
+ GET /api/auth/session?workspace=platform 200 in 17ms (next.js: 6ms, application-code: 11ms)
+ GET /api/auth/session?workspace=platform 200 in 20ms (next.js: 10ms, application-code: 10ms)
+ GET /admin 200 in 4.1s (next.js: 89ms, proxy.ts: 749ms, application-code: 3.2s)
+ GET /platform/impersonation 200 in 4.9s (next.js: 1082ms, proxy.ts: 1167ms, application-code: 2.6s)
+ GET /platform/users 200 in 5.7s (next.js: 119ms, proxy.ts: 1171ms, application-code: 4.4s)
+ GET /platform/operations 200 in 6.0s (next.js: 30ms, proxy.ts: 1162ms, application-code: 4.8s)
+ GET /admin?error=unauthorized 200 in 5.1s (next.js: 869ms, proxy.ts: 836ms, application-code: 3.4s)
+ GET /platform/security 200 in 6.0s (next.js: 11ms, proxy.ts: 985ms, application-code: 5.0s)
+ GET /dashboard 200 in 4.2s (next.js: 72ms, proxy.ts: 1521ms, application-code: 2.6s)
+ GET /dashboard 200 in 4.4s (next.js: 187ms, proxy.ts: 2.1s, application-code: 2.1s)
+ GET /dashboard 200 in 4.6s (next.js: 78ms, proxy.ts: 2.7s, application-code: 1809ms)
+ GET /dashboard 200 in 2.4s (next.js: 145ms, proxy.ts: 943ms, application-code: 1266ms)
+[api/auth/session] Convex unavailable, trying fallback: Error [ConvexError]: [Request ID: 7b5ef8cba9a816cb] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:90:14)
+    at async GET (src\app\api\auth\session\route.ts:735:25)
+  88 |   if (serverSecret) {
+  89 |     try {
+> 90 |       return await convex.query(getSessionRef, {
+     |              ^
+  91 |         sessionToken,
+  92 |         serverSecret,
+  93 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+ GET /api/auth/session 200 in 1280ms (next.js: 37ms, application-code: 1243ms)
+ GET /auth/login/api 307 in 61ms (next.js: 45ms, application-code: 17ms)
+ GET /dashboard 200 in 2.3s (next.js: 54ms, proxy.ts: 927ms, application-code: 1299ms)
+[api/auth/session] Convex unavailable, trying fallback: Error [ConvexError]: [Request ID: f08c91fa7467bd50] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:90:14)
+    at async GET (src\app\api\auth\session\route.ts:735:25)
+  88 |   if (serverSecret) {
+  89 |     try {
+> 90 |       return await convex.query(getSessionRef, {
+     |              ^
+  91 |         sessionToken,
+  92 |         serverSecret,
+  93 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+ GET /api/auth/session 200 in 1443ms (next.js: 43ms, application-code: 1400ms)
+[api/auth/session] Convex unavailable, trying fallback: Error [ConvexError]: [Request ID: f6000afceda3d699] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:90:14)
+    at async GET (src\app\api\auth\session\route.ts:735:25)
+  88 |   if (serverSecret) {
+  89 |     try {
+> 90 |       return await convex.query(getSessionRef, {
+     |              ^
+  91 |         sessionToken,
+  92 |         serverSecret,
+  93 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+ GET /api/auth/session 200 in 1789ms (next.js: 17ms, application-code: 1771ms)
+ GET /auth/login/api 307 in 221ms (next.js: 205ms, application-code: 16ms)
+ GET /auth/login/api 307 in 347ms (next.js: 331ms, application-code: 16ms)
+[api/auth/session] Convex unavailable, trying fallback: Error [ConvexError]: [Request ID: bc2c7e249f16d5c6] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:90:14)
+    at async GET (src\app\api\auth\session\route.ts:735:25)
+  88 |   if (serverSecret) {
+  89 |     try {
+> 90 |       return await convex.query(getSessionRef, {
+     |              ^
+  91 |         sessionToken,
+  92 |         serverSecret,
+  93 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+ GET /api/auth/session 200 in 1415ms (next.js: 402ms, application-code: 1013ms)
+[api/auth/session] Convex unavailable, trying fallback: Error [ConvexError]: [Request ID: 8a55d416cf0b88ad] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Trusted server credentials required"}
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+
+    at assertTrustedServer (../sessions.ts:8:6)
+    at handler (../sessions.ts:84:4)
+    at async getSessionCompat (src\app\api\auth\session\route.ts:90:14)
+    at async GET (src\app\api\auth\session\route.ts:735:25)
+  88 |   if (serverSecret) {
+  89 |     try {
+> 90 |       return await convex.query(getSessionRef, {
+     |              ^
+  91 |         sessionToken,
+  92 |         serverSecret,
+  93 |       }); {
+  data: { code: 'FORBIDDEN', message: 'Trusted server credentials required' }
+}
+ GET /api/auth/session 200 in 1540ms (next.js: 53ms, application-code: 1487ms)
+ GET /auth/login/api 307 in 198ms (next.js: 183ms, application-code: 15ms)
+ GET /platform 200 in 3.6s (next.js: 135ms, proxy.ts: 935ms, application-code: 2.5s)
+ GET /api/auth/session?workspace=platform 200 in 183ms (next.js: 171ms, application-code: 11ms)
+ GET /api/auth/session?workspace=platform 200 in 109ms (next.js: 91ms, application-code: 18ms)
+ POST /auth/logout 200 in 1053ms (next.js: 367ms, application-code: 686ms)
+ GET /platform 200 in 3.5s (next.js: 135ms, proxy.ts: 1182ms, application-code: 2.2s)
+ GET /auth/login/api?returnTo=%2Fplatform 307 in 59ms (next.js: 48ms, application-code: 12ms)
+ GET /api/auth/session?workspace=platform 200 in 110ms (next.js: 94ms, application-code: 15ms)
+ POST /auth/logout 200 in 1583ms (next.js: 452ms, application-code: 1132ms)
+ GET /platform 200 in 4.0s (next.js: 119ms, proxy.ts: 2.1s, application-code: 1819ms)
+ GET /platform 200 in 2.6s (next.js: 127ms, proxy.ts: 784ms, application-code: 1668ms)
+ GET /api/auth/session?workspace=platform 200 in 69ms (next.js: 57ms, application-code: 12ms)
+ GET /api/auth/session?workspace=platform 200 in 85ms (next.js: 72ms, application-code: 13ms)
+ POST /auth/logout 200 in 712ms (next.js: 114ms, application-code: 598ms)
+ POST /auth/logout 200 in 563ms (next.js: 42ms, application-code: 522ms)
+ GET /api/auth/session?workspace=platform 200 in 178ms (next.js: 166ms, application-code: 11ms)
+ GET /api/auth/session?workspace=platform 200 in 214ms (next.js: 197ms, application-code: 16ms)
+ GET /auth/login/api?returnTo=%2Fplatform 307 in 220ms (next.js: 192ms, application-code: 27ms)
+ POST /auth/logout 200 in 952ms (next.js: 76ms, application-code: 876ms)
+ POST /auth/logout 200 in 1126ms (next.js: 129ms, application-code: 997ms)
+ GET /api/auth/session?workspace=platform 200 in 219ms (next.js: 188ms, application-code: 31ms)
+ POST /auth/logout 200 in 920ms (next.js: 180ms, application-code: 740ms)
+ POST /auth/logout 200 in 877ms (next.js: 175ms, application-code: 703ms)
+ GET /api/auth/session?workspace=platform 200 in 110ms (next.js: 95ms, application-code: 15ms)
+ GET /auth/login/api?returnTo=%2Fplatform 307 in 151ms (next.js: 138ms, application-code: 13ms)
+ GET /api/auth/session?workspace=platform 200 in 60ms (next.js: 25ms, application-code: 36ms)
+ GET /platform 200 in 1807ms (next.js: 355ms, proxy.ts: 700ms, application-code: 751ms)
+ GET /auth/login/api?returnTo=%2Fplatform 307 in 76ms (next.js: 28ms, application-code: 48ms)
+ GET /platform 200 in 849ms (next.js: 41ms, proxy.ts: 454ms, application-code: 353ms)
+ GET /platform 200 in 1369ms (next.js: 89ms, proxy.ts: 1151ms, application-code: 129ms)
+ GET /api/auth/session?workspace=platform 200 in 34ms (next.js: 17ms, application-code: 17ms)
+ GET /api/auth/session?workspace=platform 200 in 67ms (next.js: 19ms, application-code: 48ms)
+ GET /platform 200 in 1812ms (next.js: 77ms, proxy.ts: 898ms, application-code: 837ms)
+ GET /platform?returnTo=%2Fplatform 200 in 4.6s (next.js: 59ms, proxy.ts: 1442ms, application-code: 3.1s)
+ GET /platform?returnTo=%2Fplatform 200 in 3.9s (next.js: 175ms, proxy.ts: 905ms, application-code: 2.8s)
+ GET /platform?returnTo=%2Fplatform 200 in 3.6s (next.js: 77ms, proxy.ts: 1211ms, application-code: 2.3s)
+ GET /platform?returnTo=%2Fplatform 200 in 5.2s (next.js: 286ms, proxy.ts: 1299ms, application-code: 3.6s)
+ GET / 200 in 2.3s (next.js: 2.2s, application-code: 137ms)
+ GET /platform 200 in 3.6s (next.js: 11ms, proxy.ts: 1783ms, application-code: 1800ms)
+ GET /api/auth/session?workspace=platform 200 in 19ms (next.js: 6ms, application-code: 13ms)
+ GET /api/auth/session?workspace=platform 200 in 15ms (next.js: 6ms, application-code: 8ms)
+ GET /admin/marketplace 200 in 3.6s (next.js: 533ms, proxy.ts: 2.2s, application-code: 830ms)
+ GET /platform 200 in 3.6s (next.js: 1021ms, proxy.ts: 2.3s, application-code: 336ms)
+ GET /admin/marketplace 200 in 1379ms (next.js: 257ms, proxy.ts: 943ms, application-code: 180ms)
+ GET /platform 200 in 1274ms (next.js: 18ms, proxy.ts: 827ms, application-code: 429ms)
+✓ Compiled in 1606ms
+ GET /admin/marketplace 200 in 2.6s (next.js: 1290ms, proxy.ts: 705ms, application-code: 567ms)
+ GET /platform 200 in 2.6s (next.js: 417ms, proxy.ts: 725ms, application-code: 1479ms)
+ GET /admin/marketplace 200 in 819ms (next.js: 76ms, proxy.ts: 484ms, application-code: 260ms)
+ GET /platform 200 in 1099ms (next.js: 88ms, proxy.ts: 854ms, application-code: 157ms)
+ GET /admin/marketplace 200 in 557ms (next.js: 9ms, proxy.ts: 380ms, application-code: 168ms)
+ GET /platform 200 in 600ms (next.js: 14ms, proxy.ts: 401ms, application-code: 185ms)
+ GET /admin/marketplace 200 in 924ms (next.js: 14ms, proxy.ts: 396ms, application-code: 514ms)
+ GET /platform 200 in 627ms (next.js: 19ms, proxy.ts: 417ms, application-code: 190ms)
+ GET /admin/marketplace 200 in 704ms (next.js: 11ms, proxy.ts: 504ms, application-code: 189ms)
+ GET /platform 200 in 710ms (next.js: 10ms, proxy.ts: 475ms, application-code: 225ms)
+ GET /admin/marketplace 200 in 668ms (next.js: 11ms, proxy.ts: 502ms, application-code: 155ms)
+ GET /platform 200 in 634ms (next.js: 11ms, proxy.ts: 442ms, application-code: 181ms)
+ GET /admin/marketplace 200 in 1481ms (next.js: 16ms, proxy.ts: 553ms, application-code: 912ms)
+ GET /platform 200 in 1272ms (next.js: 73ms, proxy.ts: 674ms, application-code: 524ms)
+ GET /admin/marketplace 200 in 2.7s (next.js: 10ms, proxy.ts: 1188ms, application-code: 1544ms)
+ GET /platform 200 in 2.3s (next.js: 196ms, proxy.ts: 1389ms, application-code: 717ms)
+ GET /admin/marketplace 200 in 1678ms (next.js: 18ms, proxy.ts: 1051ms, application-code: 608ms)
+ GET /platform 200 in 1137ms (next.js: 65ms, proxy.ts: 817ms, application-code: 256ms)
+ GET /admin/marketplace 200 in 1173ms (next.js: 9ms, proxy.ts: 959ms, application-code: 205ms)
+ GET /platform 200 in 1209ms (next.js: 10ms, proxy.ts: 1001ms, application-code: 198ms)
+ GET /admin/marketplace 200 in 748ms (next.js: 11ms, proxy.ts: 543ms, application-code: 195ms)
+ GET /platform 200 in 805ms (next.js: 12ms, proxy.ts: 600ms, application-code: 193ms)
+ GET /admin/marketplace 200 in 818ms (next.js: 10ms, proxy.ts: 564ms, application-code: 244ms)
+ GET /platform 200 in 823ms (next.js: 18ms, proxy.ts: 591ms, application-code: 213ms)
+ GET /admin/marketplace 200 in 1154ms (next.js: 14ms, proxy.ts: 722ms, application-code: 418ms)
+ GET /platform 200 in 778ms (next.js: 36ms, proxy.ts: 522ms, application-code: 220ms)
+ GET /admin/marketplace 200 in 617ms (next.js: 10ms, proxy.ts: 470ms, application-code: 137ms)
+ GET /platform 200 in 697ms (next.js: 10ms, proxy.ts: 443ms, application-code: 245ms)
+ GET /platform/users 200 in 7.2s (next.js: 2.0s, proxy.ts: 627ms, application-code: 4.5s)
+ GET /api/auth/session?workspace=platform 200 in 252ms (next.js: 215ms, application-code: 37ms)
+ GET /api/auth/session?workspace=platform 200 in 19ms (next.js: 8ms, application-code: 11ms)
+ GET /platform/operations 200 in 3.2s (next.js: 364ms, proxy.ts: 1023ms, application-code: 1810ms)
+ GET /api/auth/session?workspace=platform 200 in 48ms (next.js: 6ms, application-code: 42ms)
+ GET /api/auth/session?workspace=platform 200 in 24ms (next.js: 13ms, application-code: 10ms)
+ GET /platform/security 200 in 3.3s (next.js: 678ms, proxy.ts: 456ms, application-code: 2.1s)
+ GET /api/auth/session?workspace=platform 200 in 17ms (next.js: 6ms, application-code: 11ms)
+ GET /api/auth/session?workspace=platform 200 in 35ms (next.js: 25ms, application-code: 11ms)
+ GET /platform/impersonation 200 in 2.7s (next.js: 457ms, proxy.ts: 396ms, application-code: 1846ms)
+ GET /platform/users 200 in 859ms (next.js: 7ms, proxy.ts: 642ms, application-code: 210ms)
+ GET /platform/users 200 in 1005ms (next.js: 10ms, proxy.ts: 714ms, application-code: 280ms)
+ GET /api/auth/session?workspace=admin 200 in 1549ms (next.js: 73ms, application-code: 1476ms)
+ GET /admin/setup 200 in 4.1s (next.js: 697ms, proxy.ts: 1612ms, application-code: 1829ms)
+ GET /api/auth/session?workspace=admin 200 in 535ms (next.js: 6ms, application-code: 529ms)
+ GET /api/auth/session?workspace=admin 200 in 388ms (next.js: 5ms, application-code: 382ms)
+ GET /admin/setup/complete 200 in 2.7s (next.js: 370ms, proxy.ts: 1009ms, application-code: 1351ms)
+ GET /api/auth/session?workspace=admin 200 in 832ms (next.js: 5ms, application-code: 827ms)
+ GET /api/auth/session?workspace=admin 200 in 663ms (next.js: 4ms, application-code: 659ms)
+ GET /admin/setup 200 in 1405ms (next.js: 7ms, proxy.ts: 1206ms, application-code: 192ms)
+ GET /api/auth/session?workspace=admin 200 in 430ms (next.js: 6ms, application-code: 424ms)
+ GET /api/auth/session?workspace=admin 200 in 481ms (next.js: 7ms, application-code: 475ms)
+ GET /admin/setup/complete 200 in 765ms (next.js: 9ms, proxy.ts: 440ms, application-code: 317ms)
+ GET /api/auth/session?workspace=admin 200 in 525ms (next.js: 7ms, application-code: 518ms)

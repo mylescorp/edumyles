@@ -567,6 +567,7 @@ export async function GET(req: NextRequest) {
       (
         !currentSessionCookie ||
         currentSessionCookie === "dev_session_token" ||
+        currentSessionCookie === DEV_PLATFORM_SESSION_TOKEN ||
         (currentSessionCookie === DEV_TENANT_SESSION_TOKEN && bootstrapVersion !== DEV_BOOTSTRAP_VERSION)
       );
 
