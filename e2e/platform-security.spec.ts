@@ -56,37 +56,37 @@ test.describe("Platform security", () => {
       { name: "edumyles_role", value: "school_admin", domain: "localhost", path: "/", secure: false, sameSite: "Lax" },
     ]);
 
-    await page.goto("/platform");
+    await page.goto("/platform", { waitUntil: "domcontentloaded" });
     await expect(page).not.toHaveURL(/^.*\/platform$/);
   });
 
   test("impersonation page loads for platform admins", async ({ page, context }) => {
     await authenticateAsPlatformAdmin(context);
 
-    await page.goto("/platform/impersonation");
+    await page.goto("/platform/impersonation", { waitUntil: "domcontentloaded" });
     if (await allowAuthRedirect(page)) return;
 
-    await expect(page.getByRole("heading", { name: /impersonation sessions/i })).toBeVisible();
-    await expect(page.getByRole("tab", { name: /active/i })).toBeVisible();
-    await expect(page.getByRole("tab", { name: /history/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Impersonation" })).toBeVisible();
+    await expect(page.getByText("Active Tenant Contexts")).toBeVisible();
+    await expect(page.getByText("No impersonation history")).toBeVisible();
   });
 
   test("platform users page exposes live management surface", async ({ page, context }) => {
     await authenticateAsPlatformAdmin(context);
 
-    await page.goto("/platform/users");
+    await page.goto("/platform/users", { waitUntil: "domcontentloaded" });
     if (await allowAuthRedirect(page)) return;
 
     await expect(page.getByRole("heading", { name: "Platform Users" })).toBeVisible();
-    await expect(page.getByRole("tab", { name: /^users$/i })).toBeVisible();
-    await expect(page.getByRole("tab", { name: /roles/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /invite platform admin/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "User Management" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /invite staff/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /all staff/i })).toBeVisible();
   });
 
   test("operations page exposes incident and maintenance controls", async ({ page, context }) => {
     await authenticateAsPlatformAdmin(context);
 
-    await page.goto("/platform/operations");
+    await page.goto("/platform/operations", { waitUntil: "domcontentloaded" });
     if (await allowAuthRedirect(page)) return;
 
     await expect(page.getByRole("heading", { name: /operations center/i })).toBeVisible();
@@ -99,13 +99,13 @@ test.describe("Platform security", () => {
   test("security page exposes threat and compliance sections", async ({ page, context }) => {
     await authenticateAsPlatformAdmin(context);
 
-    await page.goto("/platform/security");
+    await page.goto("/platform/security", { waitUntil: "domcontentloaded" });
     if (await allowAuthRedirect(page)) return;
 
     await expect(page.getByRole("heading", { name: /advanced security dashboard/i })).toBeVisible();
-    await expect(page.getByRole("tab", { name: /threats/i })).toBeVisible();
-    await expect(page.getByRole("tab", { name: /compliance/i })).toBeVisible();
-    await expect(page.getByText(/security score/i)).toBeVisible();
+    await expect(page.getByRole("tab", { name: /security/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /audit log/i })).toBeVisible();
+    await expect(page.getByText(/blocked ips/i)).toBeVisible();
   });
 });
 
