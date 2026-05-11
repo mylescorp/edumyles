@@ -1,19 +1,21 @@
+#!/usr/bin/env node
+
+import { loadEnvFiles, parseArgs } from "./lib/env.mjs";
+
+const args = parseArgs();
+loadEnvFiles(args.envFiles);
+
 const apiKey = process.env.RESEND_API_KEY?.trim();
 const from = process.env.RESEND_FROM_EMAIL?.trim();
 const to = process.env.RESEND_SMOKE_TO?.trim();
+const failures = [];
 
-if (!apiKey) {
-  console.error("Missing RESEND_API_KEY");
-  process.exit(1);
-}
+if (!apiKey) failures.push("Missing RESEND_API_KEY");
+if (!from) failures.push("Missing RESEND_FROM_EMAIL");
+if (!to) failures.push("Missing RESEND_SMOKE_TO");
 
-if (!from) {
-  console.error("Missing RESEND_FROM_EMAIL");
-  process.exit(1);
-}
-
-if (!to) {
-  console.error("Missing RESEND_SMOKE_TO");
+if (failures.length > 0) {
+  console.error(JSON.stringify({ ok: false, provider: "Resend", failures }, null, 2));
   process.exit(1);
 }
 
@@ -43,10 +45,31 @@ const response = await fetch("https://api.resend.com/emails", {
 const payload = await response.json().catch(() => null);
 
 if (!response.ok) {
-  console.error("Resend smoke test failed");
-  console.error(JSON.stringify(payload ?? { status: response.status }, null, 2));
+  console.error(
+    JSON.stringify(
+      {
+        ok: false,
+        provider: "Resend",
+        status: response.status,
+        response: payload ?? null,
+      },
+      null,
+      2
+    )
+  );
   process.exit(1);
 }
 
-console.log("Resend smoke test sent successfully");
-console.log(JSON.stringify(payload, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      ok: true,
+      provider: "Resend",
+      to,
+      response: payload,
+      checkedAt: new Date().toISOString(),
+    },
+    null,
+    2
+  )
+);

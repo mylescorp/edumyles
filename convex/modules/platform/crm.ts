@@ -77,7 +77,11 @@ function formatKes(amount: number) {
 }
 
 function getAppUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!appUrl && process.env.NODE_ENV === "production") {
+    throw new Error("NEXT_PUBLIC_APP_URL is required in production");
+  }
+  return (appUrl ?? "http://localhost:3000").replace(/\/$/, "");
 }
 
 function uniqueStrings(values: Array<string | undefined | null>) {

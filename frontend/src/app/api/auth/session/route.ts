@@ -442,15 +442,15 @@ async function buildWorkspaceAdminResponse(
   } catch (error) {
     console.warn("[api/auth/session] Falling back to synthetic admin workspace session:", error);
     tenantSession = {
-      sessionToken: adminSessionToken || DEV_PLATFORM_SESSION_TOKEN,
+      sessionToken: DEV_TENANT_SESSION_TOKEN,
       tenantId: preferredTenantId || "TENANT-733447",
-      userId: "dev-platform-admin",
-      email: process.env.MASTER_ADMIN_EMAIL ?? "admin@edumyles.local",
-      role: "master_admin",
+      userId: "dev-tenant-admin",
+      email: DEV_TENANT_ADMIN_EMAIL,
+      role: "school_admin",
       expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
       user: {
-        email: process.env.MASTER_ADMIN_EMAIL ?? "admin@edumyles.local",
-        firstName: "Platform",
+        email: DEV_TENANT_ADMIN_EMAIL,
+        firstName: "School",
         lastName: "Admin",
       },
     };

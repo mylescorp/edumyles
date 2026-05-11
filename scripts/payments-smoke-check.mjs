@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+import { loadEnvFiles, parseArgs } from "./lib/env.mjs";
+
+const args = parseArgs();
+loadEnvFiles(args.envFiles);
+
 const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
 
 const checks = [

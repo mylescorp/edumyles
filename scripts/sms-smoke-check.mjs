@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+import { loadEnvFiles, parseArgs } from "./lib/env.mjs";
+
+const args = parseArgs();
+loadEnvFiles(args.envFiles);
+
 const apiKey = process.env.AT_API_KEY ?? process.env.AFRICAS_TALKING_API_KEY;
 const username = process.env.AT_USERNAME ?? process.env.AFRICAS_TALKING_USERNAME;
 const smokeTo = process.env.SMS_SMOKE_TO;

@@ -348,7 +348,10 @@ describe("production admin onboarding guardrails", () => {
   it("authorizes admin routes from the validated server session, not the visible role cookie", () => {
     const source = readRepoFile("frontend/src/lib/serverRouteAuth.ts");
 
-    expect(source).toContain("getValidatedServerSession(session.sessionToken)");
+    expect(source).toContain("getValidatedServerSession(");
+    expect(source).toContain("session.sessionToken");
+    expect(source).toContain("session.role");
+    expect(source).toContain("session.userCookie");
     expect(source).toContain("normalizeDevRole(validatedSession?.role)");
     expect(source).not.toContain("normalizeDevRole(session.role)");
   });

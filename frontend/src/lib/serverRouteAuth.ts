@@ -5,23 +5,63 @@ import { api } from "@/convex/_generated/api";
 import { normalizeDevRole } from "@/lib/dev/access";
 
 const DEV_PLATFORM_SESSION_TOKEN = "dev-platform-session";
+const DEV_TENANT_SESSION_TOKEN = "dev-tenant-admin-session";
 
-function buildExplicitDevPlatformSession(sessionToken: string) {
-  if (
-    process.env.NODE_ENV === "production" ||
-    process.env.ENABLE_DEV_AUTH_BYPASS !== "true" ||
-    sessionToken !== DEV_PLATFORM_SESSION_TOKEN
-  ) {
+function canUseExplicitDevSession(sessionToken: string) {
+  return (
+    process.env.NODE_ENV !== "production" &&
+    process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
+    (sessionToken === DEV_PLATFORM_SESSION_TOKEN ||
+      sessionToken === DEV_TENANT_SESSION_TOKEN ||
+      sessionToken.startsWith("e2e-"))
+  );
+}
+
+function readDevUserCookie(userCookie?: string | null) {
+  if (!userCookie) return null;
+  try {
+    return JSON.parse(userCookie) as {
+      email?: string;
+      role?: string;
+      tenantId?: string;
+      activeTenantId?: string;
+      sessionToken?: string;
+    };
+  } catch {
+    return null;
+  }
+}
+
+function buildExplicitDevSession(
+  sessionToken: string,
+  roleCookie?: string | null,
+  userCookie?: string | null
+) {
+  if (!canUseExplicitDevSession(sessionToken)) {
     return null;
   }
 
+  const user = readDevUserCookie(userCookie);
+  const role = normalizeDevRole(user?.role ?? roleCookie) ?? "school_admin";
+  const isPlatformSession =
+    sessionToken === DEV_PLATFORM_SESSION_TOKEN ||
+    role === "master_admin" ||
+    role === "super_admin";
+  const tenantId = isPlatformSession
+    ? "PLATFORM"
+    : user?.activeTenantId ?? user?.tenantId ?? "TENANT-733447";
+
   return {
     sessionToken,
-    tenantId: "PLATFORM",
-    activeTenantId: "PLATFORM",
-    userId: "dev-platform-admin",
-    email: process.env.MASTER_ADMIN_EMAIL ?? "admin@edumyles.local",
-    role: "master_admin",
+    tenantId,
+    activeTenantId: tenantId,
+    userId: user?.email ?? (isPlatformSession ? "dev-platform-admin" : "dev-tenant-admin"),
+    email:
+      user?.email ??
+      (isPlatformSession
+        ? (process.env.MASTER_ADMIN_EMAIL ?? "admin@edumyles.local")
+        : "demo-admin@edumyles.local"),
+    role: isPlatformSession ? "master_admin" : role,
     expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
   };
 }
@@ -30,6 +70,7 @@ export async function ensureProtectedRouteSession() {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get("edumyles_session")?.value ?? null;
   const role = cookieStore.get("edumyles_role")?.value ?? null;
+  const userCookie = cookieStore.get("edumyles_user")?.value ?? null;
 
   if (!sessionToken) {
     redirect("/auth/login");
@@ -38,11 +79,16 @@ export async function ensureProtectedRouteSession() {
   return {
     sessionToken,
     role,
+    userCookie,
   };
 }
 
-async function getValidatedServerSession(sessionToken: string) {
-  const devSession = buildExplicitDevPlatformSession(sessionToken);
+async function getValidatedServerSession(
+  sessionToken: string,
+  roleCookie?: string | null,
+  userCookie?: string | null
+) {
+  const devSession = buildExplicitDevSession(sessionToken, roleCookie, userCookie);
   if (devSession) {
     return devSession;
   }
@@ -84,7 +130,7 @@ export async function ensureAuthorizedRouteSession(
   fallbackHref = "/dashboard"
 ) {
   const session = await ensureProtectedRouteSession();
-  const validatedSession = await getValidatedServerSession(session.sessionToken).catch((error) => {
+  const validatedSession = await getValidatedServerSession(session.sessionToken, session.role, session.userCookie).catch((error) => {
     if (process.env.NODE_ENV === "production") {
       throw error;
     }

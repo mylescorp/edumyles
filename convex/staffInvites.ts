@@ -20,7 +20,11 @@ function getStaffRedirectPath(role: string) {
 }
 
 function getAppUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!appUrl && process.env.NODE_ENV === "production") {
+    throw new Error("NEXT_PUBLIC_APP_URL is required in production");
+  }
+  return (appUrl ?? "http://localhost:3000").replace(/\/$/, "");
 }
 
 type AcceptStaffInviteResult = {
@@ -120,7 +124,7 @@ async function createStaffInviteRecord(
     actorEmail: args.actorEmail,
     to: [email],
     subject: `You've been invited to join EduMyles`,
-    text: `You have been invited to join EduMyles as ${args.role}. Open http://localhost:3000/staff/accept?token=${token} before ${new Date(expiresAt).toUTCString()}.`,
+    text: `You have been invited to join EduMyles as ${args.role}. Open ${getAppUrl()}/staff/accept?token=${token} before ${new Date(expiresAt).toUTCString()}.`,
     template: "staff_invite",
     data: {
       firstName: args.firstName?.trim() || "there",

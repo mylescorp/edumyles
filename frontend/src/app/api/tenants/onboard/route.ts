@@ -4,6 +4,116 @@ import { api } from "@/convex/_generated/api";
 import { ensureTenantWorkOSOrganization } from "@/lib/workos-invitations";
 import { ensureFrontendDomain } from "@/lib/vercel-domains";
 
+type OnboardingPreflight = {
+  ok: boolean;
+  failures: string[];
+  warnings: string[];
+};
+
+function hasEnv(name: string) {
+  return Boolean(process.env[name]?.trim());
+}
+
+function isProductionRuntime() {
+  return process.env.NODE_ENV === "production";
+}
+
+function addMissingEnv(failures: string[], names: string[]) {
+  for (const name of names) {
+    if (!hasEnv(name)) failures.push(`Missing required env: ${name}`);
+  }
+}
+
+function validateUrl(failures: string[], name: string, { requireHttps = false } = {}) {
+  const value = process.env[name]?.trim();
+  if (!value) return;
+  try {
+    const parsed = new URL(value);
+    if (requireHttps && parsed.protocol !== "https:") {
+      failures.push(`${name} must use HTTPS in production`);
+    }
+  } catch {
+    failures.push(`${name} must be a valid URL`);
+  }
+}
+
+function validateTenantOnboardingPreflight(payload: Record<string, any>): OnboardingPreflight {
+  const failures: string[] = [];
+  const warnings: string[] = [];
+  const sendWelcomeImmediately = payload.sendWelcomeImmediately !== false;
+  const allowPartialOnboarding = payload.allowPartialOnboarding === true;
+
+  for (const field of [
+    "schoolName",
+    "country",
+    "county",
+    "adminEmail",
+    "adminFirstName",
+    "adminLastName",
+    "adminJobTitle",
+    "planId",
+    "billingCycle",
+    "trialDays",
+    "paymentCollectionMode",
+    "timezone",
+    "displayCurrency",
+    "academicYearStartMonth",
+    "termStructure",
+  ]) {
+    if (payload[field] === undefined || payload[field] === null || String(payload[field]).trim() === "") {
+      failures.push(`Missing onboarding field: ${field}`);
+    }
+  }
+
+  if (payload.subdomain && !/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(String(payload.subdomain))) {
+    failures.push("subdomain must be 3-63 lowercase letters, numbers, or hyphens");
+  }
+
+  if (!Array.isArray(payload.selectedModuleIds)) {
+    warnings.push("selectedModuleIds was not provided as an array; onboarding will default to plan modules.");
+  }
+
+  addMissingEnv(failures, ["NEXT_PUBLIC_CONVEX_URL", "NEXT_PUBLIC_APP_URL", "NEXT_PUBLIC_ROOT_DOMAIN"]);
+  validateUrl(failures, "NEXT_PUBLIC_CONVEX_URL", { requireHttps: isProductionRuntime() });
+  validateUrl(failures, "NEXT_PUBLIC_APP_URL", { requireHttps: isProductionRuntime() });
+
+  if (isProductionRuntime()) {
+    addMissingEnv(failures, [
+      "WORKOS_API_KEY",
+      "WORKOS_CLIENT_ID",
+      "NEXT_PUBLIC_WORKOS_CLIENT_ID",
+      "WORKOS_REDIRECT_URI",
+      "WORKOS_COOKIE_PASSWORD",
+      "WORKOS_WEBHOOK_SECRET",
+    ]);
+
+    if (sendWelcomeImmediately) {
+      addMissingEnv(failures, ["RESEND_API_KEY", "RESEND_FROM_EMAIL", "RESEND_SUPPORT_EMAIL"]);
+    }
+
+    const shouldProvisionFrontendDomain = payload.skipDomainProvisioning !== true;
+    if (shouldProvisionFrontendDomain) {
+      addMissingEnv(failures, ["VERCEL_TOKEN", "VERCEL_FRONTEND_PROJECT_ID"]);
+    }
+
+    if (process.env.ENABLE_DEV_AUTH_BYPASS === "true") {
+      failures.push("ENABLE_DEV_AUTH_BYPASS must not be true in production");
+    }
+    if (process.env.SOCIAL_SANDBOX_MODE === "true") {
+      failures.push("SOCIAL_SANDBOX_MODE must not be true in production");
+    }
+  }
+
+  if (allowPartialOnboarding && failures.length > 0) {
+    warnings.push(
+      `Partial onboarding explicitly allowed; production preflight failures will be bypassed: ${failures.join("; ")}`
+    );
+    return { ok: true, failures: [], warnings };
+  }
+
+  return { ok: failures.length === 0, failures, warnings };
+}
+
 export async function POST(req: NextRequest) {
   let tenantId: string | undefined;
   let stage = "validating_request";
@@ -22,13 +132,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required onboarding fields" }, { status: 400 });
     }
 
+    const preflight = validateTenantOnboardingPreflight(payload);
+    if (payload.dryRun === true || payload.preflightOnly === true) {
+      return NextResponse.json(
+        {
+          success: preflight.ok,
+          dryRun: true,
+          preflight,
+        },
+        { status: preflight.ok ? 200 : 412 }
+      );
+    }
+    if (!preflight.ok) {
+      return NextResponse.json(
+        {
+          error: "Tenant onboarding preflight failed",
+          stage,
+          preflight,
+        },
+        { status: 412 }
+      );
+    }
+
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
     if (!convexUrl) {
       return NextResponse.json({ error: "Convex not configured" }, { status: 500 });
     }
 
     const convex = new ConvexHttpClient(convexUrl);
-    const warnings: string[] = [];
+    const warnings: string[] = [...preflight.warnings];
 
     stage = "provisioning_tenant";
     const provisionResult = await convex.mutation(api.platform.tenants.mutations.provisionTenant, {
@@ -68,7 +200,7 @@ export async function POST(req: NextRequest) {
       pilotGrantModuleIds: payload.pilotGrantModuleIds ?? [],
       welcomeTemplate: payload.welcomeTemplate,
       welcomeMessage,
-      sendWelcomeImmediately: Boolean(sendWelcomeImmediately),
+      sendWelcomeImmediately: sendWelcomeImmediately !== false,
       primaryCampus: payload.primaryCampus,
       additionalCampuses: payload.additionalCampuses,
     });
@@ -78,7 +210,10 @@ export async function POST(req: NextRequest) {
     stage = "provisioning_frontend_domain";
     let domainProvisioning: Awaited<ReturnType<typeof ensureFrontendDomain>> | null = null;
     try {
-      domainProvisioning = await ensureFrontendDomain(provisionResult.tenantUrl?.replace(/^https?:\/\//, ""));
+      domainProvisioning =
+        payload.skipDomainProvisioning === true
+          ? { configured: false, reason: "skip_domain_provisioning_requested" }
+          : await ensureFrontendDomain(provisionResult.tenantUrl?.replace(/^https?:\/\//, ""));
     } catch (error: any) {
       warnings.push(error?.message ?? "The tenant was created, but the frontend domain could not be registered automatically.");
     }

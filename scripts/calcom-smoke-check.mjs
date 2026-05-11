@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 
+import { loadEnvFiles, parseArgs } from "./lib/env.mjs";
+
+const args = parseArgs();
+loadEnvFiles(args.envFiles);
+
 const apiKey = process.env.CALCOM_API_KEY;
 const apiBase = process.env.CALCOM_API_BASE ?? "https://api.cal.com/v2";
 const embedOrigin = process.env.NEXT_PUBLIC_CALCOM_EMBED_ORIGIN ?? "https://app.cal.com";
 const demoLink = process.env.NEXT_PUBLIC_CALCOM_DEMO_LINK;
 const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL ?? process.env.LANDING_URL;
 const webhookSecret = process.env.CALCOM_WEBHOOK_SECRET;
-const shouldCreate = process.argv.includes("--create");
+const shouldCreate = args.flags.has("create");
 
 const triggers = [
   "BOOKING_CREATED",

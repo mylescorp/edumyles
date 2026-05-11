@@ -54,11 +54,19 @@ function createInviteToken() {
 }
 
 function getAppUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "https://app.edumyles.com").replace(/\/$/, "");
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!appUrl && process.env.NODE_ENV === "production") {
+    throw new Error("NEXT_PUBLIC_APP_URL is required in production");
+  }
+  return (appUrl ?? "https://app.edumyles.com").replace(/\/$/, "");
 }
 
 function getRootDomain() {
-  return (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "edumyles.com")
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+  if (!rootDomain && process.env.NODE_ENV === "production") {
+    throw new Error("NEXT_PUBLIC_ROOT_DOMAIN is required in production");
+  }
+  return (rootDomain ?? "edumyles.com")
     .replace(/^https?:\/\//, "")
     .replace(/\/+$/, "")
     .toLowerCase();

@@ -205,7 +205,11 @@ const TRIAL_INTERVENTION_COPY: Record<
 };
 
 function getAppUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!appUrl && process.env.NODE_ENV === "production") {
+    throw new Error("NEXT_PUBLIC_APP_URL is required in production");
+  }
+  return (appUrl ?? "http://localhost:3000").replace(/\/$/, "");
 }
 
 function getTrialTemplateKey(trigger: (typeof TRIAL_INTERVENTION_TRIGGERS)[number]["trigger"]) {
