@@ -1,0 +1,4 @@
+interface:
+  display_name: "SaaS Product Builder"
+  short_description: "Build EduMyles-style SaaS products"
+  default_prompt: "Use this skill to create a new SaaS product with the same technical architecture and landing-page feature set as EduMyles, adapted to a new market, brand, modules, pricing, and integrations."

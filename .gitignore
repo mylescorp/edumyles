@@ -82,3 +82,7 @@ opensrc/
 
 # ------ Agent Skills ------
 .agents/skills/agent-browser/
+
+# ------ Agent Handoff ------
+/HANDOFF.md
+/handoff.md
