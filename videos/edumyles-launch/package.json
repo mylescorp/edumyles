@@ -9,7 +9,7 @@
     "still:final": "remotion still src/index.ts EduMylesLaunch out/final-frame.png --frame=1320"
   },
   "dependencies": {
-    "@remotion/cli": "^4.0.386",
+    "@remotion/cli": "^4.0.481",
     "@remotion/media-utils": "^4.0.386",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
