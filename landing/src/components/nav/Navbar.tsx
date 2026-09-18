@@ -11,11 +11,7 @@ const SIGNUP_URL = "/waitlist";
 
 const navLinks = [
   { label: "Features", href: "/features" },
-  { label: "Solutions", href: "/solutions" },
-  { label: "About", href: "/about" },
-  { label: "Team", href: "/team" },
   { label: "Pricing",  href: "/pricing" },
-  { label: "Blog",     href: "/blog" },
   { label: "Contact",  href: "/contact" },
 ];
 
@@ -158,7 +154,7 @@ export default function Navbar() {
             </Link>
 
             {/* Solutions dropdown */}
-            <div className="relative" ref={solutionsRef}>
+            <div className="relative hidden" ref={solutionsRef}>
               <button
                 type="button"
                 onClick={() => setSolutionsOpen((prev) => !prev)}
@@ -218,7 +214,7 @@ export default function Navbar() {
             </div>
 
             {/* Partners dropdown */}
-            <div className="relative" ref={partnersRef}>
+            <div className="relative hidden" ref={partnersRef}>
               <button
                 type="button"
                 onClick={() => setPartnersOpen((prev) => !prev)}

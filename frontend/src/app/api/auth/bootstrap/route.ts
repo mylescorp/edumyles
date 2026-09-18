@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     const isProduction = process.env.NODE_ENV === "production";
 
     response.cookies.set("edumyles_role", "master_admin", {
-      httpOnly: false,
+      httpOnly: true,
       secure: isProduction,
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60,
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
         userData.role = "master_admin";
         userData.sessionToken = sessionToken;
         response.cookies.set("edumyles_user", JSON.stringify(userData), {
-          httpOnly: false,
+          httpOnly: true,
           secure: isProduction,
           sameSite: "lax",
           maxAge: 30 * 24 * 60 * 60,

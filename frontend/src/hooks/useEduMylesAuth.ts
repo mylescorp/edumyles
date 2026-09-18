@@ -4,7 +4,6 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getSessionFromCookie } from '@/lib/auth';
 import { toast } from '@/components/ui/use-toast';
 
 export interface EduMylesUser {
@@ -51,19 +50,6 @@ export function useEduMylesAuth(options: UseEduMylesAuthOptions = {}) {
    */
   const checkAuthStatus = useCallback(async () => {
     try {
-      const sessionToken = getSessionFromCookie();
-      
-      if (!sessionToken) {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          isAuthenticated: false,
-          user: null,
-          session: null,
-        }));
-        return null;
-      }
-
       const response = await fetch('/api/auth/me', {
         credentials: 'same-origin',
         cache: 'no-store',
@@ -99,7 +85,6 @@ export function useEduMylesAuth(options: UseEduMylesAuthOptions = {}) {
         isAuthenticated: true,
         user: userData,
         session: {
-          sessionToken,
           role: userData.role,
           tenantId: userData.tenantId,
         },

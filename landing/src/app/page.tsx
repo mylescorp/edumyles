@@ -7,17 +7,14 @@ import Benefits from "@/components/sections/Benefits";
 import Comparison from "@/components/sections/Comparison";
 import HowItWorks from "@/components/sections/HowItWorks";
 import BrandValues from "@/components/sections/BrandValues";
-import ROICalculator from "@/components/sections/ROICalculator";
 import Testimonial from "@/components/sections/Testimonial";
-import MobileTeaser from "@/components/sections/MobileTeaser";
 import Pricing from "@/components/sections/Pricing";
 import FinalCTA from "@/components/sections/FinalCTA";
 
 export default function LandingPage() {
   return (
     <>
-      <a href="#main-content" className="skip-link">Skip to main content</a>
-      <div id="main-content">
+      <div>
         {/* Dark hero with floating dashboard cards */}
         <Hero />
         {/* Trust bar — school logos + metrics */}
@@ -36,12 +33,8 @@ export default function LandingPage() {
         <HowItWorks />
         {/* Mission, Vision, Core Values & Founding Story */}
         <BrandValues />
-        {/* Interactive ROI calculator */}
-        <ROICalculator />
-        {/* Testimonial — Mary K. quote */}
+        {/* School-team outcomes */}
         <Testimonial />
-        {/* Mobile-first teaser with phone preview */}
-        <MobileTeaser />
         {/* Pricing plans */}
         <Pricing />
         {/* Final CTA */}

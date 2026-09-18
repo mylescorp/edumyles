@@ -53,6 +53,8 @@ export default function PartnerForm() {
       <div
         className="rounded-2xl p-10 flex flex-col items-center gap-4 text-center"
         style={{ background: "#F3FBF6", border: "1px solid #A8E6C3" }}
+        role="status"
+        aria-live="polite"
       >
         <div
           className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
@@ -64,14 +66,14 @@ export default function PartnerForm() {
           Application received!
         </h3>
         <p className="font-jakarta text-[16px]" style={{ color: "#5a5a5a" }}>
-          Our partnerships team will be in touch within 48 hours.
+          Our partnerships team will review your application and respond as soon as possible.
         </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {/* Row: Full Name + Email */}
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
@@ -190,7 +192,7 @@ export default function PartnerForm() {
 
       {/* Error state */}
       {formState === "error" && (
-        <p className="font-jakarta text-[14px]" style={{ color: "#dc2626" }}>
+        <p className="font-jakarta text-[14px]" style={{ color: "#dc2626" }} role="alert">
           Something went wrong. Please try again or email us at{" "}
           <a
             href="mailto:partners@edumyles.com"

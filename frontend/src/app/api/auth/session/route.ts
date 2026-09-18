@@ -403,7 +403,7 @@ function setSessionCookies(
       accessibleTenantIds: [tenantId],
     }),
     {
-      httpOnly: false,
+      httpOnly: true,
       secure: isProduction,
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60,
@@ -412,7 +412,7 @@ function setSessionCookies(
   );
 
   response.cookies.set("edumyles_role", role, {
-    httpOnly: false,
+    httpOnly: true,
     secure: isProduction,
     sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60,
@@ -480,14 +480,14 @@ async function buildWorkspaceAdminResponse(
   );
   setAuxSessionCookie(response, MASTER_SESSION_BACKUP_COOKIE, adminSessionToken);
   response.cookies.set(ADMIN_WORKSPACE_MODE_COOKIE, "true", {
-    httpOnly: false,
+    httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60,
     path: "/",
   });
   response.cookies.set(ADMIN_TENANT_COOKIE, tenantSession.tenantId, {
-    httpOnly: false,
+    httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60,
@@ -619,8 +619,8 @@ export async function GET(req: NextRequest) {
         devSession.tenantId
       );
       response.cookies.set("edumyles_dev_bootstrap", DEV_BOOTSTRAP_VERSION, {
-        httpOnly: false,
-        secure: false,
+        httpOnly: true,
+        secure: true,
         sameSite: "lax",
         maxAge: 30 * 24 * 60 * 60,
         path: "/",
@@ -806,7 +806,7 @@ export async function GET(req: NextRequest) {
                   sessionToken: session.sessionToken,
                 }),
                 {
-                  httpOnly: false,
+                  httpOnly: true,
                   secure: isProduction,
                   sameSite: "lax",
                   maxAge: 30 * 24 * 60 * 60,
@@ -818,7 +818,7 @@ export async function GET(req: NextRequest) {
             }
           }
           response.cookies.set("edumyles_role", normalizedRole, {
-            httpOnly: false,
+            httpOnly: true,
             secure: isProduction,
             sameSite: "lax",
             maxAge: 30 * 24 * 60 * 60,

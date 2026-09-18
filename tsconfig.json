@@ -54,5 +54,6 @@
     "**/out",
     "**/.turbo",
     "opensrc"
-  ]
+  ],
+  "extends": "expo/tsconfig.base"
 }

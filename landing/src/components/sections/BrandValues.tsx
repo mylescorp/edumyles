@@ -2,31 +2,31 @@ const coreValues = [
   {
     letter: "M",
     title: "Mastery",
-    desc: "Relentless pursuit of excellence, expertise, and continuous improvement — committing to the highest standards in every feature we ship.",
+    desc: "We improve the details that help school teams work with clarity and confidence.",
     keywords: ["Excellence", "Expertise", "Growth"],
   },
   {
     letter: "Y",
     title: "Youth Empowerment",
-    desc: "A profound belief in Africa's youth. Investing in the next generation through education, mentorship, and technology that unlocks their potential.",
+    desc: "We build for the people and communities that make learning possible.",
     keywords: ["Education", "Mentorship", "Africa"],
   },
   {
     letter: "L",
     title: "Leadership",
-    desc: "Leading with integrity, courage, and responsibility — setting a positive example and holding ourselves accountable to every school we serve.",
+    desc: "We take responsibility for clear decisions, honest communication, and dependable service.",
     keywords: ["Integrity", "Courage", "Accountability"],
   },
   {
     letter: "E",
     title: "Entrepreneurship",
-    desc: "Fostering innovation, ownership, and proactive problem-solving — taking calculated risks and identifying new opportunities to create real value.",
+    desc: "We look for practical ways to solve school operations problems.",
     keywords: ["Innovation", "Ownership", "Growth"],
   },
   {
     letter: "S",
     title: "Service",
-    desc: "Purpose-driven commitment to positive societal impact. Our business success is always shared with Africa's people and communities.",
+    desc: "We focus on work that is useful to the schools and communities we serve.",
     keywords: ["Impact", "Community", "Purpose"],
   },
 ];
@@ -59,9 +59,9 @@ export default function BrandValues() {
           className="font-display font-bold text-center leading-[1.2] mb-4"
           style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#061A12" }}
         >
-          Empowering Schools,{" "}
+          Clearer school operations,{" "}
           <em className="italic" style={{ color: "#E8A020" }}>
-            One Mile at a Time.
+            one practical step at a time.
           </em>
         </h2>
 
@@ -82,8 +82,8 @@ export default function BrandValues() {
               Our Mission
             </div>
             <p className="font-jakarta text-[16px] leading-[1.8]" style={{ color: "#212121" }}>
-              To simplify school administration across Africa so that educators can focus on what
-              matters most — teaching and student success.
+              To simplify school administration across Africa so that educators can focus on
+              teaching and student success.
             </p>
           </div>
           <div
@@ -101,9 +101,8 @@ export default function BrandValues() {
               Our Vision
             </div>
             <p className="font-jakarta text-[16px] leading-[1.8]" style={{ color: "#212121" }}>
-              To be Africa&apos;s most trusted school management platform, powering institutions of
-              every size — from single-classroom community schools to multi-campus international
-              networks.
+              To help schools manage their everyday work with clarity, from individual campuses to
+              school groups.
             </p>
           </div>
         </div>

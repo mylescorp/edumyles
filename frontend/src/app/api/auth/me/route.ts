@@ -2,7 +2,7 @@
 // EduMyles — Current User API Endpoint
 // ============================================================
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
@@ -12,13 +12,13 @@ export const dynamic = 'force-dynamic';
 /**
  * Get current authenticated user information
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const sessionToken = await getServerSession();
 
     if (!sessionToken) {
       return NextResponse.json(
-        { error: 'Not authenticated' },
+        { success: false, message: 'Your session has expired. Please sign in to continue.' },
         { status: 401 }
       );
     }
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     if (!convexUrl || !serverSecret) {
       console.error('Missing Convex configuration');
       return NextResponse.json(
-        { error: 'Server configuration error' },
+        { success: false, message: 'We could not verify your identity. Please sign in again.' },
         { status: 500 }
       );
     }
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
       if (!session) {
         return NextResponse.json(
-          { error: 'Invalid or expired session' },
+          { success: false, message: 'Your session has expired. Please sign in to continue.' },
           { status: 401 }
         );
       }
@@ -59,12 +59,13 @@ export async function GET(request: NextRequest) {
 
       if (!user) {
         return NextResponse.json(
-          { error: 'User not found' },
+          { success: false, message: 'We could not load your account. Please sign in again.' },
           { status: 404 }
         );
       }
 
       return NextResponse.json({
+        success: true,
         id: user.workosUserId,
         email: user.email,
         firstName: user.firstName,
@@ -77,14 +78,14 @@ export async function GET(request: NextRequest) {
     } catch (convexError) {
       console.error('Convex session validation error:', convexError);
       return NextResponse.json(
-        { error: 'Session validation failed' },
+        { success: false, message: 'We could not verify your session. Please sign in again.' },
         { status: 401 }
       );
     }
   } catch (error) {
     console.error('Error fetching current user:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { success: false, message: 'Something went wrong on our end. Please try again.' },
       { status: 500 }
     );
   }

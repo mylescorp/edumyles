@@ -156,15 +156,17 @@ export default function ImpersonationPage() {
         reason: reason.trim(),
       });
 
-      await fetch("/api/impersonation/switch", {
+      const switchResponse = await fetch("/api/impersonation/switch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           impersonationToken: result.impersonationToken,
-          role: result.targetUser.role,
-          adminSessionToken: sessionToken,
         }),
       });
+
+      if (!switchResponse.ok) {
+        throw new Error("We could not start impersonation. Please try again.");
+      }
 
       toast({
         title: "Impersonation started",

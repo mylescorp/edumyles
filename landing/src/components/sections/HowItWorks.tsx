@@ -6,7 +6,7 @@ const steps = [
   {
     number: "1",
     title: "Setup Your School",
-    description: "Create your profile and add school details in just 15 minutes.",
+    description: "Create your profile and add the details your school needs.",
   },
   {
     number: "2",
@@ -113,7 +113,7 @@ export default function HowItWorks() {
         </div>
 
         <p className="text-center mt-12 text-[14px]" style={{ color: "#6B9E83" }}>
-          Our team supports you at every step. Most schools go live in under 2 weeks.
+          Work through each step with your school team and a clear implementation plan.
         </p>
       </div>
     </section>

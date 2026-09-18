@@ -2,8 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { api } from "@/convex/_generated/api";
 import { getLandingConvexClient } from "@/lib/server/convex";
 import type { MarketingAttribution } from "@/lib/attribution";
+import { z } from "zod";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const waitlistSchema = z.object({
+  firstName: z.string().trim().max(100).optional(),
+  lastName: z.string().trim().max(100).optional(),
+  email: z.string().trim().email().max(254).optional(),
+  phone: z.string().trim().max(40).optional(),
+  country: z.string().trim().max(100).optional(),
+  county: z.string().trim().max(100).optional(),
+  schoolName: z.string().trim().max(160).optional(),
+  studentCount: z.union([z.number().int().nonnegative(), z.string().trim().regex(/^\d+$/)]).optional(),
+  currentSystem: z.string().trim().max(160).optional(),
+  referralSource: z.string().trim().max(160).optional(),
+  referralCode: z.string().trim().max(160).optional(),
+  biggestChallenge: z.string().trim().max(4_000).optional(),
+  marketingAttribution: z.custom<MarketingAttribution>().optional(),
+});
 
 interface WaitlistSubmission {
   fullName: string;
@@ -60,21 +75,14 @@ async function sendFallbackEmail(data: WaitlistSubmission): Promise<void> {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as {
-      firstName?: string;
-      lastName?: string;
-      email?: string;
-      phone?: string;
-      country?: string;
-      county?: string;
-      schoolName?: string;
-      studentCount?: number | string;
-      currentSystem?: string;
-      referralSource?: string;
-      referralCode?: string;
-      biggestChallenge?: string;
-      marketingAttribution?: MarketingAttribution;
-    };
+    const parsed = waitlistSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, message: "We could not submit your request. Please review the form and try again." },
+        { status: 400 }
+      );
+    }
+    const body = parsed.data;
 
     const firstName = body.firstName?.trim() ?? "";
     const lastName = body.lastName?.trim() ?? "";
@@ -101,13 +109,6 @@ export async function POST(request: NextRequest) {
     if (!fullName || !schoolName || !email || !country) {
       return NextResponse.json(
         { error: "Please complete your name, work email, school name, and country." },
-        { status: 400 }
-      );
-    }
-
-    if (!EMAIL_REGEX.test(email)) {
-      return NextResponse.json(
-        { error: "Please enter a valid work email address." },
         { status: 400 }
       );
     }
@@ -146,15 +147,14 @@ export async function POST(request: NextRequest) {
         console.error("[landing/api/waitlist] Fallback email failed:", e)
       );
       return NextResponse.json({
-        error:
-          "We captured your request for manual follow-up, but the live waitlist system is temporarily unavailable. Please try again shortly.",
-        capturedViaFallback: true,
+        success: false,
+        message: "We could not submit your request right now. Please try again shortly.",
       }, { status: 503 });
     }
   } catch (error) {
     console.error("[landing/api/waitlist] Unexpected error:", error);
     return NextResponse.json(
-      { error: "We couldn't submit your application right now. Please try again shortly." },
+      { success: false, message: "We could not submit your request right now. Please try again shortly." },
       { status: 500 }
     );
   }

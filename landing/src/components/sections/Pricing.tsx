@@ -29,7 +29,7 @@ export default function Pricing() {
             </em>
           </h2>
           <p className="font-jakarta text-lg text-mid-grey max-w-2xl mx-auto mb-8">
-            No hidden fees. Pay per school per month. Cancel anytime. Start free for 30 days.
+            Compare the available plans, then talk to the team about the right fit for your school.
           </p>
 
           {/* Toggle */}
@@ -169,7 +169,7 @@ export default function Pricing() {
 
         <div className="text-center mt-10">
           <p className="font-inter text-sm text-mid-grey">
-            30-day money-back guarantee · No setup fees · M-Pesa or bank transfer
+            Contact the team to discuss payment and rollout options for your school.
           </p>
           <div className="flex justify-center gap-4 mt-4">
             <Link

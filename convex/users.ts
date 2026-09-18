@@ -893,3 +893,228 @@ export const deactivateByWorkOSId = mutation({
     return user._id;
   },
 });
+
+// Called by WorkOS webhook when organization membership is created
+export const syncOrganizationMembership = mutation({
+  args: {
+    serverSecret: v.string(),
+    userId: v.string(),
+    organizationId: v.string(),
+    role: v.string(),
+  },
+  handler: async (ctx, args) => {
+    if (!isTrustedServerCall(args.serverSecret)) {
+      throw new ConvexError({
+        code: "FORBIDDEN",
+        message: "Trusted server credentials required",
+      });
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.userId))
+      .first();
+    
+    if (!user) {
+      console.warn("[syncOrganizationMembership] User not found:", args.userId);
+      return null;
+    }
+
+    // Check if organization membership already exists
+    const existingMembership = await ctx.db
+      .query("organization_memberships")
+      .withIndex("by_user_org", (q) => 
+        q.eq("userId", user.eduMylesUserId).eq("workosOrganizationId", args.organizationId)
+      )
+      .first();
+
+    if (existingMembership) {
+      // Update existing membership
+      await ctx.db.patch(existingMembership._id, {
+        role: args.role,
+        isActive: true,
+      });
+    } else {
+      // Create new organization membership
+      await ctx.db.insert("organization_memberships", {
+        userId: user.eduMylesUserId,
+        workosUserId: args.userId,
+        workosOrganizationId: args.organizationId,
+        role: args.role,
+        isActive: true,
+        createdAt: Date.now(),
+      });
+    }
+
+    // Determine user's primary role based on active memberships
+    // Priority: Platform > Admin > Tenant > Partner > Affiliate > Reseller > Developer
+    const activeMemberships = await ctx.db
+      .query("organization_memberships")
+      .withIndex("by_user", (q) => q.eq("userId", user.eduMylesUserId))
+      .collect();
+
+    const platformOrgId = process.env.WORKOS_PLATFORM_ORG_ID;
+    const adminOrgId = process.env.WORKOS_ADMIN_ORG_ID;
+    const tenantOrgId = process.env.WORKOS_TENANT_ORG_ID;
+    const partnerOrgId = process.env.WORKOS_PARTNER_ORG_ID;
+    const affiliateOrgId = process.env.WORKOS_AFFILIATE_ORG_ID;
+    const resellerOrgId = process.env.WORKOS_RESELLER_ORG_ID;
+    const developerOrgId = process.env.WORKOS_DEVELOPER_ORG_ID;
+
+    let primaryRole = user.role;
+    let primaryOrgId: string | null = null;
+
+    // Find highest priority active membership
+    for (const membership of activeMemberships) {
+      if (!membership.isActive) continue;
+
+      if (membership.workosOrganizationId === platformOrgId) {
+        primaryRole = membership.role;
+        primaryOrgId = membership.workosOrganizationId;
+        break; // Platform is highest priority
+      }
+      if (membership.workosOrganizationId === adminOrgId && !primaryOrgId) {
+        primaryRole = membership.role;
+        primaryOrgId = membership.workosOrganizationId;
+      }
+      if (membership.workosOrganizationId === tenantOrgId && !primaryOrgId) {
+        primaryRole = membership.role;
+        primaryOrgId = membership.workosOrganizationId;
+      }
+      if (membership.workosOrganizationId === partnerOrgId && !primaryOrgId) {
+        primaryRole = membership.role;
+        primaryOrgId = membership.workosOrganizationId;
+      }
+      if (membership.workosOrganizationId === affiliateOrgId && !primaryOrgId) {
+        primaryRole = membership.role;
+        primaryOrgId = membership.workosOrganizationId;
+      }
+      if (membership.workosOrganizationId === resellerOrgId && !primaryOrgId) {
+        primaryRole = membership.role;
+        primaryOrgId = membership.workosOrganizationId;
+      }
+      if (membership.workosOrganizationId === developerOrgId && !primaryOrgId) {
+        primaryRole = membership.role;
+        primaryOrgId = membership.workosOrganizationId;
+      }
+    }
+
+    // Update user with primary role and activate
+    await ctx.db.patch(user._id, {
+      role: primaryRole,
+      isActive: true,
+    });
+
+    return user._id;
+  },
+});
+
+// Called by WorkOS webhook when organization membership is deleted
+export const removeOrganizationMembership = mutation({
+  args: {
+    serverSecret: v.string(),
+    userId: v.string(),
+    organizationId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    if (!isTrustedServerCall(args.serverSecret)) {
+      throw new ConvexError({
+        code: "FORBIDDEN",
+        message: "Trusted server credentials required",
+      });
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_workos_user", (q) => q.eq("workosUserId", args.userId))
+      .first();
+    
+    if (!user) {
+      console.warn("[removeOrganizationMembership] User not found:", args.userId);
+      return null;
+    }
+
+    // Mark the specific organization membership as inactive
+    const membership = await ctx.db
+      .query("organization_memberships")
+      .withIndex("by_user_org", (q) => 
+        q.eq("userId", user.eduMylesUserId).eq("workosOrganizationId", args.organizationId)
+      )
+      .first();
+
+    if (membership) {
+      await ctx.db.patch(membership._id, {
+        isActive: false,
+      });
+    }
+
+    // Check if user has any other active memberships
+    const activeMemberships = await ctx.db
+      .query("organization_memberships")
+      .withIndex("by_user", (q) => q.eq("userId", user.eduMylesUserId))
+      .collect();
+
+    const hasActiveMemberships = activeMemberships.some(m => m.isActive);
+
+    if (!hasActiveMemberships) {
+      // Deactivate user if no active memberships remain
+      await ctx.db.patch(user._id, {
+        isActive: false,
+      });
+    } else {
+      // Recalculate primary role based on remaining active memberships
+      const platformOrgId = process.env.WORKOS_PLATFORM_ORG_ID;
+      const adminOrgId = process.env.WORKOS_ADMIN_ORG_ID;
+      const tenantOrgId = process.env.WORKOS_TENANT_ORG_ID;
+      const partnerOrgId = process.env.WORKOS_PARTNER_ORG_ID;
+      const affiliateOrgId = process.env.WORKOS_AFFILIATE_ORG_ID;
+      const resellerOrgId = process.env.WORKOS_RESELLER_ORG_ID;
+      const developerOrgId = process.env.WORKOS_DEVELOPER_ORG_ID;
+
+      let primaryRole = user.role;
+      let primaryOrgId: string | null = null;
+
+      // Find highest priority active membership
+      for (const membership of activeMemberships) {
+        if (!membership.isActive) continue;
+
+        if (membership.workosOrganizationId === platformOrgId) {
+          primaryRole = membership.role;
+          primaryOrgId = membership.workosOrganizationId;
+          break; // Platform is highest priority
+        }
+        if (membership.workosOrganizationId === adminOrgId && !primaryOrgId) {
+          primaryRole = membership.role;
+          primaryOrgId = membership.workosOrganizationId;
+        }
+        if (membership.workosOrganizationId === tenantOrgId && !primaryOrgId) {
+          primaryRole = membership.role;
+          primaryOrgId = membership.workosOrganizationId;
+        }
+        if (membership.workosOrganizationId === partnerOrgId && !primaryOrgId) {
+          primaryRole = membership.role;
+          primaryOrgId = membership.workosOrganizationId;
+        }
+        if (membership.workosOrganizationId === affiliateOrgId && !primaryOrgId) {
+          primaryRole = membership.role;
+          primaryOrgId = membership.workosOrganizationId;
+        }
+        if (membership.workosOrganizationId === resellerOrgId && !primaryOrgId) {
+          primaryRole = membership.role;
+          primaryOrgId = membership.workosOrganizationId;
+        }
+        if (membership.workosOrganizationId === developerOrgId && !primaryOrgId) {
+          primaryRole = membership.role;
+          primaryOrgId = membership.workosOrganizationId;
+        }
+      }
+
+      // Update user with new primary role
+      await ctx.db.patch(user._id, {
+        role: primaryRole,
+      });
+    }
+
+    return user._id;
+  },
+});

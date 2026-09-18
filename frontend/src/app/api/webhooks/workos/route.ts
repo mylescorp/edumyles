@@ -48,6 +48,20 @@ export async function POST(req: NextRequest) {
 
   try {
     switch (eventType) {
+      case "user.created": {
+        const data = event?.data ?? {};
+        const eduMylesUserId: string = data.id ?? "";
+        if (eduMylesUserId) {
+          await convex.mutation(api.users.syncFromWorkOS, {
+            serverSecret: convexServerSecret,
+            eduMylesUserId,
+            email: data.email ?? "",
+            firstName: data.first_name ?? "",
+            lastName: data.last_name ?? "",
+          });
+        }
+        break;
+      }
       case "user.updated": {
         const data = event?.data ?? {};
         const eduMylesUserId: string = data.id ?? "";
@@ -68,6 +82,34 @@ export async function POST(req: NextRequest) {
           await convex.mutation(api.users.deactivateByWorkOSId, {
             serverSecret: convexServerSecret,
             eduMylesUserId,
+          });
+        }
+        break;
+      }
+      case "organization_membership.created": {
+        const data = event?.data ?? {};
+        const userId: string = data.user_id ?? "";
+        const organizationId: string = data.organization_id ?? "";
+        const role: string = data.role ?? "";
+        if (userId && organizationId) {
+          await convex.mutation(api.users.syncOrganizationMembership, {
+            serverSecret: convexServerSecret,
+            userId,
+            organizationId,
+            role,
+          });
+        }
+        break;
+      }
+      case "organization_membership.deleted": {
+        const data = event?.data ?? {};
+        const userId: string = data.user_id ?? "";
+        const organizationId: string = data.organization_id ?? "";
+        if (userId && organizationId) {
+          await convex.mutation(api.users.removeOrganizationMembership, {
+            serverSecret: convexServerSecret,
+            userId,
+            organizationId,
           });
         }
         break;

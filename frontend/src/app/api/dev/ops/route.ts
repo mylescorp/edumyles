@@ -75,7 +75,7 @@ function setImpersonationCookies(
   });
 
   response.cookies.set("edumyles_role", role, {
-    httpOnly: false,
+    httpOnly: true,
     secure,
     sameSite: "lax",
     path: "/",
@@ -91,7 +91,7 @@ function setImpersonationCookies(
   });
 
   response.cookies.set("edumyles_impersonating", "true", {
-    httpOnly: false,
+    httpOnly: true,
     secure,
     sameSite: "lax",
     path: "/",

@@ -5,26 +5,6 @@
 const SESSION_COOKIE_NAME = "edumyles_session";
 
 /**
- * Read the session token from the browser cookie (client-side only).
- * Returns `null` if no session cookie is present.
- */
-export function getSessionFromCookie(): string | null {
-  if (typeof document === "undefined") {
-    return null;
-  }
-
-  const cookies = document.cookie.split("; ");
-  for (const cookie of cookies) {
-    const [name, ...rest] = cookie.split("=");
-    if (name === SESSION_COOKIE_NAME) {
-      return decodeURIComponent(rest.join("="));
-    }
-  }
-
-  return null;
-}
-
-/**
  * Redirect the user to the login page.
  * Preserves the current URL as a `returnTo` query parameter so
  * the auth flow can redirect back after sign-in.

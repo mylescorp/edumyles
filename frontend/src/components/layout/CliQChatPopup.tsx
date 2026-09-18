@@ -14,32 +14,21 @@ import {
 } from "lucide-react";
 import type { ChatItem } from "./CliQDrawer";
 
-// ─── Demo message thread ──────────────────────────────────────────────────────
-
-interface Message {
+export interface ChatMessage {
   id: string;
   text: string;
   fromMe: boolean;
   time: string;
 }
 
-const DEMO_MESSAGES: Message[] = [
-  {
-    id: "1",
-    fromMe: false,
-    time: "07:05 PM",
-    text: "1. You could use me as a notepad to scribble down your to-dos, save important notes; and rest assured whatever you write here will be only between the two of us. You can count on me on this 😊\nAs and when you need it, all you need to do is search for it in our chat.\n2. You can also share files, images, links that you'd like to store for future use. I'll keep them safe for you. You can reach out to me whenever you need them.\n3. I'll also be your Notification Centre - by notifying you of anything that requires attention by pushing it to you via our chat.",
-  },
-];
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
 interface CliQChatPopupProps {
   chat: ChatItem;
+  messages: ChatMessage[];
+  onSendMessage: (message: string) => void;
   onClose: () => void;
 }
 
-export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
+export function CliQChatPopup({ chat, messages, onSendMessage, onClose }: CliQChatPopupProps) {
   const [minimized, setMinimized] = useState(false);
   const [message, setMessage] = useState("");
   const [actionsOpen, setActionsOpen] = useState(false);
@@ -133,7 +122,7 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
         <>
           {/* ── Messages ── */}
           <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
-            {DEMO_MESSAGES.map((msg) => (
+            {messages.map((msg) => (
               <div key={msg.id} className={cn("flex", msg.fromMe ? "justify-end" : "justify-start")}>
                 <div
                   className={cn(
@@ -198,7 +187,11 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  setMessage("");
+                  const trimmedMessage = message.trim();
+                  if (trimmedMessage) {
+                    onSendMessage(trimmedMessage);
+                    setMessage("");
+                  }
                 }
               }}
               placeholder="Type a message…"

@@ -45,7 +45,7 @@ const COUNTRY_OPTIONS = [
 ];
 
 const inputClass =
-  "w-full rounded-xl border border-[#dbe9e0] bg-white px-4 py-3.5 font-jakarta text-[15px] text-[#061A12] outline-none transition-colors duration-200 focus:border-[#0F4C2A]";
+  "w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3.5 font-jakarta text-[15px] text-white outline-none transition-colors duration-200 focus:border-[#D4AF37] placeholder:text-white/40 backdrop-blur-sm";
 
 export default function SignUpPage() {
   return (
@@ -168,14 +168,23 @@ function SignUpPageContent() {
   }
 
   return (
-    <main className="min-h-screen bg-[#EEF6F1]">
-      <div className="grid min-h-screen xl:grid-cols-[minmax(0,1.7fr)_minmax(540px,0.95fr)]">
-        <section className="flex h-full flex-col bg-[linear-gradient(180deg,#072015_0%,#0A2A1C_55%,#0C301F_100%)] px-8 py-10 text-white sm:px-12 lg:px-16 xl:px-16 xl:py-14">
+    <main className="min-h-screen bg-gradient-to-br from-[#0A3020] via-[#0F4C2A] to-[#1B5E35] relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-20 w-96 h-96 bg-[#D4AF37] opacity-10 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-[#1B5E35] opacity-20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#0F4C2A] opacity-10 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative z-10 grid min-h-screen xl:grid-cols-[minmax(0,1.7fr)_minmax(540px,0.95fr)]">
+        <section className="flex h-full flex-col px-8 py-10 text-white sm:px-12 lg:px-16 xl:px-16 xl:py-14">
           <div className="mb-10 flex items-center justify-between gap-4">
-            <Logo size="md" />
+            <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-3">
+              <Logo variant="icon" size="md" className="!text-white" />
+            </div>
             <Link
               href="/"
-              className="font-jakarta text-sm font-semibold text-[#A8E6C3] no-underline transition-colors hover:text-[#E8A020]"
+              className="font-jakarta text-sm font-semibold text-[#A8E6C3] no-underline transition-colors hover:text-[#D4AF37]"
             >
               Back to site
             </Link>
@@ -215,14 +224,14 @@ function SignUpPageContent() {
               {
                 icon: MessageSquareText,
                 title: "Fast, human follow-up",
-                body: "You’ll hear from us with expected timing, next steps, and the best channel to continue the rollout conversation.",
+                body: "You'll hear from us with expected timing, next steps, and the best channel to continue the rollout conversation.",
               },
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-[24px] border border-[rgba(168,230,195,0.16)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
+                className="rounded-[24px] border border-white/10 bg-white/5 p-6 backdrop-blur-md hover:bg-white/10 transition-colors"
               >
-                <item.icon className="h-6 w-6 text-[#E8A020]" />
+                <item.icon className="h-6 w-6 text-[#D4AF37]" />
                 <h2 className="mt-3 font-jakarta text-[15px] font-bold text-white">{item.title}</h2>
                 <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#A8E6C3]">
                   {item.body}
@@ -232,7 +241,7 @@ function SignUpPageContent() {
           </div>
 
           <div className="mt-12 grid max-w-5xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-[28px] border border-[rgba(168,230,195,0.14)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 xl:p-8 backdrop-blur-md">
               <h2 className="font-display text-[28px] font-bold text-white">
                 What happens after you join
               </h2>
@@ -244,7 +253,7 @@ function SignUpPageContent() {
                   "Once your slot is ready, we guide you through activation and setup.",
                 ].map((step, index) => (
                   <div key={step} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(232,160,32,0.16)] font-jakarta text-xs font-bold text-[#E8A020]">
+                    <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[#D4AF37]/20 font-jakarta text-xs font-bold text-[#D4AF37]">
                       {index + 1}
                     </div>
                     <p className="font-jakarta text-[14px] leading-7 text-[#D7F3E2]">{step}</p>
@@ -252,11 +261,11 @@ function SignUpPageContent() {
                 ))}
               </div>
 
-              <div className="mt-8 rounded-[20px] border border-[rgba(232,160,32,0.18)] bg-[rgba(232,160,32,0.08)] p-5">
+              <div className="mt-8 rounded-[20px] border border-[#D4AF37]/30 bg-[#D4AF37]/10 p-5 backdrop-blur-sm">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#E8A020]" />
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#D4AF37]" />
                   <div>
-                    <h3 className="font-jakarta text-[15px] font-bold text-[#F7C867]">
+                    <h3 className="font-jakarta text-[15px] font-bold text-[#F7DF82]">
                       Recommended for school leaders
                     </h3>
                     <p className="mt-2 font-jakarta text-[14px] leading-7 text-[#E8F5EE]">
@@ -268,8 +277,8 @@ function SignUpPageContent() {
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-[rgba(232,160,32,0.22)] bg-[rgba(232,160,32,0.08)] p-6 xl:p-8">
-              <h2 className="font-jakarta text-[15px] font-bold text-[#E8A020]">
+            <div className="rounded-[28px] border border-[#D4AF37]/30 bg-[#D4AF37]/10 p-6 xl:p-8 backdrop-blur-md">
+              <h2 className="font-jakarta text-[15px] font-bold text-[#D4AF37]">
                 Need to speak with us before activation?
               </h2>
               <p className="mt-2 font-jakarta text-[14px] leading-7 text-[#D7F3E2]">
@@ -279,21 +288,21 @@ function SignUpPageContent() {
               <div className="mt-5 grid gap-3 text-sm text-[#F3FBF6] sm:grid-cols-2 xl:grid-cols-1">
                 <a
                   href="mailto:sales@edumyles.com"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#E8A020]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#D4AF37]"
                 >
                   <Mail className="h-4 w-4" />
                   sales@edumyles.com
                 </a>
                 <a
                   href="mailto:contact@edumyles.com"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#E8A020]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#D4AF37]"
                 >
                   <Mail className="h-4 w-4" />
                   contact@edumyles.com
                 </a>
                 <a
                   href="tel:+254743993715"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#E8A020]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#D4AF37]"
                 >
                   <Phone className="h-4 w-4" />
                   +254 743 993 715
@@ -302,7 +311,7 @@ function SignUpPageContent() {
                   href="https://wa.me/254743993715?text=Hello%20EduMyles%2C%20I%20just%20joined%20the%20school%20waitlist%20and%20would%20love%20to%20connect."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#E8A020]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#D4AF37]"
                 >
                   <MessageSquareText className="h-4 w-4" />
                   WhatsApp our team
@@ -312,33 +321,35 @@ function SignUpPageContent() {
           </div>
 
           <div className="mt-auto pt-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(168,230,195,0.15)] bg-[rgba(255,255,255,0.04)] px-4 py-2 font-jakarta text-[12px] font-semibold tracking-[0.08em] text-[#A8E6C3]">
-              <ArrowRight className="h-4 w-4 text-[#E8A020]" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-jakarta text-[12px] font-semibold tracking-[0.08em] text-[#A8E6C3] backdrop-blur-sm">
+              <ArrowRight className="h-4 w-4 text-[#D4AF37]" />
               Trusted onboarding for schools across East Africa
             </div>
           </div>
         </section>
 
-        <section className="flex w-full items-start bg-[#F7FBF8] px-6 py-10 sm:px-10 lg:px-12 xl:px-14 xl:py-14">
+        <section className="flex w-full items-start px-6 py-10 sm:px-10 lg:px-12 xl:px-14 xl:py-14">
           <div className="mx-auto w-full max-w-[620px]">
-            <div className="mb-8 pb-6">
-              <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
-                Join the waitlist
-              </p>
-              <h2 className="mt-2 font-display text-[clamp(2rem,3vw,2.7rem)] font-bold text-[#061A12]">
-                Applicant details
-              </h2>
-              <p className="mt-3 font-jakarta text-[15px] leading-7 text-[#5d6f66]">
-                Complete your profile with the details our onboarding team needs to qualify your
-                school and contact you quickly.
-              </p>
-            </div>
+            {/* Glassmorphism form card */}
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl">
+              <div className="mb-8 pb-6">
+                <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#D4AF37]">
+                  Join the waitlist
+                </p>
+                <h2 className="mt-2 font-display text-[clamp(2rem,3vw,2.7rem)] font-bold text-white">
+                  Applicant details
+                </h2>
+                <p className="mt-3 font-jakarta text-[15px] leading-7 text-[#A8E6C3]">
+                  Complete your profile with the details our onboarding team needs to qualify your
+                  school and contact you quickly.
+                </p>
+              </div>
 
             <form className="space-y-7" onSubmit={handleSubmit} noValidate>
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <UserRound className="h-4 w-4 text-[#1A7A4A]" />
-                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-[#1A7A4A]">
+                  <UserRound className="h-4 w-4 text-[#D4AF37]" />
+                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-[#D4AF37]">
                     Primary contact
                   </h3>
                 </div>
@@ -346,12 +357,12 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="firstName"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-white"
                     >
                       First name
                     </label>
                     <div className="relative">
-                      <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                      <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8E6C3]" />
                       <input
                         id="firstName"
                         name="firstName"
@@ -366,7 +377,7 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="lastName"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-white"
                     >
                       Last name
                     </label>
@@ -389,7 +400,7 @@ function SignUpPageContent() {
                     Work email
                   </label>
                   <div className="relative">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8E6C3]" />
                     <input
                       id="email"
                       name="email"
@@ -410,7 +421,7 @@ function SignUpPageContent() {
                     Phone number
                   </label>
                   <div className="relative">
-                    <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                    <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8E6C3]" />
                     <input
                       id="phone"
                       name="phone"
@@ -425,8 +436,8 @@ function SignUpPageContent() {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <Globe2 className="h-4 w-4 text-[#1A7A4A]" />
-                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-[#1A7A4A]">
+                  <Globe2 className="h-4 w-4 text-[#D4AF37]" />
+                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-[#D4AF37]">
                     Institution location
                   </h3>
                 </div>
@@ -434,12 +445,12 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="country"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-white"
                     >
                       Country
                     </label>
                     <div className="relative">
-                      <Globe2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                      <Globe2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8E6C3]" />
                       <select
                         id="country"
                         name="country"
@@ -458,7 +469,7 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="county"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-white"
                     >
                       County / State / Region
                     </label>
@@ -476,20 +487,20 @@ function SignUpPageContent() {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-[#1A7A4A]" />
-                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-[#1A7A4A]">
+                  <Building2 className="h-4 w-4 text-[#D4AF37]" />
+                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-[#D4AF37]">
                     Institution profile
                   </h3>
                 </div>
                 <div>
                   <label
                     htmlFor="schoolName"
-                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-white"
                   >
                     School or institution name
                   </label>
                   <div className="relative">
-                    <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                    <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8E6C3]" />
                     <input
                       id="schoolName"
                       name="schoolName"
@@ -505,12 +516,12 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="studentCount"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-white"
                     >
                       Approximate student count
                     </label>
                     <div className="relative">
-                      <Users className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                      <Users className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8E6C3]" />
                       <input
                         id="studentCount"
                         name="studentCount"
@@ -526,7 +537,7 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="currentSystem"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-white"
                     >
                       Current school system
                     </label>
@@ -549,7 +560,7 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="referralSource"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-white"
                     >
                       How did you hear about EduMyles?
                     </label>
@@ -573,7 +584,7 @@ function SignUpPageContent() {
               <div>
                 <label
                   htmlFor="biggestChallenge"
-                  className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  className="mb-1.5 block font-jakarta text-sm font-semibold text-white"
                 >
                   Biggest challenge right now
                 </label>
@@ -586,14 +597,14 @@ function SignUpPageContent() {
                   className={`${inputClass} min-h-[140px] resize-y`}
                   placeholder="Example: We want to streamline admissions, fees, and parent communication across two campuses."
                 />
-                <p className="mt-2 font-jakarta text-[12px] leading-5 text-[#7b8f85]">
+                <p className="mt-2 font-jakarta text-[12px] leading-5 text-[#A8E6C3]">
                   This helps us prepare a more relevant onboarding conversation before we contact
                   you from the waitlist.
                 </p>
               </div>
 
               {error ? (
-                <div className="rounded-xl border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 font-jakarta text-sm text-[#9A1F2B]">
+                <div className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 font-jakarta text-sm text-red-200 backdrop-blur-sm">
                   {error}
                 </div>
               ) : null}
@@ -601,19 +612,20 @@ function SignUpPageContent() {
               <button
                 type="submit"
                 disabled={formState === "loading"}
-                className="inline-flex w-full items-center justify-center rounded-[999px] border border-[#0F4C2A] bg-[#0F4C2A] px-6 py-4 font-jakarta text-[15px] font-bold text-white transition-all duration-200 hover:border-[#061A12] hover:bg-[#061A12] disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex w-full items-center justify-center rounded-full border border-[#D4AF37] bg-gradient-to-r from-[#D4AF37] to-[#F7DF82] px-6 py-4 font-jakarta text-[15px] font-bold text-[#0A3020] transition-all duration-200 hover:shadow-lg hover:shadow-[#D4AF37]/25 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {formState === "loading" ? "Joining the waitlist..." : "Join the waitlist"}
               </button>
 
-              <div className="rounded-[20px] border border-[#e3ece6] bg-white px-5 py-4">
-                <p className="font-jakarta text-[13px] leading-6 text-[#6B9E83]">
+              <div className="rounded-[20px] border border-white/10 bg-white/5 px-5 py-4">
+                <p className="font-jakarta text-[13px] leading-6 text-[#A8E6C3]">
                   By joining, you’re adding your school to the EduMyles onboarding waitlist. We’ll
                   contact you with next steps, onboarding guidance, and any clarification we may
                   need before activation.
                 </p>
               </div>
             </form>
+            </div>
           </div>
         </section>
       </div>
@@ -623,15 +635,15 @@ function SignUpPageContent() {
 
 function SignUpPageFallback() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#EEF6F1] px-4 py-8 sm:px-6 lg:px-8">
-      <div className="w-full max-w-xl rounded-[28px] bg-white px-8 py-12 text-center shadow-[0_24px_64px_rgba(6,26,18,0.08)]">
-        <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#0A3020] via-[#0F4C2A] to-[#1B5E35] px-4 py-8 sm:px-6 lg:px-8">
+      <div className="w-full max-w-xl rounded-[28px] bg-white/10 border border-white/20 backdrop-blur-xl px-8 py-12 text-center shadow-2xl">
+        <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#D4AF37]">
           Preparing waitlist form
         </p>
-        <h1 className="mt-3 font-display text-[2rem] font-bold text-[#061A12]">
+        <h1 className="mt-3 font-display text-[2rem] font-bold text-white">
           Loading your signup form...
         </h1>
-        <p className="mt-4 font-jakarta text-[15px] leading-7 text-[#5d6f66]">
+        <p className="mt-4 font-jakarta text-[15px] leading-7 text-[#A8E6C3]">
           Please hold for a moment while we prepare your waitlist form.
         </p>
       </div>

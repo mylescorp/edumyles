@@ -18,6 +18,7 @@ Legacy or current frontend application surface for EduMyles.
 
 - Confirm the backend function exists before building UI against it.
 - Prefer existing components and local patterns.
+- Keep server-only authentication and impersonation verification helpers in `src/lib/server/`; browser code must not supply authority-bearing session tokens or roles.
 
 ## Verification
 

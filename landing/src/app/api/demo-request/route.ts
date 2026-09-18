@@ -2,8 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { api } from "@/convex/_generated/api";
 import { getLandingConvexClient } from "@/lib/server/convex";
 import type { MarketingAttribution } from "@/lib/attribution";
+import { z } from "zod";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const demoRequestSchema = z.object({
+  firstName: z.string().trim().max(100).optional(),
+  lastName: z.string().trim().max(100).optional(),
+  email: z.string().trim().email().max(254).optional(),
+  phone: z.string().trim().max(40).optional(),
+  schoolName: z.string().trim().max(160).optional(),
+  schoolType: z.string().trim().max(100).optional(),
+  jobTitle: z.string().trim().max(100).optional(),
+  preferredDemoDate: z.string().trim().max(40).optional(),
+  needs: z.string().trim().max(4_000).optional(),
+  country: z.string().trim().max(100).optional(),
+  county: z.string().trim().max(100).optional(),
+  studentCount: z.union([z.number().int().nonnegative(), z.string().trim().regex(/^\d+$/)]).optional(),
+  currentSystem: z.string().trim().max(160).optional(),
+  referralSource: z.string().trim().max(160).optional(),
+  referralCode: z.string().trim().max(160).optional(),
+  marketingAttribution: z.custom<MarketingAttribution>().optional(),
+});
 
 interface DemoRequestSubmission {
   fullName: string;
@@ -65,24 +83,14 @@ async function sendFallbackEmail(data: DemoRequestSubmission): Promise<void> {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as {
-      firstName?: string;
-      lastName?: string;
-      email?: string;
-      phone?: string;
-      schoolName?: string;
-      schoolType?: string;
-      jobTitle?: string;
-      preferredDemoDate?: string;
-      needs?: string;
-      country?: string;
-      county?: string;
-      studentCount?: number | string;
-      currentSystem?: string;
-      referralSource?: string;
-      referralCode?: string;
-      marketingAttribution?: MarketingAttribution;
-    };
+    const parsed = demoRequestSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, message: "We could not submit your demo request. Please review the form and try again." },
+        { status: 400 }
+      );
+    }
+    const body = parsed.data;
 
     const firstName = body.firstName?.trim() ?? "";
     const lastName = body.lastName?.trim() ?? "";
@@ -109,13 +117,6 @@ export async function POST(request: NextRequest) {
     if (!fullName || !email || !phone || !schoolName || !schoolType || !jobTitle) {
       return NextResponse.json(
         { error: "Please complete your name, work email, phone number, school name, school type, and role." },
-        { status: 400 }
-      );
-    }
-
-    if (!EMAIL_REGEX.test(email)) {
-      return NextResponse.json(
-        { error: "Please enter a valid work email address." },
         { status: 400 }
       );
     }
@@ -167,7 +168,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("[landing/api/demo-request] Unexpected error:", error);
     return NextResponse.json(
-      { error: "We couldn't submit your demo request right now. Please try again shortly." },
+      { success: false, message: "We could not submit your demo request right now. Please try again shortly." },
       { status: 500 }
     );
   }

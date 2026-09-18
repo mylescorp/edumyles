@@ -7,6 +7,7 @@ const contactSchema = z.object({
   email: z.string().email("Invalid email address"),
   school: z.string().max(160, "School name is too long").optional().or(z.literal("")),
   subject: z.string().max(160, "Subject is too long").optional().or(z.literal("")),
+  role: z.string().max(100, "Role is too long").optional().or(z.literal("")),
   message: z.string().min(1, "Message is required").max(4000, "Message is too long"),
 });
 
@@ -21,22 +22,25 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         {
-          error: parsed.error.issues[0]?.message ?? "Invalid request payload",
+          success: false,
+          message: "We could not send your message. Please review the form and try again.",
         },
         { status: 400 }
       );
     }
 
-    const { name, email, school, message, subject } = parsed.data;
+    const { name, email, school, message, subject, role } = parsed.data;
     const resend = getResendClient();
 
     if (!resend) {
-      console.warn("Contact form received but RESEND_API_KEY is not configured");
-      return NextResponse.json({
-        success: true,
-        message: "Thank you! We'll be in touch within 24 hours.",
-        queued: false,
-      });
+      console.warn("Contact form delivery is not configured");
+      return NextResponse.json(
+        {
+          success: false,
+          message: "We could not send your message right now. Please try again shortly.",
+        },
+        { status: 503 }
+      );
     }
 
     const fromEmail = process.env.RESEND_FROM_EMAIL || "EduMyles <noreply@edumyles.com>";
@@ -52,6 +56,7 @@ export async function POST(req: NextRequest) {
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>School:</strong> ${school || "Not provided"}</p>
+        <p><strong>Role:</strong> ${role || "Not provided"}</p>
         <p><strong>Subject:</strong> ${subject || "General Enquiry"}</p>
         <p><strong>Message:</strong></p>
         <p>${message.replace(/\n/g, "<br />")}</p>
@@ -61,21 +66,19 @@ export async function POST(req: NextRequest) {
     if (result.error) {
       console.error("Resend contact email error:", result.error);
       return NextResponse.json(
-        { error: "Failed to send message. Please try again." },
+        { success: false, message: "We could not send your message. Please try again shortly." },
         { status: 502 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: "Thank you! We'll be in touch within 24 hours.",
-      queued: true,
-      id: result.data?.id ?? null,
+      message: "Thank you. We will be in touch within 24 hours.",
     });
   } catch (error) {
     console.error("Contact form error:", error);
     return NextResponse.json(
-      { error: "Failed to send message. Please try again." },
+      { success: false, message: "We could not send your message. Please try again shortly." },
       { status: 500 }
     );
   }

@@ -27,7 +27,7 @@ export default function DemoModal({ open, onClose }: DemoModalProps) {
       className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Product demo video"
+      aria-label="Book an EduMyles live demo"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="relative bg-navy rounded-2xl overflow-hidden w-full max-w-4xl shadow-2xl">
@@ -42,8 +42,8 @@ export default function DemoModal({ open, onClose }: DemoModalProps) {
         <div className="aspect-video bg-navy-dark flex items-center justify-center">
           <div className="text-center text-white/50 p-8">
             <div className="text-6xl mb-4">🎬</div>
-            <p className="font-jakarta font-semibold text-xl text-white mb-2">EduMyles Product Demo</p>
-            <p className="font-inter text-sm">Full demo video coming soon. Book a live personalised demo instead.</p>
+            <p className="font-jakarta font-semibold text-xl text-white mb-2">See EduMyles in action</p>
+            <p className="font-inter text-sm">Book a live personalised demo with our team.</p>
             <a
               href="/book-demo"
               className="inline-block mt-6 bg-gold hover:bg-gold-dark text-white font-inter font-semibold px-6 py-3 rounded-full transition-colors"

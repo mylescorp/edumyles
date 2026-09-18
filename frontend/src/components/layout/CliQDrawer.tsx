@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Search, Plus, Minus, MessageCircle, Hash, Users2, X } from "lucide-react";
+import { Search, Plus, X } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -18,46 +18,6 @@ export interface ChatItem {
   membersCount?: number;
   unread?: number;
 }
-
-// ─── Mock data (replace with real Convex queries when chat backend is ready) ──
-
-const DEMO_CHATS: ChatItem[] = [
-  {
-    id: "taz",
-    name: "Taz",
-    subtitle: "Hey there! How you doi...",
-    initials: "TZ",
-    online: true,
-    unread: 2,
-  },
-  {
-    id: "announcements",
-    name: "#announcements",
-    subtitle: "Welcome to #announcements...",
-    initials: "#A",
-    isChannel: true,
-  },
-];
-
-const DEMO_CHANNELS: ChatItem[] = [
-  {
-    id: "announcements",
-    name: "#announcements",
-    subtitle: "Welcome to #announcements. By...",
-    initials: "#A",
-    membersCount: 1,
-  },
-];
-
-const DEMO_CONTACTS: ChatItem[] = [
-  {
-    id: "taz",
-    name: "Taz",
-    subtitle: "Happy to help",
-    initials: "TZ",
-    online: true,
-  },
-];
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 
@@ -117,6 +77,7 @@ function ItemRow({
 
 interface CliQDrawerProps {
   tab: CliQTab;
+  itemsByTab: Record<CliQTab, ChatItem[]>;
   onClose: () => void;
   onOpenChat: (item: ChatItem) => void;
   userName: string;
@@ -125,6 +86,7 @@ interface CliQDrawerProps {
 
 export function CliQDrawer({
   tab,
+  itemsByTab,
   onClose,
   onOpenChat,
   userName,
@@ -139,12 +101,7 @@ export function CliQDrawer({
       ? "Search Channels"
       : "Search Contacts";
 
-  const rawItems =
-    tab === "chats"
-      ? DEMO_CHATS
-      : tab === "channels"
-      ? DEMO_CHANNELS
-      : DEMO_CONTACTS;
+  const rawItems = itemsByTab[tab];
 
   const items = search
     ? rawItems.filter((i) =>

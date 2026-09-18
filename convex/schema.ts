@@ -260,6 +260,19 @@ export default defineSchema({
       .index("by_tenant_email", ["tenantId", "email"])
       .index("by_tenant_role", ["tenantId", "role"]),
 
+  organization_memberships: defineTable({
+    userId: v.string(),
+    workosUserId: v.string(),
+    workosOrganizationId: v.string(),
+    role: v.string(),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_workos_user", ["workosUserId"])
+    .index("by_organization", ["workosOrganizationId"])
+    .index("by_user_org", ["userId", "workosOrganizationId"]),
+
   mobileDeviceTokens: defineTable({
     tenantId: v.string(),
     userId: v.string(),

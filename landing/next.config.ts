@@ -2,8 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@edumyles/shared"],
+  poweredByHeader: false,
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   images: {
     remotePatterns: [
@@ -25,6 +26,16 @@ const nextConfig: NextConfig = {
       {
         source: "/api/(.*)",
         headers: [{ key: "Cache-Control", value: "no-store" }],
+      },
+      {
+        source:
+          "/:section(apply|affiliate|blog|case-studies|changelog|customers|developers|integrations|partners|reseller|resellers|reseeler|roadmap|solutions|status)/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source:
+          "/:section(apply|affiliate|blog|case-studies|changelog|customers|developers|integrations|partners|reseller|resellers|reseeler|roadmap|solutions|status)",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
     ];
   },

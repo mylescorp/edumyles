@@ -75,6 +75,8 @@ export default function ContactForm() {
           <div
             className="rounded-2xl p-8 flex flex-col items-center gap-4 text-center"
             style={{ background: "#F3FBF6", border: "1px solid #A8E6C3" }}
+            role="status"
+            aria-live="polite"
           >
             <div
               className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
@@ -86,11 +88,11 @@ export default function ContactForm() {
               Thank you!
             </h3>
             <p className="font-jakarta text-[15px]" style={{ color: "#5a5a5a" }}>
-              We&apos;ll be in touch within 24 hours.
+              We&apos;ll review your message and get back to you as soon as possible.
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             {/* Row: Full Name + Email */}
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
@@ -210,7 +212,7 @@ export default function ContactForm() {
 
             {/* Error state */}
             {formState === "error" && (
-              <p className="font-jakarta text-[14px]" style={{ color: "#dc2626" }}>
+              <p className="font-jakarta text-[14px]" style={{ color: "#dc2626" }} role="alert">
                 Something went wrong. Please try again or email us directly at{" "}
                 <a
                   href="mailto:contact@edumyles.com"

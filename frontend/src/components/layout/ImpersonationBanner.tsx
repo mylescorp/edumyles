@@ -24,14 +24,26 @@ export function ImpersonationBanner() {
 
     const endImpersonation = useMutation(api.platform.impersonation.mutations.endImpersonation);
 
-    // Check client-side cookie to detect if we are currently in an impersonation session
+    // Read server-only impersonation state through the authenticated session boundary.
     useEffect(() => {
-        const cookies = document.cookie.split(";").reduce<Record<string, string>>((acc, c) => {
-            const [k, v] = c.trim().split("=");
-            if (k) acc[k] = v ?? "";
-            return acc;
-        }, {});
-        setIsActiveBrowse(cookies["edumyles_impersonating"] === "true");
+        let cancelled = false;
+
+        void fetch("/api/impersonation/status", {
+            credentials: "same-origin",
+            cache: "no-store",
+        })
+            .then(async (response) => {
+                if (!response.ok || cancelled) return;
+                const data: { active?: boolean } = await response.json();
+                setIsActiveBrowse(data.active === true);
+            })
+            .catch(() => {
+                if (!cancelled) setIsActiveBrowse(false);
+            });
+
+        return () => {
+            cancelled = true;
+        };
     }, [sessionToken]);
 
     const handleExitImpersonation = async () => {
@@ -51,7 +63,7 @@ export function ImpersonationBanner() {
             const res = await fetch("/api/impersonation/exit", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ adminRole: "master_admin" }),
+                body: JSON.stringify({}),
             });
 
             if (res.ok) {

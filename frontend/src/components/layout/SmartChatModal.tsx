@@ -5,21 +5,6 @@ import { Search, X, Lightbulb, Users2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ChatItem } from "./CliQDrawer";
 
-// ─── Demo data (mirrors CliQDrawer, replace with real queries) ────────────────
-
-const DEMO_CHATS: ChatItem[] = [
-  { id: "taz", name: "Taz", subtitle: "Taz: Hey there! How you doing?", initials: "TZ", online: true },
-  { id: "announcements-chat", name: "#announcements", subtitle: "Welcome to #announcements...", initials: "#A", isChannel: true },
-];
-
-const DEMO_CONTACTS: ChatItem[] = [
-  { id: "taz", name: "Taz", subtitle: "Happy to help", initials: "TZ", online: true },
-];
-
-const DEMO_CHANNELS: ChatItem[] = [
-  { id: "announcements", name: "#announcements", subtitle: "Welcome to #announcements. By...", initials: "#A", membersCount: 1 },
-];
-
 // ─── Mini avatar ─────────────────────────────────────────────────────────────
 
 function MiniAvatar({ item }: { item: ChatItem }) {
@@ -87,11 +72,14 @@ function Column({
 
 interface SmartChatModalProps {
   open: boolean;
+  chats: ChatItem[];
+  contacts: ChatItem[];
+  channels: ChatItem[];
   onClose: () => void;
   onSelectChat: (item: ChatItem) => void;
 }
 
-export function SmartChatModal({ open, onClose, onSelectChat }: SmartChatModalProps) {
+export function SmartChatModal({ open, chats, contacts, channels, onClose, onSelectChat }: SmartChatModalProps) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -159,19 +147,19 @@ export function SmartChatModal({ open, onClose, onSelectChat }: SmartChatModalPr
         <div className="flex gap-8 px-8 py-6 min-h-[300px]">
           <Column
             title="Chats"
-            items={filter(DEMO_CHATS)}
+            items={filter(chats)}
             onSelect={handleSelect}
           />
           <div className="w-px bg-gray-100 self-stretch" />
           <Column
             title="Contacts"
-            items={filter(DEMO_CONTACTS)}
+            items={filter(contacts)}
             onSelect={handleSelect}
           />
           <div className="w-px bg-gray-100 self-stretch" />
           <Column
             title="Channels"
-            items={filter(DEMO_CHANNELS)}
+            items={filter(channels)}
             onSelect={handleSelect}
           />
         </div>

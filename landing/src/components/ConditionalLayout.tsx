@@ -22,7 +22,10 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
       <Suspense fallback={null}>
         <Navbar />
       </Suspense>
-      <main>{children}</main>
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+      <main id="main-content">{children}</main>
       <Footer />
       <ContactLauncher />
       <CookieBanner />

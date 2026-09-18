@@ -45,6 +45,12 @@ const ROUTE_ROLE_MAP: Record<string, string[]> = {
     "analytics_viewer",
   ],
   "/admin": [
+    "network_operator",
+    "operator_manager",
+    "agency_super_admin",
+    "reseller_super_admin",
+    "agency",
+    "reseller",
     "school_admin",
     "principal",
     "bursar",

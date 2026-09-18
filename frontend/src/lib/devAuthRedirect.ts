@@ -56,19 +56,19 @@ export function redirectWithLocalDevSession(
   });
   response.cookies.set("edumyles_user", JSON.stringify(user), {
     ...cookieOptions,
-    httpOnly: false,
+    httpOnly: true,
   });
   response.cookies.set("edumyles_role", "master_admin", {
     ...cookieOptions,
-    httpOnly: false,
+    httpOnly: true,
   });
   response.cookies.set("edumyles_admin_workspace_mode", "platform", {
     ...cookieOptions,
-    httpOnly: false,
+    httpOnly: true,
   });
   response.cookies.set("edumyles_dev_bootstrap", DEV_BOOTSTRAP_VERSION, {
     ...cookieOptions,
-    httpOnly: false,
+    httpOnly: true,
   });
 
   return response;

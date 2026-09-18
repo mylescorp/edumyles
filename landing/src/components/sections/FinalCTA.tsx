@@ -41,7 +41,7 @@ export default function FinalCTA() {
         </h2>
 
         <p className="text-[18px] mb-8 leading-relaxed" style={{ color: "#90CAF9" }}>
-          Join schools already running on EduMyles. Setup is free. Support is local.
+          Explore whether EduMyles is the right fit for your school operations.
         </p>
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center mb-4">
@@ -76,7 +76,7 @@ export default function FinalCTA() {
         </div>
 
         <p className="text-[13px]" style={{ color: "#6B9E83" }}>
-          No commitment required · Free onboarding included · Cancel anytime
+          Review the plans, ask questions, and choose the next step for your school.
         </p>
       </div>
     </section>

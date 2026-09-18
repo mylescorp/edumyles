@@ -40,15 +40,6 @@ type AuthStoreState = {
   isLoading: boolean;
 };
 
-const AUTH_CACHE_KEY = "edumyles_auth_session";
-const CLIENT_AUTH_COOKIE_NAMES = [
-  "edumyles_user",
-  "edumyles_role",
-  "edumyles_admin_tenant",
-  "edumyles_admin_workspace_mode",
-  "edumyles_dev_bootstrap",
-];
-
 const authListeners = new Set<(state: AuthStoreState) => void>();
 let authState: AuthStoreState = {
   session: null,
@@ -68,119 +59,6 @@ function setAuthState(next: Partial<AuthStoreState>) {
     ...next,
   };
   emitAuthState();
-}
-
-function readCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
-  const value = match?.[1];
-  return value ? decodeURIComponent(value) : null;
-}
-
-function getAdminWorkspaceTenantId() {
-  const requestedWorkspace = getRequestedWorkspace();
-  if (requestedWorkspace !== "admin") return null;
-  return readCookie("edumyles_admin_tenant");
-}
-
-function readStoredSession(): Session | null {
-  if (typeof window === "undefined") return null;
-
-  try {
-    const raw = window.localStorage.getItem(AUTH_CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Session;
-    if (!parsed?.email || !parsed?.role) return null;
-    if (parsed.expiresAt && parsed.expiresAt < Date.now()) {
-      window.localStorage.removeItem(AUTH_CACHE_KEY);
-      return null;
-    }
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function writeStoredSession(session: Session | null) {
-  if (typeof window === "undefined") return;
-
-  try {
-    if (!session) {
-      window.localStorage.removeItem(AUTH_CACHE_KEY);
-      return;
-    }
-    window.localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(session));
-  } catch {
-    // Ignore localStorage quota / availability issues.
-  }
-}
-
-function clearClientCookie(name: string) {
-  if (typeof document === "undefined") return;
-  document.cookie = `${name}=; Path=/; Max-Age=0; SameSite=Lax`;
-}
-
-function clearClientAuthCache() {
-  if (typeof window === "undefined") return;
-
-  writeStoredSession(null);
-  for (const cookieName of CLIENT_AUTH_COOKIE_NAMES) {
-    clearClientCookie(cookieName);
-  }
-}
-
-function buildFallbackSessionFromCookies(): Session | null {
-  const userCookie = readCookie("edumyles_user");
-  const roleCookie = normalizeRole(readCookie("edumyles_role"));
-  const storedSession = readStoredSession();
-  const adminWorkspaceTenantId = getAdminWorkspaceTenantId();
-
-  if (!userCookie) return storedSession;
-
-  try {
-    const user = JSON.parse(userCookie) as {
-      email?: string;
-      role?: string;
-      tenantId?: string;
-      sessionToken?: string;
-    };
-
-    if (!user.email) return null;
-
-    const role = normalizeRole(user.role) ?? roleCookie ?? "school_admin";
-    const tenantId =
-      adminWorkspaceTenantId ||
-      (role === "master_admin" ? "PLATFORM" : (user.tenantId ?? "PLATFORM"));
-
-    return {
-      sessionToken:
-        user.sessionToken ||
-        (storedSession?.email === user.email ? storedSession.sessionToken : ""),
-      tenantId: storedSession?.email === user.email ? storedSession.tenantId || tenantId : tenantId,
-      activeTenantId:
-        storedSession?.email === user.email
-          ? storedSession.activeTenantId || storedSession.tenantId || tenantId
-          : tenantId,
-      networkId: storedSession?.email === user.email ? (storedSession.networkId ?? null) : null,
-      identityId: storedSession?.email === user.email ? (storedSession.identityId ?? null) : null,
-      accessibleTenantIds:
-        storedSession?.email === user.email
-          ? (storedSession.accessibleTenantIds ?? [
-              storedSession.activeTenantId || storedSession.tenantId || tenantId,
-            ])
-          : [tenantId],
-      userId: user.email,
-      email: user.email,
-      role,
-      expiresAt:
-        storedSession?.email === user.email
-          ? storedSession.expiresAt
-          : Date.now() + 30 * 24 * 60 * 60 * 1000,
-    };
-  } catch {
-    return storedSession;
-  }
 }
 
 function getRequestedWorkspace(): "admin" | "platform" | null {
@@ -204,11 +82,7 @@ async function loadAuthSession(force = false) {
   }
 
   authLoadPromise = (async () => {
-    const cachedSession = readStoredSession();
-
-    if (cachedSession && !force) {
-      setAuthState({ session: cachedSession, isLoading: false });
-    } else if (!authState.session || force) {
+    if (!authState.session || force) {
       setAuthState({ isLoading: true });
     } else {
       // Keep the existing authenticated shell rendered while we refresh
@@ -233,7 +107,7 @@ async function loadAuthSession(force = false) {
 
       if (!res.ok) {
         setAuthState({
-          session: buildFallbackSessionFromCookies(),
+          session: null,
           isLoading: false,
         });
         return;
@@ -246,31 +120,13 @@ async function loadAuthSession(force = false) {
             role: normalizeRole((data.session as Session).role) ?? "",
           }
         : null;
-      const adminWorkspaceTenantId = getAdminWorkspaceTenantId();
-      const resolvedSession = nextSession
-        ? {
-            ...nextSession,
-            tenantId: adminWorkspaceTenantId || nextSession.tenantId,
-            activeTenantId:
-              adminWorkspaceTenantId || nextSession.activeTenantId || nextSession.tenantId,
-          }
-        : null;
-
-      if (resolvedSession) {
-        writeStoredSession(resolvedSession);
-      } else {
-        clearClientAuthCache();
-      }
-
       setAuthState({
-        session: resolvedSession,
+        session: nextSession,
         isLoading: false,
       });
     } catch {
-      const fallbackSession = buildFallbackSessionFromCookies();
-      writeStoredSession(fallbackSession);
       setAuthState({
-        session: fallbackSession,
+        session: null,
         isLoading: false,
       });
     } finally {
@@ -292,12 +148,7 @@ export function useAuth() {
     };
 
     authListeners.add(listener);
-    const cachedSession = readStoredSession();
-    if (cachedSession && !authState.session) {
-      setAuthState({ session: cachedSession, isLoading: false });
-    } else {
-      listener(authState);
-    }
+    listener(authState);
     void loadAuthSession();
 
     return () => {
@@ -336,7 +187,6 @@ export function useAuth() {
   );
 
   const logout = useCallback(async () => {
-    clearClientAuthCache();
     setAuthState({ session: null, isLoading: false });
     sessionStorage.clear();
 

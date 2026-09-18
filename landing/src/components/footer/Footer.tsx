@@ -19,30 +19,22 @@ import type { LucideIcon } from "lucide-react";
 // Product column (with subtitles, like MylesCorp layout)
 
 const PRODUCT_LINKS = [
-  { label: "Features", sub: "All 13 modules", href: "/features" },
-  { label: "Pricing", sub: "Plans and billing", href: "/pricing" },
-  { label: "Integrations", sub: "Payments, SMS, SSO", href: "/integrations" },
-  { label: "Security", sub: "Data protection", href: "/security" },
-  { label: "Status", sub: "Platform availability", href: "/status" },
+  { label: "Features", sub: "Explore the platform", href: "/features" },
+  { label: "Pricing", sub: "Compare available plans", href: "/pricing" },
+  { label: "Contact", sub: "Talk with the team", href: "/contact" },
 ];
 
 // Solutions column
 
 const SOLUTIONS_LINKS = [
-  { label: "Primary Schools", href: "/solutions/primary-schools" },
-  { label: "Secondary Schools", href: "/solutions/secondary-schools" },
-  { label: "International Schools", href: "/solutions/international-schools" },
-  { label: "School Groups", href: "/solutions/school-groups" },
-  { label: "Case Studies", href: "/case-studies" },
+  { label: "Book a Demo", href: "/book-demo" },
+  { label: "Join the Waitlist", href: "/waitlist" },
 ];
 
 // Partners column
 
 const PARTNERS_LINKS = [
-  { label: "Developers", href: "/developers" },
-  { label: "Affiliates", href: "/affiliate" },
-  { label: "Resellers", href: "/reseller" },
-  { label: "Partner Program", href: "/partners" },
+  { label: "Contact Us", href: "/contact" },
 ];
 
 // Company column
@@ -51,8 +43,6 @@ const COMPANY_LINKS = [
   { label: "About Us", href: "/about" },
   { label: "Our Team", href: "/team" },
   { label: "Pricing", href: "/pricing" },
-  { label: "Customers", href: "/customers" },
-  { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -63,9 +53,9 @@ type TrustBadge =
   | { icon?: never; emoji: string; label: string };
 
 const TRUST_BADGES: TrustBadge[] = [
-  { icon: ShieldCheck, label: "Kenya DPA Compliant" },
-  { icon: Lock, label: "Encrypted Data" },
-  { icon: ShieldCheck, label: "Secure Access" },
+  { icon: ShieldCheck, label: "Privacy information available" },
+  { icon: Lock, label: "Secure access information" },
+  { icon: ShieldCheck, label: "Contact our team" },
 ];
 
 // Social SVG icons
@@ -407,8 +397,7 @@ export default function Footer() {
               className="font-jakarta text-[12.5px] leading-[1.9] mb-5"
               style={{ color: "#6B9E83", maxWidth: "260px" }}
             >
-              East Africa&apos;s leading school management platform &mdash; built for African
-              schools, by people who understand African education.
+              School operations information for teams exploring EduMyles.
             </p>
 
             {/* Contact info */}
@@ -642,7 +631,7 @@ export default function Footer() {
           <p className="font-jakarta text-[11.5px] order-2 sm:order-1" style={{ color: "#4a6b58" }}>
             &copy; 2026{" "}
             <Link
-              href="/about"
+              href="https://mylescorptech.com/"
               className="transition-colors duration-200"
               style={{ color: "#6B9E83", textDecoration: "none" }}
               onMouseEnter={(e) => {
