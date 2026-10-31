@@ -23,7 +23,11 @@ export default function ThemeToggle() {
   const toggle = () => {
     const isDark = !getSnapshot();
     document.documentElement.classList.toggle("dark", isDark);
-    localStorage.setItem("em-theme", isDark ? "dark" : "light");
+    try {
+      localStorage.setItem("em-theme", isDark ? "dark" : "light");
+    } catch {
+      // Theme switching still works when browser storage is unavailable.
+    }
     window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   };
 

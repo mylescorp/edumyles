@@ -47,7 +47,7 @@ export default function Features() {
       id="features"
       className="px-4 sm:px-8 py-16"
       aria-label="Problems we solve"
-      style={{ background: "#0F1D1B" }}
+      style={{ background: "var(--platform-chrome)" }}
     >
       <div className="max-w-[1200px] mx-auto">
         {/* Eyebrow */}
@@ -55,7 +55,7 @@ export default function Features() {
           <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "var(--primary)" }} />
           <div
             className="text-[10px] font-bold tracking-[2.5px] uppercase"
-            style={{ color: "var(--accent-foreground)" }}
+            style={{ color: "#B9CBD6" }}
           >
             The Problem
           </div>
@@ -67,7 +67,7 @@ export default function Features() {
           style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#ffffff" }}
         >
           Schools are drowning in paperwork.{" "}
-          <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+          <em className="italic" style={{ color: "#B9CBD6" }}>
             EduMyles fixes that.
           </em>
         </h2>
@@ -95,7 +95,7 @@ export default function Features() {
                 e.currentTarget.style.borderColor = "rgb(var(--primary-rgb) / 20%)";
               }}
             >
-              <div className="mb-4" style={{ color: "var(--accent-foreground)" }}>
+              <div className="mb-4" style={{ color: "#B9CBD6" }}>
                 <problem.icon className="w-6 h-6" strokeWidth={1.5} />
               </div>
               <h3 className="font-display font-bold text-[20px] mb-3" style={{ color: "#ffffff" }}>

@@ -189,7 +189,7 @@ export default function BrandValues() {
               style={{
                 background: "rgb(var(--primary-rgb) / 15%)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                color: "var(--accent-foreground)",
+                color: "#B9CBD6",
               }}
             >
               Founding Story
@@ -204,10 +204,10 @@ export default function BrandValues() {
               time back.&rdquo;
             </blockquote>
             <div>
-              <div className="font-jakarta font-bold text-[15px]" style={{ color: "var(--accent-foreground)" }}>
+              <div className="font-jakarta font-bold text-[15px]" style={{ color: "#B9CBD6" }}>
                 Jonathan Myles
               </div>
-              <div className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+              <div className="font-jakarta text-[13px]" style={{ color: "#D5E1DE" }}>
                 CEO &amp; Founder — EduMyles · Founded in Nairobi, Kenya
               </div>
             </div>
