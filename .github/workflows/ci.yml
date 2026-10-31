@@ -51,6 +51,9 @@ jobs:
       - name: Run tests
         run: npm run test
 
+      - name: Run frontend coverage
+        run: npm run test:coverage --workspace=frontend
+
       - name: Upload coverage
         uses: actions/upload-artifact@v4
         if: always()
