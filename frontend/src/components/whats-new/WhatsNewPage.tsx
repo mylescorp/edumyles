@@ -36,6 +36,7 @@ type Entry = {
 };
 
 const EMPTY_ENTRIES: Entry[] = [];
+const NAIROBI_UTC_OFFSET_MS = 3 * 60 * 60 * 1000;
 const FILTERS = [
   { id: "all", label: "All" },
   { id: "feature", label: "New" },
@@ -69,8 +70,18 @@ function formatReleaseDate(timestamp: number) {
 
 function releaseDateBoundary(date: string, endOfDay = false) {
   if (!date) return undefined;
-  // Africa/Nairobi is UTC+03:00 year-round; align filtering with the date labels.
-  return new Date(`${date}T${endOfDay ? "23:59:59.999" : "00:00:00"}+03:00`).getTime();
+  const [year = NaN, month = NaN, day = NaN] = date.split("-").map(Number);
+  const localDayBoundary = Date.UTC(
+    year,
+    month - 1,
+    day,
+    endOfDay ? 23 : 0,
+    endOfDay ? 59 : 0,
+    endOfDay ? 59 : 0,
+    endOfDay ? 999 : 0
+  );
+  // Convert the selected Nairobi calendar day (UTC+03:00) to a UTC timestamp.
+  return localDayBoundary - NAIROBI_UTC_OFFSET_MS;
 }
 
 function getEntryUrl(routeBase: string, entry: Entry) {
@@ -96,6 +107,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const [personalized, setPersonalized] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const openedScopeRef = useRef<string | null>(null);
+  const lastScrolledHashRef = useRef<string | null>(null);
   const data = useQuery(
     api.platform.changelog.queries.getWhatsNewFeed,
     { sessionToken: sessionToken ?? "" },
@@ -124,9 +136,19 @@ export function WhatsNewPage({ version }: { version?: string }) {
 
   useEffect(() => {
     if (!data || entries.length === 0 || !window.location.hash) return;
-    const targetId = decodeURIComponent(window.location.hash.slice(1));
+    const hash = window.location.hash;
+    if (lastScrolledHashRef.current === hash) return;
+    let targetId: string;
+    try {
+      targetId = decodeURIComponent(hash.slice(1));
+    } catch {
+      return;
+    }
     const frame = window.requestAnimationFrame(() => {
-      document.getElementById(targetId)?.scrollIntoView({ block: "start" });
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      target.scrollIntoView({ block: "start" });
+      lastScrolledHashRef.current = hash;
     });
     return () => window.cancelAnimationFrame(frame);
   }, [data, entries]);

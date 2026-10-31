@@ -13,7 +13,7 @@ const allowedTypes = new Set(["feature", "improvement", "fix", "breaking"]);
 const allowedPanels = new Set([
   "admin", "teacher", "student", "parent", "alumni", "partner", "developer", "affiliate", "reseller", "platform",
 ]);
-const changedFiles = execFileSync("git", ["diff", "--name-status", `${base}...HEAD`], {
+const changedFiles = execFileSync("git", ["diff", "--no-renames", "--name-status", `${base}...HEAD`], {
   encoding: "utf8",
 })
   .split(/\r?\n/)
