@@ -4,20 +4,23 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  CalendarDays,
-  CheckCheck,
-  ExternalLink,
-  Filter,
+  ArrowUpRight,
+  Bug,
+  Lightbulb,
+  Link2,
+  MessageCircle,
   Search,
+  SlidersHorizontal,
   Sparkles,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 type Entry = {
@@ -25,21 +28,53 @@ type Entry = {
   version: string;
   title: string;
   description: string;
-  type: string;
+  type: "feature" | "improvement" | "fix" | "breaking";
   module?: string;
   tags: string[];
   date: number;
   links?: Array<{ label: string; url: string }>;
 };
 
-const categories = ["all", "feature", "improvement", "fix", "breaking"];
 const EMPTY_ENTRIES: Entry[] = [];
-const categoryLabel: Record<string, string> = {
-  feature: "Feature",
-  improvement: "Improvement",
-  fix: "Fix",
+const FILTERS = [
+  { id: "all", label: "All" },
+  { id: "feature", label: "New" },
+  { id: "improvement", label: "Improvements" },
+  { id: "fix", label: "Fixes" },
+] as const;
+const CATEGORY_LABEL: Record<Entry["type"], string> = {
+  feature: "New",
+  improvement: "Improvements",
+  fix: "Fixes",
   breaking: "Breaking change",
 };
+
+function getSafeCount(value: unknown): number {
+  let current = value;
+  for (let depth = 0; depth < 3 && current && typeof current === "object"; depth += 1) {
+    const result = current as { value?: unknown; data?: unknown };
+    current = result.value ?? result.data;
+  }
+  return typeof current === "number" && Number.isFinite(current) ? current : 0;
+}
+
+function formatReleaseDate(timestamp: number) {
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "Africa/Nairobi",
+  }).format(new Date(timestamp));
+}
+
+function getEntryUrl(routeBase: string, entry: Entry) {
+  const url = new URL(
+    `${routeBase}/releases/${encodeURIComponent(entry.version)}`,
+    window.location.origin
+  );
+  url.hash = `update-${encodeURIComponent(entry._id)}`;
+  return url.toString();
+}
 
 export function WhatsNewPage({ version }: { version?: string }) {
   const pathname = usePathname() ?? "/admin/whats-new";
@@ -48,11 +83,12 @@ export function WhatsNewPage({ version }: { version?: string }) {
     releasePathIndex >= 0 ? pathname.slice(0, releasePathIndex) : pathname.replace(/\/$/, "");
   const { sessionToken } = useAuth();
   const { installedModules } = useInstalledModules();
-  const [category, setCategory] = useState("all");
+  const [category, setCategory] = useState<(typeof FILTERS)[number]["id"]>("all");
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [personalized, setPersonalized] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const openedScopeRef = useRef<string | null>(null);
   const data = useQuery(
     api.platform.changelog.queries.getWhatsNewFeed,
@@ -64,12 +100,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
     { sessionToken: sessionToken ?? "" },
     !!sessionToken
   );
-  // Scalar Convex values are wrapped by useSSRSafeConvex so they can expose
-  // query metadata. Unwrap the count before rendering it as text.
-  const unreadCount =
-    typeof unreadCountResult === "number"
-      ? unreadCountResult
-      : unreadCountResult?.value ?? unreadCountResult?.data ?? 0;
+  const unreadCount = getSafeCount(unreadCountResult);
   const markAllRead = useMutation(api.platform.changelog.mutations.markAllRead);
   const scopeKey =
     sessionToken && data ? `${sessionToken}:${data.workspaceId}:${version ?? "all"}` : null;
@@ -83,226 +114,303 @@ export function WhatsNewPage({ version }: { version?: string }) {
   }, [data, markAllRead, scopeKey, sessionToken, version]);
 
   const entries = (data?.entries ?? EMPTY_ENTRIES) as Entry[];
-  const activeVersion = version;
+  const activeVersion = version ? decodeURIComponent(version) : undefined;
   const filtered = useMemo(
     () =>
       entries.filter((entry) => {
-        if (activeVersion && entry.version !== decodeURIComponent(activeVersion)) return false;
-        if (category !== "all" && entry.type !== category) return false;
+        if (activeVersion && entry.version !== activeVersion) return false;
+        if (category === "feature" && entry.type !== "feature") return false;
+        if (category === "improvement" && entry.type !== "improvement" && entry.type !== "breaking")
+          return false;
+        if (category === "fix" && entry.type !== "fix") return false;
         if (personalized && entry.module && !installedModules.includes(entry.module)) return false;
         if (fromDate && entry.date < new Date(`${fromDate}T00:00:00`).getTime()) return false;
         if (toDate && entry.date > new Date(`${toDate}T23:59:59`).getTime()) return false;
         const needle = search.trim().toLowerCase();
         return (
           !needle ||
-          [
-            entry.title,
-            entry.description,
-            entry.version,
-            entry.module,
-            ...entry.tags,
-          ].some((value) => value?.toLowerCase().includes(needle))
+          [entry.title, entry.description, entry.version, entry.module, ...entry.tags].some((value) =>
+            value?.toLowerCase().includes(needle)
+          )
         );
       }),
     [activeVersion, category, entries, fromDate, installedModules, personalized, search, toDate]
   );
   const releases = useMemo(() => {
     const grouped = new Map<string, Entry[]>();
-    for (const entry of filtered)
+    for (const entry of filtered) {
       grouped.set(entry.version, [...(grouped.get(entry.version) ?? []), entry]);
+    }
     return [...grouped].map(([releaseVersion, releaseEntries]) => ({
       version: releaseVersion,
+      date: Math.max(...releaseEntries.map((entry) => entry.date)),
       entries: releaseEntries,
     }));
   }, [filtered]);
 
-  if (!data)
+  async function copyEntryLink(entry: Entry) {
+    try {
+      await navigator.clipboard.writeText(getEntryUrl(routeBase, entry));
+      toast.success("Update link copied.");
+    } catch {
+      toast.error("Could not copy the update link.");
+    }
+  }
+
+  function shareOnWhatsApp(entry: Entry) {
+    const url = new URL("https://wa.me/");
+    url.searchParams.set("text", `${entry.title} — ${getEntryUrl(routeBase, entry)}`);
+    window.open(url.toString(), "_blank", "noopener,noreferrer");
+  }
+
+  if (!data) {
     return (
-      <div className="mx-auto max-w-4xl animate-pulse space-y-4 p-6">
-        <div className="h-10 w-56 rounded bg-muted" />
-        <div className="h-44 rounded-xl bg-muted" />
-      </div>
+      <main className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:py-10">
+        <div className="h-10 w-56 animate-pulse rounded bg-muted" />
+        <div className="h-16 animate-pulse rounded-xl bg-muted" />
+        <div className="h-56 animate-pulse rounded-xl bg-muted" />
+      </main>
     );
+  }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6 lg:py-10">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-primary">
-            <Sparkles className="h-5 w-5" />
-            <span className="text-sm font-semibold">Product updates</span>
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight">
-            {activeVersion ? `Release ${decodeURIComponent(activeVersion)}` : "What’s new"}
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Features, improvements, and fixes for your panel, organized by release.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {!!unreadCount && <Badge>{unreadCount} new</Badge>}
-          {activeVersion && (
-            <Button asChild variant="outline" size="sm">
-              <Link href={routeBase}>All releases</Link>
-            </Button>
-          )}
-        </div>
-      </header>
-
-      {!activeVersion && (
-        <Card>
-          <CardContent className="grid gap-3 p-4 md:grid-cols-[1fr_auto_auto_auto] md:items-center">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="pl-9"
-                placeholder="Search updates"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
+    <main className="mx-auto max-w-5xl px-4 py-7 sm:px-6 lg:py-10">
+      <div className="mx-auto max-w-4xl">
+        <header className="mb-6 border-b border-border pb-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                What&apos;s <span className="text-primary">new.</span>
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground sm:text-base">
+                Product updates, fixes, and improvements from the EduMyles team.
+              </p>
             </div>
-            <label className="flex items-center gap-2 text-sm">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <select
-                className="h-10 rounded-md border border-input bg-background px-3"
-                value={category}
-                onChange={(event) => setCategory(event.target.value)}
-              >
-                {categories.map((item) => (
-                  <option key={item} value={item}>
-                    {item === "all" ? "All categories" : categoryLabel[item]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={personalized}
-                onChange={(event) => setPersonalized(event.target.checked)}
-              />
-              What changed for me?
-            </label>
-            <label className="flex items-center gap-2 text-xs text-muted-foreground">
-              <CalendarDays className="h-4 w-4" />
-              <input
-                aria-label="From date"
-                type="date"
-                className="h-9 rounded-md border border-input bg-background px-2"
-                value={fromDate}
-                onChange={(event) => setFromDate(event.target.value)}
-              />
-              <span>to</span>
-              <input
-                aria-label="To date"
-                type="date"
-                className="h-9 rounded-md border border-input bg-background px-2"
-                value={toDate}
-                onChange={(event) => setToDate(event.target.value)}
-              />
-            </label>
-            {!!unreadCount && (
-              <Button
-                className="md:col-span-4 md:justify-self-end"
-                size="sm"
-                variant="ghost"
-                onClick={() => sessionToken && markAllRead({ sessionToken })}
-              >
-                <CheckCheck className="mr-2 h-4 w-4" />
-                Mark all as read
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {releases.length === 0 ? (
-        <Card>
-          <CardContent className="p-10 text-center">
-            <Sparkles className="mx-auto h-8 w-8 text-muted-foreground" />
-            <h2 className="mt-3 text-lg font-medium">No updates found</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Try another search or filter. New updates for this panel will appear here.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        releases.map((release) => (
-          <section
-            key={release.version}
-            className="grid grid-cols-[4.5rem_1.25rem_minmax(0,1fr)] gap-3 sm:grid-cols-[6rem_1.5rem_minmax(0,1fr)] sm:gap-4"
-          >
-            <time className="pt-5 text-right text-xs leading-4 text-muted-foreground">
-              {new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
-                new Date(Math.max(...release.entries.map((entry) => entry.date)))
-              )}
-            </time>
-            <div className="relative flex justify-center">
-              {release !== releases[releases.length - 1] && (
-                <span
-                  className="absolute bottom-[-1.5rem] top-0 w-px bg-border"
-                  aria-hidden="true"
-                />
-              )}
-              <span className="relative mt-6 h-2.5 w-2.5 rounded-full border-2 border-background bg-primary ring-1 ring-border" />
-            </div>
-            <div className="min-w-0 space-y-3">
-              <div className="flex flex-wrap items-center gap-3 border-b pb-3">
-                <Badge variant="outline">Release</Badge>
-                <h2 className="text-xl font-semibold">Version {release.version}</h2>
-                <Button asChild variant="link" size="sm" className="ml-auto">
-                  <Link href={`${routeBase}/releases/${encodeURIComponent(release.version)}`}>
-                    Release details
+            {!activeVersion && (
+              <div className="flex flex-wrap gap-2">
+                <Button asChild variant="outline" size="sm" className="rounded-full">
+                  <Link href="/platform/support">
+                    <Lightbulb className="mr-2 h-4 w-4" /> Request a feature
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" className="rounded-full">
+                  <Link href="/platform/support">
+                    <Bug className="mr-2 h-4 w-4" /> Report a bug
                   </Link>
                 </Button>
               </div>
-              {release.entries.map((entry) => (
-                <Card key={entry._id} className="overflow-hidden">
-                  <CardContent className="flex gap-4 p-5">
-                    <span
-                      className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-primary"
-                      aria-hidden="true"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-semibold">{entry.title}</h3>
-                        <Badge variant="secondary">{categoryLabel[entry.type] ?? entry.type}</Badge>
-                        {entry.module && <Badge variant="outline">{entry.module}</Badge>}
-                      </div>
-                      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
-                        {entry.description}
-                      </p>
-                      {entry.tags.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {entry.tags.map((tag) => (
-                            <Badge key={tag} variant="outline" className="font-normal">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                      {entry.links?.length ? (
-                        <div className="mt-4 flex flex-wrap gap-3">
-                          {entry.links.map((link) => (
-                            <a
-                              key={link.url}
-                              href={link.url}
-                              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-                            >
-                              {link.label}
-                              <ExternalLink className="h-3.5 w-3.5" />
-                            </a>
-                          ))}
-                        </div>
-                      ) : null}
-                    </div>
-                  </CardContent>
-                </Card>
+            )}
+          </div>
+          {activeVersion && (
+            <Button asChild variant="link" size="sm" className="mt-2 h-auto p-0">
+              <Link href={routeBase}>All releases</Link>
+            </Button>
+          )}
+        </header>
+
+        {!activeVersion && (
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div
+              role="tablist"
+              aria-label="Filter product updates"
+              className="inline-flex rounded-xl border border-border bg-muted/60 p-1"
+            >
+              {FILTERS.map((filter) => (
+                <button
+                  key={filter.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={category === filter.id}
+                  onClick={() => setCategory(filter.id)}
+                  className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                    category === filter.id
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {filter.label}
+                </button>
               ))}
             </div>
-          </section>
-        ))
-      )}
-    </div>
+            <div className="flex min-w-[min(100%,18rem)] flex-1 items-center justify-end gap-2 sm:flex-none">
+              {!!unreadCount && (
+                <Badge variant="secondary" className="whitespace-nowrap">
+                  {unreadCount} new
+                </Badge>
+              )}
+              <div className="relative min-w-0 flex-1 sm:w-56 sm:flex-none">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="h-9 rounded-full pl-9"
+                  aria-label="Search product updates"
+                  placeholder="Search updates"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </div>
+              <Button
+                type="button"
+                variant={showFilters ? "secondary" : "outline"}
+                size="icon"
+                className="h-9 w-9 flex-none rounded-full"
+                aria-label="Toggle additional filters"
+                aria-expanded={showFilters}
+                onClick={() => setShowFilters((current) => !current)}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+              </Button>
+            </div>
+            {showFilters && (
+              <div className="flex w-full flex-wrap items-center gap-x-5 gap-y-3 rounded-xl border border-border bg-card p-3">
+                <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    className="accent-primary"
+                    checked={personalized}
+                    onChange={(event) => setPersonalized(event.target.checked)}
+                  />
+                  What changed for me?
+                </label>
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  From
+                  <input
+                    aria-label="From date"
+                    type="date"
+                    className="h-8 rounded-md border border-input bg-background px-2"
+                    value={fromDate}
+                    onChange={(event) => setFromDate(event.target.value)}
+                  />
+                </label>
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  To
+                  <input
+                    aria-label="To date"
+                    type="date"
+                    className="h-8 rounded-md border border-input bg-background px-2"
+                    value={toDate}
+                    onChange={(event) => setToDate(event.target.value)}
+                  />
+                </label>
+              </div>
+            )}
+          </div>
+        )}
+
+        {releases.length === 0 ? (
+          <Card className="border-border bg-card shadow-sm">
+            <div className="flex min-h-64 flex-col items-center justify-center px-6 py-12 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Sparkles className="h-6 w-6" />
+              </span>
+              <h2 className="mt-4 text-lg font-semibold text-foreground">
+                {entries.length === 0 ? "No updates published yet" : "No updates found"}
+              </h2>
+              <p className="mt-1 max-w-md text-sm leading-6 text-muted-foreground">
+                {entries.length === 0
+                  ? "When a release is published, its updates will appear here."
+                  : "Try a different search or filter to find a published update."}
+              </p>
+            </div>
+          </Card>
+        ) : (
+          <div className="relative">
+            {releases.map((release, index) => (
+              <section
+                key={release.version}
+                aria-label={`Release ${release.version}`}
+                className="grid grid-cols-[4.5rem_1.25rem_minmax(0,1fr)] gap-3 pb-5 sm:grid-cols-[6rem_1.5rem_minmax(0,1fr)] sm:gap-4"
+              >
+                <time className="pt-4 text-right text-xs font-medium leading-4 text-muted-foreground sm:text-sm">
+                  {formatReleaseDate(release.date)}
+                </time>
+                <div className="relative flex justify-center">
+                  {index < releases.length - 1 && (
+                    <span className="absolute bottom-[-1.25rem] top-0 w-px bg-border" aria-hidden="true" />
+                  )}
+                  <span className="relative mt-5 h-3 w-3 rounded-full border-2 border-background bg-primary ring-1 ring-primary/30" />
+                </div>
+                <div className="min-w-0 space-y-3">
+                  {release.entries.map((entry) => {
+                    return (
+                      <Card
+                        key={entry._id}
+                        id={`update-${entry._id}`}
+                        className="scroll-mt-24 overflow-hidden rounded-xl border-border bg-card shadow-sm transition-shadow hover:shadow-md"
+                      >
+                        <div className="p-4 sm:p-5">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge className="rounded-full bg-primary px-2.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground hover:bg-primary">
+                              Release
+                            </Badge>
+                            <span className="font-semibold text-foreground">
+                              Release {release.version}
+                            </span>
+                          </div>
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              {CATEGORY_LABEL[entry.type]}
+                            </span>
+                            {entry.module && (
+                              <Badge variant="outline" className="font-normal">
+                                {entry.module}
+                              </Badge>
+                            )}
+                            {entry.tags.map((tag) => (
+                              <Badge key={tag} variant="secondary" className="font-normal">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                          <h2 className="mt-2 text-base font-semibold leading-6 text-foreground sm:text-lg">
+                            {entry.title}
+                          </h2>
+                          <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                            {entry.description}
+                          </p>
+                          {entry.links?.length ? (
+                            <div className="mt-3 flex flex-wrap gap-3">
+                              {entry.links.map((link) => (
+                                <Link
+                                  key={`${entry._id}-${link.url}`}
+                                  href={link.url}
+                                  className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                                >
+                                  {link.label}
+                                  <ArrowUpRight className="h-3.5 w-3.5" />
+                                </Link>
+                              ))}
+                            </div>
+                          ) : null}
+                          <footer className="mt-4 flex items-center gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+                            <span className="mr-1">Share</span>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-8 rounded-full px-3"
+                              onClick={() => void copyEntryLink(entry)}
+                            >
+                              <Link2 className="mr-1.5 h-3.5 w-3.5" /> Copy link
+                            </Button>
+                            <button
+                              type="button"
+                              onClick={() => shareOnWhatsApp(entry)}
+                              className="inline-flex h-8 items-center rounded-full border border-border px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                            >
+                              <MessageCircle className="mr-1.5 h-3.5 w-3.5" /> WhatsApp
+                              <ArrowUpRight className="ml-1 h-3 w-3" />
+                            </button>
+                          </footer>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
+      </div>
+    </main>
   );
 }

@@ -44,6 +44,7 @@
     "production:check:convex": "node scripts/production-readiness-check.mjs --target=convex",
     "production:verify": "npm run production:check && npm run type-check && npm run test:tenant-isolation && npm run test:e2e:onboarding",
     "production:smoke": "node scripts/production-smoke.mjs",
+    "release:version": "node scripts/version-release.mjs",
     "launch:verify": "node scripts/launch-verify.mjs",
     "resend:smoke": "node scripts/resend-smoke-check.mjs",
     "sms:smoke": "node scripts/sms-smoke-check.mjs",
