@@ -90,10 +90,10 @@ export default function PlatformDashboardPage() {
     "analytics_viewer"
   );
 
-  const { data: dashboard } = usePlatformDashboardOverview(timeRange);
+  const { data: dashboard, isLoading: dashboardLoading } = usePlatformDashboardOverview(timeRange);
   const { data: activityFeed, isLoading: activityLoading } = useActivityFeedByType(20);
 
-  if (isLoading) {
+  if (isLoading || dashboardLoading) {
     return <LoadingSkeleton variant="page" />;
   }
 
@@ -249,7 +249,7 @@ export default function PlatformDashboardPage() {
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-sm font-semibold">Needs attention</h2>
-                <p className="mt-0.5 text-xs text-muted-foreground">Open items for the last 30 days.</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Current items that need attention.</p>
               </div>
               <Badge variant="outline" className={cn("gap-1 border", attentionCount === 0 ? healthTone.badge : "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200")}>
                 {attentionCount === 0 ? <Check className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />}

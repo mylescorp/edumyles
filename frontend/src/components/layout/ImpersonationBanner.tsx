@@ -66,7 +66,7 @@ export function ImpersonationBanner() {
     if (!isActiveBrowse) return null;
 
     return (
-        <div className="shell-impersonation-banner flex items-center justify-center gap-2 bg-warning-muted0 px-4 py-2 text-sm font-medium text-warning-muted-foreground">
+        <div className="shell-impersonation-banner flex items-center justify-center gap-2 bg-warning-muted px-4 py-2 text-sm font-medium text-warning-muted-foreground">
             <AlertTriangle className="h-4 w-4 shrink-0" />
             <span>
                 You are browsing the platform as another user. All actions are being logged against your admin account.

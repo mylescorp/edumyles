@@ -42,7 +42,7 @@ export function TrialBanner() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild className="bg-rose-700 text-white hover:bg-rose-800">
+            <Button asChild className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               <Link href="/admin/settings/billing">
                 <CreditCard className="mr-2 h-4 w-4" />
                 Choose a Plan

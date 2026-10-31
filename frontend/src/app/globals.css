@@ -4729,10 +4729,9 @@ html.dark .auth-loading {
   background: var(--shell-canvas) !important;
 }
 
-/* Older routes use Tailwind's literal white surface utility. Keep those cards
-   on the same semantic surface as the token based components in both themes. */
-.bg-white,
-[class*="bg-white/"] {
+/* Older routes use Tailwind's literal white surface utility. Keep opaque cards
+   on the semantic surface without overriding intentional translucent whites. */
+.bg-white {
   background-color: rgb(var(--card-rgb) / var(--tw-bg-opacity, 1)) !important;
 }
 
@@ -5348,7 +5347,7 @@ html.dark .auth-loading {
   z-index: 45;
   inset-inline: 0;
   bottom: 0;
-  display: flex;
+  display: none;
   justify-content: space-around;
   gap: 0.25rem;
   border-top: 1px solid var(--border);
@@ -5403,6 +5402,10 @@ html.dark .auth-loading {
 }
 
 @media (max-width: 767px) {
+  .shell-mobile-tabs {
+    display: flex;
+  }
+
   .panel-shell-layout {
     display: flex !important;
     gap: 0;
@@ -5457,7 +5460,7 @@ html.dark .auth-loading {
     display: none;
   }
 
-  .shell-campus-trigger,
+  .shell-campus-container .shell-campus-trigger,
   .shell-connection-chip {
     display: none !important;
   }

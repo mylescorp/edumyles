@@ -1252,7 +1252,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                       <div className={`w-2 h-2 rounded-full ${
                         activity.type === 'install' ? 'bg-green-500' :
                         activity.type === 'update' ? 'bg-blue-500' :
-                        activity.type === 'review' ? 'bg-warning-muted0' :
+                        activity.type === 'review' ? 'bg-warning-muted' :
                         activity.type === 'download' ? 'bg-purple-500' :
                         'bg-orange-500'
                       }`} />

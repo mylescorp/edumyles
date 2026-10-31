@@ -26,7 +26,7 @@ export function OnboardingProgress() {
   const progressPct = Math.round((completedCount / totalSteps) * 100);
 
   return (
-    <Card className="border-warning/30/70 bg-warning-muted/60">
+    <Card className="border-warning/70 bg-warning-muted/60">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between gap-3">
           <div>

@@ -1509,7 +1509,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
     normalizedShellHealth?.status === "healthy"
       ? "bg-emerald-500"
       : normalizedShellHealth?.status === "watch"
-        ? "bg-warning-muted0"
+        ? "bg-warning-muted"
         : "bg-rose-500";
   const shellHealthLabel =
     normalizedShellHealth?.status === "healthy"
@@ -1530,7 +1530,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
     tenantStatus === "active"
       ? "bg-emerald-500"
       : tenantStatus === "trial"
-        ? "bg-warning-muted0"
+        ? "bg-warning-muted"
         : "bg-rose-500";
   const workspaceHealthLabel =
     tenantStatus === "active"
