@@ -1,5 +1,7 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
+import { getFeedContext, visibleEntries } from "./access";
+import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const listChangelogs = query({
   args: {
@@ -8,20 +10,10 @@ export const listChangelogs = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
+    await requirePlatformSession(ctx, args);
+    const entries = await ctx.db.query("changelogEntries").order("desc").collect();
 
-    const entries = await ctx.db
-      .query("changelogEntries")
-      .order("desc")
-      .collect();
-
-    const filtered = args.type
-      ? entries.filter((e) => e.type === args.type)
-      : entries;
+    const filtered = args.type ? entries.filter((e) => e.type === args.type) : entries;
 
     return filtered.slice(0, args.limit || 50);
   },
@@ -30,17 +22,55 @@ export const listChangelogs = query({
 export const getLatestVersion = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-    if (!session || session.expiresAt < Date.now()) throw new Error("Invalid session");
-
-    const latest = await ctx.db
-      .query("changelogEntries")
-      .order("desc")
-      .first();
+    const context = await getFeedContext(ctx, args.sessionToken);
+    const latest = (await visibleEntries(ctx, context))[0];
 
     return latest?.version || "0.0.0";
+  },
+});
+
+export const getWhatsNewSummary = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    const context = await getFeedContext(ctx, args.sessionToken);
+    const entries = await visibleEntries(ctx, context);
+    const reads = await ctx.db
+      .query("whatsNewReads")
+      .withIndex("by_user_workspace", (q) =>
+        q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
+      )
+      .collect();
+    const readIds = new Set(reads.map((read) => String(read.entryId)));
+    return {
+      unreadCount:
+        entries.reduce(
+          (count: number, entry: any) => count + (readIds.has(String(entry._id)) ? 0 : 1),
+          0
+        ),
+      entries: entries.map((entry: any) => ({
+        _id: entry._id,
+        version: entry.version,
+        title: entry.title,
+        description: entry.description,
+        type: entry.type,
+        tags: entry.tags,
+        module: entry.module,
+        links: entry.links,
+        date: entry.date,
+      })),
+      panel: context.panel,
+      workspaceId: context.workspaceId,
+    };
+  },
+});
+
+export const getEntryAudit = query({
+  args: { sessionToken: v.string(), entryId: v.id("changelogEntries") },
+  handler: async (ctx, args) => {
+    await requirePlatformSession(ctx, args);
+    return await ctx.db
+      .query("whatsNewAudit")
+      .withIndex("by_entry", (q) => q.eq("entryId", args.entryId))
+      .collect();
   },
 });

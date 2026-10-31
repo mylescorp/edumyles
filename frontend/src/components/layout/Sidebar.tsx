@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { NavItem } from "@/lib/routes";
 import { isCoreModuleSlug } from "@/lib/moduleSlugs";
+import { WhatsNewNavLink } from "@/components/whats-new/WhatsNewNavLink";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -346,6 +347,8 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
           </nav>
         </TooltipProvider>
       </ScrollArea>
+
+      <WhatsNewNavLink collapsed={collapsed} mobile={isMobile} onClick={onClose} />
 
       {/* User section at bottom */}
       {!isMobile && (

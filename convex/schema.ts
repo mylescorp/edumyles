@@ -3913,6 +3913,7 @@ export default defineSchema({
 
   // ── Changelog ───────────────────────────────────────────────────────
   changelogEntries: defineTable({
+    releaseKey: v.optional(v.string()),
     version: v.string(),
     title: v.string(),
     description: v.string(),
@@ -3925,12 +3926,57 @@ export default defineSchema({
     date: v.number(),
     author: v.string(),
     tags: v.array(v.string()),
+    panel: v.optional(v.string()),
+    panels: v.optional(v.array(v.string())),
+    module: v.optional(v.string()),
+    workspaceIds: v.optional(v.array(v.string())),
+    links: v.optional(v.array(v.object({ label: v.string(), url: v.string() }))),
+    status: v.optional(v.union(v.literal("draft"), v.literal("scheduled"), v.literal("published"))),
+    scheduledAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_date", ["date"])
     .index("by_type", ["type", "date"])
-    .index("by_version", ["version"]),
+    .index("by_version", ["version"])
+    .index("by_releaseKey", ["releaseKey"])
+    .index("by_status_scheduledAt", ["status", "scheduledAt"]),
+
+  whatsNewReads: defineTable({
+    userId: v.string(),
+    workspaceId: v.string(),
+    entryId: v.id("changelogEntries"),
+    readAt: v.number(),
+  })
+    .index("by_user_workspace_entry", ["userId", "workspaceId", "entryId"])
+    .index("by_user_workspace", ["userId", "workspaceId"]),
+
+  whatsNewGitHubHistory: defineTable({
+    externalId: v.string(),
+    kind: v.union(v.literal("pull_request"), v.literal("commit")),
+    title: v.string(),
+    description: v.string(),
+    url: v.string(),
+    author: v.optional(v.string()),
+    pullRequestNumber: v.optional(v.number()),
+    commitSha: v.optional(v.string()),
+    mergedAt: v.number(),
+    createdAt: v.number(),
+    isHistorical: v.boolean(),
+  })
+    .index("by_externalId", ["externalId"])
+    .index("by_mergedAt", ["mergedAt"])
+    .index("by_kind_mergedAt", ["kind", "mergedAt"])
+    .index("by_isHistorical_createdAt", ["isHistorical", "createdAt"]),
+
+  whatsNewAudit: defineTable({
+    entryId: v.optional(v.id("changelogEntries")),
+    releaseKey: v.optional(v.string()),
+    actorId: v.string(),
+    action: v.string(),
+    details: v.optional(v.any()),
+    createdAt: v.number(),
+  }).index("by_entry", ["entryId", "createdAt"]),
 
   // ─── Platform Communications ───────────────────────────────────────────
   platform_messages: defineTable({
