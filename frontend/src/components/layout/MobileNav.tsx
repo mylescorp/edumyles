@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { NavItem } from "@/lib/routes";
+import { WhatsNewNavLink } from "@/components/whats-new/WhatsNewNavLink";
 
 interface MobileNavProps {
   navItems: NavItem[];
@@ -59,6 +60,7 @@ export function MobileNav({ navItems, installedModules }: MobileNavProps) {
             })}
           </nav>
         </ScrollArea>
+        <WhatsNewNavLink mobile />
       </SheetContent>
     </Sheet>
   );

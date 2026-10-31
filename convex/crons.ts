@@ -4,6 +4,13 @@ import { internal } from "./_generated/api";
 const crons = cronJobs();
 
 crons.interval(
+  "publish scheduled What's new entries",
+  { minutes: 5 },
+  (internal as any).platform.changelog.mutations.processScheduledEntries,
+  {}
+);
+
+crons.interval(
   "process scheduled reports",
   { hours: 1 },
   internal.platform.scheduledReports.mutations.processDueReports,

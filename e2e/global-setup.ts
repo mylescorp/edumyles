@@ -1,6 +1,8 @@
 import type { FullConfig } from "@playwright/test";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../convex/_generated/api";
 import { AUTH_STORAGE_STATE_PATH } from "./fixtures/auth.fixture";
 
 function buildUserCookie(sessionToken: string, role: string) {
@@ -84,10 +86,16 @@ export default async function globalSetup(config: FullConfig) {
   let role = process.env.E2E_ROLE ?? "school_admin";
 
   if (!sessionToken && process.env.E2E_SEED_DATA === "true") {
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    const webhookSecret = process.env.CONVEX_WEBHOOK_SECRET;
+    if (!convexUrl || !webhookSecret) {
+      throw new Error("Convex URL and webhook secret are required when E2E_SEED_DATA is enabled");
+    }
+
     const { seedDevData } = await import("../scripts/seed");
     const seeded = await seedDevData({
-      convexUrl: process.env.NEXT_PUBLIC_CONVEX_URL,
-      webhookSecret: process.env.CONVEX_WEBHOOK_SECRET,
+      convexUrl,
+      webhookSecret,
       tenantName: process.env.E2E_TENANT_NAME,
       subdomain: process.env.E2E_TENANT_SUBDOMAIN,
       adminEmail: process.env.E2E_ADMIN_EMAIL,
@@ -95,6 +103,23 @@ export default async function globalSetup(config: FullConfig) {
 
     sessionToken = seeded.adminSessionToken;
     role = seeded.adminRole;
+    process.env.E2E_TENANT_SESSION_TOKEN = sessionToken;
+
+    const platformSessionToken = process.env.E2E_PLATFORM_SESSION_TOKEN ?? "dev-platform-session";
+    const client = new ConvexHttpClient(convexUrl);
+    await client.mutation(api.sessions.createSession, {
+      serverSecret: webhookSecret,
+      sessionToken: platformSessionToken,
+      tenantId: "PLATFORM",
+      activeTenantId: "PLATFORM",
+      accessibleTenantIds: ["PLATFORM"],
+      userId: "e2e-platform-admin",
+      email: "platform-admin@edumyles.local",
+      role: "master_admin",
+      expiresAt: Date.now() + 60 * 60 * 1000,
+      permissions: ["*"],
+    });
+    process.env.E2E_PLATFORM_SESSION_TOKEN = platformSessionToken;
 
     fs.writeFileSync(
       path.join(".e2e-runtime", "seed-summary.json"),

@@ -1,7 +1,10 @@
 import { test, expect } from "@playwright/test";
 
 async function authenticateAsSchoolAdmin(context: import("@playwright/test").BrowserContext) {
-  const token = process.env.E2E_SESSION_TOKEN ?? "dev-tenant-admin-session";
+  const token =
+    process.env.E2E_TENANT_SESSION_TOKEN ??
+    process.env.E2E_SESSION_TOKEN ??
+    "dev-tenant-admin-session";
   const tenantId = process.env.E2E_TENANT_ID ?? "TENANT-733447";
   const role = process.env.E2E_ROLE ?? "school_admin";
 

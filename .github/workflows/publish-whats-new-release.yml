@@ -1,0 +1,29 @@
+name: Publish What's New
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish product update timeline
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      - name: Publish release notes to Convex
+        run: node scripts/publish-whats-new-release.mjs
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+          WHATS_NEW_RELEASE_SECRET: ${{ secrets.WHATS_NEW_RELEASE_SECRET }}

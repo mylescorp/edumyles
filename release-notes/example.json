@@ -1,0 +1,11 @@
+{
+  "entries": [
+    {
+      "title": "Example update title",
+      "description": "Describe one user-facing change in a short paragraph.",
+      "type": "improvement",
+      "panels": ["admin"],
+      "tags": []
+    }
+  ]
+}

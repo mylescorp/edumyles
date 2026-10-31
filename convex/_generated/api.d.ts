@@ -360,9 +360,12 @@ import type * as platform_automation_queries from "../platform/automation/querie
 import type * as platform_billing_index from "../platform/billing/index.js";
 import type * as platform_billing_mutations from "../platform/billing/mutations.js";
 import type * as platform_billing_queries from "../platform/billing/queries.js";
+import type * as platform_changelog_access from "../platform/changelog/access.js";
 import type * as platform_changelog_index from "../platform/changelog/index.js";
 import type * as platform_changelog_mutations from "../platform/changelog/mutations.js";
 import type * as platform_changelog_queries from "../platform/changelog/queries.js";
+import type * as platform_changelog_release from "../platform/changelog/release.js";
+import type * as platform_changelog_visibility from "../platform/changelog/visibility.js";
 import type * as platform_communications_index from "../platform/communications/index.js";
 import type * as platform_communications_mutations from "../platform/communications/mutations.js";
 import type * as platform_communications_queries from "../platform/communications/queries.js";
@@ -820,9 +823,12 @@ declare const fullApi: ApiFromModules<{
   "platform/billing/index": typeof platform_billing_index;
   "platform/billing/mutations": typeof platform_billing_mutations;
   "platform/billing/queries": typeof platform_billing_queries;
+  "platform/changelog/access": typeof platform_changelog_access;
   "platform/changelog/index": typeof platform_changelog_index;
   "platform/changelog/mutations": typeof platform_changelog_mutations;
   "platform/changelog/queries": typeof platform_changelog_queries;
+  "platform/changelog/release": typeof platform_changelog_release;
+  "platform/changelog/visibility": typeof platform_changelog_visibility;
   "platform/communications/index": typeof platform_communications_index;
   "platform/communications/mutations": typeof platform_communications_mutations;
   "platform/communications/queries": typeof platform_communications_queries;

@@ -55,6 +55,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import Image from "next/image";
 import { ImpersonationBanner } from "./ImpersonationBanner";
 import type { NavItem } from "@/lib/routes";
+import { WhatsNewNavLink } from "@/components/whats-new/WhatsNewNavLink";
 
 export interface NavGroup {
   label: string;
@@ -345,6 +346,8 @@ function MobileDrawer({
             })}
           </nav>
         </ScrollArea>
+
+        <WhatsNewNavLink mobile onClick={() => setOpen(false)} />
 
         {/* User footer */}
         <div className="border-t border-[var(--sidebar-border)] p-4">
@@ -935,6 +938,8 @@ function LeftSidebar({
             ))}
           </nav>
         </ScrollArea>
+
+        <WhatsNewNavLink collapsed={collapsed} />
 
         {/* Collapse toggle */}
         <div className="border-t p-2" style={{ borderColor: "var(--sidebar-border)" }}>
