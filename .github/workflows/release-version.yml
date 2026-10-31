@@ -1,0 +1,50 @@
+name: Prepare product release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: prepare-product-release-main
+  cancel-in-progress: false
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build the next release manifest
+        run: npm run release:version
+      - id: release-pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: codex/prepare-product-release
+          delete-branch: true
+          add-paths: |
+            package.json
+            package-lock.json
+            release-notes/*.json
+            .changeset/*.md
+          title: Prepare product release
+          commit-message: Prepare product release
+          body: |
+            This pull request groups the merged Changesets into the next semantic product release.
+
+            The release notes publish to the What's new timeline after the matching version is published.
+      - name: Run CI against the generated release pull request
+        if: steps.release-pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BRANCH: codex/prepare-product-release
+        run: gh workflow run ci.yml --ref main -f ref="$RELEASE_BRANCH"
