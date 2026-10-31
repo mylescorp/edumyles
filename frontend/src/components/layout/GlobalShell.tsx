@@ -1040,8 +1040,10 @@ function LeftSidebar({
           const impersonationAvailable =
             savedWorkspaceAccess.canImpersonate ||
             role === "master_admin" ||
-            role === "super_admin" ||
-            navItems.some((item) => item.href === "/platform/impersonation");
+            role === "super_admin";
+          const impersonationHref = savedWorkspaceAccess.hasSavedPlatformSession
+            ? "/api/auth/session?workspace=platform&redirect=impersonation"
+            : "/platform/impersonation";
           const currentWorkspace = isPlatformRoute
             ? "Platform admin"
             : pathname?.startsWith("/admin")
@@ -1091,9 +1093,9 @@ function LeftSidebar({
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link href="/platform/impersonation" className="flex items-center gap-2.5 text-foreground">
+                      <a href={impersonationHref} className="flex items-center gap-2.5 text-foreground">
                         <UserRoundSearch className="h-4 w-4" /> Impersonate a user…
-                      </Link>
+                      </a>
                     </DropdownMenuItem>
                   </>
                 )}
@@ -1111,8 +1113,10 @@ function LeftSidebar({
             "hr_manager", "librarian", "transport_manager",
           ].includes(role ?? "");
           const impersonationAvailable = savedWorkspaceAccess.canImpersonate ||
-            role === "master_admin" || role === "super_admin" ||
-            navItems.some((item) => item.href === "/platform/impersonation");
+            role === "master_admin" || role === "super_admin";
+          const impersonationHref = savedWorkspaceAccess.hasSavedPlatformSession
+            ? "/api/auth/session?workspace=platform&redirect=impersonation"
+            : "/platform/impersonation";
           return (
             <div className="flex shrink-0 justify-center px-1 pb-1">
               <DropdownMenu
@@ -1172,9 +1176,9 @@ function LeftSidebar({
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link href="/platform/impersonation" className="flex items-center gap-2.5 text-foreground">
+                        <a href={impersonationHref} className="flex items-center gap-2.5 text-foreground">
                           <UserRoundSearch className="h-4 w-4" /> Impersonate a user…
-                        </Link>
+                        </a>
                       </DropdownMenuItem>
                     </>
                   )}

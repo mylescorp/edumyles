@@ -569,8 +569,14 @@ export async function GET(req: NextRequest) {
       req.cookies.get(ADMIN_TENANT_COOKIE)?.value ??
       null;
     const bootstrapVersion = req.cookies.get("edumyles_dev_bootstrap")?.value;
+    const requestedPlatformRedirect = req.nextUrl.searchParams.get("redirect");
+    const platformReturnPath = requestedPlatformRedirect === "impersonation"
+      ? "/platform/impersonation"
+      : requestedPlatformRedirect === "platform"
+        ? "/platform"
+        : null;
     const isPlatformWorkspaceReturn =
-      requestedWorkspace === "platform" && req.nextUrl.searchParams.get("redirect") === "platform";
+      requestedWorkspace === "platform" && platformReturnPath !== null;
 
     if (requestedWorkspace === "platform-access-check") {
       const token = masterSessionBackup ?? currentSessionCookie;
@@ -595,20 +601,10 @@ export async function GET(req: NextRequest) {
           ? "master_admin"
           : normalizeRole(session?.role);
         const allowed = Boolean(session && isPlatformRole(role));
-        const permissionSnapshot = allowed
-          ? await convex.query(api.modules.platform.rbac.getMyPermissions, { sessionToken: token })
-          : null;
-        const permissions = Array.isArray(permissionSnapshot?.permissions)
-          ? permissionSnapshot.permissions
-          : Array.isArray(session?.permissions)
-            ? session.permissions
-            : [];
         const canImpersonate = Boolean(
           allowed && (
             role === "master_admin" ||
-            role === "super_admin" ||
-            permissions.includes("*") ||
-            permissions.includes("tenants.impersonate")
+            role === "super_admin"
           )
         );
         return NextResponse.json(
@@ -664,7 +660,7 @@ export async function GET(req: NextRequest) {
 
       if (isLocalDevPlatformSession(masterSessionBackup, bootstrapVersion)) {
         const platformSession = buildDevSessionFromCookies(DEV_PLATFORM_SESSION_TOKEN);
-        const response = NextResponse.redirect(new URL("/platform", req.url), 303);
+        const response = NextResponse.redirect(new URL(platformReturnPath!, req.url), 303);
         setSessionCookies(
           response,
           platformSession.sessionToken,
@@ -694,9 +690,17 @@ export async function GET(req: NextRequest) {
         return NextResponse.redirect(new URL("/dashboard?error=unauthorized", req.url), 303);
       }
 
+      if (
+        platformReturnPath === "/platform/impersonation" &&
+        platformRole !== "master_admin" &&
+        platformRole !== "super_admin"
+      ) {
+        return NextResponse.redirect(new URL("/platform?error=unauthorized", req.url), 303);
+      }
+
       // Rebuild the visible session from the validated saved identity. Never
       // elevate the role cookie based on workspace mode or a client request.
-      const response = NextResponse.redirect(new URL("/platform", req.url), 303);
+      const response = NextResponse.redirect(new URL(platformReturnPath!, req.url), 303);
       const normalizedTenantId = platformRole === "master_admin" ? "PLATFORM" : platformSession.tenantId;
       setSessionCookies(
         response,

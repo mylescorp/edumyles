@@ -114,7 +114,7 @@ function PlanCard({
             Active Plan
           </Button>
         ) : (
-          <Button className="w-full bg-primary text-white hover:bg-primary" onClick={() => onSelect(plan)}>
+          <Button className="w-full bg-primary text-primary-foreground hover:bg-primary" onClick={() => onSelect(plan)}>
             {actionLabel}
           </Button>
         )}
@@ -295,7 +295,7 @@ export default function BillingSettingsPage() {
             ) : (
               <div className="flex flex-wrap gap-2">
                 {sortedPlans.filter((_, index) => index > currentPlanIndex).map((plan) => (
-                  <Button key={plan._id} className="bg-primary text-white hover:bg-primary" onClick={() => openUpgradeDialog(plan)}>
+                  <Button key={plan._id} className="bg-primary text-primary-foreground hover:bg-primary" onClick={() => openUpgradeDialog(plan)}>
                     <ArrowUpCircle className="mr-2 h-4 w-4" />
                     {plan.name}
                   </Button>
@@ -400,7 +400,7 @@ export default function BillingSettingsPage() {
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>{selectedPlan ? `Upgrade to ${selectedPlan.name}` : "Upgrade Plan"}</DialogTitle><DialogDescription>Confirm your new tier and choose the payment provider.</DialogDescription></DialogHeader>
           {selectedPlan ? <div className="space-y-4"><div className="rounded-lg border bg-muted/30 p-4"><p className="font-semibold capitalize">{selectedPlan.name}</p><p className="text-sm text-muted-foreground">{format(selectedPlan.priceMonthlyKes)} / month</p></div><div className="space-y-2"><Label>Payment Method</Label><Select value={paymentProvider} onValueChange={setPaymentProvider}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="mpesa">M-Pesa</SelectItem><SelectItem value="airtel">Airtel Money</SelectItem><SelectItem value="stripe">Card (Stripe)</SelectItem><SelectItem value="bank_transfer">Bank Transfer</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>Payment Reference</Label><Input placeholder="Optional transaction ID" value={paymentReference} onChange={(event) => setPaymentReference(event.target.value)} /></div></div> : null}
-          <DialogFooter><Button variant="outline" onClick={() => setUpgradeDialogOpen(false)}>Cancel</Button><Button className="bg-primary text-white hover:bg-primary" onClick={handleConfirmUpgrade} disabled={processingAction === "upgrade" || !selectedPlan}>{processingAction === "upgrade" ? "Processing..." : "Confirm Upgrade"}</Button></DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => setUpgradeDialogOpen(false)}>Cancel</Button><Button className="bg-primary text-primary-foreground hover:bg-primary" onClick={handleConfirmUpgrade} disabled={processingAction === "upgrade" || !selectedPlan}>{processingAction === "upgrade" ? "Processing..." : "Confirm Upgrade"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -424,7 +424,7 @@ export default function BillingSettingsPage() {
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Request Enterprise Consultation</DialogTitle><DialogDescription>Send your requirements to the EduMyles team and create a CRM follow-up.</DialogDescription></DialogHeader>
           <div className="space-y-4"><div className="space-y-2"><Label>Contact phone</Label><Input value={enterprisePhone} onChange={(event) => setEnterprisePhone(event.target.value)} placeholder="+254..." /></div><div className="space-y-2"><Label>Decision timeline</Label><Select value={enterpriseTimeline} onValueChange={setEnterpriseTimeline}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="this_week">This week</SelectItem><SelectItem value="this_month">This month</SelectItem><SelectItem value="this_term">This term</SelectItem><SelectItem value="next_term">Next term</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>What do you need?</Label><Textarea rows={5} value={enterpriseNotes} onChange={(event) => setEnterpriseNotes(event.target.value)} placeholder="Tell us about student volume, rollout scope, required modules, or custom pricing needs." /></div></div>
-          <DialogFooter><Button variant="outline" onClick={() => setEnterpriseDialogOpen(false)}>Close</Button><Button className="bg-primary text-white hover:bg-primary" onClick={handleRequestEnterprise} disabled={processingAction === "enterprise"}>{processingAction === "enterprise" ? "Sending..." : "Send Request"}</Button></DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => setEnterpriseDialogOpen(false)}>Close</Button><Button className="bg-primary text-primary-foreground hover:bg-primary" onClick={handleRequestEnterprise} disabled={processingAction === "enterprise"}>{processingAction === "enterprise" ? "Sending..." : "Send Request"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -440,7 +440,7 @@ export default function BillingSettingsPage() {
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Request Enterprise Consultation</DialogTitle><DialogDescription>Send your requirements to the EduMyles team and create a CRM follow-up.</DialogDescription></DialogHeader>
           <div className="space-y-4"><div className="space-y-2"><Label>Contact phone</Label><Input value={enterprisePhone} onChange={(event) => setEnterprisePhone(event.target.value)} placeholder="+254..." /></div><div className="space-y-2"><Label>Decision timeline</Label><Select value={enterpriseTimeline} onValueChange={setEnterpriseTimeline}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="this_week">This week</SelectItem><SelectItem value="this_month">This month</SelectItem><SelectItem value="this_term">This term</SelectItem><SelectItem value="next_term">Next term</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>What do you need?</Label><Textarea rows={5} value={enterpriseNotes} onChange={(event) => setEnterpriseNotes(event.target.value)} placeholder="Tell us about student volume, rollout scope, required modules, or custom pricing needs." /></div></div>
-          <DialogFooter><Button variant="outline" onClick={() => setEnterpriseDialogOpen(false)}>Close</Button><Button className="bg-primary text-white hover:bg-primary" onClick={handleRequestEnterprise} disabled={processingAction === "enterprise"}>{processingAction === "enterprise" ? "Sending..." : "Send Request"}</Button></DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => setEnterpriseDialogOpen(false)}>Close</Button><Button className="bg-primary text-primary-foreground hover:bg-primary" onClick={handleRequestEnterprise} disabled={processingAction === "enterprise"}>{processingAction === "enterprise" ? "Sending..." : "Send Request"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

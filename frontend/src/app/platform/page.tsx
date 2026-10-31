@@ -210,7 +210,7 @@ export default function PlatformDashboardPage() {
         actions={(
           <>
             <Link href="/platform/tenants/create">
-              <Button size="sm" className="bg-[var(--platform-highlight)] text-slate-950 hover:brightness-95">Create first school</Button>
+              <Button size="sm" className="bg-[var(--platform-highlight)] text-primary-foreground hover:brightness-95">Create first school</Button>
             </Link>
             <Link href="/platform/analytics">
               <Button size="sm" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white">Open analytics</Button>
