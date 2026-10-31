@@ -1,24 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+const THEME_CHANGE_EVENT = "edumyles-theme-change";
+
+function subscribe(callback: () => void) {
+  window.addEventListener(THEME_CHANGE_EVENT, callback);
+  return () => window.removeEventListener(THEME_CHANGE_EVENT, callback);
+}
+
+function getSnapshot() {
+  return document.documentElement.classList.contains("dark");
+}
+
+function getServerSnapshot() {
+  return false;
+}
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    setDark(document.documentElement.classList.contains("dark"));
-  }, []);
+  const dark = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const toggle = () => {
-    const isDark = !dark;
-    setDark(isDark);
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("em-theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("em-theme", "light");
-    }
+    const isDark = !getSnapshot();
+    document.documentElement.classList.toggle("dark", isDark);
+    localStorage.setItem("em-theme", isDark ? "dark" : "light");
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   };
 
   return (

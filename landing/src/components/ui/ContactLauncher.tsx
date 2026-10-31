@@ -55,10 +55,21 @@ function launcherClass(mode: ContactMode) {
   ].join(" ");
 }
 
+function readSavedContactProfile(): ContactProfile {
+  if (typeof window === "undefined") return EMPTY_CONTACT_PROFILE;
+
+  try {
+    const saved = window.localStorage.getItem("edumyles_contact_profile");
+    return saved ? { ...EMPTY_CONTACT_PROFILE, ...JSON.parse(saved) } : EMPTY_CONTACT_PROFILE;
+  } catch {
+    return EMPTY_CONTACT_PROFILE;
+  }
+}
+
 export default function ContactLauncher() {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<ContactMode>("chat");
-  const [profile, setProfile] = useState<ContactProfile>(EMPTY_CONTACT_PROFILE);
+  const [profile, setProfile] = useState<ContactProfile>(readSavedContactProfile);
   const [topicId, setTopicId] = useState<ContactTopicId>(CONTACT_TOPICS[0].id);
   const [message, setMessage] = useState<string>(CONTACT_TOPICS[0].prompt);
   const [status, setStatus] = useState<SubmitState>("idle");
@@ -67,15 +78,6 @@ export default function ContactLauncher() {
   const [thread, setThread] = useState<ChatThread | null>(null);
   const [reply, setReply] = useState("");
   const transcriptRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem("edumyles_contact_profile");
-      if (saved) setProfile({ ...EMPTY_CONTACT_PROFILE, ...JSON.parse(saved) });
-    } catch {
-      // Local storage is optional.
-    }
-  }, []);
 
   useEffect(() => {
     try {
