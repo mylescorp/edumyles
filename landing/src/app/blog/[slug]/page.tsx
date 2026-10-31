@@ -443,7 +443,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </div>
           <h1
             className="font-display font-bold leading-tight mb-5"
-            style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)", color: "var(--foreground)" }}
           >
             {post.title}
           </h1>

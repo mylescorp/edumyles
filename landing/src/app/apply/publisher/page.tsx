@@ -188,7 +188,7 @@ function PublisherApplicationContent() {
           </div>
 
           <div className="max-w-3xl pt-8 xl:pt-20">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-foreground)] bg-[rgb(var(--primary-rgb) / 12%)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-foreground)]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-foreground)] bg-[rgb(var(--primary-rgb)_/_12%)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-foreground)]">
               <Code2 className="h-4 w-4" />
               Developer Program
             </div>

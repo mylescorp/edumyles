@@ -322,10 +322,10 @@ export default function BlogContent() {
       </section>
 
       {/* ── Newsletter ────────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#0F1D1B" }}>
+      <section className="py-16 px-4" style={{ background: "var(--platform-chrome)" }}>
         <div className="max-w-[660px] mx-auto text-center">
           <div className="flex justify-center mb-4">
-            <Mail className="w-10 h-10" strokeWidth={1.5} style={{ color: "var(--muted-foreground)" }} />
+            <Mail className="w-10 h-10" strokeWidth={1.5} style={{ color: "#B9CBD6" }} />
           </div>
           <h2
             className="font-display font-bold leading-[1.2] mb-3"
@@ -333,7 +333,7 @@ export default function BlogContent() {
           >
             Stay in the loop
           </h2>
-          <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "#C4D4D0" }}>
+          <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "#D5E1DE" }}>
             Monthly insights on school management, product updates, and education technology in
             Africa. No spam.
           </p>
@@ -365,7 +365,7 @@ export default function BlogContent() {
               Subscribe →
             </button>
           </form>
-          <p className="font-jakarta text-[12px] mt-3" style={{ color: "#C4D4D0" }}>
+          <p className="font-jakarta text-[12px] mt-3" style={{ color: "#D5E1DE" }}>
             Join 200+ school administrators. Unsubscribe anytime.
           </p>
         </div>

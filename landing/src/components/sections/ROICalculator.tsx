@@ -64,7 +64,7 @@ export default function ROICalculator() {
           >
             Calculate Your School&apos;s ROI
           </h2>
-          <p className="text-base text-gray-500 max-w-xl mx-auto">
+          <p className="text-base text-muted-foreground max-w-xl mx-auto">
             See how much time and money EduMyles saves your school every month.
           </p>
         </div>
@@ -98,7 +98,7 @@ export default function ROICalculator() {
                 }}
                 aria-label="Number of students"
               />
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>50</span>
                 <span>3,000</span>
               </div>
@@ -130,7 +130,7 @@ export default function ROICalculator() {
                 }}
                 aria-label="Number of administrative staff"
               />
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>1</span>
                 <span>20</span>
               </div>
@@ -162,7 +162,7 @@ export default function ROICalculator() {
                 }}
                 aria-label="Average admin hourly rate in KES"
               />
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>KES 200</span>
                 <span>KES 1,000</span>
               </div>
@@ -189,19 +189,19 @@ export default function ROICalculator() {
                   >
                     {metric.value}
                   </span>
-                  <span className="text-xs text-gray-500">{metric.label}</span>
+                  <span className="text-xs text-muted-foreground">{metric.label}</span>
                 </div>
               ))}
             </div>
 
-            <p className="text-sm text-gray-400 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               EduMyles costs from KES 12,900/month — a fraction of your savings.
             </p>
 
             <Link
               href="/waitlist"
-              className="inline-flex items-center justify-center gap-2 font-semibold text-sm px-6 py-3 rounded-full text-white transition-all hover:scale-[1.02] active:scale-[0.98] mt-2"
-              style={{ background: "var(--card)" }}
+              className="inline-flex items-center justify-center gap-2 font-semibold text-sm px-6 py-3 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98] mt-2"
+              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
             >
               Start Your Free Trial →
             </Link>

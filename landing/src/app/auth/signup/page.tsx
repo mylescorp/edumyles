@@ -182,7 +182,7 @@ function SignUpPageContent() {
           </div>
 
           <div className="max-w-3xl pt-8 xl:pt-20">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-foreground)] bg-[rgb(var(--primary-rgb) / 12%)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-foreground)]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-foreground)] bg-[rgb(var(--primary-rgb)_/_12%)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-foreground)]">
               <Sparkles className="h-4 w-4" />
               School Waitlist
             </div>
@@ -244,7 +244,7 @@ function SignUpPageContent() {
                   "Once your slot is ready, we guide you through activation and setup.",
                 ].map((step, index) => (
                   <div key={step} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[rgb(var(--primary-rgb) / 16%)] font-jakarta text-xs font-bold text-[var(--accent-foreground)]">
+                    <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[rgb(var(--primary-rgb)_/_16%)] font-jakarta text-xs font-bold text-[var(--accent-foreground)]">
                       {index + 1}
                     </div>
                     <p className="font-jakarta text-[14px] leading-7 text-[#D7F3E2]">{step}</p>
@@ -252,7 +252,7 @@ function SignUpPageContent() {
                 ))}
               </div>
 
-              <div className="mt-8 rounded-[20px] border border-[rgb(var(--primary-rgb) / 18%)] bg-[rgb(var(--primary-rgb) / 8%)] p-5">
+              <div className="mt-8 rounded-[20px] border border-[rgb(var(--primary-rgb)_/_18%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-5">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--accent-foreground)]" />
                   <div>
@@ -268,7 +268,7 @@ function SignUpPageContent() {
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-[rgb(var(--primary-rgb) / 22%)] bg-[rgb(var(--primary-rgb) / 8%)] p-6 xl:p-8">
+            <div className="rounded-[28px] border border-[rgb(var(--primary-rgb)_/_22%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-6 xl:p-8">
               <h2 className="font-jakarta text-[15px] font-bold text-[var(--accent-foreground)]">
                 Need to speak with us before activation?
               </h2>

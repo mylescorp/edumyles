@@ -344,12 +344,12 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 2 · PAIN POINTS
       ───────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#0F1D1B" }}>
+      <section className="py-20 px-4" style={{ background: "var(--platform-chrome)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <p
               className="font-jakarta font-semibold text-[13px] uppercase tracking-[0.12em] mb-3"
-              style={{ color: "var(--accent-foreground)" }}
+              style={{ color: "#B9CBD6" }}
             >
               The challenges primary schools face
             </p>
@@ -374,19 +374,19 @@ export default function PrimarySchoolsPage() {
                 <div className="flex items-center gap-3 mb-5">
                   <span
                     className="font-display font-bold text-[22px] leading-none"
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "#B9CBD6" }}
                   >
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span
                     className="font-jakarta text-[11px] font-semibold uppercase tracking-[0.1em] px-3 py-1 rounded-[50px]"
-                    style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--accent-foreground)" }}
+                    style={{ background: "rgba(255,255,255,0.12)", color: "#F4F8F7" }}
                   >
                     Before EduMyles
                   </span>
                 </div>
                 <div className="mb-4">
-                  <p.icon className="w-10 h-10" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
+                  <p.icon className="w-10 h-10" strokeWidth={1.5} style={{ color: "#B9CBD6" }} />
                 </div>
                 <h3
                   className="font-display font-bold text-[18px] mb-3"
@@ -394,7 +394,7 @@ export default function PrimarySchoolsPage() {
                 >
                   {p.title}
                 </h3>
-                <p className="font-jakarta leading-[1.8] text-[15px]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="font-jakarta leading-[1.8] text-[15px]" style={{ color: "#D5E1DE" }}>
                   {p.text}
                 </p>
               </div>
@@ -592,7 +592,7 @@ export default function PrimarySchoolsPage() {
             <div>
               <p
                 className="font-jakarta font-semibold text-[13px] uppercase tracking-[0.1em] mb-5"
-                style={{ color: "var(--muted-foreground)" }}
+                style={{ color: "#B9CBD6" }}
               >
                 4 CBC performance levels
               </p>
@@ -803,7 +803,7 @@ export default function PrimarySchoolsPage() {
               </div>
               <div
                 className="px-6 py-4 font-jakarta font-semibold text-[13px] uppercase tracking-[0.08em] text-center"
-                style={{ color: "var(--muted-foreground)" }}
+                style={{ color: "#B9CBD6" }}
               >
                 EduMyles
               </div>

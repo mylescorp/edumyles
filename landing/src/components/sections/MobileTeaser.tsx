@@ -36,7 +36,7 @@ export default function MobileTeaser() {
             </em>
           </h2>
 
-          <p className="text-base leading-relaxed mb-7" style={{ color: "rgba(255,255,255,0.75)" }}>
+          <p className="text-base leading-relaxed mb-7" style={{ color: "var(--muted-foreground)" }}>
             EduMyles is fully responsive — works perfectly on any phone, tablet, or computer. No app
             download required. Just open your browser and go.
           </p>
@@ -47,7 +47,7 @@ export default function MobileTeaser() {
                 <span className="text-[var(--accent-foreground)] font-bold text-sm mt-0.5 flex-shrink-0">✓</span>
                 <span
                   className="text-sm leading-relaxed"
-                  style={{ color: "rgba(255,255,255,0.8)" }}
+                  style={{ color: "var(--foreground)" }}
                 >
                   {bullet}
                 </span>
@@ -60,7 +60,7 @@ export default function MobileTeaser() {
               className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full"
               style={{
                 background: "rgba(255,255,255,0.08)",
-                color: "rgba(255,255,255,0.6)",
+                color: "var(--muted-foreground)",
                 border: "1px solid rgba(255,255,255,0.12)",
               }}
             >
@@ -149,7 +149,7 @@ export default function MobileTeaser() {
                   >
                     EduMyles
                   </span>
-                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "8px" }}>9:41 AM</span>
+                  <span style={{ color: "var(--muted-foreground)", fontSize: "8px" }}>9:41 AM</span>
                 </div>
 
                 {/* Screen content */}
@@ -210,10 +210,10 @@ export default function MobileTeaser() {
                   {/* Fee alerts card */}
                   <div
                     style={{
-                      background: "var(--muted)",
                       borderRadius: "8px",
                       padding: "8px",
-                      border: "1px solid #fde68a",
+                      border: "1px solid var(--warning)",
+                      background: "var(--warning-muted)",
                       display: "flex",
                       alignItems: "center",
                       gap: "6px",
@@ -224,7 +224,7 @@ export default function MobileTeaser() {
                       <p style={{ fontSize: "8px", fontWeight: 700, color: "var(--foreground)" }}>
                         3 fee alerts
                       </p>
-                      <p style={{ fontSize: "7px", color: "#92400e" }}>Pending collections</p>
+                      <p style={{ fontSize: "7px", color: "var(--warning-muted-foreground)" }}>Pending collections</p>
                     </div>
                   </div>
 
@@ -234,7 +234,7 @@ export default function MobileTeaser() {
                       background: "var(--background)",
                       borderRadius: "8px",
                       padding: "8px",
-                      border: "1px solid #e2e8f0",
+                      border: "1px solid var(--border)",
                       display: "flex",
                       alignItems: "center",
                       gap: "6px",
@@ -256,7 +256,7 @@ export default function MobileTeaser() {
                     display: "flex",
                     justifyContent: "space-around",
                     padding: "8px 4px",
-                    borderTop: "1px solid #f1f5f9",
+                    borderTop: "1px solid var(--border)",
                     marginTop: "auto",
                   }}
                 >

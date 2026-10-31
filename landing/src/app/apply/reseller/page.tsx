@@ -178,7 +178,7 @@ export default function ResellerApplicationPage() {
           </div>
 
           <div className="max-w-3xl pt-8 xl:pt-20">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-foreground)] bg-[rgb(var(--primary-rgb) / 12%)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-foreground)]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-foreground)] bg-[rgb(var(--primary-rgb)_/_12%)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-foreground)]">
               <Handshake className="h-4 w-4" />
               Reseller Program
             </div>
@@ -273,7 +273,7 @@ export default function ResellerApplicationPage() {
                     <h3 className="font-jakarta text-[16px] font-bold text-[var(--accent-foreground)]">
                       {tier.tier}
                     </h3>
-                    <span className="bg-[rgb(var(--primary-rgb) / 20%)] text-[var(--accent-foreground)] px-2 py-1 rounded text-xs font-bold">
+                    <span className="bg-[rgb(var(--primary-rgb)_/_20%)] text-[var(--accent-foreground)] px-2 py-1 rounded text-xs font-bold">
                       {tier.commission}
                     </span>
                   </div>

@@ -280,7 +280,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── Our Journey ───────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#0F1D1B" }}>
+      <section className="py-16 px-4" style={{ background: "var(--platform-chrome)" }}>
         <div className="max-w-[860px] mx-auto">
           <div className="text-center mb-12">
             <div
@@ -288,7 +288,7 @@ export default function AboutPage() {
               style={{
                 background: "rgb(var(--primary-rgb) / 12%)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                color: "var(--accent-foreground)",
+                color: "#B9CBD6",
               }}
             >
               Our Journey
@@ -298,7 +298,7 @@ export default function AboutPage() {
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
             >
               From a WhatsApp group{" "}
-              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+              <em className="italic" style={{ color: "#B9CBD6" }}>
                 to students across multiple campuses.
               </em>
             </h2>
@@ -325,7 +325,7 @@ export default function AboutPage() {
                 <div className="pb-8">
                   <div
                     className="font-jakarta font-bold text-[12px] mb-1"
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "#B9CBD6" }}
                   >
                     {m.year}
                   </div>
@@ -337,7 +337,7 @@ export default function AboutPage() {
                   </h3>
                   <p
                     className="font-jakarta text-[14px] leading-[1.7]"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "#D5E1DE" }}
                   >
                     {m.desc}
                   </p>
@@ -462,13 +462,13 @@ export default function AboutPage() {
                   </h3>
                   <div
                     className="font-jakarta text-[13px] font-medium mb-3"
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "#B9CBD6" }}
                   >
                     {t.role}
                   </div>
                   <p
                     className="font-jakarta text-[14px] leading-[1.7]"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "#D5E1DE" }}
                   >
                     {t.bio}
                   </p>

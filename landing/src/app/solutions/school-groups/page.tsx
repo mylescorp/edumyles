@@ -342,12 +342,12 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 2: Pain Points ──────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#0F1D1B" }}>
+      <section className="py-20 px-4" style={{ background: "var(--platform-chrome)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <p
               className="font-semibold text-[13px] uppercase tracking-[0.12em] mb-3"
-              style={{ color: "var(--accent-foreground)" }}
+              style={{ color: "#B9CBD6" }}
             >
               The challenges school networks face
             </p>
@@ -371,14 +371,14 @@ export default function SchoolGroupsPage() {
                 <div className="flex items-start gap-4 mb-4">
                   <span
                     className="font-display font-bold text-[2.5rem] leading-none"
-                    style={{ color: "rgb(var(--primary-rgb) / 25%)" }}
+                    style={{ color: "#B9CBD6" }}
                   >
                     {p.num}
                   </span>
                   <p.icon
                     className="w-9 h-9 flex-shrink-0 mt-1"
                     strokeWidth={1.5}
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "#B9CBD6" }}
                   />
                 </div>
                 <h3
@@ -387,7 +387,7 @@ export default function SchoolGroupsPage() {
                 >
                   {p.title}
                 </h3>
-                <p className="leading-[1.8] text-[14px]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="leading-[1.8] text-[14px]" style={{ color: "#D5E1DE" }}>
                   {p.text}
                 </p>
               </div>
@@ -745,7 +745,7 @@ export default function SchoolGroupsPage() {
                 <tr style={{ background: "var(--platform-chrome)" }}>
                   <th
                     className="text-left py-4 px-6 font-semibold text-[14px]"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "#F4F8F7" }}
                   >
                     Challenge
                   </th>
@@ -757,7 +757,7 @@ export default function SchoolGroupsPage() {
                   </th>
                   <th
                     className="text-center py-4 px-6 font-semibold text-[14px]"
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "#B9CBD6" }}
                   >
                     With EduMyles
                   </th>

@@ -149,12 +149,12 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 2: Pain Points ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#0F1D1B" }}>
+      <section className="py-20 px-4" style={{ background: "var(--platform-chrome)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-12">
             <p
               className="font-semibold text-[13px] uppercase tracking-[0.12em] mb-3"
-              style={{ color: "var(--accent-foreground)" }}
+              style={{ color: "#B9CBD6" }}
             >
               The challenges secondary schools face
             </p>
@@ -194,17 +194,17 @@ export default function SecondarySchoolsPage() {
                 <div className="flex items-start gap-4 mb-4">
                   <span
                     className="font-display font-bold text-[2rem] leading-none"
-                    style={{ color: "var(--accent-foreground)", opacity: 0.7 }}
+                    style={{ color: "#B9CBD6", opacity: 0.85 }}
                   >
                     {num}
                   </span>
                   <Icon
                     className="w-8 h-8 mt-1 flex-shrink-0"
                     strokeWidth={1.5}
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "#B9CBD6" }}
                   />
                 </div>
-                <p className="leading-[1.8] text-[15px]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="leading-[1.8] text-[15px]" style={{ color: "#D5E1DE" }}>
                   {text}
                 </p>
               </div>
@@ -647,14 +647,14 @@ export default function SecondarySchoolsPage() {
                 <tr style={{ background: "var(--platform-chrome)" }}>
                   <th
                     className="text-left px-6 py-4 font-semibold"
-                    style={{ color: "var(--muted-foreground)", width: "30%" }}
+                    style={{ color: "#F4F8F7", width: "30%" }}
                   >
                     Feature
                   </th>
-                  <th className="text-left px-6 py-4 font-semibold" style={{ color: "var(--muted-foreground)" }}>
+                  <th className="text-left px-6 py-4 font-semibold" style={{ color: "#D5E1DE" }}>
                     Manual / Traditional
                   </th>
-                  <th className="text-left px-6 py-4 font-semibold" style={{ color: "var(--accent-foreground)" }}>
+                  <th className="text-left px-6 py-4 font-semibold" style={{ color: "#B9CBD6" }}>
                     EduMyles
                   </th>
                 </tr>

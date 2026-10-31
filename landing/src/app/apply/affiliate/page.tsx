@@ -186,7 +186,7 @@ function AffiliateApplicationContent() {
           </div>
 
           <div className="max-w-3xl pt-8 xl:pt-20">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-foreground)] bg-[rgb(var(--primary-rgb) / 12%)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-foreground)]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-foreground)] bg-[rgb(var(--primary-rgb)_/_12%)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-foreground)]">
               <Share2 className="h-4 w-4" />
               Affiliate Program
             </div>
@@ -244,7 +244,7 @@ function AffiliateApplicationContent() {
               ))}
             </div>
 
-            <div className="mt-8 rounded-[20px] border border-[rgb(var(--primary-rgb) / 18%)] bg-[rgb(var(--primary-rgb) / 8%)] p-5">
+            <div className="mt-8 rounded-[20px] border border-[rgb(var(--primary-rgb)_/_18%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-5">
               <div className="flex items-start gap-3">
                 <TrendingUp className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--accent-foreground)]" />
                 <div>
