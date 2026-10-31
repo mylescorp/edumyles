@@ -46,6 +46,13 @@ const TYPE_CONFIG: Record<string, { icon: any; color: string; label: string }> =
 
 const defaultTypeConfig = TYPE_CONFIG.improvement!;
 
+function toLocalDateTimeInput(timestamp?: number) {
+  if (timestamp === undefined) return "";
+  const date = new Date(timestamp);
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+  return date.toISOString().slice(0, 16);
+}
+
 export default function ChangelogPage() {
   const router = useRouter();
   const { sessionToken } = useAuth();
@@ -69,6 +76,21 @@ export default function ChangelogPage() {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [auditEntryId, setAuditEntryId] = useState<string | null>(null);
+
+  const resetForm = () => {
+    setVersion("");
+    setTitle("");
+    setDescription("");
+    setType("");
+    setTags("");
+    setPanels(["admin"]);
+    setModuleSlug("");
+    setWorkspaceIdsText("");
+    setLinksText("");
+    setPublishState("published");
+    setScheduledAt("");
+    setEditingId(null);
+  };
 
   const entries = usePlatformQuery(
     api.platform.changelog.queries.listChangelogs,
@@ -118,18 +140,7 @@ export default function ChangelogPage() {
         await updateEntry({ ...input, module: moduleSlug || null, entryId: editingId as never });
       else await createEntry(input);
       setIsCreateOpen(false);
-      setVersion("");
-      setTitle("");
-      setDescription("");
-      setType("");
-      setTags("");
-      setPanels(["admin"]);
-      setModuleSlug("");
-      setWorkspaceIdsText("");
-      setLinksText("");
-      setPublishState("published");
-      setScheduledAt("");
-      setEditingId(null);
+      resetForm();
       toast.success(editingId ? "Changelog entry updated." : "Changelog entry saved.");
     } catch (error) {
       console.error("Failed to create entry:", error);
@@ -151,7 +162,7 @@ export default function ChangelogPage() {
     setWorkspaceIdsText((entry.workspaceIds ?? []).join(", "));
     setLinksText((entry.links ?? []).map((link: any) => `${link.label} | ${link.url}`).join("\n"));
     setPublishState(entry.status ?? "published");
-    setScheduledAt(entry.scheduledAt ? new Date(entry.scheduledAt).toISOString().slice(0, 16) : "");
+    setScheduledAt(toLocalDateTimeInput(entry.scheduledAt));
     setIsCreateOpen(true);
   };
 
@@ -188,7 +199,12 @@ export default function ChangelogPage() {
               <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
               Refresh
             </Button>
-            <Button onClick={() => setIsCreateOpen(true)}>
+            <Button
+              onClick={() => {
+                resetForm();
+                setIsCreateOpen(true);
+              }}
+            >
               <Plus className="h-4 w-4 mr-2" /> New Entry
             </Button>
           </div>
@@ -310,8 +326,14 @@ export default function ChangelogPage() {
         </div>
       )}
 
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent>
+      <Dialog
+        open={isCreateOpen}
+        onOpenChange={(open) => {
+          setIsCreateOpen(open);
+          if (!open) resetForm();
+        }}
+      >
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingId ? "Edit Changelog Entry" : "New Changelog Entry"}</DialogTitle>
           </DialogHeader>

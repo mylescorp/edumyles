@@ -300,7 +300,11 @@ export const updateChangelogEntry = mutation({
     if (args.links) updates.links = args.links;
     if (args.status) updates.status = args.status;
     if (args.scheduledAt !== undefined) updates.scheduledAt = args.scheduledAt;
-    if (args.status === "published") updates.date = Date.now();
+    if (args.status === "scheduled" && args.scheduledAt !== undefined) {
+      updates.date = args.scheduledAt;
+    } else if (args.status === "published") {
+      updates.date = Date.now();
+    }
 
     await ctx.db.patch(args.entryId, updates);
     await ctx.db.insert("whatsNewAudit", {
@@ -400,10 +404,10 @@ export const deleteChangelogEntry = mutation({
 });
 
 export const markAllRead = mutation({
-  args: { sessionToken: v.string() },
+  args: { sessionToken: v.string(), version: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const context = await getFeedContext(ctx, args.sessionToken);
-    const [entries, reads] = await Promise.all([
+    const [visible, reads] = await Promise.all([
       visibleEntries(ctx, context),
       ctx.db
         .query("whatsNewReads")
@@ -412,6 +416,9 @@ export const markAllRead = mutation({
         )
         .collect(),
     ]);
+    const entries = args.version
+      ? visible.filter((entry: any) => entry.version === args.version)
+      : visible;
     const readIds = new Set(reads.map((read) => String(read.entryId)));
     let marked = 0;
     for (const entry of entries) {
@@ -439,7 +446,11 @@ export const processScheduledEntries = internalMutation({
       )
       .collect();
     for (const entry of due) {
-      await ctx.db.patch(entry._id, { status: "published", updatedAt: now });
+      await ctx.db.patch(entry._id, {
+        status: "published",
+        date: entry.scheduledAt ?? now,
+        updatedAt: now,
+      });
       await ctx.db.insert("whatsNewAudit", {
         entryId: entry._id,
         releaseKey: entry.releaseKey,

@@ -29,7 +29,7 @@ export const getLatestVersion = query({
   },
 });
 
-export const getWhatsNewSummary = query({
+export const getWhatsNewUnreadCount = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     const context = await getFeedContext(ctx, args.sessionToken);
@@ -41,12 +41,19 @@ export const getWhatsNewSummary = query({
       )
       .collect();
     const readIds = new Set(reads.map((read) => String(read.entryId)));
+    return entries.reduce(
+      (count: number, entry: any) => count + (readIds.has(String(entry._id)) ? 0 : 1),
+      0
+    );
+  },
+});
+
+export const getWhatsNewFeed = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    const context = await getFeedContext(ctx, args.sessionToken);
+    const entries = await visibleEntries(ctx, context);
     return {
-      unreadCount:
-        entries.reduce(
-          (count: number, entry: any) => count + (readIds.has(String(entry._id)) ? 0 : 1),
-          0
-        ),
       entries: entries.map((entry: any) => ({
         _id: entry._id,
         version: entry.version,
@@ -58,7 +65,6 @@ export const getWhatsNewSummary = query({
         links: entry.links,
         date: entry.date,
       })),
-      panel: context.panel,
       workspaceId: context.workspaceId,
     };
   },

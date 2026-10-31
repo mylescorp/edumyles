@@ -55,11 +55,13 @@ export async function getFeedContext(ctx: any, sessionToken: string) {
 
 export async function visibleEntries(ctx: any, context: any) {
   const entries = await ctx.db.query("changelogEntries").order("desc").collect();
-  return entries.filter(
-    (entry: any) =>
-      (entry.status === undefined ||
-        entry.status === "published" ||
-        (entry.status === "scheduled" && !!entry.scheduledAt && entry.scheduledAt <= Date.now())) &&
-      isVisibleTo(entry, context)
-  );
+  return entries
+    .filter(
+      (entry: any) =>
+        (entry.status === undefined ||
+          entry.status === "published" ||
+          (entry.status === "scheduled" && !!entry.scheduledAt && entry.scheduledAt <= Date.now())) &&
+        isVisibleTo(entry, context)
+    )
+    .sort((a: any, b: any) => b.date - a.date || b.createdAt - a.createdAt);
 }

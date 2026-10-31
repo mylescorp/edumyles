@@ -55,21 +55,26 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const [personalized, setPersonalized] = useState(false);
   const openedScopeRef = useRef<string | null>(null);
   const data = useQuery(
-    api.platform.changelog.queries.getWhatsNewSummary,
+    api.platform.changelog.queries.getWhatsNewFeed,
+    { sessionToken: sessionToken ?? "" },
+    !!sessionToken
+  );
+  const unreadCount = useQuery(
+    api.platform.changelog.queries.getWhatsNewUnreadCount,
     { sessionToken: sessionToken ?? "" },
     !!sessionToken
   );
   const markAllRead = useMutation(api.platform.changelog.mutations.markAllRead);
-  const scopeKey = sessionToken && data ? `${sessionToken}:${data.workspaceId}` : null;
+  const scopeKey =
+    sessionToken && data ? `${sessionToken}:${data.workspaceId}:${version ?? "all"}` : null;
 
   useEffect(() => {
     if (!sessionToken || !data || !scopeKey || openedScopeRef.current === scopeKey) return;
     openedScopeRef.current = scopeKey;
-    if (data.unreadCount === 0) return;
-    void markAllRead({ sessionToken }).catch((error: unknown) =>
+    void markAllRead({ sessionToken, ...(version ? { version } : {}) }).catch((error: unknown) =>
       console.error("Unable to update What's new read state", error)
     );
-  }, [data, markAllRead, scopeKey, sessionToken]);
+  }, [data, markAllRead, scopeKey, sessionToken, version]);
 
   const entries = (data?.entries ?? EMPTY_ENTRIES) as Entry[];
   const activeVersion = version;
@@ -129,7 +134,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {data.unreadCount > 0 && <Badge>{data.unreadCount} new</Badge>}
+          {!!unreadCount && <Badge>{unreadCount} new</Badge>}
           {activeVersion && (
             <Button asChild variant="outline" size="sm">
               <Link href={routeBase}>All releases</Link>

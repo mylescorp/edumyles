@@ -28,11 +28,11 @@ export function WhatsNewNavLink({
   const href = getWhatNewHref(pathname);
   const { sessionToken } = useAuth();
   const summary = useQuery(
-    api.platform.changelog.queries.getWhatsNewSummary,
+    api.platform.changelog.queries.getWhatsNewUnreadCount,
     { sessionToken: sessionToken ?? "" },
     !!sessionToken
   );
-  const unreadCount = summary?.unreadCount ?? 0;
+  const unreadCount = summary ?? 0;
   const active = pathname === href || pathname.startsWith(`${href}/`);
 
   return (
