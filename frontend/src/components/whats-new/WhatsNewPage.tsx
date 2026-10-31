@@ -195,7 +195,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
                 onChange={(event) => setToDate(event.target.value)}
               />
             </label>
-            {data.unreadCount > 0 && (
+            {!!unreadCount && (
               <Button
                 className="md:col-span-4 md:justify-self-end"
                 size="sm"
