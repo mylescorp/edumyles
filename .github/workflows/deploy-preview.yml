@@ -30,14 +30,15 @@ jobs:
 
       - name: Pull Vercel environment info (frontend)
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: frontend
+        # The Vercel frontend project already has `frontend` configured as its
+        # Root Directory, so run the CLI from the repository root to avoid
+        # resolving the project as `frontend/frontend`.
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_FRONTEND_PROJECT_ID }}
 
       - name: Build frontend
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: frontend
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_FRONTEND_PROJECT_ID }}
@@ -48,7 +49,6 @@ jobs:
           url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "frontend_url=$url" >> $GITHUB_OUTPUT
           echo "Frontend preview: $url"
-        working-directory: frontend
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_FRONTEND_PROJECT_ID }}

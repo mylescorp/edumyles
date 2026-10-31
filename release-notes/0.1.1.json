@@ -1,0 +1,22 @@
+{
+  "entries": [
+    {
+      "title": "Fixed the What's new timeline unread-count error",
+      "description": "The What's new page and sidebar now handle unread counts correctly across all panels.",
+      "type": "fix",
+      "panels": [
+        "admin",
+        "teacher",
+        "student",
+        "parent",
+        "alumni",
+        "partner",
+        "developer",
+        "affiliate",
+        "reseller",
+        "platform"
+      ],
+      "tags": ["whats-new", "timeline", "unread-count"]
+    }
+  ]
+}

@@ -59,11 +59,17 @@ export function WhatsNewPage({ version }: { version?: string }) {
     { sessionToken: sessionToken ?? "" },
     !!sessionToken
   );
-  const unreadCount = useQuery(
+  const unreadCountResult = useQuery(
     api.platform.changelog.queries.getWhatsNewUnreadCount,
     { sessionToken: sessionToken ?? "" },
     !!sessionToken
   );
+  // Scalar Convex values are wrapped by useSSRSafeConvex so they can expose
+  // query metadata. Unwrap the count before rendering it as text.
+  const unreadCount =
+    typeof unreadCountResult === "number"
+      ? unreadCountResult
+      : unreadCountResult?.value ?? unreadCountResult?.data ?? 0;
   const markAllRead = useMutation(api.platform.changelog.mutations.markAllRead);
   const scopeKey =
     sessionToken && data ? `${sessionToken}:${data.workspaceId}:${version ?? "all"}` : null;
