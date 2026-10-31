@@ -130,7 +130,7 @@
   --secondary: #EBF1EF;
   --secondary-foreground: #10201E;
   --muted: #EBF1EF;
-  --muted-foreground: #566B67;
+  --muted-foreground: #4B605C;
   --accent: var(--tenant-accent);
   --accent-foreground: #355263;
   --border: #D5E1DE;
@@ -163,7 +163,7 @@
   --secondary-rgb: 235 241 239;
   --secondary-foreground-rgb: 16 32 30;
   --muted-rgb: 235 241 239;
-  --muted-foreground-rgb: 86 107 103;
+  --muted-foreground-rgb: 75 96 92;
   --accent-rgb: 238 243 246;
   --accent-foreground-rgb: 53 82 99;
   --border-rgb: 213 225 222;

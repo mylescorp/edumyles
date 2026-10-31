@@ -11,7 +11,7 @@ export const semantic = {
     "secondary": "#EBF1EF",
     "secondary-foreground": "#10201E",
     "muted": "#EBF1EF",
-    "muted-foreground": "#566B67",
+    "muted-foreground": "#4B605C",
     "accent": "#EEF3F6",
     "accent-foreground": "#355263",
     "border": "#D5E1DE",
