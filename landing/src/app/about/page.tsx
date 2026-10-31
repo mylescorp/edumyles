@@ -462,13 +462,13 @@ export default function AboutPage() {
                   </h3>
                   <div
                     className="font-jakarta text-[13px] font-medium mb-3"
-                    style={{ color: "#B9CBD6" }}
+                    style={{ color: "var(--accent-foreground)" }}
                   >
                     {t.role}
                   </div>
                   <p
                     className="font-jakarta text-[14px] leading-[1.7]"
-                    style={{ color: "#D5E1DE" }}
+                    style={{ color: "var(--muted-foreground)" }}
                   >
                     {t.bio}
                   </p>

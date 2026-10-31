@@ -592,7 +592,7 @@ export default function PrimarySchoolsPage() {
             <div>
               <p
                 className="font-jakarta font-semibold text-[13px] uppercase tracking-[0.1em] mb-5"
-                style={{ color: "#B9CBD6" }}
+                style={{ color: "var(--accent-foreground)" }}
               >
                 4 CBC performance levels
               </p>
