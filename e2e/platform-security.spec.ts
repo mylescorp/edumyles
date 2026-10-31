@@ -13,7 +13,10 @@ async function gotoPlatformPage(page: import("@playwright/test").Page, pathname:
 }
 
 async function authenticateAsPlatformAdmin(context: import("@playwright/test").BrowserContext) {
-  const token = process.env.E2E_SESSION_TOKEN ?? "dev-platform-session";
+  const token =
+    process.env.E2E_PLATFORM_SESSION_TOKEN ??
+    process.env.E2E_SESSION_TOKEN ??
+    "dev-platform-session";
   const role = process.env.E2E_ROLE ?? "master_admin";
   const tenantId = role === "master_admin" ? "PLATFORM" : (process.env.E2E_TENANT_ID ?? "TENANT-733447");
   await context.addCookies([

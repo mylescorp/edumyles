@@ -28,7 +28,7 @@ function buildUserCookie(token: string, role: string) {
 }
 
 setup("authenticate as school admin", async ({ page }) => {
-  const token = process.env.E2E_SESSION_TOKEN;
+  const token = process.env.E2E_TENANT_SESSION_TOKEN ?? process.env.E2E_SESSION_TOKEN;
   const role = process.env.E2E_ROLE ?? "school_admin";
 
   if (!token) {

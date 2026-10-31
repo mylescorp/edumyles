@@ -108,13 +108,16 @@ jobs:
           # placeholder key is configured on this throwaway deployment.
           npx convex dev --local --once > /tmp/convex-local-bootstrap.log 2>&1 || true
           npx convex env set WORKOS_API_KEY sk_test_local_ci_placeholder
+          npx convex env set CONVEX_WEBHOOK_SECRET e2e-local-webhook-secret
 
       - name: Run Playwright smoke suite
         env:
           CONVEX_AGENT_MODE: anonymous
+          E2E_SEED_DATA: 'true'
+          CONVEX_WEBHOOK_SECRET: e2e-local-webhook-secret
         run: >-
           npx convex dev --local --once --run-sh
-          'cp .env.local frontend/.env.local && npm run test:e2e:smoke'
+          'set -a && . ./.env.local && set +a && cp .env.local frontend/.env.local && npm run test:e2e:smoke'
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
