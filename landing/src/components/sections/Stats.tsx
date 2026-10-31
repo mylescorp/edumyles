@@ -37,9 +37,9 @@ export default function Stats() {
     <section
       aria-label="Trusted by schools across Africa"
       style={{
-        background: "#061A12",
-        borderTop: "3px solid #E8A020",
-        borderBottom: "1px solid rgba(232,160,32,0.15)",
+        background: "var(--card)",
+        borderTop: "3px solid var(--primary)",
+        borderBottom: "1px solid rgb(var(--primary-rgb) / 15%)",
       }}
     >
       {/* ── Header ── */}
@@ -47,9 +47,9 @@ export default function Stats() {
         <div
           className="inline-flex items-center gap-2 font-jakarta font-semibold text-[12px] mb-5 px-4 py-2 rounded-full"
           style={{
-            background: "rgba(232,160,32,0.12)",
-            border: "1px solid rgba(232,160,32,0.3)",
-            color: "#E8A020",
+            background: "rgb(var(--primary-rgb) / 12%)",
+            border: "1px solid rgb(var(--primary-rgb) / 30%)",
+            color: "var(--accent-foreground)",
           }}
         >
           <span
@@ -57,7 +57,7 @@ export default function Stats() {
               width: 6,
               height: 6,
               borderRadius: "50%",
-              background: "#E8A020",
+              background: "var(--primary)",
               display: "inline-block",
             }}
           />
@@ -65,16 +65,16 @@ export default function Stats() {
         </div>
         <h2
           className="font-display font-bold leading-tight mb-2"
-          style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)", color: "#ffffff" }}
+          style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)", color: "var(--foreground)" }}
         >
           The platform African schools{" "}
-          <em className="italic" style={{ color: "#E8A020" }}>
+          <em className="italic" style={{ color: "var(--accent-foreground)" }}>
             run on.
           </em>
         </h2>
         <p
           className="font-jakarta text-[14px]"
-          style={{ color: "#6B9E83", maxWidth: 480, margin: "0 auto" }}
+          style={{ color: "var(--muted-foreground)", maxWidth: 480, margin: "0 auto" }}
         >
           From Nairobi to Kampala to Lusaka — schools across East Africa choose EduMyles to manage
           their students, fees, and staff.
@@ -114,7 +114,7 @@ export default function Stats() {
               style={{
                 background: "rgba(255,255,255,0.05)",
                 border: "1px solid rgba(255,255,255,0.10)",
-                color: "#A8E6C3",
+                color: "var(--muted-foreground)",
               }}
             >
               {name}
@@ -133,23 +133,23 @@ export default function Stats() {
               style={{
                 background: "rgba(255,255,255,0.03)",
                 border: "1px solid rgba(255,255,255,0.07)",
-                borderLeft: "3px solid #E8A020",
+                borderLeft: "3px solid var(--accent-foreground)",
               }}
             >
               <div
                 className="font-display font-bold mb-1"
                 style={{
                   fontSize: "clamp(1.6rem,2.5vw,2.25rem)",
-                  color: "#E8A020",
+                  color: "var(--accent-foreground)",
                   lineHeight: 1.1,
                 }}
               >
                 {s.value}
               </div>
-              <div className="font-jakarta font-semibold text-[14px] text-white mb-0.5">
+              <div className="font-jakarta font-semibold text-[14px] text-foreground mb-0.5">
                 {s.label}
               </div>
-              <div className="font-jakarta text-[11px]" style={{ color: "#6B9E83" }}>
+              <div className="font-jakarta text-[11px]" style={{ color: "var(--muted-foreground)" }}>
                 {s.sub}
               </div>
             </div>
@@ -172,7 +172,7 @@ export default function Stats() {
             style={{
               background: "rgba(168,230,195,0.08)",
               border: "1px solid rgba(168,230,195,0.15)",
-              color: "#A8E6C3",
+              color: "var(--muted-foreground)",
             }}
           >
             {c.flag} {c.name}

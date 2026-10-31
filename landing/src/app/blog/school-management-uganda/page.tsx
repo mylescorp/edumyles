@@ -10,19 +10,19 @@ export const metadata: Metadata = {
 
 export default function UgandaSchoolManagement() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* Hero Section */}
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, #061A12 0%, #0F4C2A 50%, #1A7A4A 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
         <div className="absolute inset-0 opacity-10">
           <div
             style={{
-              backgroundImage: `radial-gradient(circle at 20% 50%, rgba(232,160,32,0.3) 0%, transparent 50%), 
+              backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
                             radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
@@ -35,7 +35,7 @@ export default function UgandaSchoolManagement() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "#A8E6C3" }}
+              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
             >
               ← Back to Blog
             </Link>
@@ -46,29 +46,29 @@ export default function UgandaSchoolManagement() {
               className="font-display font-bold leading-tight mb-6"
               style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
             >
-              School Management in <span style={{ color: "#E8A020" }}>Uganda</span>
+              School Management in <span style={{ color: "var(--accent-foreground)" }}>Uganda</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5" style={{ color: "#E8A020" }} />
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <Globe className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   Regional
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   6 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   December 2025
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "#A8E6C3" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
               UNEB vs CBC, Airtel Money vs M-Pesa, Ugandan MoES requirements — here&apos;s what we
               adapted for Ugandan schools. Complete guide for the Ugandan education system.
             </p>
@@ -77,17 +77,17 @@ export default function UgandaSchoolManagement() {
       </section>
 
       {/* Content */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[800px] mx-auto">
           {/* Introduction */}
           <div className="mb-12">
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "#374151" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
               While Kenya and Uganda share many educational challenges, their systems, requirements,
               and payment landscapes differ significantly. A school management system that works
               perfectly in Nairobi needs thoughtful adaptation for Kampala.
             </p>
 
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "#374151" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
               EduMyles has been extensively adapted for the Ugandan market, from UNEC curriculum
               alignment to Airtel Money integration. Here&apos;s what makes Ugandan school
               management unique and how we&apos;ve tailored our platform accordingly.
@@ -96,13 +96,13 @@ export default function UgandaSchoolManagement() {
             <div
               className="p-6 rounded-2xl mb-8"
               style={{
-                background: "linear-gradient(135deg, #F3FBF6 0%, #E8F5EE 100%)",
+                background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
                 border: "1px solid rgba(26,122,74,0.2)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <Globe className="w-6 h-6" style={{ color: "#1A7A4A" }} />
-                <h3 className="font-display font-bold text-xl" style={{ color: "#061A12" }}>
+                <Globe className="w-6 h-6" style={{ color: "var(--primary)" }} />
+                <h3 className="font-display font-bold text-xl" style={{ color: "var(--foreground)" }}>
                   Uganda-Specific Adaptations
                 </h3>
               </div>
@@ -116,8 +116,8 @@ export default function UgandaSchoolManagement() {
                   "Ugandan school calendar integration",
                 ].map((feature) => (
                   <li key={feature} className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "#1A7A4A" }} />
-                    <span className="font-jakarta text-sm" style={{ color: "#374151" }}>
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "var(--primary)" }} />
+                    <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                       {feature}
                     </span>
                   </li>
@@ -128,7 +128,7 @@ export default function UgandaSchoolManagement() {
 
           {/* Key Differences */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Key Differences: Kenya vs Uganda
             </h2>
 
@@ -174,9 +174,9 @@ export default function UgandaSchoolManagement() {
                 <div
                   key={difference.aspect}
                   className="border-l-4 pl-6"
-                  style={{ borderColor: "#E8A020" }}
+                  style={{ borderColor: "var(--primary)" }}
                 >
-                  <h3 className="font-jakarta font-bold text-lg mb-3" style={{ color: "#061A12" }}>
+                  <h3 className="font-jakarta font-bold text-lg mb-3" style={{ color: "var(--foreground)" }}>
                     {difference.aspect}
                   </h3>
                   <div className="grid md:grid-cols-2 gap-4">
@@ -205,7 +205,7 @@ export default function UgandaSchoolManagement() {
                   </div>
                   <div
                     className="text-sm mt-2 p-2 rounded"
-                    style={{ background: "rgba(232,160,32,0.1)", color: "#9A5D00" }}
+                    style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
                   >
                     Impact: {difference.impact}
                   </div>
@@ -216,7 +216,7 @@ export default function UgandaSchoolManagement() {
 
           {/* UNEC Integration */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               UNEC Curriculum Integration
             </h2>
 
@@ -269,13 +269,13 @@ export default function UgandaSchoolManagement() {
                 <div
                   key={level.level}
                   className="p-5 rounded-xl"
-                  style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                 >
-                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "#061A12" }}>
+                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "var(--foreground)" }}>
                     {level.level}
                   </h3>
                   <div className="mb-3">
-                    <div className="text-xs font-semibold mb-1" style={{ color: "#1A7A4A" }}>
+                    <div className="text-xs font-semibold mb-1" style={{ color: "var(--primary)" }}>
                       Key Subjects:
                     </div>
                     <div className="flex flex-wrap gap-1">
@@ -283,7 +283,7 @@ export default function UgandaSchoolManagement() {
                         <span
                           key={subject}
                           className="text-xs px-2 py-1 rounded"
-                          style={{ background: "rgba(26,122,74,0.1)", color: "#1A7A4A" }}
+                          style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
                         >
                           {subject}
                         </span>
@@ -291,10 +291,10 @@ export default function UgandaSchoolManagement() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs font-semibold mb-1" style={{ color: "#1A7A4A" }}>
+                    <div className="text-xs font-semibold mb-1" style={{ color: "var(--primary)" }}>
                       Assessment:
                     </div>
-                    <div className="text-sm" style={{ color: "#5a5a5a" }}>
+                    <div className="text-sm" style={{ color: "var(--muted-foreground)" }}>
                       {level.assessment}
                     </div>
                   </div>
@@ -305,13 +305,13 @@ export default function UgandaSchoolManagement() {
 
           {/* Payment Integration */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Mobile Money Integration for Uganda
             </h2>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   Payment Landscape
                 </h3>
                 <div className="space-y-4">
@@ -345,18 +345,18 @@ export default function UgandaSchoolManagement() {
                     <div
                       key={provider.provider}
                       className="p-4 rounded-xl"
-                      style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                     >
                       <div className="flex justify-between items-center mb-2">
                         <h4
                           className="font-jakarta font-semibold text-base"
-                          style={{ color: "#061A12" }}
+                          style={{ color: "var(--foreground)" }}
                         >
                           {provider.provider}
                         </h4>
                         <span
                           className="text-xs px-2 py-1 rounded-full"
-                          style={{ background: "rgba(26,122,74,0.1)", color: "#1A7A4A" }}
+                          style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
                         >
                           {provider.market}
                         </span>
@@ -366,9 +366,9 @@ export default function UgandaSchoolManagement() {
                           <div key={feature} className="flex items-center gap-2 text-sm">
                             <CheckCircle2
                               className="w-4 h-4 flex-shrink-0"
-                              style={{ color: "#1A7A4A" }}
+                              style={{ color: "var(--primary)" }}
                             />
-                            <span style={{ color: "#5a5a5a" }}>{feature}</span>
+                            <span style={{ color: "var(--muted-foreground)" }}>{feature}</span>
                           </div>
                         ))}
                       </div>
@@ -378,7 +378,7 @@ export default function UgandaSchoolManagement() {
               </div>
 
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   EduMyles Integration
                 </h3>
                 <div className="space-y-3">
@@ -397,8 +397,8 @@ export default function UgandaSchoolManagement() {
                       className="flex items-center gap-3 p-3 rounded-lg"
                       style={{ background: "rgba(26,122,74,0.1)" }}
                     >
-                      <CreditCard className="w-5 h-5 flex-shrink-0" style={{ color: "#1A7A4A" }} />
-                      <span className="text-sm font-medium" style={{ color: "#061A12" }}>
+                      <CreditCard className="w-5 h-5 flex-shrink-0" style={{ color: "var(--primary)" }} />
+                      <span className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
                         {feature}
                       </span>
                     </div>
@@ -410,7 +410,7 @@ export default function UgandaSchoolManagement() {
 
           {/* MoES Compliance */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Ministry of Education & Sports Compliance
             </h2>
 
@@ -464,12 +464,12 @@ export default function UgandaSchoolManagement() {
                 <div
                   key={req.requirement}
                   className="p-5 rounded-xl"
-                  style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                 >
-                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "#061A12" }}>
+                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "var(--foreground)" }}>
                     {req.requirement}
                   </h3>
-                  <p className="font-jakarta text-sm mb-3" style={{ color: "#5a5a5a" }}>
+                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--muted-foreground)" }}>
                     {req.description}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -477,7 +477,7 @@ export default function UgandaSchoolManagement() {
                       <span
                         key={feature}
                         className="text-xs px-2 py-1 rounded"
-                        style={{ background: "rgba(26,122,74,0.1)", color: "#1A7A4A" }}
+                        style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
                       >
                         {feature}
                       </span>
@@ -490,7 +490,7 @@ export default function UgandaSchoolManagement() {
 
           {/* Implementation Success */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Success Stories: Ugandan Schools
             </h2>
 
@@ -525,17 +525,17 @@ export default function UgandaSchoolManagement() {
                 <div
                   key={story.school}
                   className="p-6 rounded-2xl"
-                  style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3
                         className="font-jakarta font-bold text-lg mb-1"
-                        style={{ color: "#061A12" }}
+                        style={{ color: "var(--foreground)" }}
                       >
                         {story.school}
                       </h3>
-                      <span className="text-sm" style={{ color: "#5a5a5a" }}>
+                      <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>
                         {story.location} • {story.students}
                       </span>
                     </div>
@@ -553,23 +553,23 @@ export default function UgandaSchoolManagement() {
                       <span className="font-semibold text-sm" style={{ color: "#ef4444" }}>
                         Challenge:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "#5a5a5a" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
                         {story.challenge}
                       </span>
                     </div>
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#1A7A4A" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--primary)" }}>
                         Solution:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "#5a5a5a" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
                         {story.solution}
                       </span>
                     </div>
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#E8A020" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--accent-foreground)" }}>
                         Results:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "#5a5a5a" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
                         {story.results}
                       </span>
                     </div>
@@ -581,7 +581,7 @@ export default function UgandaSchoolManagement() {
 
           {/* Getting Started */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Getting Started in Uganda
             </h2>
 
@@ -620,7 +620,7 @@ export default function UgandaSchoolManagement() {
                   <div className="flex-shrink-0">
                     <div
                       className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ background: "#E8A020", color: "#061A12" }}
+                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                     >
                       <span className="font-jakarta font-bold text-sm">{step.step}</span>
                     </div>
@@ -628,14 +628,14 @@ export default function UgandaSchoolManagement() {
                   <div>
                     <h3
                       className="font-jakarta font-bold text-lg mb-2"
-                      style={{ color: "#061A12" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {step.title}
                     </h3>
-                    <p className="font-jakarta text-sm mb-2" style={{ color: "#5a5a5a" }}>
+                    <p className="font-jakarta text-sm mb-2" style={{ color: "var(--muted-foreground)" }}>
                       {step.description}
                     </p>
-                    <span className="text-xs font-semibold" style={{ color: "#1A7A4A" }}>
+                    <span className="text-xs font-semibold" style={{ color: "var(--primary)" }}>
                       Duration: {step.duration}
                     </span>
                   </div>
@@ -646,10 +646,10 @@ export default function UgandaSchoolManagement() {
 
           {/* CTA */}
           <div className="text-center py-12">
-            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "var(--foreground)" }}>
               Ready to Transform Your Ugandan School?
             </h2>
-            <p className="font-jakarta text-lg mb-6" style={{ color: "#5a5a5a" }}>
+            <p className="font-jakarta text-lg mb-6" style={{ color: "var(--muted-foreground)" }}>
               Join 50+ Ugandan schools using EduMyles for streamlined administration and improved
               student outcomes.
             </p>
@@ -657,7 +657,7 @@ export default function UgandaSchoolManagement() {
               <Link
                 href="/book-demo"
                 className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-xl no-underline"
-                style={{ background: "#E8A020", color: "#061A12" }}
+                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
               >
                 Schedule Uganda Demo
                 <ArrowRight className="w-5 h-5" />
@@ -665,7 +665,7 @@ export default function UgandaSchoolManagement() {
               <Link
                 href="/contact"
                 className="inline-flex items-center gap-2 font-jakarta font-semibold text-[16px] px-8 py-4 rounded-xl no-underline"
-                style={{ background: "transparent", color: "#061A12", border: "2px solid #061A12" }}
+                style={{ background: "transparent", color: "var(--foreground)", border: "2px solid var(--border)" }}
               >
                 Contact Uganda Team
               </Link>

@@ -35,11 +35,6 @@ export const metadata: Metadata = {
     images: [DEFAULT_OG_IMAGE],
   },
   robots: { index: true, follow: true },
-  icons: {
-    icon: [{ url: "/logo-icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/logo-icon.svg", type: "image/svg+xml" }],
-    shortcut: "/logo-icon.svg",
-  },
   keywords: [
     "school management system Kenya",
     "school management Uganda",
@@ -78,7 +73,7 @@ const softwareSchema = {
     "@type": "Organization",
     name: "MylesCorp Technologies Ltd",
     url: "https://edumyles.com",
-    logo: "https://edumyles.com/logo.png",
+    logo: "https://edumyles.com/edumyles-wordmark-light.png",
     contactPoint: {
       "@type": "ContactPoint",
       telephone: "+254743993715",
@@ -94,7 +89,7 @@ const organizationSchema = {
   "@type": "Organization",
   name: "EduMyles",
   url: "https://edumyles.com",
-  logo: "https://edumyles.com/logo.png",
+  logo: "https://edumyles.com/edumyles-wordmark-light.png",
   description: "School Management System for East African Schools",
   foundingDate: "2022",
   founders: [
@@ -112,6 +107,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('em-theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+          }}
+        />
         {googleTagId ? (
           <>
             <Script
@@ -140,7 +140,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body
         suppressHydrationWarning
-        className="font-sans antialiased bg-white text-dark-grey"
+        className="font-sans antialiased bg-background text-foreground transition-colors duration-200"
       >
         <Suspense fallback={null}>
           <AttributionTracker />

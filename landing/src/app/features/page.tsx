@@ -70,7 +70,7 @@ const modules: {
 }[] = [
   {
     abbr: "SIS",
-    color: "#1A7A4A",
+    color: "var(--primary)",
     iconBg: "rgba(26,122,74,0.10)",
     icon: Users,
     name: "Student Information System",
@@ -86,8 +86,8 @@ const modules: {
   },
   {
     abbr: "ADM",
-    color: "#E8A020",
-    iconBg: "rgba(232,160,32,0.10)",
+    color: "var(--accent-foreground)",
+    iconBg: "rgb(var(--primary-rgb) / 10%)",
     icon: UserPlus,
     name: "Admissions",
     desc: "Digital applications, enrollment workflows, waitlists, and automated communication — paperless from day one.",
@@ -118,7 +118,7 @@ const modules: {
   },
   {
     abbr: "TTB",
-    color: "#6B9E83",
+    color: "var(--muted-foreground)",
     iconBg: "rgba(107,158,131,0.10)",
     icon: CalendarClock,
     name: "Timetable & Scheduling",
@@ -150,7 +150,7 @@ const modules: {
   },
   {
     abbr: "HR",
-    color: "#0F4C2A",
+    color: "var(--primary)",
     iconBg: "rgba(15,76,42,0.10)",
     icon: Briefcase,
     name: "HR & Payroll",
@@ -182,7 +182,7 @@ const modules: {
   },
   {
     abbr: "TRN",
-    color: "#1A7A4A",
+    color: "var(--primary)",
     iconBg: "rgba(26,122,74,0.10)",
     icon: Bus,
     name: "Transport",
@@ -214,7 +214,7 @@ const modules: {
   },
   {
     abbr: "WAL",
-    color: "#6B9E83",
+    color: "var(--muted-foreground)",
     iconBg: "rgba(107,158,131,0.10)",
     icon: Wallet,
     name: "eWallet",
@@ -246,7 +246,7 @@ const modules: {
   },
   {
     abbr: "USR",
-    color: "#0F4C2A",
+    color: "var(--primary)",
     iconBg: "rgba(15,76,42,0.10)",
     icon: ShieldCheck,
     name: "User Management",
@@ -262,8 +262,8 @@ const modules: {
   },
   {
     abbr: "TKT",
-    color: "#E8A020",
-    iconBg: "rgba(232,160,32,0.10)",
+    color: "var(--accent-foreground)",
+    iconBg: "rgb(var(--primary-rgb) / 10%)",
     icon: Headphones,
     name: "Support Tickets",
     desc: "Track school support requests from staff, parents, and students with clear ownership and resolution history.",
@@ -376,13 +376,13 @@ const automations: { icon: LucideIcon; title: string; desc: string }[] = [
 
 export default function FeaturesPage() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "#061A12",
-          borderTop: "3px solid #E8A020",
+          background: "var(--card)",
+          borderTop: "3px solid var(--primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "480px",
         }}
@@ -390,7 +390,7 @@ export default function FeaturesPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -398,25 +398,25 @@ export default function FeaturesPage() {
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgba(232,160,32,0.12)",
-              border: "1px solid #E8A020",
-              color: "#E8A020",
+              background: "rgb(var(--primary-rgb) / 12%)",
+              border: "1px solid var(--accent-foreground)",
+              color: "var(--accent-foreground)",
             }}
           >
             Platform Features
           </div>
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
           >
             Everything your school needs.{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
               One platform.
             </em>
           </h1>
           <p
             className="font-jakarta font-light leading-[1.8] mb-8 mx-auto"
-            style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "620px" }}
+            style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "620px" }}
           >
             13 integrated modules covering student management, finance, operations, HR,
             multi-campus, payments, and communication — all working together so your school runs
@@ -426,7 +426,7 @@ export default function FeaturesPage() {
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[8px] no-underline transition-colors duration-200"
-              style={{ background: "#E8A020", color: "#061A12" }}
+              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
             >
               Start Free Trial →
             </a>
@@ -446,21 +446,21 @@ export default function FeaturesPage() {
       </section>
 
       {/* ── Platform Highlights ───────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#F3FBF6" }}>
+      <section className="py-16 px-4" style={{ background: "var(--background)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "#0F4C2A" }}
+              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
             >
               Built on a unified platform
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               Not stitched-together tools.{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 One integrated platform.
               </em>
             </h2>
@@ -471,7 +471,7 @@ export default function FeaturesPage() {
                 key={h.title}
                 className="rounded-2xl p-7 flex flex-col gap-4 group transition-all duration-300 hover:-translate-y-1"
                 style={{
-                  background: "#ffffff",
+                  background: "var(--card)",
                   border: "1px solid rgba(38,166,91,0.15)",
                   boxShadow: "0 2px 12px rgba(6,26,18,0.06)",
                 }}
@@ -481,18 +481,18 @@ export default function FeaturesPage() {
                   className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0 transition-colors duration-300"
                   style={{ background: "rgba(26,122,74,0.08)" }}
                 >
-                  <h.icon className="w-6 h-6" strokeWidth={1.75} style={{ color: "#1A7A4A" }} />
+                  <h.icon className="w-6 h-6" strokeWidth={1.75} style={{ color: "var(--primary)" }} />
                 </div>
                 <div>
                   <h3
                     className="font-display font-bold text-[18px] mb-2"
-                    style={{ color: "#061A12" }}
+                    style={{ color: "var(--foreground)" }}
                   >
                     {h.title}
                   </h3>
                   <p
                     className="font-jakarta text-[14px] leading-[1.7]"
-                    style={{ color: "#5a5a5a" }}
+                    style={{ color: "var(--muted-foreground)" }}
                   >
                     {h.desc}
                   </p>
@@ -504,27 +504,27 @@ export default function FeaturesPage() {
       </section>
 
       {/* ── All 13 Modules ────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }} id="modules">
+      <section className="py-20 px-4" style={{ background: "var(--card)" }} id="modules">
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(232,160,32,0.1)", color: "#9A5D00" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
             >
               All 13 Modules
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-4"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               Every module.{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 Deeply integrated.
               </em>
             </h2>
             <p
               className="font-jakarta text-[16px] leading-[1.7]"
-              style={{ color: "#5a5a5a", maxWidth: "540px", margin: "0 auto" }}
+              style={{ color: "var(--muted-foreground)", maxWidth: "540px", margin: "0 auto" }}
             >
               No data silos. No duplicate entry. One action in one module updates everything else
               automatically.
@@ -537,9 +537,9 @@ export default function FeaturesPage() {
                 key={mod.name}
                 className="rounded-2xl p-7 flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                 style={{
-                  border: "1px solid #e8f4ec",
+                  border: "1px solid var(--border)",
                   boxShadow: "0 2px 16px rgba(6,26,18,0.05)",
-                  background: "#ffffff",
+                  background: "var(--card)",
                 }}
               >
                 {/* Header: icon + abbr chip */}
@@ -568,13 +568,13 @@ export default function FeaturesPage() {
                 <div>
                   <h3
                     className="font-display font-bold text-[19px] leading-[1.3] mb-2"
-                    style={{ color: "#061A12" }}
+                    style={{ color: "var(--foreground)" }}
                   >
                     {mod.name}
                   </h3>
                   <p
                     className="font-jakarta text-[13.5px] leading-[1.75]"
-                    style={{ color: "#5a5a5a" }}
+                    style={{ color: "var(--muted-foreground)" }}
                   >
                     {mod.desc}
                   </p>
@@ -589,7 +589,7 @@ export default function FeaturesPage() {
                     <li
                       key={f}
                       className="flex items-start gap-2 font-jakarta text-[13px]"
-                      style={{ color: "#3d3d3d" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       <CheckCircle2
                         className="w-4 h-4 flex-shrink-0 mt-0.5"
@@ -607,31 +607,31 @@ export default function FeaturesPage() {
       </section>
 
       {/* ── Smart Automation / Deeply Integrated ──────────── */}
-      <section className="py-20 px-4" style={{ background: "#061A12" }} id="automation">
+      <section className="py-20 px-4" style={{ background: "var(--card)" }} id="automation">
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
               style={{
-                background: "rgba(232,160,32,0.12)",
-                border: "1px solid rgba(232,160,32,0.3)",
-                color: "#E8A020",
+                background: "rgb(var(--primary-rgb) / 12%)",
+                border: "1px solid rgb(var(--primary-rgb) / 30%)",
+                color: "var(--accent-foreground)",
               }}
             >
               Smart Automation
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-4"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               Let the platform handle{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+                <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 the repetitive tasks.
               </em>
             </h2>
             <p
               className="font-jakarta text-[16px] leading-[1.7]"
-              style={{ color: "#A8E6C3", maxWidth: "540px", margin: "0 auto" }}
+              style={{ color: "var(--muted-foreground)", maxWidth: "540px", margin: "0 auto" }}
             >
               EduMyles automates the work that eats your team&apos;s time — so you can focus on what
               matters: educating students.
@@ -644,7 +644,7 @@ export default function FeaturesPage() {
                 className="rounded-2xl p-7 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1"
                 style={{
                   background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(232,160,32,0.18)",
+                  border: "1px solid rgb(var(--primary-rgb) / 18%)",
                   backdropFilter: "blur(4px)",
                 }}
               >
@@ -652,22 +652,22 @@ export default function FeaturesPage() {
                 <div
                   className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0"
                   style={{
-                    background: "rgba(232,160,32,0.12)",
-                    border: "1px solid rgba(232,160,32,0.25)",
+                    background: "rgb(var(--primary-rgb) / 12%)",
+                    border: "1px solid rgb(var(--primary-rgb) / 25%)",
                   }}
                 >
-                  <a.icon className="w-6 h-6" strokeWidth={1.75} style={{ color: "#E8A020" }} />
+                  <a.icon className="w-6 h-6" strokeWidth={1.75} style={{ color: "var(--accent-foreground)" }} />
                 </div>
                 <div>
                   <h3
                     className="font-display font-bold text-[18px] mb-2"
-                    style={{ color: "#ffffff" }}
+                    style={{ color: "var(--foreground)" }}
                   >
                     {a.title}
                   </h3>
                   <p
                     className="font-jakarta text-[14px] leading-[1.75]"
-                    style={{ color: "#A8E6C3" }}
+                    style={{ color: "var(--muted-foreground)" }}
                   >
                     {a.desc}
                   </p>
@@ -679,27 +679,27 @@ export default function FeaturesPage() {
       </section>
 
       {/* ── Integrations ──────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#F3FBF6" }} id="integrations">
+      <section className="py-20 px-4" style={{ background: "var(--background)" }} id="integrations">
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "#0F4C2A" }}
+              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
             >
               Integrations
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-4"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               Integrations that{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 East African schools actually use.
               </em>
             </h2>
             <p
               className="font-jakarta text-[15px] leading-[1.7]"
-              style={{ color: "#5a5a5a", maxWidth: "500px", margin: "0 auto" }}
+              style={{ color: "var(--muted-foreground)", maxWidth: "500px", margin: "0 auto" }}
             >
               Every integration is deeply connected — data flows automatically between tools, no
               manual syncing.
@@ -711,7 +711,7 @@ export default function FeaturesPage() {
                 key={int.name}
                 className="rounded-2xl p-5 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                 style={{
-                  background: "#ffffff",
+                  background: "var(--card)",
                   border: "1px solid rgba(38,166,91,0.15)",
                   boxShadow: "0 2px 10px rgba(6,26,18,0.05)",
                 }}
@@ -731,26 +731,26 @@ export default function FeaturesPage() {
                       <int.logo
                         className="w-5 h-5"
                         strokeWidth={1.75}
-                        style={{ color: "#1A7A4A" }}
+                        style={{ color: "var(--primary)" }}
                       />
                     )}
                   </div>
                   <div>
                     <div
                       className="font-jakarta font-bold text-[14px]"
-                      style={{ color: "#061A12" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {int.name}
                     </div>
                     <div
                       className="font-jakarta text-[11px] font-semibold uppercase tracking-wider"
-                      style={{ color: "#6B9E83" }}
+                      style={{ color: "var(--muted-foreground)" }}
                     >
                       {int.region}
                     </div>
                   </div>
                 </div>
-                <p className="font-jakarta text-[13px] leading-[1.65]" style={{ color: "#5a5a5a" }}>
+                <p className="font-jakarta text-[13px] leading-[1.65]" style={{ color: "var(--muted-foreground)" }}>
                   {int.desc}
                 </p>
               </div>
@@ -760,25 +760,25 @@ export default function FeaturesPage() {
       </section>
 
       {/* ── Final CTA ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#0F4C2A" }}>
+      <section className="py-20 px-4" style={{ background: "var(--primary)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
           >
             Ready to see it{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
               in action?
             </em>
           </h2>
-          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)", opacity: 0.84 }}>
             Start your free 30-day trial or book a personalised demo with our school-tech experts.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[8px] no-underline"
-              style={{ background: "#E8A020", color: "#061A12" }}
+              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
             >
               Start Free Trial →
             </a>
@@ -787,8 +787,8 @@ export default function FeaturesPage() {
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[8px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgba(255,255,255,0.4)",
-                color: "#ffffff",
+                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
+                color: "var(--primary-foreground)",
               }}
             >
               Book a Demo

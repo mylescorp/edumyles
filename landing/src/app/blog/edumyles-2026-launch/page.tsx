@@ -23,19 +23,19 @@ export const metadata: Metadata = {
 
 export default function EduMyles2026Launch() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* Hero Section */}
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, #061A12 0%, #0F4C2A 50%, #1A7A4A 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
         <div className="absolute inset-0 opacity-10">
           <div
             style={{
-              backgroundImage: `radial-gradient(circle at 20% 50%, rgba(232,160,32,0.3) 0%, transparent 50%), 
+              backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
                             radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
@@ -48,7 +48,7 @@ export default function EduMyles2026Launch() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "#A8E6C3" }}
+              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
             >
               ← Back to Blog
             </Link>
@@ -65,22 +65,22 @@ export default function EduMyles2026Launch() {
               className="font-display font-bold leading-tight mb-6"
               style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
             >
-              Introducing the <span style={{ color: "#E8A020" }}>All-New EduMyles 2026</span>
+              Introducing the <span style={{ color: "var(--accent-foreground)" }}>All-New EduMyles 2026</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   EduMyles Team
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   March 2026
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   8 min read
                 </span>
               </div>
@@ -88,7 +88,7 @@ export default function EduMyles2026Launch() {
 
             <p
               className="font-jakarta text-xl leading-[1.7] font-light"
-              style={{ color: "#A8E6C3" }}
+              style={{ color: "var(--muted-foreground)" }}
             >
               We rebuilt EduMyles from the ground up with a real-time architecture, 11 deeply
               integrated modules, and a brand new interface. Here&apos;s everything that&apos;s new.
@@ -98,18 +98,18 @@ export default function EduMyles2026Launch() {
       </section>
 
       {/* Content */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[800px] mx-auto">
           {/* Introduction */}
           <div className="mb-12">
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "#374151" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
               After three years of serving schools across East Africa, we&apos;ve learned what
               truly matters in school management: real-time data, seamless collaboration, and the
               flexibility to grow. Today, we&apos;re proud to introduce EduMyles 2026 — our most
               ambitious release yet.
             </p>
 
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "#374151" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
               This isn&apos;t just an update. It&apos;s a complete reimagining of how school
               management should work, built from the ground up with modern architecture, real-time
               collaboration, and the specific needs of African schools at its core.
@@ -118,13 +118,13 @@ export default function EduMyles2026Launch() {
             <div
               className="p-6 rounded-2xl mb-8"
               style={{
-                background: "linear-gradient(135deg, #F3FBF6 0%, #E8F5EE 100%)",
+                background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
                 border: "1px solid rgba(26,122,74,0.2)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <Rocket className="w-6 h-6" style={{ color: "#1A7A4A" }} />
-                <h3 className="font-display font-bold text-xl" style={{ color: "#061A12" }}>
+                <Rocket className="w-6 h-6" style={{ color: "var(--primary)" }} />
+                <h3 className="font-display font-bold text-xl" style={{ color: "var(--foreground)" }}>
                   2026 by the Numbers
                 </h3>
               </div>
@@ -156,17 +156,17 @@ export default function EduMyles2026Launch() {
                   >
                     <div
                       className="font-jakarta font-bold text-2xl mb-1"
-                      style={{ color: "#E8A020" }}
+                      style={{ color: "var(--accent-foreground)" }}
                     >
                       {stat.number}
                     </div>
                     <div
                       className="font-jakarta font-semibold text-sm mb-1"
-                      style={{ color: "#061A12" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {stat.label}
                     </div>
-                    <div className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>
+                    <div className="font-jakarta text-xs" style={{ color: "var(--muted-foreground)" }}>
                       {stat.desc}
                     </div>
                   </div>
@@ -177,13 +177,13 @@ export default function EduMyles2026Launch() {
 
           {/* Real-Time Architecture */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Real-Time Architecture: No More Waiting
             </h2>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   Before EduMyles 2026
                 </h3>
                 <div className="space-y-3">
@@ -209,7 +209,7 @@ export default function EduMyles2026Launch() {
               </div>
 
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   With EduMyles 2026
                 </h3>
                 <div className="space-y-3">
@@ -241,7 +241,7 @@ export default function EduMyles2026Launch() {
 
           {/* 11 Integrated Modules */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               11 Deeply Integrated Modules
             </h2>
 
@@ -372,20 +372,20 @@ export default function EduMyles2026Launch() {
                 <div
                   key={module.name}
                   className="p-5 rounded-xl"
-                  style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div
                       className="w-10 h-10 rounded-lg flex items-center justify-center"
                       style={{ background: "rgba(26,122,74,0.1)" }}
                     >
-                      <module.icon className="w-5 h-5" style={{ color: "#1A7A4A" }} />
+                      <module.icon className="w-5 h-5" style={{ color: "var(--primary)" }} />
                     </div>
-                    <h3 className="font-jakarta font-bold text-base" style={{ color: "#061A12" }}>
+                    <h3 className="font-jakarta font-bold text-base" style={{ color: "var(--foreground)" }}>
                       {module.name}
                     </h3>
                   </div>
-                  <p className="font-jakarta text-sm mb-3" style={{ color: "#5a5a5a" }}>
+                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--muted-foreground)" }}>
                     {module.description}
                   </p>
                   <div className="space-y-1">
@@ -393,9 +393,9 @@ export default function EduMyles2026Launch() {
                       <div key={feature} className="flex items-center gap-2 text-xs">
                         <CheckCircle2
                           className="w-3 h-3 flex-shrink-0"
-                          style={{ color: "#1A7A4A" }}
+                          style={{ color: "var(--primary)" }}
                         />
-                        <span style={{ color: "#374151" }}>{feature}</span>
+                        <span style={{ color: "var(--muted-foreground)" }}>{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -406,7 +406,7 @@ export default function EduMyles2026Launch() {
 
           {/* Role-Based Access */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Role-Based Access: Right Information, Right People
             </h2>
 
@@ -468,11 +468,11 @@ export default function EduMyles2026Launch() {
                   ],
                 },
               ].map((role) => (
-                <div key={role.role} className="border-l-4 pl-6" style={{ borderColor: "#E8A020" }}>
-                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "#061A12" }}>
+                <div key={role.role} className="border-l-4 pl-6" style={{ borderColor: "var(--primary)" }}>
+                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "var(--foreground)" }}>
                     {role.role}
                   </h3>
-                  <p className="font-jakarta text-sm mb-3" style={{ color: "#5a5a5a" }}>
+                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--muted-foreground)" }}>
                     {role.access}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -480,7 +480,7 @@ export default function EduMyles2026Launch() {
                       <span
                         key={permission}
                         className="text-xs px-2 py-1 rounded"
-                        style={{ background: "rgba(26,122,74,0.1)", color: "#1A7A4A" }}
+                        style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
                       >
                         {permission}
                       </span>
@@ -493,13 +493,13 @@ export default function EduMyles2026Launch() {
 
           {/* Built for Scale */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Built for Scale: From 50 to 50,000 Students
             </h2>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   Scalability Features
                 </h3>
                 <div className="space-y-3">
@@ -530,15 +530,15 @@ export default function EduMyles2026Launch() {
                       className="flex gap-3 p-3 rounded-lg"
                       style={{ background: "rgba(26,122,74,0.1)" }}
                     >
-                      <Zap className="w-5 h-5 flex-shrink-0" style={{ color: "#1A7A4A" }} />
+                      <Zap className="w-5 h-5 flex-shrink-0" style={{ color: "var(--primary)" }} />
                       <div>
                         <div
                           className="font-jakarta font-semibold text-sm"
-                          style={{ color: "#061A12" }}
+                          style={{ color: "var(--foreground)" }}
                         >
                           {item.feature}
                         </div>
-                        <div className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>
+                        <div className="font-jakarta text-xs" style={{ color: "var(--muted-foreground)" }}>
                           {item.description}
                         </div>
                       </div>
@@ -548,7 +548,7 @@ export default function EduMyles2026Launch() {
               </div>
 
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   Performance Metrics
                 </h3>
                 <div className="space-y-4">
@@ -570,22 +570,22 @@ export default function EduMyles2026Launch() {
                     <div
                       key={stat.metric}
                       className="flex justify-between items-center p-3 rounded-lg"
-                      style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                     >
                       <div>
                         <div
                           className="font-jakarta font-bold text-lg"
-                          style={{ color: "#E8A020" }}
+                          style={{ color: "var(--accent-foreground)" }}
                         >
                           {stat.metric}
                         </div>
-                        <div className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>
+                        <div className="font-jakarta text-xs" style={{ color: "var(--muted-foreground)" }}>
                           {stat.label}
                         </div>
                       </div>
                       <div
                         className="text-xs text-right"
-                        style={{ color: "#374151", maxWidth: "120px" }}
+                        style={{ color: "var(--muted-foreground)", maxWidth: "120px" }}
                       >
                         {stat.desc}
                       </div>
@@ -598,13 +598,13 @@ export default function EduMyles2026Launch() {
 
           {/* New Interface */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Brand New Interface: Modern, Intuitive, Accessible
             </h2>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   Design Principles
                 </h3>
                 <div className="space-y-3">
@@ -629,15 +629,15 @@ export default function EduMyles2026Launch() {
                     <div
                       key={item.principle}
                       className="p-3 rounded-lg"
-                      style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                     >
                       <h4
                         className="font-jakarta font-semibold text-sm mb-1"
-                        style={{ color: "#061A12" }}
+                        style={{ color: "var(--foreground)" }}
                       >
                         {item.principle}
                       </h4>
-                      <p className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>
+                      <p className="font-jakarta text-xs" style={{ color: "var(--muted-foreground)" }}>
                         {item.description}
                       </p>
                     </div>
@@ -646,7 +646,7 @@ export default function EduMyles2026Launch() {
               </div>
 
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   User Experience Improvements
                 </h3>
                 <div className="space-y-3">
@@ -667,9 +667,9 @@ export default function EduMyles2026Launch() {
                     >
                       <CheckCircle2
                         className="w-4 h-4 flex-shrink-0"
-                        style={{ color: "#1A7A4A" }}
+                        style={{ color: "var(--primary)" }}
                       />
-                      <span className="font-jakarta text-sm" style={{ color: "#061A12" }}>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--foreground)" }}>
                         {improvement}
                       </span>
                     </div>
@@ -681,7 +681,7 @@ export default function EduMyles2026Launch() {
 
           {/* Migration Path */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Seamless Migration: Upgrade Without Disruption
             </h2>
 
@@ -737,7 +737,7 @@ export default function EduMyles2026Launch() {
                   <div className="flex-shrink-0">
                     <div
                       className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ background: "#E8A020", color: "#061A12" }}
+                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                     >
                       <span className="font-jakarta font-bold text-sm">
                         {phase.phase.split(":")[0]}
@@ -747,16 +747,16 @@ export default function EduMyles2026Launch() {
                   <div>
                     <h3
                       className="font-jakarta font-bold text-lg mb-2"
-                      style={{ color: "#061A12" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {phase.phase}
                     </h3>
-                    <p className="font-jakarta text-sm mb-2" style={{ color: "#5a5a5a" }}>
+                    <p className="font-jakarta text-sm mb-2" style={{ color: "var(--muted-foreground)" }}>
                       {phase.description}
                     </p>
                     <div
                       className="flex items-center gap-2 text-xs font-semibold"
-                      style={{ color: "#1A7A4A" }}
+                      style={{ color: "var(--primary)" }}
                     >
                       <Clock className="w-3 h-3" />
                       <span>{phase.duration}</span>
@@ -766,7 +766,7 @@ export default function EduMyles2026Launch() {
                         <span
                           key={deliverable}
                           className="text-xs px-2 py-1 rounded"
-                          style={{ background: "rgba(26,122,74,0.1)", color: "#1A7A4A" }}
+                          style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
                         >
                           {deliverable}
                         </span>
@@ -780,13 +780,13 @@ export default function EduMyles2026Launch() {
 
           {/* Early Access */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Early Access Program
             </h2>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   What You Get
                 </h3>
                 <div className="space-y-3">
@@ -807,9 +807,9 @@ export default function EduMyles2026Launch() {
                     >
                       <CheckCircle2
                         className="w-4 h-4 flex-shrink-0"
-                        style={{ color: "#1A7A4A" }}
+                        style={{ color: "var(--primary)" }}
                       />
-                      <span className="font-jakarta text-sm" style={{ color: "#061A12" }}>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--foreground)" }}>
                         {benefit}
                       </span>
                     </div>
@@ -818,13 +818,13 @@ export default function EduMyles2026Launch() {
               </div>
 
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   Limited Spots Available
                 </h3>
                 <div
                   className="p-6 rounded-2xl text-center"
                   style={{
-                    background: "linear-gradient(135deg, #E8A020 0%, #F59E0B 100%)",
+                    background: "linear-gradient(135deg, var(--accent-foreground) 0%, #F59E0B 100%)",
                     color: "#ffffff",
                   }}
                 >
@@ -858,17 +858,17 @@ export default function EduMyles2026Launch() {
 
           {/* CTA */}
           <div className="text-center py-12">
-            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "var(--foreground)" }}>
               Ready for the Future of School Management?
             </h2>
-            <p className="font-jakarta text-lg mb-6" style={{ color: "#5a5a5a" }}>
+            <p className="font-jakarta text-lg mb-6" style={{ color: "var(--muted-foreground)" }}>
               Join the early access program and transform your school with EduMyles 2026.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 href="/book-demo"
                 className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-xl no-underline"
-                style={{ background: "#E8A020", color: "#061A12" }}
+                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
               >
                 Schedule 2026 Demo
                 <ArrowRight className="w-5 h-5" />
@@ -876,7 +876,7 @@ export default function EduMyles2026Launch() {
               <Link
                 href="/contact"
                 className="inline-flex items-center gap-2 font-jakarta font-semibold text-[16px] px-8 py-4 rounded-xl no-underline"
-                style={{ background: "transparent", color: "#061A12", border: "2px solid #061A12" }}
+                style={{ background: "transparent", color: "var(--foreground)", border: "2px solid var(--border)" }}
               >
                 Apply for Early Access
               </Link>

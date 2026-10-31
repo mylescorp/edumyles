@@ -1,23 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
+
+const THEME_CHANGE_EVENT = "edumyles-theme-change";
+
+function subscribe(callback: () => void) {
+  window.addEventListener(THEME_CHANGE_EVENT, callback);
+  return () => window.removeEventListener(THEME_CHANGE_EVENT, callback);
+}
+
+function getSnapshot() {
+  return document.documentElement.classList.contains("dark");
+}
+
+function getServerSnapshot() {
+  return false;
+}
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(() => {
-    if (typeof document === "undefined") return false;
-    return document.documentElement.classList.contains("dark");
-  });
+  const dark = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const toggle = () => {
-    const isDark = !dark;
-    setDark(isDark);
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("em-theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("em-theme", "light");
+    const isDark = !getSnapshot();
+    document.documentElement.classList.toggle("dark", isDark);
+    try {
+      localStorage.setItem("em-theme", isDark ? "dark" : "light");
+    } catch {
+      // Theme switching still works when browser storage is unavailable.
     }
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   };
 
   return (
@@ -25,7 +36,8 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-      className="p-2 rounded-lg text-navy dark:text-gold hover:bg-light-grey dark:hover:bg-navy-light transition-colors"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-muted"
+      title={dark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {dark ? (
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -146,16 +146,16 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
   const related = studies.filter((s) => s.slug !== study.slug);
 
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* Hero */}
       <section
         className="relative flex items-center overflow-hidden"
-        style={{ background: "#061A12", borderTop: "3px solid #E8A020", padding: "5rem 2rem 4rem" }}
+        style={{ background: "var(--card)", borderTop: "3px solid var(--primary)", padding: "5rem 2rem 4rem" }}
       >
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -163,7 +163,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           <Link
             href="/case-studies"
             className="inline-flex items-center gap-2 font-jakarta text-[13px] mb-6 no-underline"
-            style={{ color: "#6B9E83" }}
+            style={{ color: "var(--muted-foreground)" }}
           >
             <ArrowLeft className="w-4 h-4" strokeWidth={2} />
             All Case Studies
@@ -171,30 +171,30 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           <div
             className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-4 py-1.5 rounded-full"
             style={{
-              background: "rgba(232,160,32,0.12)",
-              border: "1px solid rgba(232,160,32,0.3)",
-              color: "#E8A020",
+              background: "rgb(var(--primary-rgb) / 12%)",
+              border: "1px solid rgb(var(--primary-rgb) / 30%)",
+              color: "var(--accent-foreground)",
             }}
           >
             {study.tag}
           </div>
           <h1
             className="font-display font-bold leading-tight mb-5"
-            style={{ fontSize: "clamp(1.8rem,4vw,3rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(1.8rem,4vw,3rem)", color: "var(--foreground)" }}
           >
             {study.title}
           </h1>
           <div className="flex flex-wrap gap-5">
             <span
               className="inline-flex items-center gap-2 font-jakarta text-[13px]"
-              style={{ color: "#6B9E83" }}
+              style={{ color: "var(--muted-foreground)" }}
             >
               <MapPin className="w-3.5 h-3.5" strokeWidth={1.5} />
               {study.location}
             </span>
             <span
               className="inline-flex items-center gap-2 font-jakarta text-[13px]"
-              style={{ color: "#6B9E83" }}
+              style={{ color: "var(--muted-foreground)" }}
             >
               <Users className="w-3.5 h-3.5" strokeWidth={1.5} />
               {study.students}
@@ -204,18 +204,18 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
       </section>
 
       {/* Metrics bar */}
-      <div style={{ background: "#F3FBF6", borderBottom: "1px solid #d4eade" }}>
+      <div style={{ background: "var(--background)", borderBottom: "1px solid var(--border)" }}>
         <div className="max-w-[1000px] mx-auto px-6 py-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {study.metrics.map((m) => (
               <div key={m.label} className="text-center">
                 <div
                   className="font-display font-bold mb-1"
-                  style={{ fontSize: "2rem", color: "#E8A020" }}
+                  style={{ fontSize: "2rem", color: "var(--accent-foreground)" }}
                 >
                   {m.value}
                 </div>
-                <div className="font-jakarta text-[13px]" style={{ color: "#5a5a5a" }}>
+                <div className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
                   {m.label}
                 </div>
               </div>
@@ -228,27 +228,27 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
       <div className="max-w-[1000px] mx-auto px-6 py-16 flex flex-col gap-12">
         {/* Challenge */}
         <section>
-          <h2 className="font-display font-bold text-[22px] mb-4" style={{ color: "#061A12" }}>
+          <h2 className="font-display font-bold text-[22px] mb-4" style={{ color: "var(--foreground)" }}>
             The Challenge
           </h2>
-          <p className="font-jakarta text-[15px] leading-[1.9]" style={{ color: "#5a5a5a" }}>
+          <p className="font-jakarta text-[15px] leading-[1.9]" style={{ color: "var(--muted-foreground)" }}>
             {study.challenge}
           </p>
         </section>
 
         {/* Solution */}
         <section>
-          <h2 className="font-display font-bold text-[22px] mb-4" style={{ color: "#061A12" }}>
+          <h2 className="font-display font-bold text-[22px] mb-4" style={{ color: "var(--foreground)" }}>
             The Solution
           </h2>
-          <p className="font-jakarta text-[15px] leading-[1.9]" style={{ color: "#5a5a5a" }}>
+          <p className="font-jakarta text-[15px] leading-[1.9]" style={{ color: "var(--muted-foreground)" }}>
             {study.solution}
           </p>
         </section>
 
         {/* Timeline */}
         <section>
-          <h2 className="font-display font-bold text-[22px] mb-6" style={{ color: "#061A12" }}>
+          <h2 className="font-display font-bold text-[22px] mb-6" style={{ color: "var(--foreground)" }}>
             Implementation Timeline
           </h2>
           <div className="flex flex-col gap-3">
@@ -256,15 +256,15 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
               <div
                 key={i}
                 className="flex items-start gap-4 rounded-xl p-5"
-                style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+                style={{ background: "var(--background)", border: "1px solid var(--border)" }}
               >
                 <span
                   className="font-jakarta font-bold text-[12px] px-3 py-1 rounded-full flex-shrink-0"
-                  style={{ background: "#E8A020", color: "#061A12" }}
+                  style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                 >
                   {t.day}
                 </span>
-                <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#374151" }}>
+                <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
                   {t.event}
                 </p>
               </div>
@@ -275,14 +275,14 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
         {/* Quote */}
         <blockquote
           className="rounded-2xl p-8"
-          style={{ background: "#061A12", borderLeft: "4px solid #E8A020" }}
+          style={{ background: "var(--card)", borderLeft: "4px solid var(--accent-foreground)" }}
         >
-          <p className="font-display italic text-[18px] leading-[1.7] text-white mb-4">
+          <p className="font-display italic text-[18px] leading-[1.7] text-foreground mb-4">
             &ldquo;{study.quote}&rdquo;
           </p>
           <cite
             className="font-jakarta font-semibold text-[13px] not-italic"
-            style={{ color: "#E8A020" }}
+            style={{ color: "var(--accent-foreground)" }}
           >
             {study.quotePerson}
           </cite>
@@ -290,7 +290,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
 
         {/* Related */}
         <section>
-          <h3 className="font-display font-bold text-[20px] mb-5" style={{ color: "#061A12" }}>
+          <h3 className="font-display font-bold text-[20px] mb-5" style={{ color: "var(--foreground)" }}>
             More Case Studies
           </h3>
           <div className="grid sm:grid-cols-2 gap-5">
@@ -299,23 +299,23 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                 key={r.slug}
                 href={`/case-studies/${r.slug}`}
                 className="rounded-xl p-6 no-underline transition-all duration-200 hover:-translate-y-0.5 group"
-                style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+                style={{ background: "var(--background)", border: "1px solid var(--border)" }}
               >
                 <span
                   className="font-jakarta text-[11px] font-semibold uppercase tracking-wider mb-2 block"
-                  style={{ color: "#6B9E83" }}
+                  style={{ color: "var(--muted-foreground)" }}
                 >
                   {r.tag}
                 </span>
                 <h4
-                  className="font-display font-bold text-[15px] mb-2 group-hover:text-[#E8A020] transition-colors duration-200"
-                  style={{ color: "#061A12" }}
+                  className="font-display font-bold text-[15px] mb-2 group-hover:text-[var(--accent-foreground)] transition-colors duration-200"
+                  style={{ color: "var(--foreground)" }}
                 >
                   {r.title}
                 </h4>
                 <span
                   className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px]"
-                  style={{ color: "#1A7A4A" }}
+                  style={{ color: "var(--primary)" }}
                 >
                   Read case study <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
                 </span>
@@ -325,18 +325,18 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
         </section>
 
         {/* CTA */}
-        <div className="rounded-2xl p-8 text-center" style={{ background: "#061A12" }}>
-          <h3 className="font-display font-bold text-[22px] text-white mb-3">
+        <div className="rounded-2xl p-8 text-center" style={{ background: "var(--card)" }}>
+          <h3 className="font-display font-bold text-[22px] text-foreground mb-3">
             Want results like these?
           </h3>
-          <p className="font-jakarta text-[14px] mb-6" style={{ color: "#A8E6C3" }}>
+          <p className="font-jakarta text-[14px] mb-6" style={{ color: "var(--muted-foreground)" }}>
             Start your 30-day free trial. No credit card required.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-7 py-3.5 rounded-[50px] no-underline"
-              style={{ background: "#E8A020", color: "#061A12" }}
+              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
             >
               Start Free Trial →
             </Link>

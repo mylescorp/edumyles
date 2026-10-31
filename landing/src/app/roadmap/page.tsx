@@ -47,7 +47,7 @@ const columns: Column[] = [
     label: "Shipped",
     emoji: "✅",
     Icon: CheckCircle2,
-    headerBg: "#0F4C2A",
+    headerBg: "var(--primary)",
     headerText: "#ffffff",
     items: [
       {
@@ -117,8 +117,8 @@ const columns: Column[] = [
     label: "Planned",
     emoji: "🔮",
     Icon: Star,
-    headerBg: "#E8A020",
-    headerText: "#061A12",
+    headerBg: "var(--accent-foreground)",
+    headerText: "var(--foreground)",
     items: [
       {
         title: "AI Report Writing Assistant",
@@ -151,13 +151,13 @@ const columns: Column[] = [
 
 export default function RoadmapPage() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "#061A12",
-          borderTop: "3px solid #E8A020",
+          background: "var(--card)",
+          borderTop: "3px solid var(--primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "420px",
         }}
@@ -165,7 +165,7 @@ export default function RoadmapPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -173,25 +173,25 @@ export default function RoadmapPage() {
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgba(232,160,32,0.12)",
-              border: "1px solid #E8A020",
-              color: "#E8A020",
+              background: "rgb(var(--primary-rgb) / 12%)",
+              border: "1px solid var(--accent-foreground)",
+              color: "var(--accent-foreground)",
             }}
           >
             Product Roadmap
           </div>
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
           >
             What we&apos;re{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
               building next.
             </em>
           </h1>
           <p
             className="font-jakarta font-light leading-[1.8] mx-auto mb-8"
-            style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "560px" }}
+            style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "560px" }}
           >
             Our public roadmap. Shipped, in progress, and planned. Updated quarterly.
           </p>
@@ -211,7 +211,7 @@ export default function RoadmapPage() {
       </section>
 
       {/* ── Roadmap Kanban ────────────────────────────────── */}
-      <section style={{ background: "#ffffff", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {columns.map(({ label, emoji, Icon, headerBg, headerText, items }) => (
@@ -248,12 +248,12 @@ export default function RoadmapPage() {
                       <div
                         key={item.title}
                         className="rounded-xl p-4 transition-transform duration-150 hover:-translate-y-0.5"
-                        style={{ background: "#ffffff", border: "1px solid #e8f4ec" }}
+                        style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                       >
                         <div className="flex items-start justify-between gap-2 mb-1.5">
                           <div
                             className="font-jakarta font-bold"
-                            style={{ fontSize: "14px", color: "#061A12", lineHeight: 1.4 }}
+                            style={{ fontSize: "14px", color: "var(--foreground)", lineHeight: 1.4 }}
                           >
                             {item.title}
                           </div>
@@ -286,11 +286,11 @@ export default function RoadmapPage() {
       </section>
 
       {/* ── Feedback Section ──────────────────────────────── */}
-      <section style={{ background: "#F3FBF6", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--background)", padding: "5rem 2rem" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold mb-4"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
           >
             Suggest a feature
           </h2>
@@ -304,7 +304,7 @@ export default function RoadmapPage() {
           <Link
             href="/contact?subject=feature-request"
             className="inline-block font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-opacity hover:opacity-90"
-            style={{ background: "#1A7A4A", color: "#ffffff", fontSize: "15px" }}
+            style={{ background: "var(--primary)", color: "var(--primary-foreground)", fontSize: "15px" }}
           >
             Submit Feature Request →
           </Link>
@@ -314,25 +314,25 @@ export default function RoadmapPage() {
       {/* ── CTA ───────────────────────────────────────────── */}
       <section
         className="relative overflow-hidden"
-        style={{ background: "#061A12", padding: "5rem 2rem" }}
+        style={{ background: "var(--card)", padding: "5rem 2rem" }}
       >
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
         <div className="relative max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold mb-4"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
           >
             Start using EduMyles today — and shape what we build tomorrow.
           </h2>
           <p
             className="font-jakarta font-light mb-8"
-            style={{ fontSize: "17px", color: "#90CAF9" }}
+            style={{ fontSize: "17px", color: "var(--muted-foreground)" }}
           >
             Join schools already running better with EduMyles.
           </p>
@@ -340,7 +340,7 @@ export default function RoadmapPage() {
             <Link
               href="/waitlist"
               className="font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-opacity hover:opacity-90"
-              style={{ background: "#E8A020", color: "#061A12", fontSize: "15px" }}
+              style={{ background: "var(--primary)", color: "var(--primary-foreground)", fontSize: "15px" }}
             >
               Start Free Trial →
             </Link>
@@ -349,8 +349,8 @@ export default function RoadmapPage() {
               className="font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-colors"
               style={{
                 background: "transparent",
-                border: "1.5px solid rgba(255,255,255,0.25)",
-                color: "#ffffff",
+                border: "1.5px solid var(--border)",
+                color: "var(--foreground)",
                 fontSize: "15px",
               }}
             >

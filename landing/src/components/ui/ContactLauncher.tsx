@@ -50,15 +50,26 @@ function readAttribution() {
 
 function launcherClass(mode: ContactMode) {
   return [
-    "fixed inset-x-4 bottom-24 z-[9997] mx-auto max-w-[460px] overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-[0_24px_70px_-28px_rgba(15,23,42,0.55)] md:mx-0",
+    "fixed inset-x-4 bottom-24 z-[9997] mx-auto max-w-[460px] overflow-hidden rounded-xl border border-border bg-card shadow-[0_24px_70px_-28px_rgba(15,23,42,0.55)] md:mx-0",
     mode === "whatsapp" ? "md:left-8 md:right-auto" : "md:left-auto md:right-8",
   ].join(" ");
+}
+
+function readSavedContactProfile(): ContactProfile {
+  if (typeof window === "undefined") return EMPTY_CONTACT_PROFILE;
+
+  try {
+    const saved = window.localStorage.getItem("edumyles_contact_profile");
+    return saved ? { ...EMPTY_CONTACT_PROFILE, ...JSON.parse(saved) } : EMPTY_CONTACT_PROFILE;
+  } catch {
+    return EMPTY_CONTACT_PROFILE;
+  }
 }
 
 export default function ContactLauncher() {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<ContactMode>("chat");
-  const [profile, setProfile] = useState<ContactProfile>(EMPTY_CONTACT_PROFILE);
+  const [profile, setProfile] = useState<ContactProfile>(readSavedContactProfile);
   const [topicId, setTopicId] = useState<ContactTopicId>(CONTACT_TOPICS[0].id);
   const [message, setMessage] = useState<string>(CONTACT_TOPICS[0].prompt);
   const [status, setStatus] = useState<SubmitState>("idle");
@@ -67,15 +78,6 @@ export default function ContactLauncher() {
   const [thread, setThread] = useState<ChatThread | null>(null);
   const [reply, setReply] = useState("");
   const transcriptRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem("edumyles_contact_profile");
-      if (saved) setProfile({ ...EMPTY_CONTACT_PROFILE, ...JSON.parse(saved) });
-    } catch {
-      // Local storage is optional.
-    }
-  }, []);
 
   useEffect(() => {
     try {
@@ -242,7 +244,7 @@ export default function ContactLauncher() {
         <button
           type="button"
           onClick={() => openPanel("whatsapp")}
-          className="group flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_18px_40px_-18px_rgba(37,211,102,0.9)] ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:bg-[#20bd5b] focus:outline-none focus:ring-4 focus:ring-[#25D366]/30"
+          className="group flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-[#052E16] shadow-[0_18px_40px_-18px_rgba(37,211,102,0.9)] ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:bg-[#20bd5b] focus:outline-none focus:ring-4 focus:ring-[#25D366]/30"
           aria-label="Open WhatsApp message form"
         >
           <MessageCircle className="h-6 w-6 transition group-hover:scale-105" />
@@ -262,11 +264,11 @@ export default function ContactLauncher() {
 
       {open && (
         <div className={launcherClass(mode)}>
-          <div className="border-b border-slate-200 bg-slate-950 px-5 py-4 text-white">
+          <div className="border-b border-border px-5 py-4 text-white" style={{ background: "var(--platform-chrome)" }}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-card/10">
                     {mode === "whatsapp" ? <MessageCircle className="h-4 w-4" /> : <MessagesSquare className="h-4 w-4" />}
                   </span>
                   <div>
@@ -280,26 +282,26 @@ export default function ContactLauncher() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-md p-1 text-white/70 hover:bg-white/10 hover:text-white"
+                className="rounded-md p-1 text-white/70 hover:bg-card/10 hover:text-white"
                 aria-label="Close contact form"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-xs text-white/70">
+            <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 bg-card/[0.06] px-3 py-2 text-xs text-white/70">
               <ShieldCheck className="h-4 w-4 text-emerald-300" />
               Your contact details are used only so our team can respond accurately.
             </div>
           </div>
 
           {hasActiveChat ? (
-            <div className="bg-slate-50">
-              <div className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-3">
+            <div className="bg-background">
+              <div className="flex items-center justify-between border-b border-border bg-card px-5 py-3">
                 <div>
-                  <p className="text-sm font-semibold text-slate-950">
+                  <p className="text-sm font-semibold text-foreground">
                     {thread?.chatStatus === "active" ? `${thread.agentName ?? "EduMyles"} joined` : "Waiting for a specialist"}
                   </p>
-                  <p className="text-xs text-slate-500">Reference: {resultId}</p>
+                  <p className="text-xs text-muted-foreground">Reference: {resultId}</p>
                 </div>
                 <button
                   type="button"
@@ -309,7 +311,7 @@ export default function ContactLauncher() {
                     setThread(null);
                     setStatus("idle");
                   }}
-                  className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-950"
+                  className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
                 >
                   <ChevronLeft className="h-3.5 w-3.5" />
                   New chat
@@ -325,7 +327,7 @@ export default function ContactLauncher() {
                     ].join(" ")}
                   >
                     {item.sender === "system" ? (
-                      <p className="max-w-[90%] rounded-full bg-white px-3 py-1.5 text-center text-xs text-slate-500 ring-1 ring-slate-200">
+                      <p className="max-w-[90%] rounded-full bg-card px-3 py-1.5 text-center text-xs text-muted-foreground ring-1 ring-border">
                         {item.body}
                       </p>
                     ) : (
@@ -334,29 +336,29 @@ export default function ContactLauncher() {
                           "max-w-[82%] rounded-xl px-3.5 py-2 text-sm leading-6 shadow-sm",
                           item.sender === "visitor"
                             ? "rounded-br-sm bg-emerald-700 text-white"
-                            : "rounded-bl-sm border border-slate-200 bg-white text-slate-800",
+                            : "rounded-bl-sm border border-border bg-card text-card-foreground",
                         ].join(" ")}
                       >
-                        {item.sender === "agent" && <p className="mb-1 text-[11px] font-semibold text-emerald-700">{item.authorName ?? "EduMyles"}</p>}
+                        {item.sender === "agent" && <p className="mb-1 text-[11px] font-semibold text-primary">{item.authorName ?? "EduMyles"}</p>}
                         <p className="whitespace-pre-wrap">{item.body}</p>
                       </div>
                     )}
                   </div>
                 ))}
               </div>
-              <form onSubmit={sendReply} className="border-t border-slate-200 bg-white p-3">
+              <form onSubmit={sendReply} className="border-t border-border bg-card p-3">
                 <div className="flex items-end gap-2">
                   <textarea
                     value={reply}
                     onChange={(event) => setReply(event.target.value)}
                     rows={2}
-                    className="min-h-11 flex-1 resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm leading-5 outline-none focus:border-emerald-600"
+                    className="min-h-11 flex-1 resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm leading-5 text-foreground outline-none focus:border-primary"
                     placeholder="Type your reply..."
                   />
                   <button
                     type="submit"
                     disabled={!reply.trim()}
-                    className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-700 text-white transition hover:bg-emerald-800 disabled:bg-slate-300"
+                    className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-700 text-white transition hover:bg-emerald-800 disabled:bg-muted disabled:text-muted-foreground"
                     aria-label="Send chat reply"
                   >
                     <Send className="h-4 w-4" />
@@ -366,26 +368,26 @@ export default function ContactLauncher() {
             </div>
           ) : status === "sent" ? (
             <div className="p-6">
-              <CheckCircle2 className="h-10 w-10 text-emerald-600" />
-              <h2 className="mt-4 text-lg font-semibold text-slate-950">
+              <CheckCircle2 className="h-10 w-10 text-success" />
+              <h2 className="mt-4 text-lg font-semibold text-foreground">
                 {mode === "whatsapp" ? "WhatsApp message prepared" : "Message received"}
               </h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 {mode === "whatsapp"
                   ? "WhatsApp should open with your full message prefilled. The EduMyles team will follow up from there."
                   : "Your live chat is open. Keep this window here for replies from the EduMyles team."}
               </p>
-              {resultId && <p className="mt-3 text-xs text-slate-500">Reference: {resultId}</p>}
+              {resultId && <p className="mt-3 text-xs text-muted-foreground">Reference: {resultId}</p>}
               <button
                 type="button"
                 onClick={() => setStatus("idle")}
-                className="mt-5 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                className="mt-5 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted"
               >
                 Send another message
               </button>
             </div>
           ) : (
-            <form onSubmit={submit} className="max-h-[72vh] space-y-4 overflow-y-auto bg-white p-5">
+            <form onSubmit={submit} className="max-h-[72vh] space-y-4 overflow-y-auto bg-card p-5">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {[
                   ["name", "Name", "Your name", true],
@@ -395,14 +397,14 @@ export default function ContactLauncher() {
                   ["schoolName", "School", "School name", false],
                   ["role", "Role", "Director, principal...", false],
                 ].map(([field, label, placeholder, required]) => (
-                  <label key={field as string} className="text-xs font-semibold text-slate-700">
+                  <label key={field as string} className="text-xs font-semibold text-foreground">
                     {label}
                     <input
                       required={Boolean(required)}
                       type={field === "email" ? "email" : "text"}
                       value={profile[field as keyof ContactProfile]}
                       onChange={(event) => updateProfile(field as keyof ContactProfile, event.target.value)}
-                      className="mt-1 h-10 w-full rounded-lg border border-slate-200 bg-slate-50/60 px-3 text-sm outline-none transition focus:border-emerald-600 focus:bg-white"
+                      className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary focus:bg-card"
                       placeholder={placeholder as string}
                     />
                   </label>
@@ -410,7 +412,7 @@ export default function ContactLauncher() {
               </div>
 
               <div>
-                <p className="mb-2 text-xs font-semibold text-slate-700">What do you need?</p>
+                <p className="mb-2 text-xs font-semibold text-foreground">What do you need?</p>
                 <div className="grid grid-cols-2 gap-2">
                   {CONTACT_TOPICS.map((topic) => (
                     <button
@@ -420,8 +422,8 @@ export default function ContactLauncher() {
                       className={[
                         "rounded-lg border px-3 py-2 text-left text-xs font-semibold transition",
                         topicId === topic.id
-                          ? "border-emerald-600 bg-emerald-50 text-emerald-800"
-                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-card text-muted-foreground hover:border-primary",
                       ].join(" ")}
                     >
                       {topic.label}
@@ -430,25 +432,25 @@ export default function ContactLauncher() {
                 </div>
               </div>
 
-              <label className="block text-xs font-semibold text-slate-700">
+              <label className="block text-xs font-semibold text-foreground">
                 Message
                 <textarea
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   rows={5}
-                  className="mt-1 w-full resize-none rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm leading-6 outline-none transition focus:border-emerald-600 focus:bg-white"
+                  className="mt-1 w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm leading-6 text-foreground outline-none transition focus:border-primary focus:bg-card"
                 />
               </label>
 
               {mode === "whatsapp" && (
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs leading-5 text-emerald-900">
+                <div className="rounded-lg border border-border bg-muted px-3 py-2 text-xs leading-5 text-foreground">
                   <Sparkles className="mr-1 inline h-3.5 w-3.5" />
                   WhatsApp will open with your profile and message already filled in.
                 </div>
               )}
 
               {status === "error" && (
-                <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                <p className="rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground">
                   We could not send this right now. Please try again.
                 </p>
               )}
@@ -456,7 +458,7 @@ export default function ContactLauncher() {
               <button
                 type="submit"
                 disabled={disabled}
-                className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
               >
                 {status === "sending" && <Loader2 className="h-4 w-4 animate-spin" />}
                 {mode === "whatsapp" ? "Open WhatsApp with message" : "Start live chat"}

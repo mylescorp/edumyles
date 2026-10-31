@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import Logo from "@/components/shared/Logo";
 
 const REASON_MESSAGES: Record<string, string> = {
   not_configured: "Authentication is not configured. Please contact your administrator.",
@@ -21,11 +21,10 @@ export default async function AuthErrorPage({
     `An unexpected authentication error occurred${reason ? ` (${reason})` : ""}.`;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8" style={{ background: "#061A12" }}>
+    <div className="flex flex-col items-center justify-center min-h-screen p-8" style={{ background: "var(--card)" }}>
       <div className="max-w-md w-full text-center space-y-6">
         <div className="flex flex-col items-center gap-2 mb-4">
-          <Image src="/logo-icon.svg" alt="EduMyles" width={56} height={56} priority />
-          <span className="text-base font-bold" style={{ color: "#D4AF37" }}>EduMyles</span>
+          <Logo variant="lockup" width={320} height={91} priority appearance="dark" href={null} />
         </div>
         <div className="space-y-2">
           <p className="text-6xl font-bold text-gray-200">!</p>
@@ -42,7 +41,7 @@ export default async function AuthErrorPage({
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-card px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             Go home
           </Link>

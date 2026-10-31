@@ -102,13 +102,13 @@ const schoolTypes = [
 
 export default function CustomersPage() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "#061A12",
-          borderTop: "3px solid #E8A020",
+          background: "var(--card)",
+          borderTop: "3px solid var(--primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "420px",
         }}
@@ -116,7 +116,7 @@ export default function CustomersPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -124,26 +124,26 @@ export default function CustomersPage() {
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgba(232,160,32,0.12)",
-              border: "1px solid #E8A020",
-              color: "#E8A020",
+              background: "rgb(var(--primary-rgb) / 12%)",
+              border: "1px solid var(--accent-foreground)",
+              color: "var(--accent-foreground)",
             }}
           >
             Our Customers
           </div>
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
           >
             Schools that{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
               run better
             </em>{" "}
             with EduMyles.
           </h1>
           <p
             className="font-jakarta font-light leading-[1.8] mx-auto mb-8"
-            style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "580px" }}
+            style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "580px" }}
           >
             schools across East Africa trust EduMyles to manage their students, fees, and staff.
           </p>
@@ -179,13 +179,13 @@ export default function CustomersPage() {
             <div key={s.label} className="text-center">
               <div
                 className="font-display font-bold"
-                style={{ fontSize: "2.25rem", color: "#E8A020", lineHeight: 1.1 }}
+                style={{ fontSize: "2.25rem", color: "var(--accent-foreground)", lineHeight: 1.1 }}
               >
                 {s.value}
               </div>
               <div
                 className="font-jakarta font-semibold mt-1"
-                style={{ fontSize: "14px", color: "#061A12" }}
+                style={{ fontSize: "14px", color: "var(--foreground)" }}
               >
                 {s.label}
               </div>
@@ -195,11 +195,11 @@ export default function CustomersPage() {
       </section>
 
       {/* ── Customer Wall ─────────────────────────────────── */}
-      <section style={{ background: "#ffffff", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <h2
             className="font-display font-bold text-center mb-8"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
           >
             Schools Using EduMyles Today
           </h2>
@@ -213,7 +213,7 @@ export default function CustomersPage() {
                 style={{
                   background: "rgba(6,26,18,0.04)",
                   border: "1px solid rgba(6,26,18,0.1)",
-                  color: "#061A12",
+                  color: "var(--foreground)",
                 }}
               >
                 {c.flag} {c.label} ({c.count})
@@ -228,15 +228,15 @@ export default function CustomersPage() {
                 key={school.name}
                 className="rounded-xl p-4 text-center transition-transform duration-200 hover:-translate-y-0.5"
                 style={{
-                  background: "#ffffff",
-                  border: "1px solid #e8f4ec",
+                  background: "var(--card)",
+                  border: "1px solid var(--border)",
                 }}
               >
                 <div
                   className="w-10 h-10 rounded-lg font-display font-bold flex items-center justify-center mx-auto mb-2"
                   style={{
-                    background: "#0F4C2A",
-                    color: "#E8A020",
+                    background: "var(--primary)",
+                    color: "var(--accent-foreground)",
                     fontSize: school.initials.length > 2 ? "11px" : "14px",
                   }}
                 >
@@ -244,11 +244,11 @@ export default function CustomersPage() {
                 </div>
                 <div
                   className="font-jakarta font-semibold"
-                  style={{ fontSize: "12.5px", color: "#061A12", lineHeight: 1.4 }}
+                  style={{ fontSize: "12.5px", color: "var(--foreground)", lineHeight: 1.4 }}
                 >
                   {school.name}
                 </div>
-                <div className="mt-1" style={{ fontSize: "11px", color: "#6B9E83" }}>
+                <div className="mt-1" style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
                   {school.flag}
                 </div>
               </div>
@@ -258,11 +258,11 @@ export default function CustomersPage() {
       </section>
 
       {/* ── Testimonials ──────────────────────────────────── */}
-      <section style={{ background: "#F3FBF6", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--background)", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <h2
             className="font-display font-bold text-center mb-12"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
           >
             What school leaders say
           </h2>
@@ -274,12 +274,12 @@ export default function CustomersPage() {
                 style={
                   t.featured
                     ? {
-                        background: "#061A12",
-                        border: "2px solid rgba(232,160,32,0.4)",
+                        background: "var(--card)",
+                        border: "2px solid rgb(var(--primary-rgb) / 40%)",
                       }
                     : {
-                        background: "#ffffff",
-                        border: "1px solid #d1eadc",
+                        background: "var(--card)",
+                        border: "1px solid var(--border)",
                       }
                 }
               >
@@ -288,7 +288,7 @@ export default function CustomersPage() {
                   className="font-display font-bold leading-none mb-3"
                   style={{
                     fontSize: "4rem",
-                    color: t.featured ? "rgba(232,160,32,0.4)" : "rgba(26,122,74,0.2)",
+                    color: t.featured ? "rgb(var(--primary-rgb) / 40%)" : "rgba(26,122,74,0.2)",
                     lineHeight: 0.8,
                   }}
                 >
@@ -308,8 +308,8 @@ export default function CustomersPage() {
                   <div
                     className="w-9 h-9 rounded-lg font-display font-bold flex items-center justify-center shrink-0"
                     style={{
-                      background: t.featured ? "#E8A020" : "#0F4C2A",
-                      color: t.featured ? "#061A12" : "#E8A020",
+                      background: t.featured ? "var(--primary)" : "var(--primary)",
+                      color: t.featured ? "var(--foreground)" : "var(--accent-foreground)",
                       fontSize: "12px",
                     }}
                   >
@@ -318,13 +318,13 @@ export default function CustomersPage() {
                   <div>
                     <div
                       className="font-jakarta font-semibold"
-                      style={{ fontSize: "13px", color: t.featured ? "#ffffff" : "#061A12" }}
+                      style={{ fontSize: "13px", color: t.featured ? "#ffffff" : "var(--foreground)" }}
                     >
                       {t.name}
                     </div>
                     <div
                       className="font-jakarta"
-                      style={{ fontSize: "12px", color: t.featured ? "#90CAF9" : "#6B9E83" }}
+                      style={{ fontSize: "12px", color: t.featured ? "#90CAF9" : "var(--muted-foreground)" }}
                     >
                       {t.role}
                     </div>
@@ -337,11 +337,11 @@ export default function CustomersPage() {
       </section>
 
       {/* ── School Types ──────────────────────────────────── */}
-      <section style={{ background: "#ffffff", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <h2
             className="font-display font-bold text-center mb-12"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
           >
             Schools we work with
           </h2>
@@ -350,23 +350,23 @@ export default function CustomersPage() {
               <div
                 key={type}
                 className="rounded-2xl p-6"
-                style={{ background: "#F8FDF9", border: "1px solid #d1eadc" }}
+                style={{ background: "#F8FDF9", border: "1px solid var(--border)" }}
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
                   style={{ background: "rgba(15,76,42,0.1)" }}
                 >
-                  <Icon size={22} style={{ color: "#1A7A4A" }} />
+                  <Icon size={22} style={{ color: "var(--primary)" }} />
                 </div>
                 <div
                   className="font-display font-bold mb-0.5"
-                  style={{ fontSize: "2rem", color: "#E8A020" }}
+                  style={{ fontSize: "2rem", color: "var(--accent-foreground)" }}
                 >
                   {count}
                 </div>
                 <div
                   className="font-jakarta font-semibold mb-3"
-                  style={{ fontSize: "15px", color: "#061A12" }}
+                  style={{ fontSize: "15px", color: "var(--foreground)" }}
                 >
                   {type}
                 </div>
@@ -379,7 +379,7 @@ export default function CustomersPage() {
                     >
                       <span
                         className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ background: "#1A7A4A" }}
+                        style={{ background: "var(--primary)" }}
                       />
                       {f}
                     </li>
@@ -394,25 +394,25 @@ export default function CustomersPage() {
       {/* ── CTA ───────────────────────────────────────────── */}
       <section
         className="relative overflow-hidden"
-        style={{ background: "#061A12", padding: "5rem 2rem" }}
+        style={{ background: "var(--card)", padding: "5rem 2rem" }}
       >
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
         <div className="relative max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold mb-4"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
           >
             Join schools already running better.
           </h2>
           <p
             className="font-jakarta font-light mb-8"
-            style={{ fontSize: "17px", color: "#90CAF9" }}
+            style={{ fontSize: "17px", color: "var(--muted-foreground)" }}
           >
             Get your school set up in under two weeks.
           </p>
@@ -420,7 +420,7 @@ export default function CustomersPage() {
             <Link
               href="/waitlist"
               className="font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-opacity hover:opacity-90"
-              style={{ background: "#E8A020", color: "#061A12", fontSize: "15px" }}
+              style={{ background: "var(--primary)", color: "var(--primary-foreground)", fontSize: "15px" }}
             >
               Start Free Trial →
             </Link>
@@ -429,8 +429,8 @@ export default function CustomersPage() {
               className="font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-colors"
               style={{
                 background: "transparent",
-                border: "1.5px solid rgba(255,255,255,0.25)",
-                color: "#ffffff",
+                border: "1.5px solid var(--border)",
+                color: "var(--foreground)",
                 fontSize: "15px",
               }}
             >

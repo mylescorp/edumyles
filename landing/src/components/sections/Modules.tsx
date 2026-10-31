@@ -66,7 +66,7 @@ export default function Modules() {
       id="modules"
       className="px-4 sm:px-8 py-16"
       aria-label="Platform modules"
-      style={{ background: "#F3FBF6" }}
+      style={{ background: "var(--background)" }}
     >
       <div className="max-w-[1200px] mx-auto">
         {/* Eyebrow */}
@@ -75,10 +75,10 @@ export default function Modules() {
         {/* Heading */}
         <h2
           className="font-display font-bold leading-[1.2] mb-12"
-          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#061A12" }}
+          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--foreground)" }}
         >
           Everything Your School Needs,{" "}
-          <em className="italic" style={{ color: "#E8A020" }}>
+          <em className="italic" style={{ color: "var(--accent-foreground)" }}>
             In One Place
           </em>
         </h2>
@@ -91,9 +91,9 @@ export default function Modules() {
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
-              className="fade-in bg-white rounded-[12px] p-8 text-center transition-all duration-300 cursor-default"
+              className="fade-in bg-card rounded-[12px] p-8 text-center transition-all duration-300 cursor-default"
               style={{
-                border: "1px solid #e0e0e0",
+                border: "1px solid var(--border)",
                 transitionDelay: `${i * 0.08}s`,
               }}
               onMouseEnter={(e) => {
@@ -109,24 +109,24 @@ export default function Modules() {
               <div
                 className="w-[70px] h-[70px] rounded-[12px] flex items-center justify-center mx-auto mb-4"
                 style={{
-                  background: "linear-gradient(135deg, #26A65B, #1A7A4A)",
+                  background: "linear-gradient(135deg, #26A65B, var(--primary))",
                 }}
               >
                 <mod.icon className="w-7 h-7" strokeWidth={1.5} style={{ color: "#ffffff" }} />
               </div>
 
               {/* Title */}
-              <h3 className="font-display font-bold text-[20px] mb-1" style={{ color: "#061A12" }}>
+              <h3 className="font-display font-bold text-[20px] mb-1" style={{ color: "var(--foreground)" }}>
                 {mod.label}
               </h3>
 
               {/* Benefit tag */}
-              <div className="text-[14px] font-semibold mb-3" style={{ color: "#E8A020" }}>
+              <div className="text-[14px] font-semibold mb-3" style={{ color: "var(--accent-foreground)" }}>
                 Included module
               </div>
 
               {/* Description */}
-              <p className="text-[14px] leading-[1.6] mb-6" style={{ color: "#6B9E83" }}>
+              <p className="text-[14px] leading-[1.6] mb-6" style={{ color: "var(--muted-foreground)" }}>
                 {mod.description}
               </p>
 
@@ -134,9 +134,9 @@ export default function Modules() {
               <a
                 href="/features"
                 className="text-[14px] font-semibold no-underline transition-colors duration-300"
-                style={{ color: "#1A7A4A" }}
+                style={{ color: "var(--primary)" }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#1A7A4A")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
               >
                 Learn more →
               </a>
@@ -149,9 +149,9 @@ export default function Modules() {
           <a
             href="/features"
             className="text-[16px] font-bold no-underline transition-colors duration-300"
-            style={{ color: "#1A7A4A" }}
+            style={{ color: "var(--primary)" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#1A7A4A")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
           >
             View all 13 modules →
           </a>

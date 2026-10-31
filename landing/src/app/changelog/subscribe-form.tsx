@@ -15,13 +15,13 @@ export default function SubscribeForm() {
       <input
         type="email"
         placeholder="you@school.ac.ke"
-        className="flex-1 min-w-0 border border-gray-200 rounded-[50px] px-5 py-3 font-jakarta text-[14px] outline-none focus:border-[#0F4C2A]"
-        style={{ color: "#212121", minWidth: "220px" }}
+        className="flex-1 min-w-0 border border-gray-200 rounded-[50px] px-5 py-3 font-jakarta text-[14px] outline-none focus:border-primary"
+        style={{ color: "var(--foreground)", minWidth: "220px" }}
       />
       <button
         type="submit"
         className="font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] flex-shrink-0"
-        style={{ background: "#061A12", color: "#ffffff", border: "none", cursor: "pointer" }}
+        style={{ background: "var(--primary)", color: "var(--primary-foreground)", border: "none", cursor: "pointer" }}
       >
         Subscribe
       </button>

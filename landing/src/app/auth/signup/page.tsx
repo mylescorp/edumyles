@@ -45,7 +45,7 @@ const COUNTRY_OPTIONS = [
 ];
 
 const inputClass =
-  "w-full rounded-xl border border-[#dbe9e0] bg-white px-4 py-3.5 font-jakarta text-[15px] text-[#061A12] outline-none transition-colors duration-200 focus:border-[#0F4C2A]";
+  "w-full rounded-xl border border-[var(--border)] bg-card px-4 py-3.5 font-jakarta text-[15px] text-foreground outline-none transition-colors duration-200 focus:border-primary";
 
 export default function SignUpPage() {
   return (
@@ -168,21 +168,21 @@ function SignUpPageContent() {
   }
 
   return (
-    <main className="min-h-screen bg-[#EEF6F1]">
+    <main className="min-h-screen bg-background">
       <div className="grid min-h-screen xl:grid-cols-[minmax(0,1.7fr)_minmax(540px,0.95fr)]">
         <section className="flex h-full flex-col bg-[linear-gradient(180deg,#072015_0%,#0A2A1C_55%,#0C301F_100%)] px-8 py-10 text-white sm:px-12 lg:px-16 xl:px-16 xl:py-14">
           <div className="mb-10 flex items-center justify-between gap-4">
             <Logo size="md" />
             <Link
               href="/"
-              className="font-jakarta text-sm font-semibold text-[#A8E6C3] no-underline transition-colors hover:text-[#E8A020]"
+              className="font-jakarta text-sm font-semibold text-[#A8E6C3] no-underline transition-colors hover:text-[var(--accent-foreground)]"
             >
               Back to site
             </Link>
           </div>
 
           <div className="max-w-3xl pt-8 xl:pt-20">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#E8A020] bg-[rgba(232,160,32,0.12)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#E8A020]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-foreground)] bg-[rgb(var(--primary-rgb)_/_12%)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-foreground)]">
               <Sparkles className="h-4 w-4" />
               School Waitlist
             </div>
@@ -222,7 +222,7 @@ function SignUpPageContent() {
                 key={item.title}
                 className="rounded-[24px] border border-[rgba(168,230,195,0.16)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
               >
-                <item.icon className="h-6 w-6 text-[#E8A020]" />
+                <item.icon className="h-6 w-6 text-[var(--accent-foreground)]" />
                 <h2 className="mt-3 font-jakarta text-[15px] font-bold text-white">{item.title}</h2>
                 <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#A8E6C3]">
                   {item.body}
@@ -244,7 +244,7 @@ function SignUpPageContent() {
                   "Once your slot is ready, we guide you through activation and setup.",
                 ].map((step, index) => (
                   <div key={step} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[rgba(232,160,32,0.16)] font-jakarta text-xs font-bold text-[#E8A020]">
+                    <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[rgb(var(--primary-rgb)_/_16%)] font-jakarta text-xs font-bold text-[var(--accent-foreground)]">
                       {index + 1}
                     </div>
                     <p className="font-jakarta text-[14px] leading-7 text-[#D7F3E2]">{step}</p>
@@ -252,9 +252,9 @@ function SignUpPageContent() {
                 ))}
               </div>
 
-              <div className="mt-8 rounded-[20px] border border-[rgba(232,160,32,0.18)] bg-[rgba(232,160,32,0.08)] p-5">
+              <div className="mt-8 rounded-[20px] border border-[rgb(var(--primary-rgb)_/_18%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-5">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#E8A020]" />
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--accent-foreground)]" />
                   <div>
                     <h3 className="font-jakarta text-[15px] font-bold text-[#F7C867]">
                       Recommended for school leaders
@@ -268,32 +268,32 @@ function SignUpPageContent() {
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-[rgba(232,160,32,0.22)] bg-[rgba(232,160,32,0.08)] p-6 xl:p-8">
-              <h2 className="font-jakarta text-[15px] font-bold text-[#E8A020]">
+            <div className="rounded-[28px] border border-[rgb(var(--primary-rgb)_/_22%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-6 xl:p-8">
+              <h2 className="font-jakarta text-[15px] font-bold text-[var(--accent-foreground)]">
                 Need to speak with us before activation?
               </h2>
               <p className="mt-2 font-jakarta text-[14px] leading-7 text-[#D7F3E2]">
                 Reach our onboarding or commercial team if you want to discuss timelines,
                 partnerships, or a guided demo before your waitlist entry is reviewed.
               </p>
-              <div className="mt-5 grid gap-3 text-sm text-[#F3FBF6] sm:grid-cols-2 xl:grid-cols-1">
+              <div className="mt-5 grid gap-3 text-sm text-[#F4F8F7] sm:grid-cols-2 xl:grid-cols-1">
                 <a
                   href="mailto:sales@edumyles.com"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#E8A020]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--accent-foreground)]"
                 >
                   <Mail className="h-4 w-4" />
                   sales@edumyles.com
                 </a>
                 <a
                   href="mailto:contact@edumyles.com"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#E8A020]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--accent-foreground)]"
                 >
                   <Mail className="h-4 w-4" />
                   contact@edumyles.com
                 </a>
                 <a
                   href="tel:+254743993715"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#E8A020]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--accent-foreground)]"
                 >
                   <Phone className="h-4 w-4" />
                   +254 743 993 715
@@ -302,7 +302,7 @@ function SignUpPageContent() {
                   href="https://wa.me/254743993715?text=Hello%20EduMyles%2C%20I%20just%20joined%20the%20school%20waitlist%20and%20would%20love%20to%20connect."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[#E8A020]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--accent-foreground)]"
                 >
                   <MessageSquareText className="h-4 w-4" />
                   WhatsApp our team
@@ -313,22 +313,22 @@ function SignUpPageContent() {
 
           <div className="mt-auto pt-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(168,230,195,0.15)] bg-[rgba(255,255,255,0.04)] px-4 py-2 font-jakarta text-[12px] font-semibold tracking-[0.08em] text-[#A8E6C3]">
-              <ArrowRight className="h-4 w-4 text-[#E8A020]" />
+              <ArrowRight className="h-4 w-4 text-[var(--accent-foreground)]" />
               Trusted onboarding for schools across East Africa
             </div>
           </div>
         </section>
 
-        <section className="flex w-full items-start bg-[#F7FBF8] px-6 py-10 sm:px-10 lg:px-12 xl:px-14 xl:py-14">
+        <section className="flex w-full items-start bg-background px-6 py-10 sm:px-10 lg:px-12 xl:px-14 xl:py-14">
           <div className="mx-auto w-full max-w-[620px]">
             <div className="mb-8 pb-6">
-              <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
+              <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-primary">
                 Join the waitlist
               </p>
-              <h2 className="mt-2 font-display text-[clamp(2rem,3vw,2.7rem)] font-bold text-[#061A12]">
+              <h2 className="mt-2 font-display text-[clamp(2rem,3vw,2.7rem)] font-bold text-foreground">
                 Applicant details
               </h2>
-              <p className="mt-3 font-jakarta text-[15px] leading-7 text-[#5d6f66]">
+              <p className="mt-3 font-jakarta text-[15px] leading-7 text-muted-foreground">
                 Complete your profile with the details our onboarding team needs to qualify your
                 school and contact you quickly.
               </p>
@@ -337,8 +337,8 @@ function SignUpPageContent() {
             <form className="space-y-7" onSubmit={handleSubmit} noValidate>
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <UserRound className="h-4 w-4 text-[#1A7A4A]" />
-                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-[#1A7A4A]">
+                  <UserRound className="h-4 w-4 text-primary" />
+                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-primary">
                     Primary contact
                   </h3>
                 </div>
@@ -346,12 +346,12 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="firstName"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-foreground"
                     >
                       First name
                     </label>
                     <div className="relative">
-                      <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                      <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
                       <input
                         id="firstName"
                         name="firstName"
@@ -366,7 +366,7 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="lastName"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-foreground"
                     >
                       Last name
                     </label>
@@ -384,12 +384,12 @@ function SignUpPageContent() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-foreground"
                   >
                     Work email
                   </label>
                   <div className="relative">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
                     <input
                       id="email"
                       name="email"
@@ -405,12 +405,12 @@ function SignUpPageContent() {
                 <div>
                   <label
                     htmlFor="phone"
-                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-foreground"
                   >
                     Phone number
                   </label>
                   <div className="relative">
-                    <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                    <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
                     <input
                       id="phone"
                       name="phone"
@@ -425,8 +425,8 @@ function SignUpPageContent() {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <Globe2 className="h-4 w-4 text-[#1A7A4A]" />
-                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-[#1A7A4A]">
+                  <Globe2 className="h-4 w-4 text-primary" />
+                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-primary">
                     Institution location
                   </h3>
                 </div>
@@ -434,12 +434,12 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="country"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-foreground"
                     >
                       Country
                     </label>
                     <div className="relative">
-                      <Globe2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                      <Globe2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
                       <select
                         id="country"
                         name="country"
@@ -458,7 +458,7 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="county"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-foreground"
                     >
                       County / State / Region
                     </label>
@@ -476,20 +476,20 @@ function SignUpPageContent() {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-[#1A7A4A]" />
-                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-[#1A7A4A]">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  <h3 className="font-jakarta text-[13px] font-bold uppercase tracking-[0.14em] text-primary">
                     Institution profile
                   </h3>
                 </div>
                 <div>
                   <label
                     htmlFor="schoolName"
-                    className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                    className="mb-1.5 block font-jakarta text-sm font-semibold text-foreground"
                   >
                     School or institution name
                   </label>
                   <div className="relative">
-                    <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                    <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
                     <input
                       id="schoolName"
                       name="schoolName"
@@ -505,12 +505,12 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="studentCount"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-foreground"
                     >
                       Approximate student count
                     </label>
                     <div className="relative">
-                      <Users className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B9E83]" />
+                      <Users className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
                       <input
                         id="studentCount"
                         name="studentCount"
@@ -526,7 +526,7 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="currentSystem"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-foreground"
                     >
                       Current school system
                     </label>
@@ -549,7 +549,7 @@ function SignUpPageContent() {
                   <div>
                     <label
                       htmlFor="referralSource"
-                      className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                      className="mb-1.5 block font-jakarta text-sm font-semibold text-foreground"
                     >
                       How did you hear about EduMyles?
                     </label>
@@ -573,7 +573,7 @@ function SignUpPageContent() {
               <div>
                 <label
                   htmlFor="biggestChallenge"
-                  className="mb-1.5 block font-jakarta text-sm font-semibold text-[#061A12]"
+                  className="mb-1.5 block font-jakarta text-sm font-semibold text-foreground"
                 >
                   Biggest challenge right now
                 </label>
@@ -601,13 +601,13 @@ function SignUpPageContent() {
               <button
                 type="submit"
                 disabled={formState === "loading"}
-                className="inline-flex w-full items-center justify-center rounded-[999px] border border-[#0F4C2A] bg-[#0F4C2A] px-6 py-4 font-jakarta text-[15px] font-bold text-white transition-all duration-200 hover:border-[#061A12] hover:bg-[#061A12] disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex w-full items-center justify-center rounded-[999px] border border-primary bg-primary px-6 py-4 font-jakarta text-[15px] font-bold text-primary-foreground transition-all duration-200 hover:border-primary hover:bg-primary disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {formState === "loading" ? "Joining the waitlist..." : "Join the waitlist"}
               </button>
 
-              <div className="rounded-[20px] border border-[#e3ece6] bg-white px-5 py-4">
-                <p className="font-jakarta text-[13px] leading-6 text-[#6B9E83]">
+              <div className="rounded-[20px] border border-[#e3ece6] bg-card px-5 py-4">
+                <p className="font-jakarta text-[13px] leading-6 text-[var(--muted-foreground)]">
                   By joining, you’re adding your school to the EduMyles onboarding waitlist. We’ll
                   contact you with next steps, onboarding guidance, and any clarification we may
                   need before activation.
@@ -623,15 +623,15 @@ function SignUpPageContent() {
 
 function SignUpPageFallback() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#EEF6F1] px-4 py-8 sm:px-6 lg:px-8">
-      <div className="w-full max-w-xl rounded-[28px] bg-white px-8 py-12 text-center shadow-[0_24px_64px_rgba(6,26,18,0.08)]">
-        <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[#1A7A4A]">
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8 sm:px-6 lg:px-8">
+      <div className="w-full max-w-xl rounded-[28px] bg-card px-8 py-12 text-center shadow-[0_24px_64px_rgba(6,26,18,0.08)]">
+        <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-primary">
           Preparing waitlist form
         </p>
-        <h1 className="mt-3 font-display text-[2rem] font-bold text-[#061A12]">
+        <h1 className="mt-3 font-display text-[2rem] font-bold text-foreground">
           Loading your signup form...
         </h1>
-        <p className="mt-4 font-jakarta text-[15px] leading-7 text-[#5d6f66]">
+        <p className="mt-4 font-jakarta text-[15px] leading-7 text-muted-foreground">
           Please hold for a moment while we prepare your waitlist form.
         </p>
       </div>

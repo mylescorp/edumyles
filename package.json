@@ -4,6 +4,7 @@
   "private": true,
   "description": "EduMyles — Multi-tenant school management platform for East Africa",
   "workspaces": [
+    "packages/*",
     "frontend",
     "mobile",
     "shared",
@@ -47,7 +48,9 @@
     "resend:smoke": "node scripts/resend-smoke-check.mjs",
     "sms:smoke": "node scripts/sms-smoke-check.mjs",
     "payments:smoke": "node scripts/payments-smoke-check.mjs",
-    "calcom:smoke": "node scripts/calcom-smoke-check.mjs"
+    "calcom:smoke": "node scripts/calcom-smoke-check.mjs",
+    "build:tokens": "npm run build:tokens --workspace=@edumyles/design-tokens",
+    "check:contrast": "npm run check:contrast --workspace=@edumyles/design-tokens"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",

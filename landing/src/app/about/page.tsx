@@ -112,22 +112,22 @@ function TeamIconAvatar({ member }: { member: { icon?: unknown } }) {
   return (
     <div
       className="w-full flex items-center justify-center"
-      style={{ height: "120px", background: "linear-gradient(135deg, #0F4C2A, #1A7A4A)" }}
+      style={{ height: "120px", background: "linear-gradient(135deg, var(--primary), var(--primary))" }}
     >
-      <Icon className="w-12 h-12" strokeWidth={1.5} style={{ color: "#E8A020" }} />
+      <Icon className="w-12 h-12" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
     </div>
   );
 }
 
 export default function AboutPage() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "#061A12",
-          borderTop: "3px solid #E8A020",
+          background: "var(--card)",
+          borderTop: "3px solid var(--primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "480px",
         }}
@@ -135,7 +135,7 @@ export default function AboutPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -144,25 +144,25 @@ export default function AboutPage() {
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
               style={{
-                background: "rgba(232,160,32,0.12)",
-                border: "1px solid #E8A020",
-                color: "#E8A020",
+                background: "rgb(var(--primary-rgb) / 12%)",
+                border: "1px solid var(--accent-foreground)",
+                color: "var(--accent-foreground)",
               }}
             >
               Our Story
             </div>
             <h1
               className="font-display font-bold leading-[1.15] mb-5"
-              style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
             >
               Built for Africa&apos;s schools.{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 By people who get it.
               </em>
             </h1>
             <p
               className="font-jakarta font-light leading-[1.8]"
-              style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "580px" }}
+              style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "580px" }}
             >
               EduMyles started with one observation: schools across East Africa were running on
               WhatsApp groups, paper registers, and disconnected Excel sheets. We built the platform
@@ -173,24 +173,24 @@ export default function AboutPage() {
       </section>
 
       {/* ── Stats ────────────────────────────────────────── */}
-      <section className="py-14 px-4" style={{ background: "#F3FBF6" }}>
+      <section className="py-14 px-4" style={{ background: "var(--background)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
             {stats.map((s) => (
               <div
                 key={s.label}
                 className="text-center p-5 rounded-2xl"
-                style={{ background: "#ffffff", border: "1px solid #e8f4ec" }}
+                style={{ background: "var(--card)", border: "1px solid var(--border)" }}
               >
                 <div
                   className="font-display font-bold text-[28px] mb-1"
-                  style={{ color: "#E8A020" }}
+                  style={{ color: "var(--accent-foreground)" }}
                 >
                   {s.value}
                 </div>
                 <div
                   className="font-jakarta text-[12px] font-medium uppercase tracking-wider"
-                  style={{ color: "#6B9E83" }}
+                  style={{ color: "var(--muted-foreground)" }}
                 >
                   {s.label}
                 </div>
@@ -201,28 +201,28 @@ export default function AboutPage() {
       </section>
 
       {/* ── Mission ───────────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-16 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <div
                 className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-5 px-4 py-2 rounded-[50px]"
-                style={{ background: "rgba(232,160,32,0.1)", color: "#9A5D00" }}
+                style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
               >
                 Our Mission
               </div>
               <h2
                 className="font-display font-bold leading-[1.2] mb-5"
-                style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+                style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
               >
                 Simplify school administration so educators can{" "}
-                <em className="italic" style={{ color: "#E8A020" }}>
+                <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                   focus on teaching.
                 </em>
               </h2>
               <p
                 className="font-jakarta text-[16px] leading-[1.8] mb-4"
-                style={{ color: "#5a5a5a" }}
+                style={{ color: "var(--muted-foreground)" }}
               >
                 EduMyles exists to take the administrative burden off African schools — so that
                 principals can lead, teachers can teach, and parents can stay informed. We believe
@@ -230,15 +230,15 @@ export default function AboutPage() {
               </p>
               <p
                 className="font-jakarta text-[16px] leading-[1.8] mb-4"
-                style={{ color: "#5a5a5a" }}
+                style={{ color: "var(--muted-foreground)" }}
               >
-                <strong style={{ color: "#061A12" }}>Our Vision:</strong> To be Africa&apos;s most
+                <strong style={{ color: "var(--foreground)" }}>Our Vision:</strong> To be Africa&apos;s most
                 trusted school management platform, powering institutions of every size — from
                 single-classroom community schools to multi-campus international networks.
               </p>
-              <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "#6B9E83" }}>
+              <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "var(--muted-foreground)" }}>
                 EduMyles is a product of{" "}
-                <a href="/about" style={{ color: "#0F4C2A", fontWeight: 600, textDecoration: "none" }}>
+                <a href="/about" style={{ color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}>
                   MylesCorp Technologies Ltd
                 </a>
               </p>
@@ -246,13 +246,13 @@ export default function AboutPage() {
             <div
               className="rounded-2xl p-8"
               style={{
-                background: "linear-gradient(135deg, #061A12 0%, #0F4C2A 100%)",
+                background: "var(--primary)",
                 boxShadow: "0 20px 60px rgba(6,26,18,0.25)",
               }}
             >
               <blockquote
                 className="font-display italic text-[22px] leading-[1.6] mb-6"
-                style={{ color: "#ffffff" }}
+                style={{ color: "var(--primary-foreground)" }}
               >
                 &ldquo;The best school management system in Africa shouldn&apos;t cost more than a
                 teacher&apos;s salary. It shouldn&apos;t require a dedicated IT team. It should just
@@ -261,15 +261,15 @@ export default function AboutPage() {
               <div className="flex items-center gap-3">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-[12px]"
-                  style={{ background: "#E8A020", color: "#061A12" }}
+                  style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                 >
                   JM
                 </div>
                 <div>
-                  <div className="font-jakarta font-bold text-[14px]" style={{ color: "#E8A020" }}>
+                  <div className="font-jakarta font-bold text-[14px]" style={{ color: "var(--primary-foreground)" }}>
                     Jonathan Myles
                   </div>
-                  <div className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>
+                  <div className="font-jakarta text-[12px]" style={{ color: "var(--primary-foreground)", opacity: 0.78 }}>
                     CEO &amp; Founder, EduMyles
                   </div>
                 </div>
@@ -280,15 +280,15 @@ export default function AboutPage() {
       </section>
 
       {/* ── Our Journey ───────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#0C3020" }}>
+      <section className="py-16 px-4" style={{ background: "var(--platform-chrome)" }}>
         <div className="max-w-[860px] mx-auto">
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
               style={{
-                background: "rgba(232,160,32,0.12)",
-                border: "1px solid rgba(232,160,32,0.3)",
-                color: "#E8A020",
+                background: "rgb(var(--primary-rgb) / 12%)",
+                border: "1px solid rgb(var(--primary-rgb) / 30%)",
+                color: "#B9CBD6",
               }}
             >
               Our Journey
@@ -298,7 +298,7 @@ export default function AboutPage() {
               style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
             >
               From a WhatsApp group{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "#B9CBD6" }}>
                 to students across multiple campuses.
               </em>
             </h2>
@@ -310,14 +310,14 @@ export default function AboutPage() {
                 <div className="flex flex-col items-center">
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center font-mono font-bold text-[11px] flex-shrink-0"
-                    style={{ background: "#E8A020", color: "#061A12" }}
+                    style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                   >
                     {m.year.slice(2)}
                   </div>
                   {i < milestones.length - 1 && (
                     <div
                       className="w-0.5 flex-1 my-2"
-                      style={{ background: "rgba(232,160,32,0.2)", minHeight: "32px" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 20%)", minHeight: "32px" }}
                     />
                   )}
                 </div>
@@ -325,7 +325,7 @@ export default function AboutPage() {
                 <div className="pb-8">
                   <div
                     className="font-jakarta font-bold text-[12px] mb-1"
-                    style={{ color: "#E8A020" }}
+                    style={{ color: "#B9CBD6" }}
                   >
                     {m.year}
                   </div>
@@ -337,7 +337,7 @@ export default function AboutPage() {
                   </h3>
                   <p
                     className="font-jakarta text-[14px] leading-[1.7]"
-                    style={{ color: "#A8E6C3" }}
+                    style={{ color: "#D5E1DE" }}
                   >
                     {m.desc}
                   </p>
@@ -349,21 +349,21 @@ export default function AboutPage() {
       </section>
 
       {/* ── Values ────────────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#F3FBF6" }}>
+      <section className="py-16 px-4" style={{ background: "var(--background)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "#0F4C2A" }}
+              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
             >
               What We Believe
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               Our Core{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 Values
               </em>
             </h2>
@@ -374,26 +374,26 @@ export default function AboutPage() {
                 key={v.title}
                 className="rounded-2xl p-6 flex flex-col items-center text-center"
                 style={{
-                  background: "#ffffff",
+                  background: "var(--card)",
                   border: "1px solid rgba(38,166,91,0.15)",
                   boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
                 }}
               >
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-[18px] mb-3"
-                  style={{ background: "#E8A020", color: "#061A12" }}
+                  style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                 >
                   {v.letter}
                 </div>
                 <h3
                   className="font-display font-bold text-[18px] mb-2"
-                  style={{ color: "#061A12" }}
+                  style={{ color: "var(--foreground)" }}
                 >
                   {v.title}
                 </h3>
                 <p
                   className="font-jakarta text-[14px] leading-[1.7] mb-3"
-                  style={{ color: "#5a5a5a" }}
+                  style={{ color: "var(--muted-foreground)" }}
                 >
                   {v.desc}
                 </p>
@@ -403,8 +403,8 @@ export default function AboutPage() {
                       key={kw}
                       className="font-jakarta font-semibold text-[10px] px-2 py-0.5 rounded-full"
                       style={{
-                        background: "rgba(232,160,32,0.1)",
-                        border: "1px solid rgba(232,160,32,0.25)",
+                        background: "rgb(var(--primary-rgb) / 10%)",
+                        border: "1px solid rgb(var(--primary-rgb) / 25%)",
                         color: "#9A5D00",
                       }}
                     >
@@ -419,15 +419,15 @@ export default function AboutPage() {
       </section>
 
       {/* ── Team ──────────────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-16 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-12">
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               The{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 team
               </em>
             </h2>
@@ -437,7 +437,7 @@ export default function AboutPage() {
               <div
                 key={t.name}
                 className="rounded-2xl overflow-hidden text-center"
-                style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+                style={{ background: "var(--background)", border: "1px solid var(--border)" }}
               >
                 {/* Photo or emoji avatar */}
                 {"photo" in t && t.photo ? (
@@ -456,19 +456,17 @@ export default function AboutPage() {
                 <div className="p-6">
                   <h3
                     className="font-display font-bold text-[20px] mb-1"
-                    style={{ color: "#061A12" }}
+                    style={{ color: "var(--foreground)" }}
                   >
                     {t.name}
                   </h3>
                   <div
-                    className="font-jakarta text-[13px] font-medium mb-3"
-                    style={{ color: "#E8A020" }}
+                    className="font-jakarta text-[13px] font-medium mb-3 text-accent-foreground"
                   >
                     {t.role}
                   </div>
                   <p
-                    className="font-jakarta text-[14px] leading-[1.7]"
-                    style={{ color: "#5a5a5a" }}
+                    className="font-jakarta text-[14px] leading-[1.7] text-muted-foreground"
                   >
                     {t.bio}
                   </p>
@@ -479,9 +477,9 @@ export default function AboutPage() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 font-jakarta text-[12px] font-medium mt-3 px-3 py-1.5 rounded-lg no-underline transition-all duration-200"
                       style={{
-                        background: "rgba(232,160,32,0.1)",
-                        border: "1px solid rgba(232,160,32,0.2)",
-                        color: "#E8A020",
+                        background: "rgb(var(--primary-rgb) / 10%)",
+                        border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                        color: "var(--accent-foreground)",
                       }}
                     >
                       LinkedIn Profile
@@ -495,25 +493,25 @@ export default function AboutPage() {
       </section>
 
       {/* ── CTA ───────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#0F4C2A" }}>
+      <section className="py-20 px-4" style={{ background: "var(--primary)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
           >
             Join the schools{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
               already running better.
             </em>
           </h2>
-          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)", opacity: 0.84 }}>
             Start your free 30-day trial or talk to our team. No pressure, no obligation.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "#E8A020", color: "#061A12" }}
+              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
             >
               Start Free Trial →
             </a>
@@ -522,8 +520,8 @@ export default function AboutPage() {
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgba(255,255,255,0.4)",
-                color: "#ffffff",
+                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
+                color: "var(--primary-foreground)",
               }}
             >
               Talk to Us

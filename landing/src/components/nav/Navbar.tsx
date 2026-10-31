@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/shared/Logo";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import { School, GraduationCap, Globe, Building2, Briefcase, Code, Users, Award } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -139,8 +140,7 @@ export default function Navbar() {
     <>
       <nav
         role="banner"
-        className="sticky top-0 bg-white border-b border-gray-200 z-[1000] px-4 sm:px-8"
-        style={{ borderBottom: "1px solid #e0e0e0" }}
+        className="sticky top-0 bg-background border-b border-border z-[1000] px-4 sm:px-8 transition-colors duration-200"
       >
         <div className="max-w-[1200px] mx-auto flex justify-between items-center gap-8 h-[70px]">
           {/* Logo */}
@@ -151,8 +151,8 @@ export default function Navbar() {
             {/* Features */}
             <Link
               href="/features"
-              className="text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020]"
-              style={activeLink === "features" ? { color: "#E8A020" } : {}}
+              className="text-[14px] font-medium text-foreground no-underline transition-colors duration-300 hover:text-accent-foreground"
+              style={activeLink === "features" ? { color: "var(--accent-foreground)" } : {}}
             >
               Features
             </Link>
@@ -162,11 +162,11 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setSolutionsOpen((prev) => !prev)}
-                className="flex items-center gap-1 text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020] bg-transparent border-none cursor-pointer p-0"
+                className="flex items-center gap-1 text-[14px] font-medium text-foreground no-underline transition-colors duration-300 hover:text-accent-foreground bg-transparent border-none cursor-pointer p-0"
                 style={
                   solutionsOpen ||
                   activeLink.startsWith("solutions")
-                    ? { color: "#E8A020" }
+                    ? { color: "var(--accent-foreground)" }
                     : {}
                 }
                 aria-haspopup="true"
@@ -185,7 +185,7 @@ export default function Navbar() {
 
               {solutionsOpen && (
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white rounded-xl border border-gray-100 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-gray-100 dark:border-white/10 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
                   style={{ minWidth: "380px" }}
                 >
                   <div className="col-span-1 grid grid-cols-1 gap-2">
@@ -194,19 +194,19 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setSolutionsOpen(false)}
-                        className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-[#F3FBF6] group"
+                        className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-muted group"
                       >
                         <div
                           className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
                           style={{ background: "rgba(26,122,74,0.08)" }}
                         >
-                          <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+                          <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
                         </div>
                         <div className="flex flex-col">
-                          <span className="font-jakarta font-semibold text-[14px] text-[#061A12] leading-tight group-hover:text-[#1A7A4A] transition-colors duration-150">
+                          <span className="font-jakarta font-semibold text-[14px] text-foreground leading-tight group-hover:text-[var(--primary)] transition-colors duration-150">
                             {item.label}
                           </span>
-                          <span className="font-jakarta text-[12px] leading-snug mt-1" style={{ color: "#6B9E83" }}>
+                          <span className="font-jakarta text-[12px] leading-snug mt-1" style={{ color: "var(--muted-foreground)" }}>
                             {item.subtitle}
                           </span>
                         </div>
@@ -222,12 +222,12 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setPartnersOpen((prev) => !prev)}
-                className="flex items-center gap-1 text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020] bg-transparent border-none cursor-pointer p-0"
+                className="flex items-center gap-1 text-[14px] font-medium text-foreground no-underline transition-colors duration-300 hover:text-accent-foreground bg-transparent border-none cursor-pointer p-0"
                 style={
                   partnersOpen ||
                   ["partners", "developers", "affiliate", "reseller", "resellers"].includes(activeLink) ||
                   activeLink.startsWith("apply")
-                    ? { color: "#E8A020" }
+                    ? { color: "var(--accent-foreground)" }
                     : {}
                 }
                 aria-haspopup="true"
@@ -246,7 +246,7 @@ export default function Navbar() {
 
               {partnersOpen && (
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white rounded-xl border border-gray-100 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-gray-100 dark:border-white/10 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
                   style={{ minWidth: "380px" }}
                 >
                   <div className="col-span-1 grid grid-cols-1 gap-2">
@@ -255,19 +255,19 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setPartnersOpen(false)}
-                        className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-[#F3FBF6] group"
+                        className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-muted group"
                       >
                         <div
                           className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
-                          style={{ background: "rgba(232,160,32,0.08)" }}
+                          style={{ background: "rgb(var(--primary-rgb) / 8%)" }}
                         >
-                          <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "#E8A020" }} />
+                          <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
                         </div>
                         <div className="flex flex-col">
-                          <span className="font-jakarta font-semibold text-[14px] text-[#061A12] leading-tight group-hover:text-[#E8A020] transition-colors duration-150">
+                          <span className="font-jakarta font-semibold text-[14px] text-foreground leading-tight group-hover:text-accent-foreground transition-colors duration-150">
                             {item.label}
                           </span>
-                          <span className="font-jakarta text-[12px] leading-snug mt-1" style={{ color: "#6B9E83" }}>
+                          <span className="font-jakarta text-[12px] leading-snug mt-1" style={{ color: "var(--muted-foreground)" }}>
                             {item.subtitle}
                           </span>
                         </div>
@@ -285,11 +285,11 @@ export default function Navbar() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="text-[14px] font-medium text-[#061A12] no-underline transition-colors duration-300 hover:text-[#E8A020]"
+                  className="text-[14px] font-medium text-foreground no-underline transition-colors duration-300 hover:text-accent-foreground"
                   style={
                     activeLink === link.href.replace("/", "") ||
                     (link.label === "Resellers" && activeLink === "partners")
-                      ? { color: "#E8A020" }
+                      ? { color: "var(--accent-foreground)" }
                       : {}
                   }
                 >
@@ -300,22 +300,23 @@ export default function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-2.5 flex-shrink-0">
+            <ThemeToggle />
             <Link
               href={demoCtaHref}
               className="font-jakarta font-bold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
               style={{
-                background: "#E8A020",
-                color: "#061A12",
-                border: "1.5px solid #E8A020",
+                background: "var(--primary)",
+                color: "var(--primary-foreground)",
+                border: "1.5px solid var(--primary)",
                 lineHeight: "1",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#F5C453";
-                e.currentTarget.style.borderColor = "#F5C453";
+                e.currentTarget.style.background = "var(--primary)";
+                e.currentTarget.style.borderColor = "var(--primary)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#E8A020";
-                e.currentTarget.style.borderColor = "#E8A020";
+                e.currentTarget.style.background = "var(--accent-foreground)";
+                e.currentTarget.style.borderColor = "var(--accent-foreground)";
               }}
             >
               Book a Demo
@@ -324,23 +325,26 @@ export default function Navbar() {
               href={waitlistCtaHref}
               className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
               style={{
-                background: "#0F4C2A",
-                color: "#ffffff",
-                border: "1.5px solid #0F4C2A",
+                background: "var(--primary)",
+                color: "var(--primary-foreground)",
+                border: "1.5px solid var(--primary)",
                 lineHeight: "1",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#061A12";
-                e.currentTarget.style.borderColor = "#061A12";
+                e.currentTarget.style.background = "var(--primary)";
+                e.currentTarget.style.borderColor = "var(--primary)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#0F4C2A";
-                e.currentTarget.style.borderColor = "#0F4C2A";
+                e.currentTarget.style.background = "var(--primary)";
+                e.currentTarget.style.borderColor = "var(--primary)";
               }}
             >
                   Join Waitlist
             </Link>
           </div>
+
+          {/* Theme control remains available on compact screens */}
+          <div className="lg:hidden"><ThemeToggle /></div>
 
           {/* Hamburger */}
           <button
@@ -353,7 +357,7 @@ export default function Navbar() {
             <span
               className="w-6 h-[3px] rounded-sm transition-all duration-300"
               style={{
-                background: "#061A12",
+                background: "var(--primary)",
                 transform: mobileOpen
                   ? "rotate(45deg) translate(8px, 8px)"
                   : "none",
@@ -362,14 +366,14 @@ export default function Navbar() {
             <span
               className="w-6 h-[3px] rounded-sm transition-all duration-300"
               style={{
-                background: "#061A12",
+                background: "var(--primary)",
                 opacity: mobileOpen ? 0 : 1,
               }}
             />
             <span
               className="w-6 h-[3px] rounded-sm transition-all duration-300"
               style={{
-                background: "#061A12",
+                background: "var(--primary)",
                 transform: mobileOpen
                   ? "rotate(-45deg) translate(7px, -7px)"
                   : "none",
@@ -383,20 +387,24 @@ export default function Navbar() {
       {mobileOpen && (
         <div
           className="lg:hidden fixed inset-0 z-[999] flex flex-col p-8 overflow-y-auto"
-          style={{ top: "70px", background: "#ffffff" }}
+          style={{ top: "70px", background: "var(--background)" }}
         >
+          <div className="flex items-center justify-between border-b border-border pb-4 mb-2 text-foreground">
+            <span className="font-medium">Appearance</span>
+            <ThemeToggle />
+          </div>
           {/* Features */}
           <Link
             href="/features"
             onClick={() => setMobileOpen(false)}
-            className="block py-3 text-[#061A12] no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-[#E8A020]"
+            className="block py-3 text-foreground no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-accent-foreground"
           >
             Features
           </Link>
 
           {/* Solutions section — expanded list (no dropdown) */}
           <div className="border-b border-gray-100">
-            <span className="block py-3 text-[#061A12] font-medium text-lg">
+            <span className="block py-3 text-foreground font-medium text-lg">
               Solutions
             </span>
             <div className="flex flex-col pb-2">
@@ -405,7 +413,7 @@ export default function Navbar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 pl-5 py-2 text-[#061A12] no-underline text-base transition-colors hover:text-[#E8A020]"
+                  className="flex items-center gap-2 pl-5 py-2 text-foreground no-underline text-base transition-colors hover:text-accent-foreground"
                 >
                   <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
                   <span className="font-medium">{item.label}</span>
@@ -417,7 +425,7 @@ export default function Navbar() {
 
           {/* Partners section - expanded list (no dropdown) */}
           <div className="border-b border-gray-100">
-            <span className="block py-3 text-[#061A12] font-medium text-lg">
+            <span className="block py-3 text-foreground font-medium text-lg">
               Partners
             </span>
             <div className="flex flex-col pb-2">
@@ -426,7 +434,7 @@ export default function Navbar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 pl-5 py-2 text-[#061A12] no-underline text-base transition-colors hover:text-[#E8A020]"
+                  className="flex items-center gap-2 pl-5 py-2 text-foreground no-underline text-base transition-colors hover:text-accent-foreground"
                 >
                   <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
                   <span className="font-medium">{item.label}</span>
@@ -444,7 +452,7 @@ export default function Navbar() {
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="block py-3 text-[#061A12] no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-[#E8A020]"
+                className="block py-3 text-foreground no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-accent-foreground"
               >
                 {link.label}
               </Link>
@@ -456,7 +464,7 @@ export default function Navbar() {
               href={demoCtaHref}
               onClick={() => setMobileOpen(false)}
               className="font-jakarta font-bold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
-              style={{ background: "#E8A020", color: "#061A12", border: "1.5px solid #E8A020" }}
+              style={{ background: "var(--accent-foreground)", color: "var(--foreground)", border: "1.5px solid var(--accent-foreground)" }}
             >
               Book a Demo
             </Link>
@@ -464,7 +472,7 @@ export default function Navbar() {
               href={waitlistCtaHref}
               onClick={() => setMobileOpen(false)}
               className="font-jakarta font-semibold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
-              style={{ background: "#0F4C2A", color: "#ffffff", border: "1.5px solid #0F4C2A" }}
+              style={{ background: "var(--primary)", color: "var(--primary-foreground)", border: "1.5px solid var(--primary)" }}
             >
                 Join Waitlist
             </Link>
@@ -475,14 +483,14 @@ export default function Navbar() {
             <Link
               href="/case-studies"
               onClick={() => setMobileOpen(false)}
-              className="text-sm text-gray-500 no-underline hover:text-[#061A12] transition-colors"
+              className="text-sm text-gray-500 no-underline hover:text-foreground transition-colors"
             >
               Case Studies
             </Link>
             <Link
               href="/reseller"
               onClick={() => setMobileOpen(false)}
-              className="text-sm text-gray-500 no-underline hover:text-[#061A12] transition-colors"
+              className="text-sm text-gray-500 no-underline hover:text-foreground transition-colors"
             >
               Reseller Programme
             </Link>

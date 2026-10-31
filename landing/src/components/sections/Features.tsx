@@ -47,15 +47,15 @@ export default function Features() {
       id="features"
       className="px-4 sm:px-8 py-16"
       aria-label="Problems we solve"
-      style={{ background: "#0C3020" }}
+      style={{ background: "var(--platform-chrome)" }}
     >
       <div className="max-w-[1200px] mx-auto">
         {/* Eyebrow */}
         <div className="flex items-center gap-[10px] mb-[10px]">
-          <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "#E8A020" }} />
+          <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "var(--primary)" }} />
           <div
             className="text-[10px] font-bold tracking-[2.5px] uppercase"
-            style={{ color: "#E8A020" }}
+            style={{ color: "#B9CBD6" }}
           >
             The Problem
           </div>
@@ -67,7 +67,7 @@ export default function Features() {
           style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#ffffff" }}
         >
           Schools are drowning in paperwork.{" "}
-          <em className="italic" style={{ color: "#E8A020" }}>
+          <em className="italic" style={{ color: "#B9CBD6" }}>
             EduMyles fixes that.
           </em>
         </h2>
@@ -83,25 +83,25 @@ export default function Features() {
               className="fade-in rounded-[12px] p-8 transition-all duration-300 cursor-default"
               style={{
                 background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(232,160,32,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
                 transitionDelay: `${i * 0.1}s`,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-5px)";
-                e.currentTarget.style.borderColor = "rgba(232,160,32,0.45)";
+                e.currentTarget.style.borderColor = "rgb(var(--primary-rgb) / 45%)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.borderColor = "rgba(232,160,32,0.2)";
+                e.currentTarget.style.borderColor = "rgb(var(--primary-rgb) / 20%)";
               }}
             >
-              <div className="mb-4" style={{ color: "#E8A020" }}>
+              <div className="mb-4" style={{ color: "#B9CBD6" }}>
                 <problem.icon className="w-6 h-6" strokeWidth={1.5} />
               </div>
               <h3 className="font-display font-bold text-[20px] mb-3" style={{ color: "#ffffff" }}>
                 {problem.title}
               </h3>
-              <p className="text-[14px] leading-[1.6]" style={{ color: "#90CAF9" }}>
+              <p className="text-[14px] leading-[1.6]" style={{ color: "#C4D4D0" }}>
                 {problem.description}
               </p>
             </div>

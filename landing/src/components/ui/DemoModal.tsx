@@ -34,7 +34,7 @@ export default function DemoModal({ open, onClose }: DemoModalProps) {
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-card/10 hover:bg-card/20 text-white transition-colors"
           aria-label="Close demo video"
         >
           <X size={20} />

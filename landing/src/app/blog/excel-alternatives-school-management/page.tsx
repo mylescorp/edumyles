@@ -18,19 +18,19 @@ export const metadata: Metadata = {
 
 export default function ExcelAlternativesGuide() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* Hero Section */}
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, #061A12 0%, #0F4C2A 50%, #1A7A4A 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
         <div className="absolute inset-0 opacity-10">
           <div
             style={{
-              backgroundImage: `radial-gradient(circle at 20% 50%, rgba(232,160,32,0.3) 0%, transparent 50%), 
+              backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
                             radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
@@ -43,7 +43,7 @@ export default function ExcelAlternativesGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "#A8E6C3" }}
+              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
             >
               ← Back to Blog
             </Link>
@@ -54,30 +54,30 @@ export default function ExcelAlternativesGuide() {
               className="font-display font-bold leading-tight mb-6"
               style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
             >
-              5 Signs Your School Has <span style={{ color: "#E8A020" }}>Outgrown Excel</span>
+              5 Signs Your School Has <span style={{ color: "var(--accent-foreground)" }}>Outgrown Excel</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <BarChart2 className="w-5 h-5" style={{ color: "#E8A020" }} />
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <BarChart2 className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   School Management
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" style={{ color: "#E8A020" }} />
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <Clock className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   5 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   January 2026
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "#A8E6C3" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
               From attendance confusion to fee arrears chaos, these are the warning signs every
               school administrator should watch for. Know when it&apos;s time to move beyond Excel.
             </p>
@@ -86,17 +86,17 @@ export default function ExcelAlternativesGuide() {
       </section>
 
       {/* Content */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[800px] mx-auto">
           {/* Introduction */}
           <div className="mb-12">
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "#374151" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
               Every school starts with Excel. It&apos;s familiar, readily available, and seems
               perfect for tracking students, grades, and fees. But as your school grows, those
               spreadsheets become increasingly complex, error-prone, and time-consuming.
             </p>
 
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "#374151" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
               The question isn&apos;t if you&apos;ll outgrow Excel—it&apos;s when. Here are the five
               clear signs that your school is ready for a proper school management system, and what
               to do about each one.
@@ -105,13 +105,13 @@ export default function ExcelAlternativesGuide() {
             <div
               className="p-6 rounded-2xl mb-8"
               style={{
-                background: "linear-gradient(135deg, #F3FBF6 0%, #E8F5EE 100%)",
+                background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
                 border: "1px solid rgba(26,122,74,0.2)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <TrendingUp className="w-6 h-6" style={{ color: "#1A7A4A" }} />
-                <h3 className="font-display font-bold text-xl" style={{ color: "#061A12" }}>
+                <TrendingUp className="w-6 h-6" style={{ color: "var(--primary)" }} />
+                <h3 className="font-display font-bold text-xl" style={{ color: "var(--foreground)" }}>
                   The Hidden Cost of Excel
                 </h3>
               </div>
@@ -124,7 +124,7 @@ export default function ExcelAlternativesGuide() {
                 ].map((cost) => (
                   <li key={cost} className="flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#ef4444" }} />
-                    <span className="font-jakarta text-sm" style={{ color: "#374151" }}>
+                    <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                       {cost}
                     </span>
                   </li>
@@ -135,7 +135,7 @@ export default function ExcelAlternativesGuide() {
 
           {/* The 5 Warning Signs */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               The 5 Warning Signs You&apos;ve Outgrown Excel
             </h2>
 
@@ -215,12 +215,12 @@ export default function ExcelAlternativesGuide() {
                 <div
                   key={warning.sign}
                   className="border-l-4 pl-6"
-                  style={{ borderColor: "#E8A020" }}
+                  style={{ borderColor: "var(--primary)" }}
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <span
                       className="font-jakarta font-bold text-sm px-3 py-1 rounded-full"
-                      style={{ background: "#E8A020", color: "#061A12" }}
+                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                     >
                       {warning.sign}
                     </span>
@@ -236,19 +236,19 @@ export default function ExcelAlternativesGuide() {
                       {warning.impact} Impact
                     </span>
                   </div>
-                  <h3 className="font-display font-bold text-xl mb-3" style={{ color: "#061A12" }}>
+                  <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--foreground)" }}>
                     {warning.title}
                   </h3>
                   <p
                     className="font-jakarta text-base leading-[1.7] mb-4"
-                    style={{ color: "#374151" }}
+                    style={{ color: "var(--muted-foreground)" }}
                   >
                     {warning.description}
                   </p>
                   <div className="mb-4">
                     <h4
                       className="font-jakarta font-semibold text-sm mb-2"
-                      style={{ color: "#061A12" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       Common Symptoms:
                     </h4>
@@ -259,16 +259,16 @@ export default function ExcelAlternativesGuide() {
                             className="w-4 h-4 flex-shrink-0"
                             style={{ color: "#ef4444" }}
                           />
-                          <span style={{ color: "#5a5a5a" }}>{symptom}</span>
+                          <span style={{ color: "var(--muted-foreground)" }}>{symptom}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                   <div className="p-3 rounded-lg" style={{ background: "rgba(26,122,74,0.1)" }}>
-                    <span className="font-semibold text-sm" style={{ color: "#1A7A4A" }}>
+                    <span className="font-semibold text-sm" style={{ color: "var(--primary)" }}>
                       Solution:{" "}
                     </span>
-                    <span className="text-sm" style={{ color: "#1A7A4A" }}>
+                    <span className="text-sm" style={{ color: "var(--primary)" }}>
                       {warning.solution}
                     </span>
                   </div>
@@ -279,13 +279,13 @@ export default function ExcelAlternativesGuide() {
 
           {/* Real Cost Analysis */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               The Real Cost of Sticking with Excel
             </h2>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   Monthly Excel Costs
                 </h3>
                 <div className="space-y-3">
@@ -299,9 +299,9 @@ export default function ExcelAlternativesGuide() {
                     <div
                       key={item.item}
                       className="flex justify-between items-center p-3 rounded-lg"
-                      style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                     >
-                      <span className="font-jakarta text-sm" style={{ color: "#5a5a5a" }}>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                         {item.item}
                       </span>
                       <span
@@ -313,9 +313,9 @@ export default function ExcelAlternativesGuide() {
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-4 border-t" style={{ borderColor: "#e5e7eb" }}>
+                <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
                   <div className="flex justify-between items-center">
-                    <span className="font-jakarta font-bold text-lg" style={{ color: "#061A12" }}>
+                    <span className="font-jakarta font-bold text-lg" style={{ color: "var(--foreground)" }}>
                       Total Monthly Cost
                     </span>
                     <span className="font-jakarta font-bold text-xl" style={{ color: "#ef4444" }}>
@@ -326,7 +326,7 @@ export default function ExcelAlternativesGuide() {
               </div>
 
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   EduMyles Investment
                 </h3>
                 <div className="space-y-3">
@@ -340,31 +340,31 @@ export default function ExcelAlternativesGuide() {
                     <div
                       key={item.item}
                       className="flex justify-between items-center p-3 rounded-lg"
-                      style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                     >
-                      <span className="font-jakarta text-sm" style={{ color: "#5a5a5a" }}>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                         {item.item}
                       </span>
                       <span
                         className="font-jakarta font-bold text-base"
-                        style={{ color: "#1A7A4A" }}
+                        style={{ color: "var(--primary)" }}
                       >
                         {item.cost}
                       </span>
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-4 border-t" style={{ borderColor: "#e5e7eb" }}>
+                <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
                   <div className="flex justify-between items-center">
-                    <span className="font-jakarta font-bold text-lg" style={{ color: "#061A12" }}>
+                    <span className="font-jakarta font-bold text-lg" style={{ color: "var(--foreground)" }}>
                       Monthly Investment
                     </span>
-                    <span className="font-jakarta font-bold text-xl" style={{ color: "#1A7A4A" }}>
+                    <span className="font-jakarta font-bold text-xl" style={{ color: "var(--primary)" }}>
                       KES 21,500
                     </span>
                   </div>
                   <div className="mt-2">
-                    <span className="font-jakarta text-sm" style={{ color: "#1A7A4A" }}>
+                    <span className="font-jakarta text-sm" style={{ color: "var(--primary)" }}>
                       Monthly Savings: KES 178,500 (89% reduction)
                     </span>
                   </div>
@@ -375,7 +375,7 @@ export default function ExcelAlternativesGuide() {
 
           {/* Migration Timeline */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Migration Timeline: From Excel to EduMyles
             </h2>
 
@@ -430,7 +430,7 @@ export default function ExcelAlternativesGuide() {
                   <div className="flex-shrink-0">
                     <div
                       className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ background: "#E8A020", color: "#061A12" }}
+                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                     >
                       <span className="font-jakarta font-bold text-sm">{week.week}</span>
                     </div>
@@ -438,7 +438,7 @@ export default function ExcelAlternativesGuide() {
                   <div className="flex-grow">
                     <h3
                       className="font-jakarta font-bold text-lg mb-2"
-                      style={{ color: "#061A12" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {week.title}
                     </h3>
@@ -447,13 +447,13 @@ export default function ExcelAlternativesGuide() {
                         <li key={task} className="flex items-center gap-2 text-sm">
                           <CheckCircle2
                             className="w-4 h-4 flex-shrink-0"
-                            style={{ color: "#1A7A4A" }}
+                            style={{ color: "var(--primary)" }}
                           />
-                          <span style={{ color: "#5a5a5a" }}>{task}</span>
+                          <span style={{ color: "var(--muted-foreground)" }}>{task}</span>
                         </li>
                       ))}
                     </ul>
-                    <span className="text-xs font-semibold" style={{ color: "#1A7A4A" }}>
+                    <span className="text-xs font-semibold" style={{ color: "var(--primary)" }}>
                       Estimated time: {week.time}
                     </span>
                   </div>
@@ -464,14 +464,14 @@ export default function ExcelAlternativesGuide() {
 
           {/* Success Metrics */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Expected Results After Migration
             </h2>
 
             <div
               className="p-8 rounded-2xl"
               style={{
-                background: "linear-gradient(135deg, #061A12 0%, #0F4C2A 100%)",
+                background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
                 color: "#ffffff",
               }}
             >
@@ -511,7 +511,7 @@ export default function ExcelAlternativesGuide() {
                   <div key={stat.metric}>
                     <div
                       className="font-jakarta font-bold text-3xl mb-2"
-                      style={{ color: "#E8A020" }}
+                      style={{ color: "var(--accent-foreground)" }}
                     >
                       {stat.value}
                     </div>
@@ -525,7 +525,7 @@ export default function ExcelAlternativesGuide() {
 
           {/* Common Concerns */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Common Concerns About Leaving Excel
             </h2>
 
@@ -559,18 +559,18 @@ export default function ExcelAlternativesGuide() {
                 <div
                   key={item.concern}
                   className="p-4 rounded-xl"
-                  style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                 >
                   <div className="flex items-start gap-3">
-                    <Database className="w-5 h-5 flex-shrink-0 mt-1" style={{ color: "#1A7A4A" }} />
+                    <Database className="w-5 h-5 flex-shrink-0 mt-1" style={{ color: "var(--primary)" }} />
                     <div>
                       <h3
                         className="font-jakarta font-semibold text-base mb-2"
-                        style={{ color: "#061A12" }}
+                        style={{ color: "var(--foreground)" }}
                       >
                         {item.concern}
                       </h3>
-                      <p className="font-jakarta text-sm" style={{ color: "#5a5a5a" }}>
+                      <p className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                         {item.response}
                       </p>
                     </div>
@@ -582,18 +582,18 @@ export default function ExcelAlternativesGuide() {
 
           {/* Decision Framework */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Quick Decision Framework
             </h2>
 
             <div
               className="p-6 rounded-2xl"
               style={{
-                background: "linear-gradient(135deg, #FEF3DC 0%, #FFF8E7 100%)",
-                border: "1px solid rgba(232,160,32,0.2)",
+                background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
-              <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+              <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                 Answer These Questions:
               </h3>
               <div className="space-y-3">
@@ -607,17 +607,17 @@ export default function ExcelAlternativesGuide() {
                   <div key={question} className="flex items-center gap-3">
                     <span
                       className="w-8 h-8 rounded-full flex items-center justify-center font-jakarta font-bold text-sm"
-                      style={{ background: "#E8A020", color: "#061A12" }}
+                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                     >
                       {index + 1}
                     </span>
-                    <span className="font-jakarta text-sm" style={{ color: "#374151" }}>
+                    <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                       {question}
                     </span>
                   </div>
                 ))}
               </div>
-              <div className="mt-6 p-4 rounded-lg" style={{ background: "rgba(232,160,32,0.15)" }}>
+              <div className="mt-6 p-4 rounded-lg" style={{ background: "rgb(var(--primary-rgb) / 15%)" }}>
                 <p className="font-jakarta font-semibold text-center" style={{ color: "#9A5D00" }}>
                   If you answered &quot;yes&quot; to 3 or more questions, it&apos;s time to move
                   beyond Excel.
@@ -628,17 +628,17 @@ export default function ExcelAlternativesGuide() {
 
           {/* CTA */}
           <div className="text-center py-12">
-            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "var(--foreground)" }}>
               Ready to Leave Excel Behind?
             </h2>
-            <p className="font-jakarta text-lg mb-6" style={{ color: "#5a5a5a" }}>
+            <p className="font-jakarta text-lg mb-6" style={{ color: "var(--muted-foreground)" }}>
               Join schools that have transformed their operations with EduMyles.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 href="/book-demo"
                 className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-xl no-underline"
-                style={{ background: "#E8A020", color: "#061A12" }}
+                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
               >
                 Schedule Migration Consultation
                 <ArrowRight className="w-5 h-5" />
@@ -646,7 +646,7 @@ export default function ExcelAlternativesGuide() {
               <Link
                 href="/pricing"
                 className="inline-flex items-center gap-2 font-jakarta font-semibold text-[16px] px-8 py-4 rounded-xl no-underline"
-                style={{ background: "transparent", color: "#061A12", border: "2px solid #061A12" }}
+                style={{ background: "transparent", color: "var(--foreground)", border: "2px solid var(--border)" }}
               >
                 View Pricing
               </Link>

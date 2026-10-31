@@ -51,9 +51,9 @@ export default function Hero() {
       className="relative flex items-center overflow-hidden px-4 sm:px-8 py-20 sm:py-24"
       aria-label="Hero section"
       style={{
-        background: "#061A12",
+        background: "var(--card)",
         minHeight: "90vh",
-        borderTop: "3px solid #E8A020",
+        borderTop: "3px solid var(--primary)",
       }}
     >
       {/* Grid background pattern */}
@@ -61,8 +61,8 @@ export default function Hero() {
         className="absolute inset-0 pointer-events-none z-[1]"
         style={{
           backgroundImage: `
-            linear-gradient(0deg, transparent 24%, rgba(232,160,32,0.05) 25%, rgba(232,160,32,0.05) 26%, transparent 27%, transparent 74%, rgba(232,160,32,0.05) 75%, rgba(232,160,32,0.05) 76%, transparent 77%),
-            linear-gradient(90deg, transparent 24%, rgba(232,160,32,0.05) 25%, rgba(232,160,32,0.05) 26%, transparent 27%, transparent 74%, rgba(232,160,32,0.05) 75%, rgba(232,160,32,0.05) 76%, transparent 77%)
+            linear-gradient(0deg, transparent 24%, rgb(var(--primary-rgb) / 5%) 25%, rgb(var(--primary-rgb) / 5%) 26%, transparent 27%, transparent 74%, rgb(var(--primary-rgb) / 5%) 75%, rgb(var(--primary-rgb) / 5%) 76%, transparent 77%),
+            linear-gradient(90deg, transparent 24%, rgb(var(--primary-rgb) / 5%) 25%, rgb(var(--primary-rgb) / 5%) 26%, transparent 27%, transparent 74%, rgb(var(--primary-rgb) / 5%) 75%, rgb(var(--primary-rgb) / 5%) 76%, transparent 77%)
           `,
           backgroundSize: "50px 50px",
         }}
@@ -87,10 +87,10 @@ export default function Hero() {
           <div className="fade-in">
             {/* Eyebrow */}
             <div className="flex items-center gap-[10px] mb-6">
-              <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "#E8A020" }} />
+              <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "var(--primary)" }} />
               <div
                 className="text-[10px] font-bold tracking-[2.5px] uppercase"
-                style={{ color: "#E8A020" }}
+                style={{ color: "var(--accent-foreground)" }}
               >
                 Trusted by Regional Schools Across Africa
               </div>
@@ -99,10 +99,10 @@ export default function Hero() {
             {/* Headline */}
             <h1
               className="font-display font-bold leading-[1.2] mb-6"
-              style={{ fontSize: "clamp(2.5rem, 5vw, 4.25rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem, 5vw, 4.25rem)", color: "var(--foreground)" }}
             >
               The All-in-One{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 School Management System
               </em>{" "}
               Built for African Schools
@@ -111,7 +111,7 @@ export default function Hero() {
             {/* Sub-headline */}
             <p
               className="font-jakarta font-light leading-[1.8] mb-8"
-              style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "520px" }}
+              style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "520px" }}
             >
               Manage admissions, fees, attendance, exams &amp; parent communication from one
               powerful platform. No more Excel chaos. No more WhatsApp groups for school updates.
@@ -122,9 +122,9 @@ export default function Hero() {
               <a
                 href="/waitlist"
                 className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-colors duration-300 no-underline"
-                style={{ background: "#E8A020", color: "#061A12" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#F5C453")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#E8A020")}
+                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--primary)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "var(--primary)")}
               >
                 Join the School Waitlist →
               </a>
@@ -133,16 +133,16 @@ export default function Hero() {
                 className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-all duration-300 no-underline"
                 style={{
                   background: "transparent",
-                  color: "#ffffff",
+                  color: "var(--foreground)",
                   border: "1.5px solid rgba(255,255,255,0.2)",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#E8A020";
-                  e.currentTarget.style.color = "#E8A020";
+                  e.currentTarget.style.borderColor = "var(--primary)";
+                  e.currentTarget.style.color = "var(--accent-foreground)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
-                  e.currentTarget.style.color = "#ffffff";
+                  e.currentTarget.style.color = "var(--foreground)";
                 }}
               >
                 See Pricing
@@ -161,16 +161,16 @@ export default function Hero() {
                   className="text-center px-2 sm:px-4 py-3 rounded-[12px]"
                   style={{
                     background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(232,160,32,0.2)",
+                    border: "1px solid rgb(var(--primary-rgb) / 20%)",
                   }}
                 >
                   <strong
                     className="block text-[14px] sm:text-[18px] font-bold"
-                    style={{ color: "#E8A020" }}
+                    style={{ color: "var(--accent-foreground)" }}
                   >
                     {stat.value}
                   </strong>
-                  <small className="text-[12px]" style={{ color: "#6B9E83" }}>
+                  <small className="text-[12px]" style={{ color: "var(--muted-foreground)" }}>
                     {stat.label}
                   </small>
                 </div>
@@ -188,9 +188,9 @@ export default function Hero() {
                 left: "50%",
                 transform: "translateX(-50%)",
                 whiteSpace: "nowrap",
-                background: "rgba(232,160,32,0.15)",
-                border: "1px solid #E8A020",
-                color: "#E8A020",
+                background: "rgb(var(--primary-rgb) / 15%)",
+                border: "1px solid var(--accent-foreground)",
+                color: "var(--accent-foreground)",
                 fontSize: "11px",
                 padding: "4px 12px",
               }}
@@ -206,17 +206,17 @@ export default function Hero() {
                 left: 0,
                 width: "220px",
                 background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(232,160,32,0.3)",
+                border: "1px solid rgb(var(--primary-rgb) / 30%)",
                 backdropFilter: "blur(10px)",
               }}
             >
-              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>
+              <div className="text-[12px] mb-2" style={{ color: "var(--muted-foreground)" }}>
                 Total Students
               </div>
-              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>
+              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "var(--accent-foreground)" }}>
                 1,250
               </div>
-              <div className="text-[11px] mt-1" style={{ color: "#A8E6C3" }}>
+              <div className="text-[11px] mt-1" style={{ color: "var(--muted-foreground)" }}>
                 +42 this term
               </div>
             </div>
@@ -229,17 +229,17 @@ export default function Hero() {
                 right: 0,
                 width: "210px",
                 background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(232,160,32,0.3)",
+                border: "1px solid rgb(var(--primary-rgb) / 30%)",
                 backdropFilter: "blur(10px)",
               }}
             >
-              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>
+              <div className="text-[12px] mb-2" style={{ color: "var(--muted-foreground)" }}>
                 Fees Collected
               </div>
-              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>
+              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "var(--accent-foreground)" }}>
                 Ksh 2.4M
               </div>
-              <div className="text-[11px] mt-1" style={{ color: "#A8E6C3" }}>
+              <div className="text-[11px] mt-1" style={{ color: "var(--muted-foreground)" }}>
                 87% collection rate
               </div>
             </div>
@@ -252,14 +252,14 @@ export default function Hero() {
                 left: "50px",
                 width: "250px",
                 background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(232,160,32,0.3)",
+                border: "1px solid rgb(var(--primary-rgb) / 30%)",
                 backdropFilter: "blur(10px)",
               }}
             >
-              <div className="text-[12px] mb-2" style={{ color: "#6B9E83" }}>
+              <div className="text-[12px] mb-2" style={{ color: "var(--muted-foreground)" }}>
                 Attendance Rate
               </div>
-              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "#E8A020" }}>
+              <div className="font-mono-brand font-bold text-[22px]" style={{ color: "var(--accent-foreground)" }}>
                 94%
               </div>
               <div
@@ -268,7 +268,7 @@ export default function Hero() {
               >
                 <div
                   className="h-full rounded-full"
-                  style={{ width: "94%", background: "linear-gradient(90deg, #1A7A4A, #E8A020)" }}
+                  style={{ width: "94%", background: "linear-gradient(90deg, var(--primary), var(--accent-foreground))" }}
                 />
               </div>
             </div>

@@ -19,6 +19,7 @@
     "perf:audit": "npm run build && npx lighthouse http://localhost:3000 --output=html --output-path=./lighthouse-report.html"
   },
   "dependencies": {
+    "@edumyles/design-tokens": "*",
     "@convex-dev/react-query": "^0.1.0",
     "@convex-dev/workos-authkit": "^0.1.7",
     "@edumyles/shared": "*",

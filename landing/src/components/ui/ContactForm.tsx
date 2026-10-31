@@ -6,7 +6,7 @@ import { trackFormSubmission, trackLeadConversion } from "@/lib/analytics";
 type FormState = "idle" | "loading" | "success" | "error";
 
 const inputClass =
-  "w-full border border-gray-200 rounded-lg px-4 py-3 font-jakarta text-[15px] outline-none transition-colors duration-200 focus:border-[#061A12]";
+  "w-full border border-border bg-background rounded-lg px-4 py-3 font-jakarta text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-colors duration-200 focus:border-primary";
 const labelClass = "block text-sm font-medium font-jakarta mb-1";
 
 export default function ContactForm() {
@@ -53,20 +53,20 @@ export default function ContactForm() {
   };
 
   return (
-    <section className="py-16 px-4" style={{ background: "#ffffff" }}>
+    <section className="py-16 px-4" style={{ background: "var(--card)" }}>
       <div className="max-w-[720px] mx-auto">
         {/* Heading */}
         <div className="mb-8">
           <h2
             className="font-display font-bold leading-[1.2] mb-2"
-            style={{ fontSize: "clamp(1.6rem,3vw,2.25rem)", color: "#061A12" }}
+            style={{ fontSize: "clamp(1.6rem,3vw,2.25rem)", color: "var(--foreground)" }}
           >
             Send Us a{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
               Message
             </em>
           </h2>
-          <p className="font-jakarta text-[15px]" style={{ color: "#5a5a5a" }}>
+          <p className="font-jakarta text-[15px]" style={{ color: "var(--muted-foreground)" }}>
             Fill in the form below and we&apos;ll get back to you within 24 hours.
           </p>
         </div>
@@ -74,18 +74,18 @@ export default function ContactForm() {
         {formState === "success" ? (
           <div
             className="rounded-2xl p-8 flex flex-col items-center gap-4 text-center"
-            style={{ background: "#F3FBF6", border: "1px solid #A8E6C3" }}
+            style={{ background: "var(--background)", border: "1px solid var(--border)" }}
           >
             <div
               className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
-              style={{ background: "#26A65B", color: "#ffffff" }}
+              style={{ background: "var(--success)", color: "var(--success-foreground)" }}
             >
               ✓
             </div>
-            <h3 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+            <h3 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
               Thank you!
             </h3>
-            <p className="font-jakarta text-[15px]" style={{ color: "#5a5a5a" }}>
+            <p className="font-jakarta text-[15px]" style={{ color: "var(--muted-foreground)" }}>
               We&apos;ll be in touch within 24 hours.
             </p>
           </div>
@@ -94,8 +94,8 @@ export default function ContactForm() {
             {/* Row: Full Name + Email */}
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
-                <label htmlFor="contact-name" className={labelClass} style={{ color: "#061A12" }}>
-                  Full Name <span style={{ color: "#E8A020" }}>*</span>
+                <label htmlFor="contact-name" className={labelClass} style={{ color: "var(--foreground)" }}>
+                  Full Name <span style={{ color: "var(--accent-foreground)" }}>*</span>
                 </label>
                 <input
                   id="contact-name"
@@ -106,12 +106,12 @@ export default function ContactForm() {
                   onChange={handleChange}
                   placeholder="e.g. Mary Kamau"
                   className={inputClass}
-                  style={{ color: "#212121" }}
+                  style={{ color: "var(--foreground)" }}
                 />
               </div>
               <div>
-                <label htmlFor="contact-email" className={labelClass} style={{ color: "#061A12" }}>
-                  Email Address <span style={{ color: "#E8A020" }}>*</span>
+                <label htmlFor="contact-email" className={labelClass} style={{ color: "var(--foreground)" }}>
+                  Email Address <span style={{ color: "var(--accent-foreground)" }}>*</span>
                 </label>
                 <input
                   id="contact-email"
@@ -122,7 +122,7 @@ export default function ContactForm() {
                   onChange={handleChange}
                   placeholder="you@school.ac.ke"
                   className={inputClass}
-                  style={{ color: "#212121" }}
+                  style={{ color: "var(--foreground)" }}
                 />
               </div>
             </div>
@@ -130,7 +130,7 @@ export default function ContactForm() {
             {/* Row: School Name + Role */}
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
-                <label htmlFor="contact-school" className={labelClass} style={{ color: "#061A12" }}>
+                <label htmlFor="contact-school" className={labelClass} style={{ color: "var(--foreground)" }}>
                   School Name
                 </label>
                 <input
@@ -141,11 +141,11 @@ export default function ContactForm() {
                   onChange={handleChange}
                   placeholder="e.g. Nairobi Green Academy"
                   className={inputClass}
-                  style={{ color: "#212121" }}
+                  style={{ color: "var(--foreground)" }}
                 />
               </div>
               <div>
-                <label htmlFor="contact-role" className={labelClass} style={{ color: "#061A12" }}>
+                <label htmlFor="contact-role" className={labelClass} style={{ color: "var(--foreground)" }}>
                   Your Role
                 </label>
                 <select
@@ -154,7 +154,7 @@ export default function ContactForm() {
                   value={fields.role}
                   onChange={handleChange}
                   className={inputClass}
-                  style={{ color: fields.role ? "#212121" : "#9ca3af" }}
+                  style={{ color: fields.role ? "var(--foreground)" : "var(--muted-foreground)" }}
                 >
                   <option value="">Select your role…</option>
                   <option value="Principal / Head Teacher">Principal / Head Teacher</option>
@@ -169,7 +169,7 @@ export default function ContactForm() {
 
             {/* Subject */}
             <div>
-              <label htmlFor="contact-subject" className={labelClass} style={{ color: "#061A12" }}>
+              <label htmlFor="contact-subject" className={labelClass} style={{ color: "var(--foreground)" }}>
                 Subject
               </label>
               <select
@@ -178,7 +178,7 @@ export default function ContactForm() {
                 value={fields.subject}
                 onChange={handleChange}
                 className={inputClass}
-                style={{ color: fields.subject ? "#212121" : "#9ca3af" }}
+                style={{ color: fields.subject ? "var(--foreground)" : "var(--muted-foreground)" }}
               >
                 <option value="">Select a subject…</option>
                 <option value="General Enquiry">General Enquiry</option>
@@ -192,8 +192,8 @@ export default function ContactForm() {
 
             {/* Message */}
             <div>
-              <label htmlFor="contact-message" className={labelClass} style={{ color: "#061A12" }}>
-                Message <span style={{ color: "#E8A020" }}>*</span>
+              <label htmlFor="contact-message" className={labelClass} style={{ color: "var(--foreground)" }}>
+                Message <span style={{ color: "var(--accent-foreground)" }}>*</span>
               </label>
               <textarea
                 id="contact-message"
@@ -204,17 +204,17 @@ export default function ContactForm() {
                 onChange={handleChange}
                 placeholder="Tell us how we can help…"
                 className={inputClass}
-                style={{ color: "#212121", resize: "vertical" }}
+                style={{ color: "var(--foreground)", resize: "vertical" }}
               />
             </div>
 
             {/* Error state */}
             {formState === "error" && (
-              <p className="font-jakarta text-[14px]" style={{ color: "#dc2626" }}>
+              <p className="font-jakarta text-[14px]" style={{ color: "var(--danger)" }}>
                 Something went wrong. Please try again or email us directly at{" "}
                 <a
                   href="mailto:contact@edumyles.com"
-                  style={{ color: "#dc2626", textDecoration: "underline" }}
+                  style={{ color: "var(--danger)", textDecoration: "underline" }}
                 >
                   contact@edumyles.com
                 </a>
@@ -229,22 +229,22 @@ export default function ContactForm() {
                 disabled={formState === "loading"}
                 className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] transition-colors duration-200"
                 style={{
-                  background: formState === "loading" ? "#5a5a5a" : "#061A12",
-                  color: "#ffffff",
+                  background: formState === "loading" ? "var(--muted-foreground)" : "var(--primary)",
+                  color: "var(--primary-foreground)",
                   cursor: formState === "loading" ? "not-allowed" : "pointer",
                   border: "none",
                   minWidth: "180px",
                 }}
                 onMouseEnter={(e) => {
                   if (formState !== "loading") {
-                    e.currentTarget.style.background = "#E8A020";
-                    e.currentTarget.style.color = "#061A12";
+                    e.currentTarget.style.background = "var(--primary)";
+                    e.currentTarget.style.color = "var(--primary-foreground)";
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (formState !== "loading") {
-                    e.currentTarget.style.background = "#061A12";
-                    e.currentTarget.style.color = "#ffffff";
+                    e.currentTarget.style.background = "var(--primary)";
+                    e.currentTarget.style.color = "var(--primary-foreground)";
                   }
                 }}
               >
