@@ -8,29 +8,71 @@ if (!baseRef) {
 }
 
 const base = `origin/${baseRef}`;
-const changedFiles = execFileSync("git", ["diff", "--name-only", `${base}...HEAD`], {
+const allowedBumps = new Set(["major", "minor", "patch"]);
+const allowedTypes = new Set(["feature", "improvement", "fix", "breaking"]);
+const allowedPanels = new Set([
+  "admin", "teacher", "student", "parent", "alumni", "partner", "developer", "affiliate", "reseller", "platform",
+]);
+const changedFiles = execFileSync("git", ["diff", "--name-status", `${base}...HEAD`], {
   encoding: "utf8",
 })
   .split(/\r?\n/)
-  .filter(Boolean);
+  .filter(Boolean)
+  .map((line) => {
+    const [status, file] = line.split("\t");
+    return { status, file };
+  });
+const changedPaths = changedFiles.map(({ file }) => file);
 const changesApplication = changedFiles.some((file) =>
-  /^(frontend|convex|shared|mobile|packages|landing|scripts)\//.test(file) ||
-  /^\.github\/workflows\//.test(file) ||
-  /^(package\.json|package-lock\.json|next\.config\.(?:js|mjs|ts))$/.test(file)
+  /^(frontend|convex|shared|mobile|packages|landing|scripts)\//.test(file.file) ||
+  /^\.github\/workflows\//.test(file.file) ||
+  /^(package\.json|package-lock\.json|next\.config\.(?:js|mjs|ts))$/.test(file.file)
 );
 
 const changesetFiles = changedFiles.filter(
-  (file) => /^\.changeset\/.+\.md$/.test(file) && file !== ".changeset/README.md" && existsSync(file)
+  ({ file, status }) => /^\.changeset\/.+\.md$/.test(file) && file !== ".changeset/README.md" && status !== "D" && existsSync(file)
 );
-const packageChanged = changedFiles.includes("package.json");
-const releaseManifestChanged = changedFiles.some((file) => /^release-notes\/\d+\.\d+\.\d+.*\.json$/.test(file));
+const packageChanged = changedPaths.includes("package.json");
+const releaseManifestFiles = changedPaths.filter((file) => /^release-notes\/\d+\.\d+\.\d+.*\.json$/.test(file));
 
-if (packageChanged && releaseManifestChanged && !changesetFiles.length) {
-  console.log("Versioned release pull request contains its generated release manifest.");
-  process.exit(0);
+if (packageChanged && releaseManifestFiles.length) {
+  const allowedGeneratedFiles = new Set(["package.json", "package-lock.json", ...releaseManifestFiles]);
+  const deletedChangesets = changedFiles.filter(
+    ({ file, status }) => status === "D" && /^\.changeset\/.+\.md$/.test(file) && file !== ".changeset/README.md"
+  );
+  const isGeneratedRelease =
+    releaseManifestFiles.length === 1 &&
+    deletedChangesets.length > 0 &&
+    changedFiles.every(({ file, status }) =>
+      allowedGeneratedFiles.has(file) ||
+      (status === "D" && /^\.changeset\/.+\.md$/.test(file) && file !== ".changeset/README.md")
+    );
+  if (isGeneratedRelease) {
+    const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+    const releaseVersion = releaseManifestFiles[0].match(/^release-notes\/(\d+\.\d+\.\d+).*\.json$/)?.[1];
+    const manifest = JSON.parse(readFileSync(releaseManifestFiles[0], "utf8"));
+    if (packageJson.version !== releaseVersion || !Array.isArray(manifest.entries))
+      throw new Error("Generated release package version must match its versioned manifest.");
+    const releasedTitles = new Set(manifest.entries.map((entry) => entry.title.trim().toLowerCase()));
+    for (const { file } of deletedChangesets) {
+      const source = execFileSync("git", ["show", `${base}:${file}`], { encoding: "utf8" });
+      const match = source.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);
+      const title = match?.[2]?.trim().split(/\r?\n/)[0]?.trim();
+      if (!title || !releasedTitles.has(title.toLowerCase()))
+        throw new Error(`${file} must be represented by a card in the generated release manifest.`);
+    }
+    for (const entry of manifest.entries) {
+      if (!entry.title?.trim() || !entry.description?.trim() || !["feature", "improvement", "fix", "breaking"].includes(entry.type))
+        throw new Error(`${releaseManifestFiles[0]} contains an invalid release card.`);
+      if (!Array.isArray(entry.panels) || entry.panels.length === 0 || entry.panels.some((panel) => !allowedPanels.has(panel)))
+        throw new Error(`${releaseManifestFiles[0]} contains an invalid panel audience.`);
+    }
+    console.log("Generated release files have a matching semantic version and valid release cards.");
+    process.exit(0);
+  }
 }
 
-if (!changesApplication) {
+if (!changesApplication && !changesetFiles.length) {
   console.log("No application changes require a Changeset.");
   process.exit(0);
 }
@@ -40,22 +82,7 @@ if (!changesetFiles.length) {
   process.exit(1);
 }
 
-const allowedBumps = new Set(["major", "minor", "patch"]);
-const allowedTypes = new Set(["feature", "improvement", "fix", "breaking"]);
-const allowedPanels = new Set([
-  "admin",
-  "teacher",
-  "student",
-  "parent",
-  "alumni",
-  "partner",
-  "developer",
-  "affiliate",
-  "reseller",
-  "platform",
-]);
-
-for (const file of changesetFiles) {
+for (const { file } of changesetFiles) {
   const source = readFileSync(file, "utf8");
   const match = source.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);
   if (!match) throw new Error(`${file} must have valid Changeset frontmatter.`);

@@ -67,6 +67,12 @@ function formatReleaseDate(timestamp: number) {
   }).format(new Date(timestamp));
 }
 
+function releaseDateBoundary(date: string, endOfDay = false) {
+  if (!date) return undefined;
+  // Africa/Nairobi is UTC+03:00 year-round; align filtering with the date labels.
+  return new Date(`${date}T${endOfDay ? "23:59:59.999" : "00:00:00"}+03:00`).getTime();
+}
+
 function getEntryUrl(routeBase: string, entry: Entry) {
   const url = new URL(
     `${routeBase}/releases/${encodeURIComponent(entry.version)}`,
@@ -115,6 +121,17 @@ export function WhatsNewPage({ version }: { version?: string }) {
 
   const entries = (data?.entries ?? EMPTY_ENTRIES) as Entry[];
   const activeVersion = version ? decodeURIComponent(version) : undefined;
+
+  useEffect(() => {
+    if (!data || entries.length === 0 || !window.location.hash) return;
+    const targetId = decodeURIComponent(window.location.hash.slice(1));
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(targetId)?.scrollIntoView({ block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [data, entries]);
+
+  const supportHref = pathname.startsWith("/platform") ? "/platform/support" : "/support/tickets";
   const filtered = useMemo(
     () =>
       entries.filter((entry) => {
@@ -124,8 +141,10 @@ export function WhatsNewPage({ version }: { version?: string }) {
           return false;
         if (category === "fix" && entry.type !== "fix") return false;
         if (personalized && entry.module && !installedModules.includes(entry.module)) return false;
-        if (fromDate && entry.date < new Date(`${fromDate}T00:00:00`).getTime()) return false;
-        if (toDate && entry.date > new Date(`${toDate}T23:59:59`).getTime()) return false;
+        const fromBoundary = releaseDateBoundary(fromDate);
+        const toBoundary = releaseDateBoundary(toDate, true);
+        if (fromBoundary !== undefined && entry.date < fromBoundary) return false;
+        if (toBoundary !== undefined && entry.date > toBoundary) return false;
         const needle = search.trim().toLowerCase();
         return (
           !needle ||
@@ -189,12 +208,12 @@ export function WhatsNewPage({ version }: { version?: string }) {
             {!activeVersion && (
               <div className="flex flex-wrap gap-2">
                 <Button asChild variant="outline" size="sm" className="rounded-full">
-                  <Link href="/platform/support">
+                  <Link href={supportHref}>
                     <Lightbulb className="mr-2 h-4 w-4" /> Request a feature
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="rounded-full">
-                  <Link href="/platform/support">
+                  <Link href={supportHref}>
                     <Bug className="mr-2 h-4 w-4" /> Report a bug
                   </Link>
                 </Button>
@@ -381,7 +400,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
                               ))}
                             </div>
                           ) : null}
-                          <footer className="mt-4 flex items-center gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+                          <footer className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
                             <span className="mr-1">Share</span>
                             <Button
                               type="button"
