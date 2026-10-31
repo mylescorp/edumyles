@@ -44,6 +44,15 @@ vi.mock('@/convex/_generated/api', () => ({
           getRecentActivity: vi.fn(),
         },
       },
+      changelog: {
+        queries: {
+          getWhatsNewFeed: vi.fn(),
+          getWhatsNewUnreadCount: vi.fn(),
+        },
+        mutations: {
+          markAllRead: vi.fn(),
+        },
+      },
     },
     users: {
       queries: {
