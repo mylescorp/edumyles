@@ -88,7 +88,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # Convex Node actions require Node 22 or 24. Keep this isolated to
+          # E2E, which provisions a disposable local Convex deployment.
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -97,8 +99,22 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      - name: Configure disposable local Convex deployment
+        env:
+          CONVEX_AGENT_MODE: anonymous
+        run: |
+          # The initial local setup creates .env.local before module analysis.
+          # Push is expected to stop at the WorkOS module until its harmless
+          # placeholder key is configured on this throwaway deployment.
+          npx convex dev --local --once > /tmp/convex-local-bootstrap.log 2>&1 || true
+          npx convex env set WORKOS_API_KEY sk_test_local_ci_placeholder
+
       - name: Run Playwright smoke suite
-        run: npm run test:e2e:smoke
+        env:
+          CONVEX_AGENT_MODE: anonymous
+        run: >-
+          npx convex dev --local --once --run-sh
+          'cp .env.local frontend/.env.local && npm run test:e2e:smoke'
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
