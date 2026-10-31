@@ -85,13 +85,13 @@ export default function StatusPage() {
   }, []);
 
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* ── Hero ───────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "#061A12",
-          borderTop: "3px solid #E8A020",
+          background: "var(--card)",
+          borderTop: "3px solid var(--primary)",
           padding: "5rem 2rem 4rem",
           minHeight: "340px",
         }}
@@ -99,14 +99,14 @@ export default function StatusPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
         <div className="relative max-w-[1200px] mx-auto w-full text-center">
           <h1
             className="font-display font-bold leading-[1.2] mb-6"
-            style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--foreground)" }}
           >
             System Status
           </h1>
@@ -131,7 +131,7 @@ export default function StatusPage() {
             All Systems Operational
           </div>
           {lastChecked && (
-            <p className="font-jakarta text-[13px]" style={{ color: "#6B9E83" }}>
+            <p className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
               Last checked: {lastChecked}
             </p>
           )}
@@ -139,14 +139,14 @@ export default function StatusPage() {
       </section>
 
       {/* ── Services Status ─────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-16 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[860px] mx-auto">
-          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "#061A12" }}>
+          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "var(--foreground)" }}>
             Current Status
           </h2>
           <div
             className="rounded-2xl overflow-hidden"
-            style={{ border: "1px solid #e8f4ec", boxShadow: "0 2px 12px rgba(6,26,18,0.05)" }}
+            style={{ border: "1px solid var(--border)", boxShadow: "0 2px 12px rgba(6,26,18,0.05)" }}
           >
             {services.map((svc, i) => (
               <div
@@ -154,18 +154,18 @@ export default function StatusPage() {
                 className="flex items-center justify-between px-6 py-4"
                 style={{
                   borderBottom: i < services.length - 1 ? "1px solid #f0f8f3" : "none",
-                  background: i % 2 === 0 ? "#ffffff" : "#fafffe",
+                  background: i % 2 === 0 ? "var(--card)" : "var(--background)",
                 }}
               >
                 <div className="flex items-center gap-3">
                   <svc.icon
                     className="w-5 h-5 flex-shrink-0"
                     strokeWidth={1.5}
-                    style={{ color: "#0F4C2A" }}
+                    style={{ color: "var(--primary)" }}
                   />
                   <span
                     className="font-jakarta font-medium text-[15px]"
-                    style={{ color: "#212121" }}
+                    style={{ color: "var(--foreground)" }}
                   >
                     {svc.name}
                   </span>
@@ -178,7 +178,7 @@ export default function StatusPage() {
                     className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-3 py-1 rounded-full"
                     style={{
                       background: "rgba(38,166,91,0.1)",
-                      color: "#0F4C2A",
+                      color: "var(--primary)",
                       border: "1px solid rgba(38,166,91,0.2)",
                     }}
                   >
@@ -201,17 +201,17 @@ export default function StatusPage() {
       </section>
 
       {/* ── Uptime History ──────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#F3FBF6" }}>
+      <section className="py-16 px-4" style={{ background: "var(--background)" }}>
         <div className="max-w-[860px] mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="font-display font-bold text-[24px]" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-[24px]" style={{ color: "var(--foreground)" }}>
               30-Day Uptime
             </h2>
             <span
               className="font-jakarta font-bold text-[14px] px-4 py-2 rounded-full"
               style={{
                 background: "rgba(38,166,91,0.1)",
-                color: "#0F4C2A",
+                color: "var(--primary)",
                 border: "1px solid rgba(38,166,91,0.2)",
               }}
             >
@@ -225,7 +225,7 @@ export default function StatusPage() {
                   <svc.icon
                     className="w-4 h-4 flex-shrink-0"
                     strokeWidth={1.5}
-                    style={{ color: "#0F4C2A" }}
+                    style={{ color: "var(--primary)" }}
                   />
                   <span
                     className="font-jakarta font-medium text-[13px]"
@@ -248,7 +248,7 @@ export default function StatusPage() {
                   background: "#26A65B",
                 }}
               />
-              <span className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>
+              <span className="font-jakarta text-[12px]" style={{ color: "var(--muted-foreground)" }}>
                 Operational
               </span>
             </div>
@@ -261,7 +261,7 @@ export default function StatusPage() {
                   background: "#d1d5db",
                 }}
               />
-              <span className="font-jakarta text-[12px]" style={{ color: "#6B9E83" }}>
+              <span className="font-jakarta text-[12px]" style={{ color: "var(--muted-foreground)" }}>
                 Scheduled Maintenance
               </span>
             </div>
@@ -270,9 +270,9 @@ export default function StatusPage() {
       </section>
 
       {/* ── Incident History ────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-16 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[860px] mx-auto">
-          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "#061A12" }}>
+          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "var(--foreground)" }}>
             Past Incidents
           </h2>
           <div
@@ -284,7 +284,7 @@ export default function StatusPage() {
               style={{ color: "#26A65B" }}
               strokeWidth={1.5}
             />
-            <span className="font-jakarta font-medium text-[14px]" style={{ color: "#0F4C2A" }}>
+            <span className="font-jakarta font-medium text-[14px]" style={{ color: "var(--primary)" }}>
               No incidents in the last 30 days.
             </span>
           </div>
@@ -305,11 +305,11 @@ export default function StatusPage() {
                     </div>
                     <h3
                       className="font-jakarta font-semibold text-[16px] mb-1"
-                      style={{ color: "#212121" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {inc.title}
                     </h3>
-                    <span className="font-jakarta text-[13px]" style={{ color: "#5a5a5a" }}>
+                    <span className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
                       Duration: {inc.duration}
                     </span>
                   </div>
@@ -317,7 +317,7 @@ export default function StatusPage() {
                     className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-3 py-1.5 rounded-full flex-shrink-0"
                     style={{
                       background: "rgba(38,166,91,0.1)",
-                      color: "#0F4C2A",
+                      color: "var(--primary)",
                       border: "1px solid rgba(38,166,91,0.2)",
                     }}
                   >
@@ -331,15 +331,15 @@ export default function StatusPage() {
       </section>
 
       {/* ── Subscribe Strip ─────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#F3FBF6" }}>
+      <section className="py-16 px-4" style={{ background: "var(--background)" }}>
         <div className="max-w-[520px] mx-auto text-center">
           <h2
             className="font-display font-bold mb-3"
-            style={{ fontSize: "clamp(1.4rem,2.5vw,1.9rem)", color: "#061A12" }}
+            style={{ fontSize: "clamp(1.4rem,2.5vw,1.9rem)", color: "var(--foreground)" }}
           >
             Get incident alerts
           </h2>
-          <p className="font-jakarta text-[15px] mb-6" style={{ color: "#5a5a5a" }}>
+          <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--muted-foreground)" }}>
             Be notified immediately when there&apos;s a service disruption.
           </p>
           <form
@@ -349,13 +349,13 @@ export default function StatusPage() {
             <input
               type="email"
               placeholder="you@school.ac.ke"
-              className="flex-1 min-w-0 border border-gray-200 rounded-[50px] px-5 py-3 font-jakarta text-[14px] outline-none focus:border-[#0F4C2A]"
-              style={{ color: "#212121", minWidth: "220px" }}
+              className="flex-1 min-w-0 border border-gray-200 rounded-[50px] px-5 py-3 font-jakarta text-[14px] outline-none focus:border-primary"
+              style={{ color: "var(--foreground)", minWidth: "220px" }}
             />
             <button
               type="submit"
               className="font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] flex-shrink-0"
-              style={{ background: "#061A12", color: "#ffffff", border: "none", cursor: "pointer" }}
+              style={{ background: "var(--primary)", color: "var(--primary-foreground)", border: "none", cursor: "pointer" }}
             >
               Subscribe
             </button>

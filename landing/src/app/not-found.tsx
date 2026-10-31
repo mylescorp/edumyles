@@ -19,13 +19,13 @@ export default function NotFound() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative overflow-hidden"
-      style={{ background: "#061A12", borderTop: "3px solid #E8A020" }}
+      style={{ background: "var(--card)", borderTop: "3px solid var(--primary)" }}
     >
       {/* Grid overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.03) 25%,rgba(232,160,32,0.03) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.03) 75%,rgba(232,160,32,0.03) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.03) 25%,rgba(232,160,32,0.03) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.03) 75%,rgba(232,160,32,0.03) 76%,transparent 77%)`,
+          backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 3%) 25%,rgb(var(--primary-rgb) / 3%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 3%) 75%,rgb(var(--primary-rgb) / 3%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 3%) 25%,rgb(var(--primary-rgb) / 3%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 3%) 75%,rgb(var(--primary-rgb) / 3%) 76%,transparent 77%)`,
           backgroundSize: "50px 50px",
         }}
       />
@@ -35,7 +35,7 @@ export default function NotFound() {
         className="absolute select-none pointer-events-none font-display font-bold"
         style={{
           fontSize: "clamp(150px, 30vw, 280px)",
-          color: "rgba(232,160,32,0.07)",
+          color: "rgb(var(--primary-rgb) / 7%)",
           lineHeight: 1,
           top: "50%",
           left: "50%",
@@ -58,9 +58,9 @@ export default function NotFound() {
           <div
             className="w-12 h-12 flex items-center justify-center rounded-[14px] font-display font-bold text-2xl"
             style={{
-              background: "linear-gradient(135deg,#0F4C2A,#1A7A4A)",
-              border: "2px solid #E8A020",
-              color: "#E8A020",
+              background: "linear-gradient(135deg,var(--primary),var(--primary))",
+              border: "2px solid var(--primary)",
+              color: "var(--accent-foreground)",
             }}
           >
             E
@@ -76,7 +76,7 @@ export default function NotFound() {
         </h1>
         <p
           className="font-jakarta text-[16px] leading-[1.8] mb-10"
-          style={{ color: "#90CAF9", maxWidth: 480, margin: "0 auto 2.5rem" }}
+          style={{ color: "var(--muted-foreground)", maxWidth: 480, margin: "0 auto 2.5rem" }}
         >
           The page you&apos;re looking for has moved, been removed, or doesn&apos;t exist.
           Let&apos;s get you back on track.
@@ -85,7 +85,7 @@ export default function NotFound() {
         {/* Quick links */}
         <p
           className="font-jakarta font-semibold text-[12px] uppercase tracking-[2px] mb-5"
-          style={{ color: "#6B9E83" }}
+          style={{ color: "var(--muted-foreground)" }}
         >
           Where would you like to go?
         </p>
@@ -102,9 +102,9 @@ export default function NotFound() {
             >
               <div
                 className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
-                style={{ background: "rgba(232,160,32,0.1)" }}
+                style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
               >
-                <Icon className="w-4 h-4" strokeWidth={1.5} style={{ color: "#E8A020" }} />
+                <Icon className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
               </div>
               <span className="font-jakarta font-medium text-[13px] text-white">{label}</span>
             </Link>
@@ -114,7 +114,7 @@ export default function NotFound() {
         <Link
           href="/"
           className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-8 py-4 rounded-[50px] no-underline"
-          style={{ background: "#E8A020", color: "#061A12" }}
+          style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
         >
           ← Back to Home
         </Link>

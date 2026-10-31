@@ -33,13 +33,13 @@ const schoolPricingPlans = PUBLIC_PRICING_PLANS;
 
 export default function TermsPage() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* Hero */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "#061A12",
-          borderTop: "3px solid #E8A020",
+          background: "var(--card)",
+          borderTop: "3px solid var(--primary)",
           padding: "5rem 2rem 4rem",
           minHeight: "320px",
         }}
@@ -47,7 +47,7 @@ export default function TermsPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -55,9 +55,9 @@ export default function TermsPage() {
           <div
             className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-5 px-4 py-2 rounded-full"
             style={{
-              background: "rgba(232,160,32,0.12)",
-              border: "1px solid #E8A020",
-              color: "#E8A020",
+              background: "rgb(var(--primary-rgb) / 12%)",
+              border: "1px solid var(--accent-foreground)",
+              color: "var(--accent-foreground)",
             }}
           >
             <FileText className="w-3.5 h-3.5" strokeWidth={2} />
@@ -65,14 +65,14 @@ export default function TermsPage() {
           </div>
           <h1
             className="font-display font-bold leading-tight mb-4"
-            style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--foreground)" }}
           >
             Fair, transparent{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
               terms.
             </em>
           </h1>
-          <p className="font-jakarta text-[15px] mb-6" style={{ color: "#90CAF9" }}>
+          <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--muted-foreground)" }}>
             Last updated: March 2026 · Effective: 1 January 2025
           </p>
           {/* Quick nav */}
@@ -85,7 +85,7 @@ export default function TermsPage() {
                 style={{
                   background: "rgba(255,255,255,0.07)",
                   border: "1px solid rgba(255,255,255,0.12)",
-                  color: "#A8E6C3",
+                  color: "var(--muted-foreground)",
                 }}
               >
                 {s.label}
@@ -100,9 +100,9 @@ export default function TermsPage() {
         {/* Intro */}
         <div
           className="rounded-2xl p-6"
-          style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+          style={{ background: "var(--background)", border: "1px solid var(--border)" }}
         >
-          <p className="font-jakarta text-[14px] leading-[1.9]" style={{ color: "#374151" }}>
+          <p className="font-jakarta text-[14px] leading-[1.9]" style={{ color: "var(--muted-foreground)" }}>
             These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of EduMyles,
             a school management platform operated by <strong>MylesCorp Technologies Ltd</strong>,
             incorporated in Kenya. By using EduMyles you agree to be bound by these Terms. Please
@@ -117,36 +117,36 @@ export default function TermsPage() {
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
               style={{ background: "rgba(26,122,74,0.1)" }}
             >
-              <CheckCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+              <CheckCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
               Acceptance of Terms
             </h2>
           </div>
           <div className="flex flex-col gap-4">
-            <p className="font-jakarta text-[14px] leading-[1.85]" style={{ color: "#374151" }}>
+            <p className="font-jakarta text-[14px] leading-[1.85]" style={{ color: "var(--muted-foreground)" }}>
               By accessing or using EduMyles — whether by creating an account, clicking
               &ldquo;Accept&rdquo;, or simply using the platform — you agree to these Terms and our{" "}
-              <Link href="/privacy" style={{ color: "#1A7A4A" }}>
+              <Link href="/privacy" style={{ color: "var(--primary)" }}>
                 Privacy Policy
               </Link>
               .
             </p>
             <div
               className="rounded-xl p-5"
-              style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
             >
-              <p className="font-jakarta font-bold text-[13.5px] mb-2" style={{ color: "#0F4C2A" }}>
+              <p className="font-jakarta font-bold text-[13.5px] mb-2" style={{ color: "var(--primary)" }}>
                 Accepting on behalf of a school or institution
               </p>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
                 If you are accepting these Terms on behalf of a school, college, or other
                 institution, you represent and warrant that you have the authority to bind that
                 institution to these Terms. In that case, &ldquo;you&rdquo; and &ldquo;your&rdquo;
                 refer to that institution.
               </p>
             </div>
-            <p className="font-jakarta text-[14px] leading-[1.85]" style={{ color: "#374151" }}>
+            <p className="font-jakarta text-[14px] leading-[1.85]" style={{ color: "var(--muted-foreground)" }}>
               We may update these Terms from time to time. We will notify you of material changes by
               email and/or by posting a notice on the platform. Continued use after the effective
               date of an update constitutes acceptance of the new Terms.
@@ -163,13 +163,13 @@ export default function TermsPage() {
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
               style={{ background: "rgba(26,122,74,0.1)" }}
             >
-              <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+              <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
               Services
             </h2>
           </div>
-          <p className="font-jakarta text-[14px] leading-[1.85] mb-5" style={{ color: "#374151" }}>
+          <p className="font-jakarta text-[14px] leading-[1.85] mb-5" style={{ color: "var(--muted-foreground)" }}>
             EduMyles provides a cloud-based school management platform. Services are delivered on a
             subscription basis and include:
           </p>
@@ -204,21 +204,21 @@ export default function TermsPage() {
               <div
                 key={svc.title}
                 className="rounded-xl p-4"
-                style={{ background: "#ffffff", border: "1px solid #e8f4ec" }}
+                style={{ background: "var(--card)", border: "1px solid var(--border)" }}
               >
-                <p className="font-jakarta font-bold text-[13px] mb-1" style={{ color: "#061A12" }}>
+                <p className="font-jakarta font-bold text-[13px] mb-1" style={{ color: "var(--foreground)" }}>
                   {svc.title}
                 </p>
                 <p
                   className="font-jakarta text-[12.5px] leading-[1.6]"
-                  style={{ color: "#6B9E83" }}
+                  style={{ color: "var(--muted-foreground)" }}
                 >
                   {svc.detail}
                 </p>
               </div>
             ))}
           </div>
-          <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+          <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
             We reserve the right to modify, suspend, or discontinue any feature with reasonable
             notice. We target live status monitoring and will communicate planned maintenance at least 48
             hours in advance.
@@ -234,9 +234,9 @@ export default function TermsPage() {
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
               style={{ background: "rgba(26,122,74,0.1)" }}
             >
-              <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+              <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
               Account Registration
             </h2>
           </div>
@@ -271,18 +271,18 @@ export default function TermsPage() {
               <li
                 key={item.point}
                 className="flex items-start gap-3 rounded-xl p-4"
-                style={{ background: "#F3FBF6", border: "1px solid #e8f4ec", listStyle: "none" }}
+                style={{ background: "var(--background)", border: "1px solid var(--border)", listStyle: "none" }}
               >
                 <span
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: "#ffffff", border: "1px solid #d4eade" }}
+                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                 >
                   <span
                     style={{
                       width: 6,
                       height: 6,
                       borderRadius: "50%",
-                      background: "#1A7A4A",
+                      background: "var(--primary)",
                       display: "block",
                     }}
                   />
@@ -290,13 +290,13 @@ export default function TermsPage() {
                 <div>
                   <p
                     className="font-jakarta font-bold text-[13px] mb-1"
-                    style={{ color: "#061A12" }}
+                    style={{ color: "var(--foreground)" }}
                   >
                     {item.point}
                   </p>
                   <p
                     className="font-jakarta text-[13px] leading-[1.7]"
-                    style={{ color: "#5a5a5a" }}
+                    style={{ color: "var(--muted-foreground)" }}
                   >
                     {item.detail}
                   </p>
@@ -315,27 +315,27 @@ export default function TermsPage() {
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
               style={{ background: "rgba(26,122,74,0.1)" }}
             >
-              <CreditCard className="w-5 h-5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+              <CreditCard className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
               Subscription &amp; Billing
             </h2>
           </div>
 
           {/* Pricing table */}
-          <div className="rounded-2xl overflow-hidden mb-6" style={{ border: "1px solid #e8f4ec" }}>
+          <div className="rounded-2xl overflow-hidden mb-6" style={{ border: "1px solid var(--border)" }}>
             <table className="w-full border-collapse">
               <thead>
-                <tr style={{ background: "#061A12" }}>
+                <tr style={{ background: "var(--card)" }}>
                   <th
                     className="font-jakarta font-bold text-[12px] text-left px-5 py-3"
-                    style={{ color: "#E8A020" }}
+                    style={{ color: "var(--accent-foreground)" }}
                   ></th>
                   {schoolPricingPlans.map((plan) => (
                     <th
                       key={plan.key}
                       className="font-jakarta font-bold text-[12px] text-left px-5 py-3"
-                      style={{ color: "#E8A020" }}
+                      style={{ color: "var(--accent-foreground)" }}
                     >
                       {plan.name}
                     </th>
@@ -360,10 +360,10 @@ export default function TermsPage() {
                   ],
                   ["Free trial", "30 days", "30 days", "Custom demo"],
                 ].map(([label, ...values], i) => (
-                  <tr key={label} style={{ background: i % 2 === 0 ? "#ffffff" : "#F9FEFE" }}>
+                  <tr key={label} style={{ background: i % 2 === 0 ? "var(--card)" : "var(--muted)" }}>
                     <td
                       className="font-jakarta font-semibold text-[13px] px-5 py-3"
-                      style={{ color: "#061A12" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {label}
                     </td>
@@ -371,7 +371,7 @@ export default function TermsPage() {
                       <td
                         key={`${label}-${value}`}
                         className="font-jakarta text-[13px] px-5 py-3"
-                        style={{ color: value === "Custom" ? "#6B9E83" : "#374151" }}
+                        style={{ color: value === "Custom" ? "var(--muted-foreground)" : "var(--muted-foreground)" }}
                       >
                         {value}
                       </td>
@@ -396,18 +396,18 @@ export default function TermsPage() {
               <div
                 key={term}
                 className="flex items-start gap-3 font-jakarta text-[13.5px] leading-[1.75]"
-                style={{ color: "#374151" }}
+                style={{ color: "var(--muted-foreground)" }}
               >
                 <span
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+                  style={{ background: "var(--background)", border: "1px solid var(--border)" }}
                 >
                   <span
                     style={{
                       width: 6,
                       height: 6,
                       borderRadius: "50%",
-                      background: "#1A7A4A",
+                      background: "var(--primary)",
                       display: "block",
                     }}
                   />
@@ -427,17 +427,17 @@ export default function TermsPage() {
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
               style={{ background: "rgba(26,122,74,0.1)" }}
             >
-              <Database className="w-5 h-5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+              <Database className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
               Data Ownership
             </h2>
           </div>
           <div
             className="rounded-2xl p-5 mb-5"
-            style={{ background: "#F3FBF6", border: "2px solid #d4eade" }}
+            style={{ background: "var(--background)", border: "2px solid var(--border)" }}
           >
-            <p className="font-jakarta font-bold text-[14px]" style={{ color: "#0F4C2A" }}>
+            <p className="font-jakarta font-bold text-[14px]" style={{ color: "var(--primary)" }}>
               Your school owns all data entered into EduMyles — full stop.
             </p>
           </div>
@@ -467,15 +467,15 @@ export default function TermsPage() {
               <div
                 key={item.title}
                 className="rounded-xl p-5"
-                style={{ background: "#ffffff", border: "1px solid #e8f4ec" }}
+                style={{ background: "var(--card)", border: "1px solid var(--border)" }}
               >
                 <h3
                   className="font-jakarta font-bold text-[13.5px] mb-1.5"
-                  style={{ color: "#0F4C2A" }}
+                  style={{ color: "var(--primary)" }}
                 >
                   {item.title}
                 </h3>
-                <p className="font-jakarta text-[13px] leading-[1.7]" style={{ color: "#5a5a5a" }}>
+                <p className="font-jakarta text-[13px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
                   {item.detail}
                 </p>
               </div>
@@ -492,24 +492,24 @@ export default function TermsPage() {
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
               style={{ background: "rgba(26,122,74,0.1)" }}
             >
-              <Code2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+              <Code2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
               Intellectual Property
             </h2>
           </div>
           <div className="flex flex-col gap-4">
             <div
               className="rounded-xl p-5"
-              style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-2"
-                style={{ color: "#0F4C2A" }}
+                style={{ color: "var(--primary)" }}
               >
                 EduMyles platform &amp; brand
               </h3>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
                 The EduMyles platform, including its software, source code, user interface, brand
                 identity, logo, and all associated intellectual property, is owned exclusively by{" "}
                 <strong>MylesCorp Technologies Ltd</strong> and protected by Kenyan and
@@ -518,15 +518,15 @@ export default function TermsPage() {
             </div>
             <div
               className="rounded-xl p-5"
-              style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-2"
-                style={{ color: "#0F4C2A" }}
+                style={{ color: "var(--primary)" }}
               >
                 Licence granted to schools
               </h3>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
                 We grant you a limited, non-exclusive, non-transferable licence to access and use
                 EduMyles solely for your school&apos;s internal administration during the term of
                 your subscription.
@@ -535,8 +535,8 @@ export default function TermsPage() {
             <div
               className="rounded-xl p-5"
               style={{
-                background: "rgba(232,160,32,0.06)",
-                border: "1px solid rgba(232,160,32,0.2)",
+                background: "rgb(var(--primary-rgb) / 6%)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <h3
@@ -555,9 +555,9 @@ export default function TermsPage() {
                   <li
                     key={r}
                     className="flex items-start gap-2 font-jakarta text-[13px]"
-                    style={{ color: "#5a5a5a", listStyle: "none" }}
+                    style={{ color: "var(--muted-foreground)", listStyle: "none" }}
                   >
-                    <span style={{ color: "#E8A020", flexShrink: 0 }}>×</span>
+                    <span style={{ color: "var(--accent-foreground)", flexShrink: 0 }}>×</span>
                     {r}
                   </li>
                 ))}
@@ -565,15 +565,15 @@ export default function TermsPage() {
             </div>
             <div
               className="rounded-xl p-5"
-              style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-2"
-                style={{ color: "#0F4C2A" }}
+                style={{ color: "var(--primary)" }}
               >
                 School-generated content
               </h3>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
                 All content generated by your school using EduMyles — including academic reports,
                 fee statements, attendance records, and communications — belongs to your school.
                 EduMyles claims no ownership over your school&apos;s data or documents.
@@ -591,24 +591,24 @@ export default function TermsPage() {
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
               style={{ background: "rgba(26,122,74,0.1)" }}
             >
-              <XCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+              <XCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
               Termination
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-4 mb-5">
             <div
               className="rounded-xl p-5"
-              style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-3"
-                style={{ color: "#0F4C2A" }}
+                style={{ color: "var(--primary)" }}
               >
                 Termination by either party
               </h3>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
                 Either party may terminate this agreement with{" "}
                 <strong>30 days&apos; written notice</strong>. Schools may cancel through the
                 account settings or by emailing support@edumyles.com.
@@ -617,8 +617,8 @@ export default function TermsPage() {
             <div
               className="rounded-xl p-5"
               style={{
-                background: "rgba(232,160,32,0.06)",
-                border: "1px solid rgba(232,160,32,0.2)",
+                background: "rgb(var(--primary-rgb) / 6%)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <h3
@@ -637,9 +637,9 @@ export default function TermsPage() {
                   <li
                     key={r}
                     className="flex items-start gap-2 font-jakarta text-[13px]"
-                    style={{ color: "#5a5a5a", listStyle: "none" }}
+                    style={{ color: "var(--muted-foreground)", listStyle: "none" }}
                   >
-                    <span style={{ color: "#E8A020", flexShrink: 0 }}>!</span>
+                    <span style={{ color: "var(--accent-foreground)", flexShrink: 0 }}>!</span>
                     {r}
                   </li>
                 ))}
@@ -648,14 +648,14 @@ export default function TermsPage() {
           </div>
           <div
             className="rounded-xl p-4 flex items-start gap-3"
-            style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+            style={{ background: "var(--background)", border: "1px solid var(--border)" }}
           >
             <Database
               className="w-4 h-4 flex-shrink-0 mt-0.5"
               strokeWidth={1.5}
-              style={{ color: "#1A7A4A" }}
+              style={{ color: "var(--primary)" }}
             />
-            <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "#374151" }}>
+            <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
               <strong>Data after termination:</strong> Upon termination for any reason, you have{" "}
               <strong>30 days</strong> to export your school&apos;s data. After this window, all
               data is permanently deleted. We strongly recommend exporting your data before
@@ -673,16 +673,16 @@ export default function TermsPage() {
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
               style={{ background: "rgba(26,122,74,0.1)" }}
             >
-              <Scale className="w-5 h-5" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
+              <Scale className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
               Governing Law
             </h2>
           </div>
           <div className="flex flex-col gap-4">
             <div
               className="rounded-2xl p-6"
-              style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
             >
               <div className="grid sm:grid-cols-3 gap-5">
                 {[
@@ -705,13 +705,13 @@ export default function TermsPage() {
                   <div key={item.label}>
                     <p
                       className="font-jakarta font-bold text-[12px] uppercase tracking-wider mb-2"
-                      style={{ color: "#E8A020" }}
+                      style={{ color: "var(--accent-foreground)" }}
                     >
                       {item.label}
                     </p>
                     <p
                       className="font-jakarta text-[13px] leading-[1.7]"
-                      style={{ color: "#374151" }}
+                      style={{ color: "var(--muted-foreground)" }}
                     >
                       {item.detail}
                     </p>
@@ -719,7 +719,7 @@ export default function TermsPage() {
                 ))}
               </div>
             </div>
-            <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+            <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
               Nothing in these Terms limits or excludes liability for death or personal injury
               caused by negligence, fraud, or any other liability that cannot be limited under
               Kenyan law.
@@ -728,18 +728,18 @@ export default function TermsPage() {
         </section>
 
         {/* Bottom CTA */}
-        <div className="rounded-2xl p-8 text-center" style={{ background: "#061A12" }}>
-          <h3 className="font-display font-bold text-[20px] text-white mb-2">
+        <div className="rounded-2xl p-8 text-center" style={{ background: "var(--card)" }}>
+          <h3 className="font-display font-bold text-[20px] text-foreground mb-2">
             Questions about these terms?
           </h3>
-          <p className="font-jakarta text-[14px] mb-5" style={{ color: "#A8E6C3" }}>
+          <p className="font-jakarta text-[14px] mb-5" style={{ color: "var(--muted-foreground)" }}>
             Our legal team is happy to clarify anything. We typically respond within 2 business
             days.
           </p>
           <Link
             href="/contact"
             className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
-            style={{ background: "#E8A020", color: "#061A12" }}
+            style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
           >
             Contact Us
           </Link>

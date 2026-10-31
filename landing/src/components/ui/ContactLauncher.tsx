@@ -50,7 +50,7 @@ function readAttribution() {
 
 function launcherClass(mode: ContactMode) {
   return [
-    "fixed inset-x-4 bottom-24 z-[9997] mx-auto max-w-[460px] overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-[0_24px_70px_-28px_rgba(15,23,42,0.55)] md:mx-0",
+    "fixed inset-x-4 bottom-24 z-[9997] mx-auto max-w-[460px] overflow-hidden rounded-xl border border-slate-200/90 bg-card shadow-[0_24px_70px_-28px_rgba(15,23,42,0.55)] md:mx-0",
     mode === "whatsapp" ? "md:left-8 md:right-auto" : "md:left-auto md:right-8",
   ].join(" ");
 }
@@ -242,7 +242,7 @@ export default function ContactLauncher() {
         <button
           type="button"
           onClick={() => openPanel("whatsapp")}
-          className="group flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_18px_40px_-18px_rgba(37,211,102,0.9)] ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:bg-[#20bd5b] focus:outline-none focus:ring-4 focus:ring-[#25D366]/30"
+          className="group flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-[#052E16] shadow-[0_18px_40px_-18px_rgba(37,211,102,0.9)] ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:bg-[#20bd5b] focus:outline-none focus:ring-4 focus:ring-[#25D366]/30"
           aria-label="Open WhatsApp message form"
         >
           <MessageCircle className="h-6 w-6 transition group-hover:scale-105" />
@@ -266,7 +266,7 @@ export default function ContactLauncher() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-card/10">
                     {mode === "whatsapp" ? <MessageCircle className="h-4 w-4" /> : <MessagesSquare className="h-4 w-4" />}
                   </span>
                   <div>
@@ -280,13 +280,13 @@ export default function ContactLauncher() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-md p-1 text-white/70 hover:bg-white/10 hover:text-white"
+                className="rounded-md p-1 text-white/70 hover:bg-card/10 hover:text-white"
                 aria-label="Close contact form"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-xs text-white/70">
+            <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 bg-card/[0.06] px-3 py-2 text-xs text-white/70">
               <ShieldCheck className="h-4 w-4 text-emerald-300" />
               Your contact details are used only so our team can respond accurately.
             </div>
@@ -294,7 +294,7 @@ export default function ContactLauncher() {
 
           {hasActiveChat ? (
             <div className="bg-slate-50">
-              <div className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-3">
+              <div className="flex items-center justify-between border-b border-slate-200 bg-card px-5 py-3">
                 <div>
                   <p className="text-sm font-semibold text-slate-950">
                     {thread?.chatStatus === "active" ? `${thread.agentName ?? "EduMyles"} joined` : "Waiting for a specialist"}
@@ -325,7 +325,7 @@ export default function ContactLauncher() {
                     ].join(" ")}
                   >
                     {item.sender === "system" ? (
-                      <p className="max-w-[90%] rounded-full bg-white px-3 py-1.5 text-center text-xs text-slate-500 ring-1 ring-slate-200">
+                      <p className="max-w-[90%] rounded-full bg-card px-3 py-1.5 text-center text-xs text-slate-500 ring-1 ring-slate-200">
                         {item.body}
                       </p>
                     ) : (
@@ -334,7 +334,7 @@ export default function ContactLauncher() {
                           "max-w-[82%] rounded-xl px-3.5 py-2 text-sm leading-6 shadow-sm",
                           item.sender === "visitor"
                             ? "rounded-br-sm bg-emerald-700 text-white"
-                            : "rounded-bl-sm border border-slate-200 bg-white text-slate-800",
+                            : "rounded-bl-sm border border-slate-200 bg-card text-slate-800",
                         ].join(" ")}
                       >
                         {item.sender === "agent" && <p className="mb-1 text-[11px] font-semibold text-emerald-700">{item.authorName ?? "EduMyles"}</p>}
@@ -344,7 +344,7 @@ export default function ContactLauncher() {
                   </div>
                 ))}
               </div>
-              <form onSubmit={sendReply} className="border-t border-slate-200 bg-white p-3">
+              <form onSubmit={sendReply} className="border-t border-slate-200 bg-card p-3">
                 <div className="flex items-end gap-2">
                   <textarea
                     value={reply}
@@ -385,7 +385,7 @@ export default function ContactLauncher() {
               </button>
             </div>
           ) : (
-            <form onSubmit={submit} className="max-h-[72vh] space-y-4 overflow-y-auto bg-white p-5">
+            <form onSubmit={submit} className="max-h-[72vh] space-y-4 overflow-y-auto bg-card p-5">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {[
                   ["name", "Name", "Your name", true],
@@ -402,7 +402,7 @@ export default function ContactLauncher() {
                       type={field === "email" ? "email" : "text"}
                       value={profile[field as keyof ContactProfile]}
                       onChange={(event) => updateProfile(field as keyof ContactProfile, event.target.value)}
-                      className="mt-1 h-10 w-full rounded-lg border border-slate-200 bg-slate-50/60 px-3 text-sm outline-none transition focus:border-emerald-600 focus:bg-white"
+                      className="mt-1 h-10 w-full rounded-lg border border-slate-200 bg-slate-50/60 px-3 text-sm outline-none transition focus:border-emerald-600 focus:bg-card"
                       placeholder={placeholder as string}
                     />
                   </label>
@@ -421,7 +421,7 @@ export default function ContactLauncher() {
                         "rounded-lg border px-3 py-2 text-left text-xs font-semibold transition",
                         topicId === topic.id
                           ? "border-emerald-600 bg-emerald-50 text-emerald-800"
-                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                          : "border-slate-200 bg-card text-slate-600 hover:border-slate-300",
                       ].join(" ")}
                     >
                       {topic.label}
@@ -436,7 +436,7 @@ export default function ContactLauncher() {
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   rows={5}
-                  className="mt-1 w-full resize-none rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm leading-6 outline-none transition focus:border-emerald-600 focus:bg-white"
+                  className="mt-1 w-full resize-none rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm leading-6 outline-none transition focus:border-emerald-600 focus:bg-card"
                 />
               </label>
 

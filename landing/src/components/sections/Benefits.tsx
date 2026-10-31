@@ -54,7 +54,7 @@ export default function Benefits() {
   }, []);
 
   return (
-    <section id="benefits" className="px-4 sm:px-8 py-16 bg-white" aria-label="Benefits by role">
+    <section id="benefits" className="px-4 sm:px-8 py-16 bg-card" aria-label="Benefits by role">
       <div className="max-w-[1200px] mx-auto">
         {/* Eyebrow */}
         <div className="section-eyebrow mb-2">Built for Everyone</div>
@@ -62,10 +62,10 @@ export default function Benefits() {
         {/* Heading */}
         <h2
           className="font-display font-bold leading-[1.2] mb-12"
-          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#061A12" }}
+          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--foreground)" }}
         >
           Built for{" "}
-          <em className="italic" style={{ color: "#E8A020" }}>
+          <em className="italic" style={{ color: "var(--accent-foreground)" }}>
             Everyone in Your School
           </em>
         </h2>
@@ -80,12 +80,12 @@ export default function Benefits() {
               }}
               className="fade-in rounded-[12px] p-8"
               style={{
-                background: "#F3FBF6",
-                border: "1px solid #e0e0e0",
+                background: "var(--background)",
+                border: "1px solid var(--border)",
                 transitionDelay: `${i * 0.1}s`,
               }}
             >
-              <h3 className="font-display font-bold text-[22px] mb-4" style={{ color: "#061A12" }}>
+              <h3 className="font-display font-bold text-[22px] mb-4" style={{ color: "var(--foreground)" }}>
                 {role.title}
               </h3>
               <ul className="list-none p-0 m-0">
@@ -93,7 +93,7 @@ export default function Benefits() {
                   <li
                     key={item}
                     className="text-[14px] leading-relaxed mb-3 pl-6 relative"
-                    style={{ color: "#061A12" }}
+                    style={{ color: "var(--foreground)" }}
                   >
                     <span className="absolute left-0 font-bold" style={{ color: "#26A65B" }}>
                       ✓
@@ -105,9 +105,9 @@ export default function Benefits() {
               <a
                 href="#demo"
                 className="inline-block mt-4 text-[14px] font-semibold no-underline transition-colors duration-300"
-                style={{ color: "#1A7A4A" }}
+                style={{ color: "var(--primary)" }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#1A7A4A")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
               >
                 See how it works →
               </a>

@@ -1,7 +1,7 @@
 import { cookies, headers } from "next/headers";
 import Link from "next/link";
-import Image from "next/image";
 import { redirect } from "next/navigation";
+import Logo from "@/components/shared/Logo";
 
 function getRoleLabel(role: string): string {
   switch (role) {
@@ -73,12 +73,11 @@ export default async function WelcomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="max-w-lg w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center space-y-6">
+      <div className="max-w-lg w-full bg-card rounded-2xl shadow-sm border border-gray-100 p-8 text-center space-y-6">
 
         {/* Logo */}
         <div className="flex flex-col items-center gap-2">
-          <Image src="/logo-icon.svg" alt="EduMyles" width={48} height={48} priority />
-          <span className="text-sm font-bold" style={{ color: "#D4AF37" }}>EduMyles</span>
+          <Logo variant="full" width={180} height={50} priority appearance="light" href={null} />
         </div>
 
         {/* Success icon */}

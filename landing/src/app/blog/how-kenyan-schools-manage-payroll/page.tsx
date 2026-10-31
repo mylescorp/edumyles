@@ -19,19 +19,19 @@ export const metadata: Metadata = {
 
 export default function KenyanSchoolsPayrollGuide() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* Hero Section */}
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, #061A12 0%, #0F4C2A 50%, #1A7A4A 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
         <div className="absolute inset-0 opacity-10">
           <div
             style={{
-              backgroundImage: `radial-gradient(circle at 20% 50%, rgba(232,160,32,0.3) 0%, transparent 50%), 
+              backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
                             radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
@@ -44,7 +44,7 @@ export default function KenyanSchoolsPayrollGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "#A8E6C3" }}
+              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
             >
               ← Back to Blog
             </Link>
@@ -61,22 +61,22 @@ export default function KenyanSchoolsPayrollGuide() {
               className="font-display font-bold leading-tight mb-6"
               style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
             >
-              How Kenyan Schools <span style={{ color: "#E8A020" }}>Manage Payroll</span>
+              How Kenyan Schools <span style={{ color: "var(--accent-foreground)" }}>Manage Payroll</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   EduMyles Team
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   March 2026
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "#A8E6C3" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                   7 min read
                 </span>
               </div>
@@ -84,7 +84,7 @@ export default function KenyanSchoolsPayrollGuide() {
 
             <p
               className="font-jakarta text-xl leading-[1.7] font-light"
-              style={{ color: "#A8E6C3" }}
+              style={{ color: "var(--muted-foreground)" }}
             >
               Discover how Kenyan schools are revolutionizing payroll management with automated
               systems, ensuring KRA compliance while boosting staff satisfaction.
@@ -94,18 +94,18 @@ export default function KenyanSchoolsPayrollGuide() {
       </section>
 
       {/* Content */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[800px] mx-auto">
           {/* Introduction */}
           <div className="mb-12">
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "#374151" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
               Managing payroll for Kenyan schools comes with unique challenges: complex tax
               calculations, KRA compliance requirements, multiple pay scales, and the need for
               absolute accuracy. Yet many schools still rely on manual processes that are
               time-consuming and error-prone.
             </p>
 
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "#374151" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
               Modern payroll management systems are transforming how schools handle staff
               compensation, from automated tax calculations to seamless integration with school
               management platforms. Here&apos;s how leading Kenyan schools are getting it right.
@@ -114,13 +114,13 @@ export default function KenyanSchoolsPayrollGuide() {
             <div
               className="p-6 rounded-2xl mb-8"
               style={{
-                background: "linear-gradient(135deg, #F3FBF6 0%, #E8F5EE 100%)",
+                background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
                 border: "1px solid rgba(26,122,74,0.2)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <Calculator className="w-6 h-6" style={{ color: "#1A7A4A" }} />
-                <h3 className="font-display font-bold text-xl" style={{ color: "#061A12" }}>
+                <Calculator className="w-6 h-6" style={{ color: "var(--primary)" }} />
+                <h3 className="font-display font-bold text-xl" style={{ color: "var(--foreground)" }}>
                   Payroll Management by the Numbers
                 </h3>
               </div>
@@ -140,17 +140,17 @@ export default function KenyanSchoolsPayrollGuide() {
                   >
                     <div
                       className="font-jakarta font-bold text-2xl mb-1"
-                      style={{ color: "#E8A020" }}
+                      style={{ color: "var(--accent-foreground)" }}
                     >
                       {stat.number}
                     </div>
                     <div
                       className="font-jakarta font-semibold text-sm mb-1"
-                      style={{ color: "#061A12" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {stat.label}
                     </div>
-                    <div className="font-jakarta text-xs" style={{ color: "#5a5a5a" }}>
+                    <div className="font-jakarta text-xs" style={{ color: "var(--muted-foreground)" }}>
                       {stat.desc}
                     </div>
                   </div>
@@ -161,13 +161,13 @@ export default function KenyanSchoolsPayrollGuide() {
 
           {/* KRA Compliance */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               KRA Compliance Made Simple
             </h2>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   Before Automation
                 </h3>
                 <div className="space-y-3">
@@ -193,7 +193,7 @@ export default function KenyanSchoolsPayrollGuide() {
               </div>
 
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#061A12" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--foreground)" }}>
                   With EduMyles
                 </h3>
                 <div className="space-y-3">
@@ -226,7 +226,7 @@ export default function KenyanSchoolsPayrollGuide() {
 
           {/* Modern Payroll Features */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Essential Payroll Management Features
             </h2>
 
@@ -277,20 +277,20 @@ export default function KenyanSchoolsPayrollGuide() {
                 <div
                   key={feature.title}
                   className="p-5 rounded-xl"
-                  style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div
                       className="w-10 h-10 rounded-lg flex items-center justify-center"
                       style={{ background: "rgba(26,122,74,0.1)" }}
                     >
-                      <feature.icon className="w-5 h-5" style={{ color: "#1A7A4A" }} />
+                      <feature.icon className="w-5 h-5" style={{ color: "var(--primary)" }} />
                     </div>
-                    <h3 className="font-jakarta font-bold text-base" style={{ color: "#061A12" }}>
+                    <h3 className="font-jakarta font-bold text-base" style={{ color: "var(--foreground)" }}>
                       {feature.title}
                     </h3>
                   </div>
-                  <p className="font-jakarta text-sm mb-3" style={{ color: "#5a5a5a" }}>
+                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--muted-foreground)" }}>
                     {feature.description}
                   </p>
                   <div className="space-y-1">
@@ -298,9 +298,9 @@ export default function KenyanSchoolsPayrollGuide() {
                       <div key={benefit} className="flex items-center gap-2 text-xs">
                         <CheckCircle2
                           className="w-3 h-3 flex-shrink-0"
-                          style={{ color: "#1A7A4A" }}
+                          style={{ color: "var(--primary)" }}
                         />
-                        <span style={{ color: "#374151" }}>{benefit}</span>
+                        <span style={{ color: "var(--muted-foreground)" }}>{benefit}</span>
                       </div>
                     ))}
                   </div>
@@ -311,7 +311,7 @@ export default function KenyanSchoolsPayrollGuide() {
 
           {/* Implementation Guide */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Implementation Guide for Kenyan Schools
             </h2>
 
@@ -370,7 +370,7 @@ export default function KenyanSchoolsPayrollGuide() {
                   <div className="flex-shrink-0">
                     <div
                       className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ background: "#E8A020", color: "#061A12" }}
+                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                     >
                       <span className="font-jakarta font-bold text-sm">
                         {phase.phase.split(" ")[1]}
@@ -380,16 +380,16 @@ export default function KenyanSchoolsPayrollGuide() {
                   <div>
                     <h3
                       className="font-jakarta font-bold text-lg mb-2"
-                      style={{ color: "#061A12" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {phase.phase}
                     </h3>
-                    <p className="font-jakarta text-sm mb-2" style={{ color: "#5a5a5a" }}>
+                    <p className="font-jakarta text-sm mb-2" style={{ color: "var(--muted-foreground)" }}>
                       {phase.description}
                     </p>
                     <div
                       className="flex items-center gap-2 text-xs font-semibold"
-                      style={{ color: "#1A7A4A" }}
+                      style={{ color: "var(--primary)" }}
                     >
                       <Clock className="w-3 h-3" />
                       <span>{phase.duration}</span>
@@ -399,7 +399,7 @@ export default function KenyanSchoolsPayrollGuide() {
                         <span
                           key={deliverable}
                           className="text-xs px-2 py-1 rounded"
-                          style={{ background: "rgba(26,122,74,0.1)", color: "#1A7A4A" }}
+                          style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
                         >
                           {deliverable}
                         </span>
@@ -413,7 +413,7 @@ export default function KenyanSchoolsPayrollGuide() {
 
           {/* Success Stories */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Success Stories: Kenyan Schools
             </h2>
 
@@ -453,17 +453,17 @@ export default function KenyanSchoolsPayrollGuide() {
                 <div
                   key={story.school}
                   className="p-6 rounded-xl"
-                  style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3
                         className="font-jakarta font-bold text-lg mb-1"
-                        style={{ color: "#061A12" }}
+                        style={{ color: "var(--foreground)" }}
                       >
                         {story.school}
                       </h3>
-                      <span className="text-sm" style={{ color: "#5a5a5a" }}>
+                      <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>
                         {story.location} • {story.staff}
                       </span>
                     </div>
@@ -481,23 +481,23 @@ export default function KenyanSchoolsPayrollGuide() {
                       <span className="font-semibold text-sm" style={{ color: "#ef4444" }}>
                         Challenge:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "#5a5a5a" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
                         {story.challenge}
                       </span>
                     </div>
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#1A7A4A" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--primary)" }}>
                         Solution:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "#5a5a5a" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
                         {story.solution}
                       </span>
                     </div>
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#E8A020" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--accent-foreground)" }}>
                         Results:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "#5a5a5a" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
                         {story.results}
                       </span>
                     </div>
@@ -509,10 +509,10 @@ export default function KenyanSchoolsPayrollGuide() {
 
           {/* CTA */}
           <div className="text-center py-12">
-            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "var(--foreground)" }}>
               Ready to Transform Your Payroll Management?
             </h2>
-            <p className="font-jakarta text-lg mb-6" style={{ color: "#5a5a5a" }}>
+            <p className="font-jakarta text-lg mb-6" style={{ color: "var(--muted-foreground)" }}>
               Join 100+ Kenyan schools using EduMyles for automated, KRA-compliant payroll
               processing.
             </p>
@@ -520,7 +520,7 @@ export default function KenyanSchoolsPayrollGuide() {
               <Link
                 href="/book-demo"
                 className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-xl no-underline"
-                style={{ background: "#E8A020", color: "#061A12" }}
+                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
               >
                 Schedule Payroll Demo
                 <ArrowRight className="w-5 h-5" />
@@ -528,7 +528,7 @@ export default function KenyanSchoolsPayrollGuide() {
               <Link
                 href="/contact"
                 className="inline-flex items-center gap-2 font-jakarta font-semibold text-[16px] px-8 py-4 rounded-xl no-underline"
-                style={{ background: "transparent", color: "#061A12", border: "2px solid #061A12" }}
+                style={{ background: "transparent", color: "var(--foreground)", border: "2px solid var(--border)" }}
               >
                 Contact Payroll Experts
               </Link>

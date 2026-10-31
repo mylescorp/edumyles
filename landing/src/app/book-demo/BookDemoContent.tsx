@@ -53,13 +53,13 @@ const expectationItems = [
 
 function InfoRow({ icon: Icon, title, body }: { icon: LucideIcon; title: string; body: string }) {
   return (
-    <div className="flex gap-4 rounded-[10px] border border-[#dceee4] bg-white p-4 shadow-sm">
-      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-[8px] bg-[#E8A020]">
-        <Icon className="h-5 w-5 text-[#061A12]" />
+    <div className="flex gap-4 rounded-[10px] border border-[#dceee4] bg-card p-4 shadow-sm">
+      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-[8px] bg-[var(--accent-foreground)]">
+        <Icon className="h-5 w-5 text-foreground" />
       </div>
       <div>
-        <h4 className="font-jakarta text-[15px] font-bold text-[#061A12]">{title}</h4>
-        <p className="mt-1 font-jakarta text-[13px] leading-6 text-[#5a5a5a]">{body}</p>
+        <h4 className="font-jakarta text-[15px] font-bold text-foreground">{title}</h4>
+        <p className="mt-1 font-jakarta text-[13px] leading-6 text-muted-foreground">{body}</p>
       </div>
     </div>
   );
@@ -200,13 +200,13 @@ export default function BookDemoContent() {
   }
 
   return (
-    <div className="bg-[#F3FBF6] text-[#212121]">
-      <section className="relative overflow-hidden bg-[#061A12] px-4 py-16 sm:px-8 lg:py-20">
+    <div className="bg-muted text-[var(--foreground)]">
+      <section className="relative overflow-hidden bg-primary px-4 py-16 sm:px-8 lg:py-20">
         <div
           className="absolute inset-0 opacity-40"
           style={{
             backgroundImage:
-              "linear-gradient(0deg, transparent 24%, rgba(232,160,32,0.08) 25%, rgba(232,160,32,0.08) 26%, transparent 27%, transparent 74%, rgba(232,160,32,0.08) 75%, rgba(232,160,32,0.08) 76%, transparent 77%), linear-gradient(90deg, transparent 24%, rgba(232,160,32,0.08) 25%, rgba(232,160,32,0.08) 26%, transparent 27%, transparent 74%, rgba(232,160,32,0.08) 75%, rgba(232,160,32,0.08) 76%, transparent 77%)",
+              "linear-gradient(0deg, transparent 24%, rgb(var(--primary-rgb) / 8%) 25%, rgb(var(--primary-rgb) / 8%) 26%, transparent 27%, transparent 74%, rgb(var(--primary-rgb) / 8%) 75%, rgb(var(--primary-rgb) / 8%) 76%, transparent 77%), linear-gradient(90deg, transparent 24%, rgb(var(--primary-rgb) / 8%) 25%, rgb(var(--primary-rgb) / 8%) 26%, transparent 27%, transparent 74%, rgb(var(--primary-rgb) / 8%) 75%, rgb(var(--primary-rgb) / 8%) 76%, transparent 77%)",
             backgroundSize: "56px 56px",
           }}
         />
@@ -219,7 +219,7 @@ export default function BookDemoContent() {
               <ArrowLeft className="h-4 w-4" />
               Back to Home
             </Link>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-[999px] border border-[#E8A020] bg-[#E8A020]/10 px-4 py-2 font-jakarta text-[13px] font-bold text-[#E8A020]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-[999px] border border-[var(--accent-foreground)] bg-[var(--accent-foreground)]/10 px-4 py-2 font-jakarta text-[13px] font-bold text-[var(--accent-foreground)]">
               <Sparkles className="h-4 w-4" />
               Live product demo
             </div>
@@ -234,39 +234,39 @@ export default function BookDemoContent() {
               {demoBenefits.map((item) => (
                 <div
                   key={item.label}
-                  className="inline-flex items-center gap-2 rounded-[10px] border border-white/10 bg-white/5 px-4 py-3 font-jakarta text-[13px] font-semibold text-white"
+                  className="inline-flex items-center gap-2 rounded-[10px] border border-white/10 bg-card/5 px-4 py-3 font-jakarta text-[13px] font-semibold text-white"
                 >
-                  <item.icon className="h-4 w-4 text-[#E8A020]" />
+                  <item.icon className="h-4 w-4 text-[var(--accent-foreground)]" />
                   {item.label}
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-[16px] border border-white/10 bg-white/[0.06] p-5 shadow-2xl backdrop-blur">
-            <div className="rounded-[12px] bg-white p-5">
+          <div className="rounded-[16px] border border-white/10 bg-card/[0.06] p-5 shadow-2xl backdrop-blur">
+            <div className="rounded-[12px] bg-card p-5">
               <div className="flex items-center justify-between gap-4 border-b border-[#edf4ef] pb-4">
                 <div>
-                  <p className="font-jakarta text-[12px] font-bold uppercase tracking-[0.18em] text-[#6B9E83]">
+                  <p className="font-jakarta text-[12px] font-bold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
                     Scheduling
                   </p>
-                  <h2 className="mt-1 font-display text-[24px] font-bold text-[#061A12]">
+                  <h2 className="mt-1 font-display text-[24px] font-bold text-foreground">
                     Request to meeting
                   </h2>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-[#061A12]">
-                  <CalendarCheck2 className="h-6 w-6 text-[#E8A020]" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-primary">
+                  <CalendarCheck2 className="h-6 w-6 text-[var(--accent-foreground)]" />
                 </div>
               </div>
               <div className="mt-5 space-y-4">
                 {["Lead captured", "Calendar details attached", "Team follow-up ready"].map(
                   (step, index) => (
                     <div key={step} className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#F3FBF6] font-jakarta text-[13px] font-bold text-[#0F4C2A]">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-muted font-jakarta text-[13px] font-bold text-primary">
                         {index + 1}
                       </div>
                       <div className="h-px flex-1 bg-[#edf4ef]" />
-                      <span className="w-[170px] font-jakarta text-[13px] font-semibold text-[#061A12]">
+                      <span className="w-[170px] font-jakarta text-[13px] font-semibold text-foreground">
                         {step}
                       </span>
                     </div>
@@ -282,16 +282,16 @@ export default function BookDemoContent() {
         <div className="mx-auto grid max-w-[1200px] gap-8 lg:grid-cols-[0.98fr_1.02fr]">
           <div className="order-2 lg:order-1">
             {formState === "success" ? (
-              <div className="rounded-[14px] border border-[#d4eade] bg-white p-6 shadow-sm">
+              <div className="rounded-[14px] border border-[var(--border)] bg-card p-6 shadow-sm">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-[10px] bg-[#F3FBF6]">
-                    <CheckCircle className="h-6 w-6 text-[#0F4C2A]" />
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-[10px] bg-muted">
+                    <CheckCircle className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h2 className="font-display text-[26px] font-bold text-[#061A12]">
+                    <h2 className="font-display text-[26px] font-bold text-foreground">
                       {fallbackNotice ? "Request captured" : "Details saved"}
                     </h2>
-                    <p className="mt-2 font-jakarta text-[14px] leading-7 text-[#5a5a5a]">
+                    <p className="mt-2 font-jakarta text-[14px] leading-7 text-muted-foreground">
                       {fallbackNotice
                         ? fallbackNotice
                         : `We saved ${fields.schoolName || "your school"}. Choose a time and the confirmed meeting will attach to this request.`}
@@ -319,14 +319,14 @@ export default function BookDemoContent() {
                     <div className="mt-4 flex flex-col gap-3 sm:flex-row">
                       <a
                         href="tel:+254743993715"
-                        className="inline-flex items-center justify-center gap-2 rounded-[8px] bg-[#061A12] px-5 py-3 font-jakarta text-[14px] font-bold text-white no-underline"
+                        className="inline-flex items-center justify-center gap-2 rounded-[8px] bg-primary px-5 py-3 font-jakarta text-[14px] font-bold text-primary-foreground no-underline"
                       >
                         <Phone className="h-4 w-4" />
                         Call sales
                       </a>
                       <a
                         href="mailto:demo@edumyles.com"
-                        className="inline-flex items-center justify-center gap-2 rounded-[8px] border border-[#d4eade] bg-white px-5 py-3 font-jakarta text-[14px] font-bold text-[#061A12] no-underline"
+                        className="inline-flex items-center justify-center gap-2 rounded-[8px] border border-[var(--border)] bg-card px-5 py-3 font-jakarta text-[14px] font-bold text-foreground no-underline"
                       >
                         <Mail className="h-4 w-4" />
                         Email demo team
@@ -336,17 +336,17 @@ export default function BookDemoContent() {
                 )}
               </div>
             ) : (
-              <div className="rounded-[14px] border border-[#d4eade] bg-white p-5 shadow-sm sm:p-6">
+              <div className="rounded-[14px] border border-[var(--border)] bg-card p-5 shadow-sm sm:p-6">
                 <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#edf4ef] pb-5">
                   <div>
-                    <p className="font-jakarta text-[12px] font-bold uppercase tracking-[0.18em] text-[#6B9E83]">
+                    <p className="font-jakarta text-[12px] font-bold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
                       Step 1 of 2
                     </p>
-                    <h2 className="mt-1 font-display text-[28px] font-bold text-[#061A12]">
+                    <h2 className="mt-1 font-display text-[28px] font-bold text-foreground">
                       Tell us about your school
                     </h2>
                   </div>
-                  <div className="rounded-[999px] bg-[#F3FBF6] px-4 py-2 font-jakarta text-[12px] font-bold text-[#0F4C2A]">
+                  <div className="rounded-[999px] bg-muted px-4 py-2 font-jakarta text-[12px] font-bold text-primary">
                     Calendar unlocks next
                   </div>
                 </div>
@@ -361,7 +361,7 @@ export default function BookDemoContent() {
                 >
                   <div className="grid gap-5 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         First name *
                       </span>
                       <input
@@ -373,12 +373,12 @@ export default function BookDemoContent() {
                         autoComplete="given-name"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="John"
                       />
                     </label>
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         Last name *
                       </span>
                       <input
@@ -390,7 +390,7 @@ export default function BookDemoContent() {
                         autoComplete="family-name"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="Doe"
                       />
                     </label>
@@ -398,7 +398,7 @@ export default function BookDemoContent() {
 
                   <div className="grid gap-5 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         Email address *
                       </span>
                       <input
@@ -410,12 +410,12 @@ export default function BookDemoContent() {
                         autoComplete="email"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="john@school.ac.ke"
                       />
                     </label>
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         Phone number *
                       </span>
                       <input
@@ -427,7 +427,7 @@ export default function BookDemoContent() {
                         autoComplete="tel"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="+254 700 000 000"
                       />
                     </label>
@@ -435,7 +435,7 @@ export default function BookDemoContent() {
 
                   <div className="grid gap-5 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         School name *
                       </span>
                       <input
@@ -447,12 +447,12 @@ export default function BookDemoContent() {
                         autoComplete="organization"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="Nairobi Green Academy"
                       />
                     </label>
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         Job title *
                       </span>
                       <input
@@ -464,7 +464,7 @@ export default function BookDemoContent() {
                         autoComplete="organization-title"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="Principal, Administrator, etc."
                       />
                     </label>
@@ -472,7 +472,7 @@ export default function BookDemoContent() {
 
                   <div className="grid gap-5 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         School type *
                       </span>
                       <select
@@ -483,7 +483,7 @@ export default function BookDemoContent() {
                         autoComplete="off"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                       >
                         <option value="">Select school type</option>
                         <option value="primary">Primary School</option>
@@ -494,7 +494,7 @@ export default function BookDemoContent() {
                       </select>
                     </label>
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         Preferred demo date
                       </span>
                       <input
@@ -505,14 +505,14 @@ export default function BookDemoContent() {
                         autoComplete="off"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                       />
                     </label>
                   </div>
 
                   <div className="grid gap-5 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         Country
                       </span>
                       <input
@@ -523,11 +523,11 @@ export default function BookDemoContent() {
                         autoComplete="country-name"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                       />
                     </label>
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         County / region
                       </span>
                       <input
@@ -538,7 +538,7 @@ export default function BookDemoContent() {
                         autoComplete="address-level1"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="Nairobi"
                       />
                     </label>
@@ -546,7 +546,7 @@ export default function BookDemoContent() {
 
                   <div className="grid gap-5 sm:grid-cols-2">
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         Approx. student count
                       </span>
                       <input
@@ -558,12 +558,12 @@ export default function BookDemoContent() {
                         autoComplete="off"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="650"
                       />
                     </label>
                     <label className="block">
-                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                      <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                         Current system
                       </span>
                       <select
@@ -573,7 +573,7 @@ export default function BookDemoContent() {
                         autoComplete="off"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                       >
                         <option value="">Select current system</option>
                         <option value="Paper records">Paper records</option>
@@ -585,7 +585,7 @@ export default function BookDemoContent() {
                   </div>
 
                   <label className="block">
-                    <span className="mb-2 block font-jakarta text-[13px] font-bold text-[#061A12]">
+                    <span className="mb-2 block font-jakarta text-[13px] font-bold text-foreground">
                       Tell us about your school&apos;s needs
                     </span>
                     <textarea
@@ -596,7 +596,7 @@ export default function BookDemoContent() {
                       autoComplete="off"
                       data-lpignore="true"
                       data-form-type="other"
-                      className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[#212121] outline-none transition-colors focus:border-[#0F4C2A]"
+                      className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                       style={{ resize: "vertical" }}
                       placeholder="What challenges are you looking to solve? What features interest you most?"
                     />
@@ -611,7 +611,7 @@ export default function BookDemoContent() {
                   <button
                     type="submit"
                     disabled={formState === "loading"}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-[#061A12] px-8 py-4 font-jakarta text-[15px] font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#0F4C2A] disabled:translate-y-0 disabled:opacity-70"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-primary px-8 py-4 font-jakarta text-[15px] font-bold text-primary-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary disabled:translate-y-0 disabled:opacity-70"
                   >
                     {formState === "loading" ? "Saving your request..." : "Save request and choose time"}
                     <ArrowRight className="h-4 w-4" />
@@ -622,11 +622,11 @@ export default function BookDemoContent() {
           </div>
 
           <aside className="order-1 space-y-5 lg:order-2">
-            <div className="rounded-[14px] border border-[#d4eade] bg-white p-6 shadow-sm">
-              <p className="font-jakarta text-[12px] font-bold uppercase tracking-[0.18em] text-[#6B9E83]">
+            <div className="rounded-[14px] border border-[var(--border)] bg-card p-6 shadow-sm">
+              <p className="font-jakarta text-[12px] font-bold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
                 What to expect
               </p>
-              <h3 className="mt-2 font-display text-[30px] font-bold text-[#061A12]">
+              <h3 className="mt-2 font-display text-[30px] font-bold text-foreground">
                 A practical session for school operators
               </h3>
               <div className="mt-6 space-y-4">
@@ -636,17 +636,17 @@ export default function BookDemoContent() {
               </div>
             </div>
 
-            <div className="rounded-[14px] bg-[#061A12] p-6 shadow-sm">
+            <div className="rounded-[14px] bg-primary p-6 shadow-sm">
               <div className="mb-4 flex">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="h-5 w-5 text-[#E8A020]" fill="#E8A020" />
+                  <Star key={star} className="h-5 w-5 text-[var(--accent-foreground)]" fill="var(--accent-foreground)" />
                 ))}
               </div>
               <p className="font-display text-[18px] italic leading-8 text-white">
                 &ldquo;The demo was incredibly helpful. They understood our challenges immediately
                 and showed us exactly how EduMyles would solve them.&rdquo;
               </p>
-              <p className="mt-4 font-jakarta text-[13px] font-semibold text-[#E8A020]">
+              <p className="mt-4 font-jakarta text-[13px] font-semibold text-[var(--accent-foreground)]">
                 Grace Njeri, Finance Officer - Nairobi Green Academy
               </p>
             </div>
@@ -654,36 +654,36 @@ export default function BookDemoContent() {
         </div>
       </section>
 
-      <section className="bg-white px-4 py-14 sm:px-8">
+      <section className="bg-card px-4 py-14 sm:px-8">
         <div className="mx-auto max-w-[900px] text-center">
-          <h3 className="font-display text-[30px] font-bold text-[#061A12]">
+          <h3 className="font-display text-[30px] font-bold text-foreground">
             Prefer to talk directly?
           </h3>
-          <p className="mt-3 font-jakarta text-[15px] leading-7 text-[#5a5a5a]">
+          <p className="mt-3 font-jakarta text-[15px] leading-7 text-muted-foreground">
             Our team can still help by phone or email if calendar scheduling is not the best fit.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             <a
               href="tel:+254743993715"
-              className="rounded-[12px] border border-[#d4eade] bg-[#F3FBF6] p-5 text-left no-underline transition-colors hover:bg-white"
+              className="rounded-[12px] border border-[var(--border)] bg-muted p-5 text-left no-underline transition-colors hover:bg-card"
             >
-              <Phone className="mb-3 h-5 w-5 text-[#0F4C2A]" />
-              <h4 className="font-jakarta text-[14px] font-bold text-[#061A12]">Call us</h4>
-              <p className="mt-1 font-jakarta text-[13px] text-[#5a5a5a]">+254 743 993 715</p>
+              <Phone className="mb-3 h-5 w-5 text-primary" />
+              <h4 className="font-jakarta text-[14px] font-bold text-foreground">Call us</h4>
+              <p className="mt-1 font-jakarta text-[13px] text-muted-foreground">+254 743 993 715</p>
             </a>
             <a
               href="mailto:demo@edumyles.com"
-              className="rounded-[12px] border border-[#d4eade] bg-[#F3FBF6] p-5 text-left no-underline transition-colors hover:bg-white"
+              className="rounded-[12px] border border-[var(--border)] bg-muted p-5 text-left no-underline transition-colors hover:bg-card"
             >
-              <Mail className="mb-3 h-5 w-5 text-[#0F4C2A]" />
-              <h4 className="font-jakarta text-[14px] font-bold text-[#061A12]">Email us</h4>
-              <p className="mt-1 font-jakarta text-[13px] text-[#5a5a5a]">demo@edumyles.com</p>
+              <Mail className="mb-3 h-5 w-5 text-primary" />
+              <h4 className="font-jakarta text-[14px] font-bold text-foreground">Email us</h4>
+              <p className="mt-1 font-jakarta text-[13px] text-muted-foreground">demo@edumyles.com</p>
             </a>
-            <div className="rounded-[12px] border border-[#d4eade] bg-[#F3FBF6] p-5 text-left">
-              <MapPin className="mb-3 h-5 w-5 text-[#0F4C2A]" />
-              <h4 className="font-jakarta text-[14px] font-bold text-[#061A12]">Visit us</h4>
-              <p className="mt-1 font-jakarta text-[13px] text-[#5a5a5a]">Nairobi, Kenya</p>
+            <div className="rounded-[12px] border border-[var(--border)] bg-muted p-5 text-left">
+              <MapPin className="mb-3 h-5 w-5 text-primary" />
+              <h4 className="font-jakarta text-[14px] font-bold text-foreground">Visit us</h4>
+              <p className="mt-1 font-jakarta text-[13px] text-muted-foreground">Nairobi, Kenya</p>
             </div>
           </div>
         </div>

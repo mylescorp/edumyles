@@ -10,13 +10,13 @@ export const metadata: Metadata = {
 
 export default function PartnersPage() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* Hero Section */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "#061A12",
-          borderTop: "3px solid #E8A020",
+          background: "var(--card)",
+          borderTop: "3px solid var(--primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "400px",
         }}
@@ -24,7 +24,7 @@ export default function PartnersPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -33,7 +33,7 @@ export default function PartnersPage() {
             <Link
               href="/"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "#A8E6C3" }}
+              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
             >
               ← Back to Home
             </Link>
@@ -42,9 +42,9 @@ export default function PartnersPage() {
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
               style={{
-                background: "rgba(232,160,32,0.12)",
-                border: "1px solid #E8A020",
-                color: "#E8A020",
+                background: "rgb(var(--primary-rgb) / 12%)",
+                border: "1px solid var(--accent-foreground)",
+                color: "var(--accent-foreground)",
               }}
             >
               Partner Program
@@ -53,9 +53,9 @@ export default function PartnersPage() {
               className="font-display font-bold leading-tight mb-6"
               style={{ fontSize: "clamp(2rem,4vw,3rem)", color: "#ffffff" }}
             >
-              Grow With <span style={{ color: "#E8A020" }}>EduMyles</span>
+              Grow With <span style={{ color: "var(--accent-foreground)" }}>EduMyles</span>
             </h1>
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "#A8E6C3" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
               Join our partner ecosystem and help transform education across East Africa. We work
               with technology providers, educational consultants, and service companies to deliver
               comprehensive solutions to schools.
@@ -65,7 +65,7 @@ export default function PartnersPage() {
       </section>
 
       {/* Content */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[1200px] mx-auto">
           {/* Partner Types */}
           <div className="grid md:grid-cols-3 gap-8 mb-16">
@@ -114,20 +114,20 @@ export default function PartnersPage() {
                 key={partner.title}
                 href={partner.href}
                 className="p-6 rounded-xl no-underline transition-transform duration-200 hover:-translate-y-1"
-                style={{ background: "#F9FAFB", border: "1px solid #e5e7eb" }}
+                style={{ background: "var(--card)", border: "1px solid var(--border)" }}
               >
                 <div className="flex items-center gap-3 mb-4">
                   <div
                     className="w-12 h-12 rounded-lg flex items-center justify-center"
                     style={{ background: "rgba(26,122,74,0.1)" }}
                   >
-                    <partner.icon className="w-6 h-6" style={{ color: "#1A7A4A" }} />
+                    <partner.icon className="w-6 h-6" style={{ color: "var(--primary)" }} />
                   </div>
-                  <h3 className="font-jakarta font-bold text-lg" style={{ color: "#061A12" }}>
+                  <h3 className="font-jakarta font-bold text-lg" style={{ color: "var(--foreground)" }}>
                     {partner.title}
                   </h3>
                 </div>
-                <p className="font-jakarta text-sm mb-4" style={{ color: "#5a5a5a" }}>
+                <p className="font-jakarta text-sm mb-4" style={{ color: "var(--muted-foreground)" }}>
                   {partner.description}
                 </p>
                 <ul className="space-y-2">
@@ -135,9 +135,9 @@ export default function PartnersPage() {
                     <li key={benefit} className="flex items-center gap-2">
                       <CheckCircle2
                         className="w-4 h-4 flex-shrink-0"
-                        style={{ color: "#1A7A4A" }}
+                        style={{ color: "var(--primary)" }}
                       />
-                      <span className="font-jakarta text-sm" style={{ color: "#374151" }}>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                         {benefit}
                       </span>
                     </li>
@@ -149,7 +149,7 @@ export default function PartnersPage() {
 
           {/* Partner Benefits */}
           <div className="mb-16">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Why Partner With EduMyles?
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
@@ -182,16 +182,16 @@ export default function PartnersPage() {
                 <div
                   key={item.title}
                   className="p-6 rounded-xl"
-                  style={{ background: "#F3FBF6", border: "1px solid #d4eade" }}
+                  style={{ background: "var(--background)", border: "1px solid var(--border)" }}
                 >
-                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "#061A12" }}>
+                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "var(--foreground)" }}>
                     {item.title}
                   </h3>
-                  <p className="font-jakarta text-sm mb-3" style={{ color: "#5a5a5a" }}>
+                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--muted-foreground)" }}>
                     {item.description}
                   </p>
                   <div className="text-center">
-                    <div className="font-jakarta font-bold text-xl" style={{ color: "#E8A020" }}>
+                    <div className="font-jakarta font-bold text-xl" style={{ color: "var(--accent-foreground)" }}>
                       {item.stat}
                     </div>
                   </div>
@@ -202,7 +202,7 @@ export default function PartnersPage() {
 
           {/* Application Process */}
           <div className="mb-16">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
               Partnership Application Process
             </h2>
             <div className="space-y-6">
@@ -235,7 +235,7 @@ export default function PartnersPage() {
                   <div className="flex-shrink-0">
                     <div
                       className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ background: "#E8A020", color: "#061A12" }}
+                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                     >
                       <span className="font-jakarta font-bold text-sm">
                         {step.step.split(" ")[1]}
@@ -245,11 +245,11 @@ export default function PartnersPage() {
                   <div>
                     <h3
                       className="font-jakarta font-bold text-lg mb-2"
-                      style={{ color: "#061A12" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {step.title}
                     </h3>
-                    <p className="font-jakarta text-sm" style={{ color: "#5a5a5a" }}>
+                    <p className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                       {step.description}
                     </p>
                   </div>
@@ -260,17 +260,17 @@ export default function PartnersPage() {
 
           {/* CTA */}
           <div className="text-center py-12">
-            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "#061A12" }}>
+            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "var(--foreground)" }}>
               Ready to Partner With Us?
             </h2>
-            <p className="font-jakarta text-lg mb-6" style={{ color: "#5a5a5a" }}>
+            <p className="font-jakarta text-lg mb-6" style={{ color: "var(--muted-foreground)" }}>
               Let&apos;s work together to transform education across East Africa.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 href="/contact"
                 className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-xl no-underline"
-                style={{ background: "#E8A020", color: "#061A12" }}
+                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
               >
                 Contact Partnerships
                 <ArrowRight className="w-5 h-5" />
@@ -278,7 +278,7 @@ export default function PartnersPage() {
               <Link
                 href="/reseller"
                 className="inline-flex items-center gap-2 font-jakarta font-semibold text-[16px] px-8 py-4 rounded-xl no-underline"
-                style={{ background: "transparent", color: "#061A12", border: "2px solid #061A12" }}
+                style={{ background: "transparent", color: "var(--foreground)", border: "2px solid var(--border)" }}
               >
                 Become Reseller
               </Link>

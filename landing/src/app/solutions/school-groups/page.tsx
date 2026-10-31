@@ -227,13 +227,13 @@ const integrations = [
 
 export default function SchoolGroupsPage() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* ── Section 1: Hero ─────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "#061A12",
-          borderTop: "3px solid #E8A020",
+          background: "var(--card)",
+          borderTop: "3px solid var(--primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "560px",
         }}
@@ -242,7 +242,7 @@ export default function SchoolGroupsPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -251,9 +251,9 @@ export default function SchoolGroupsPage() {
           <div
             className="inline-block font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgba(232,160,32,0.12)",
-              border: "1px solid #E8A020",
-              color: "#E8A020",
+              background: "rgb(var(--primary-rgb) / 12%)",
+              border: "1px solid var(--accent-foreground)",
+              color: "var(--accent-foreground)",
             }}
           >
             For School Groups &amp; Networks
@@ -261,17 +261,17 @@ export default function SchoolGroupsPage() {
           {/* H1 */}
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
           >
             One platform. Every campus.{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
               Complete control.
             </em>
           </h1>
           {/* subtitle */}
           <p
             className="font-jakarta font-light leading-[1.8] mb-8 mx-auto"
-            style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "660px" }}
+            style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "660px" }}
           >
             Multi-campus dashboard, network-wide reporting, central HR, and strict data isolation
             between schools — all in one platform built for school groups in Africa.
@@ -281,7 +281,7 @@ export default function SchoolGroupsPage() {
             <Link
               href="/contact?subject=school-groups"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "#E8A020", color: "#061A12" }}
+              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
             >
               Get a Group Quote <ArrowRight className="w-4 h-4" />
             </Link>
@@ -311,7 +311,7 @@ export default function SchoolGroupsPage() {
                 style={{
                   background: "rgba(255,255,255,0.07)",
                   border: "1px solid rgba(255,255,255,0.2)",
-                  color: "#A8E6C3",
+                  color: "var(--muted-foreground)",
                 }}
               >
                 ✓ {badge}
@@ -326,7 +326,7 @@ export default function SchoolGroupsPage() {
               { value: "Real-time", label: "network view" },
             ].map((s) => (
               <div key={s.label} className="text-center">
-                <div className="font-display font-bold text-[2rem]" style={{ color: "#E8A020" }}>
+                <div className="font-display font-bold text-[2rem]" style={{ color: "var(--accent-foreground)" }}>
                   {s.value}
                 </div>
                 <div
@@ -342,12 +342,12 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 2: Pain Points ──────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#0C3020" }}>
+      <section className="py-20 px-4" style={{ background: "#0F1D1B" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <p
               className="font-semibold text-[13px] uppercase tracking-[0.12em] mb-3"
-              style={{ color: "#E8A020" }}
+              style={{ color: "var(--accent-foreground)" }}
             >
               The challenges school networks face
             </p>
@@ -365,20 +365,20 @@ export default function SchoolGroupsPage() {
                 className="rounded-2xl p-8"
                 style={{
                   background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(232,160,32,0.2)",
+                  border: "1px solid rgb(var(--primary-rgb) / 20%)",
                 }}
               >
                 <div className="flex items-start gap-4 mb-4">
                   <span
                     className="font-display font-bold text-[2.5rem] leading-none"
-                    style={{ color: "rgba(232,160,32,0.25)" }}
+                    style={{ color: "rgb(var(--primary-rgb) / 25%)" }}
                   >
                     {p.num}
                   </span>
                   <p.icon
                     className="w-9 h-9 flex-shrink-0 mt-1"
                     strokeWidth={1.5}
-                    style={{ color: "#E8A020" }}
+                    style={{ color: "var(--accent-foreground)" }}
                   />
                 </div>
                 <h3
@@ -387,7 +387,7 @@ export default function SchoolGroupsPage() {
                 >
                   {p.title}
                 </h3>
-                <p className="leading-[1.8] text-[14px]" style={{ color: "#A8E6C3" }}>
+                <p className="leading-[1.8] text-[14px]" style={{ color: "var(--muted-foreground)" }}>
                   {p.text}
                 </p>
               </div>
@@ -397,21 +397,21 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 3: How It Works ─────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(232,160,32,0.1)", color: "#9A5D00" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
             >
               How It Works
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               Your network is live in{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 three weeks.
               </em>
             </h2>
@@ -421,7 +421,7 @@ export default function SchoolGroupsPage() {
               <div
                 key={s.step}
                 className="rounded-2xl p-8"
-                style={{ border: "1px solid #e8f4ec", boxShadow: "0 2px 16px rgba(6,26,18,0.05)" }}
+                style={{ border: "1px solid var(--border)", boxShadow: "0 2px 16px rgba(6,26,18,0.05)" }}
               >
                 <div
                   className="font-display font-bold text-[3rem] leading-none mb-4"
@@ -431,17 +431,17 @@ export default function SchoolGroupsPage() {
                 </div>
                 <span
                   className="inline-block font-semibold text-[11px] uppercase tracking-[0.1em] mb-3 px-3 py-1 rounded-[50px]"
-                  style={{ background: "rgba(232,160,32,0.12)", color: "#9A5D00" }}
+                  style={{ background: "rgb(var(--primary-rgb) / 12%)", color: "#9A5D00" }}
                 >
                   {s.when}
                 </span>
                 <h3
                   className="font-display font-bold text-[19px] mb-3"
-                  style={{ color: "#061A12" }}
+                  style={{ color: "var(--foreground)" }}
                 >
                   {s.title}
                 </h3>
-                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+                <p className="text-[14px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
                   {s.desc}
                 </p>
               </div>
@@ -451,22 +451,22 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 4: Core Modules ─────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(232,160,32,0.1)", color: "#9A5D00" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
             >
               Core Modules
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               Everything a school network needs
             </h2>
-            <p className="text-[16px] leading-[1.7]" style={{ color: "#5a5a5a" }}>
+            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
               8 modules that give group leadership real oversight without removing campus autonomy
             </p>
           </div>
@@ -475,18 +475,18 @@ export default function SchoolGroupsPage() {
               <div
                 key={m.title}
                 className="rounded-2xl p-6"
-                style={{ border: "1px solid #e8f4ec", boxShadow: "0 2px 16px rgba(6,26,18,0.05)" }}
+                style={{ border: "1px solid var(--border)", boxShadow: "0 2px 16px rgba(6,26,18,0.05)" }}
               >
                 <div className="mb-4">
-                  <m.icon className="w-8 h-8" strokeWidth={1.5} style={{ color: "#0F4C2A" }} />
+                  <m.icon className="w-8 h-8" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
                 </div>
                 <h3
                   className="font-display font-bold text-[17px] mb-2"
-                  style={{ color: "#061A12" }}
+                  style={{ color: "var(--foreground)" }}
                 >
                   {m.title}
                 </h3>
-                <p className="text-[13px] leading-[1.7]" style={{ color: "#5a5a5a" }}>
+                <p className="text-[13px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
                   {m.desc}
                 </p>
               </div>
@@ -496,15 +496,15 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 5: Network Dashboard Deep-Dive ──────────────── */}
-      <section className="py-20 px-4" style={{ background: "#A8E6C3" }}>
+      <section className="py-20 px-4" style={{ background: "var(--muted)" }}>
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               The Network Admin dashboard —{" "}
-              <em className="italic" style={{ color: "#0F4C2A" }}>
+              <em className="italic" style={{ color: "var(--primary)" }}>
                 everything, at a glance.
               </em>
             </h2>
@@ -513,9 +513,9 @@ export default function SchoolGroupsPage() {
             {/* Left: metrics */}
             <div
               className="rounded-2xl p-8"
-              style={{ background: "#ffffff", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
+              style={{ background: "var(--card)", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
             >
-              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "#061A12" }}>
+              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "var(--foreground)" }}>
                 Key metrics visible to Group Admin
               </h3>
               <ul className="space-y-3">
@@ -524,9 +524,9 @@ export default function SchoolGroupsPage() {
                     <TrendingUp
                       className="w-5 h-5 flex-shrink-0 mt-0.5"
                       strokeWidth={2}
-                      style={{ color: "#1A7A4A" }}
+                      style={{ color: "var(--primary)" }}
                     />
-                    <span className="text-[14px] leading-[1.65]" style={{ color: "#3d3d3d" }}>
+                    <span className="text-[14px] leading-[1.65]" style={{ color: "var(--foreground)" }}>
                       {metric}
                     </span>
                   </li>
@@ -536,9 +536,9 @@ export default function SchoolGroupsPage() {
             {/* Right: permissions model */}
             <div
               className="rounded-2xl p-8"
-              style={{ background: "#ffffff", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
+              style={{ background: "var(--card)", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
             >
-              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "#061A12" }}>
+              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "var(--foreground)" }}>
                 Permissions model
               </h3>
               <div className="space-y-3">
@@ -560,17 +560,17 @@ export default function SchoolGroupsPage() {
                     }}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-[14px]" style={{ color: "#061A12" }}>
+                      <span className="font-semibold text-[14px]" style={{ color: "var(--foreground)" }}>
                         {level.role}
                       </span>
                       <span
                         className="text-[11px] font-semibold px-2.5 py-0.5 rounded-[50px]"
-                        style={{ background: "rgba(15,76,42,0.1)", color: "#0F4C2A" }}
+                        style={{ background: "rgba(15,76,42,0.1)", color: "var(--primary)" }}
                       >
                         {level.scope}
                       </span>
                     </div>
-                    <p className="text-[12px] leading-[1.55]" style={{ color: "#5a5a5a" }}>
+                    <p className="text-[12px] leading-[1.55]" style={{ color: "var(--muted-foreground)" }}>
                       {level.description}
                     </p>
                   </div>
@@ -582,20 +582,20 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 6: Stats Bar ────────────────────────────────── */}
-      <section className="py-14 px-4" style={{ background: "#0F4C2A" }}>
+      <section className="py-14 px-4" style={{ background: "var(--primary)" }}>
         <div className="max-w-[1000px] mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {stats.map((s) => (
               <div key={s.label}>
                 <div
                   className="font-display font-bold leading-none mb-2"
-                  style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "#E8A020" }}
+                  style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "var(--primary-foreground)" }}
                 >
                   {s.value}
                 </div>
                 <div
                   className="font-semibold text-[12px] uppercase tracking-[0.1em]"
-                  style={{ color: "rgba(168,230,195,0.7)" }}
+                  style={{ color: "var(--primary-foreground)" }}
                 >
                   {s.label}
                 </div>
@@ -606,18 +606,18 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 7: Benefits ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <h2
               className="font-display font-bold leading-[1.2] mb-4"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
-              Why School Groups Choose <span style={{ color: "#E8A020" }}>EduMyles</span>
+              Why School Groups Choose <span style={{ color: "var(--accent-foreground)" }}>EduMyles</span>
             </h2>
             <p
               className="font-jakarta text-lg max-w-[700px] mx-auto"
-              style={{ color: "#5a5a5a", lineHeight: "1.7" }}
+              style={{ color: "var(--muted-foreground)", lineHeight: "1.7" }}
             >
               Experience unified management across your entire educational network with our
               purpose-built platform.
@@ -667,7 +667,7 @@ export default function SchoolGroupsPage() {
                 key={benefit.title}
                 className="text-center p-6 rounded-2xl"
                 style={{
-                  background: "linear-gradient(135deg, #F3FBF6 0%, #E8F5EE 100%)",
+                  background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
                   border: "1px solid rgba(26,122,74,0.2)",
                 }}
               >
@@ -675,12 +675,12 @@ export default function SchoolGroupsPage() {
                   className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
                   style={{ background: "rgba(26,122,74,0.15)" }}
                 >
-                  <benefit.icon className="w-8 h-8" style={{ color: "#1A7A4A" }} />
+                  <benefit.icon className="w-8 h-8" style={{ color: "var(--primary)" }} />
                 </div>
-                <h3 className="font-display font-bold text-xl mb-3" style={{ color: "#061A12" }}>
+                <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--foreground)" }}>
                   {benefit.title}
                 </h3>
-                <p className="font-jakarta text-sm leading-[1.6]" style={{ color: "#5a5a5a" }}>
+                <p className="font-jakarta text-sm leading-[1.6]" style={{ color: "var(--muted-foreground)" }}>
                   {benefit.description}
                 </p>
               </div>
@@ -690,14 +690,14 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 8: Testimonial ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#FEF3DC" }}>
+      <section className="py-20 px-4" style={{ background: "var(--muted)" }}>
         <div className="max-w-[820px] mx-auto text-center">
-          <div className="text-[5rem] leading-none mb-4" style={{ color: "#E8A020" }}>
+          <div className="text-[5rem] leading-none mb-4" style={{ color: "var(--accent-foreground)" }}>
             &ldquo;
           </div>
           <blockquote
             className="font-display italic leading-[1.85] mb-8"
-            style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "#2d2d2d" }}
+            style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "var(--foreground)" }}
           >
             We manage four schools. Before EduMyles, I&apos;d spend the entire first Monday of the
             month on the phone with four different bursars. Now I open one dashboard and see
@@ -706,15 +706,15 @@ export default function SchoolGroupsPage() {
           <div className="flex items-center justify-center gap-3">
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-[16px]"
-              style={{ background: "#0F4C2A", color: "#ffffff" }}
+              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
             >
               PM
             </div>
             <div className="text-left">
-              <p className="font-semibold text-[14px]" style={{ color: "#0F4C2A" }}>
+              <p className="font-semibold text-[14px]" style={{ color: "var(--primary)" }}>
                 Dr. Peter Maina
               </p>
-              <p className="text-[13px]" style={{ color: "#666" }}>
+              <p className="text-[13px]" style={{ color: "var(--muted-foreground)" }}>
                 Group CEO, Greenbrook Education Network, Nairobi
               </p>
             </div>
@@ -723,41 +723,41 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 8: Comparison Table ────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[900px] mx-auto">
           <div className="text-center mb-14">
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               Before and after EduMyles
             </h2>
-            <p className="text-[16px] leading-[1.7]" style={{ color: "#5a5a5a" }}>
+            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
               The difference a unified platform makes across your entire network.
             </p>
           </div>
           <div
             className="rounded-2xl overflow-hidden"
-            style={{ border: "1px solid #e0e0e0", boxShadow: "0 4px 24px rgba(6,26,18,0.07)" }}
+            style={{ border: "1px solid var(--border)", boxShadow: "0 4px 24px rgba(6,26,18,0.07)" }}
           >
             <table className="w-full" style={{ borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ background: "#061A12" }}>
+                <tr style={{ background: "var(--platform-chrome)" }}>
                   <th
                     className="text-left py-4 px-6 font-semibold text-[14px]"
-                    style={{ color: "#ffffff" }}
+                    style={{ color: "var(--foreground)" }}
                   >
                     Challenge
                   </th>
                   <th
                     className="text-center py-4 px-6 font-semibold text-[14px]"
-                    style={{ color: "rgba(255,255,255,0.7)" }}
+                    style={{ color: "#B9CBD6" }}
                   >
                     Before EduMyles
                   </th>
                   <th
                     className="text-center py-4 px-6 font-semibold text-[14px]"
-                    style={{ color: "#E8A020" }}
+                    style={{ color: "var(--accent-foreground)" }}
                   >
                     With EduMyles
                   </th>
@@ -768,20 +768,20 @@ export default function SchoolGroupsPage() {
                   <tr
                     key={row.challenge}
                     style={{
-                      background: i % 2 === 0 ? "#ffffff" : "#f9fafb",
+                      background: i % 2 === 0 ? "var(--card)" : "var(--muted)",
                       borderBottom: "1px solid #f0f0f0",
                     }}
                   >
                     <td
                       className="py-4 px-6 font-semibold text-[14px]"
-                      style={{ color: "#061A12" }}
+                      style={{ color: "var(--foreground)" }}
                     >
                       {row.challenge}
                     </td>
                     <td className="py-4 px-6 text-center">
                       <span
                         className="inline-flex items-center gap-1.5 text-[13px]"
-                        style={{ color: "#5a5a5a" }}
+                        style={{ color: "var(--muted-foreground)" }}
                       >
                         <X className="w-4 h-4 flex-shrink-0" style={{ color: "#e53935" }} />
                         {row.before}
@@ -790,7 +790,7 @@ export default function SchoolGroupsPage() {
                     <td className="py-4 px-6 text-center">
                       <span
                         className="inline-flex items-center gap-1.5 text-[13px] font-semibold"
-                        style={{ color: "#1A7A4A" }}
+                        style={{ color: "var(--primary)" }}
                       >
                         <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                         {row.after}
@@ -805,12 +805,12 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 9: FAQ ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[820px] mx-auto">
           <div className="text-center mb-14">
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               Frequently asked questions
             </h2>
@@ -820,15 +820,15 @@ export default function SchoolGroupsPage() {
               <div
                 key={faq.q}
                 className="rounded-2xl p-7"
-                style={{ border: "1px solid #e8f4ec", boxShadow: "0 2px 10px rgba(6,26,18,0.04)" }}
+                style={{ border: "1px solid var(--border)", boxShadow: "0 2px 10px rgba(6,26,18,0.04)" }}
               >
                 <h3
                   className="font-display font-bold text-[17px] mb-3"
-                  style={{ color: "#061A12" }}
+                  style={{ color: "var(--foreground)" }}
                 >
                   {faq.q}
                 </h3>
-                <p className="text-[14px] leading-[1.75]" style={{ color: "#5a5a5a" }}>
+                <p className="text-[14px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
                   {faq.a}
                 </p>
               </div>
@@ -838,17 +838,17 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 10: Integrations ────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#A8E6C3" }}>
+      <section className="py-16 px-4" style={{ background: "var(--muted)" }}>
         <div className="max-w-[1100px] mx-auto text-center">
           <p
             className="font-semibold text-[13px] uppercase tracking-[0.12em] mb-5"
-            style={{ color: "#0F4C2A" }}
+            style={{ color: "var(--primary)" }}
           >
             Integrations
           </p>
           <h2
             className="font-display font-bold leading-[1.2] mb-8"
-            style={{ fontSize: "clamp(1.4rem,2.5vw,2rem)", color: "#061A12" }}
+            style={{ fontSize: "clamp(1.4rem,2.5vw,2rem)", color: "var(--foreground)" }}
           >
             Works with the tools your network already uses
           </h2>
@@ -858,8 +858,8 @@ export default function SchoolGroupsPage() {
                 key={int}
                 className="font-semibold text-[13px] px-5 py-2.5 rounded-[50px]"
                 style={{
-                  background: "#ffffff",
-                  color: "#0F4C2A",
+                  background: "var(--card)",
+                  color: "var(--primary)",
                   border: "1px solid rgba(15,76,42,0.2)",
                   boxShadow: "0 1px 4px rgba(6,26,18,0.08)",
                 }}
@@ -872,21 +872,21 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 11: Pricing Callout ──────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[760px] mx-auto text-center">
           <div
             className="inline-flex items-center gap-2 font-semibold text-[13px] mb-5 px-4 py-2 rounded-[50px]"
-            style={{ background: "rgba(38,166,91,0.1)", color: "#0F4C2A" }}
+            style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
           >
             Group Pricing
           </div>
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "#061A12" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
           >
             School group pricing is custom
           </h2>
-          <p className="text-[16px] leading-[1.8] mb-8" style={{ color: "#5a5a5a" }}>
+          <p className="text-[16px] leading-[1.8] mb-8" style={{ color: "var(--muted-foreground)" }}>
             Contact us with your campus count and student numbers and we&apos;ll build a quote that
             reflects your network&apos;s size. Volume discounts apply from 3+ campuses. Or start
             with a free trial on your first campus.
@@ -895,14 +895,14 @@ export default function SchoolGroupsPage() {
             <Link
               href="/contact?subject=school-groups"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-7 py-3 rounded-[50px] no-underline"
-              style={{ background: "#061A12", color: "#ffffff" }}
+              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
             >
               Get a group quote <ArrowRight className="w-4 h-4" />
             </Link>
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-7 py-3 rounded-[50px] no-underline"
-              style={{ border: "2px solid #061A12", color: "#061A12" }}
+              style={{ border: "2px solid var(--border)", color: "var(--foreground)" }}
             >
               Start free trial
             </a>
@@ -911,25 +911,25 @@ export default function SchoolGroupsPage() {
       </section>
 
       {/* ── Section 12: Final CTA ────────────────────────────────── */}
-      <section className="py-24 px-4" style={{ background: "#0F4C2A" }}>
+      <section className="py-24 px-4" style={{ background: "var(--primary)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
           >
             Ready to bring your school network{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
               under one roof?
             </em>
           </h2>
-          <p className="text-[17px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
+          <p className="text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)" }}>
             Join school groups across Africa that have already unified their campuses on EduMyles.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/contact?subject=school-groups"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "#E8A020", color: "#061A12" }}
+              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
             >
               Get a Group Quote <ArrowRight className="w-4 h-4" />
             </Link>
@@ -938,8 +938,8 @@ export default function SchoolGroupsPage() {
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgba(255,255,255,0.4)",
-                color: "#ffffff",
+                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
+                color: "var(--primary-foreground)",
               }}
             >
               Book a Demo

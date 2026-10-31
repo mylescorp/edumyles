@@ -5,7 +5,7 @@ import { useState } from "react";
 type FormState = "idle" | "loading" | "success" | "error";
 
 const inputClass =
-  "w-full border border-gray-200 rounded-lg px-4 py-3 font-jakarta text-[15px] outline-none transition-colors duration-200 focus:border-[#061A12]";
+  "w-full border border-border bg-background rounded-lg px-4 py-3 font-jakarta text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-colors duration-200 focus:border-primary";
 const labelClass = "block text-sm font-medium font-jakarta mb-1";
 
 export default function PartnerForm() {
@@ -52,18 +52,18 @@ export default function PartnerForm() {
     return (
       <div
         className="rounded-2xl p-10 flex flex-col items-center gap-4 text-center"
-        style={{ background: "#F3FBF6", border: "1px solid #A8E6C3" }}
+        style={{ background: "var(--background)", border: "1px solid var(--border)" }}
       >
         <div
           className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
-          style={{ background: "#26A65B", color: "#ffffff" }}
+          style={{ background: "var(--success)", color: "var(--success-foreground)" }}
         >
           ✓
         </div>
-        <h3 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+        <h3 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
           Application received!
         </h3>
-        <p className="font-jakarta text-[16px]" style={{ color: "#5a5a5a" }}>
+        <p className="font-jakarta text-[16px]" style={{ color: "var(--muted-foreground)" }}>
           Our partnerships team will be in touch within 48 hours.
         </p>
       </div>
@@ -75,8 +75,8 @@ export default function PartnerForm() {
       {/* Row: Full Name + Email */}
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
-          <label htmlFor="partner-name" className={labelClass} style={{ color: "#061A12" }}>
-            Full Name <span style={{ color: "#E8A020" }}>*</span>
+          <label htmlFor="partner-name" className={labelClass} style={{ color: "var(--foreground)" }}>
+            Full Name <span style={{ color: "var(--accent-foreground)" }}>*</span>
           </label>
           <input
             id="partner-name"
@@ -87,12 +87,12 @@ export default function PartnerForm() {
             onChange={handleChange}
             placeholder="e.g. James Otieno"
             className={inputClass}
-            style={{ color: "#212121" }}
+            style={{ color: "var(--foreground)" }}
           />
         </div>
         <div>
-          <label htmlFor="partner-email" className={labelClass} style={{ color: "#061A12" }}>
-            Email Address <span style={{ color: "#E8A020" }}>*</span>
+          <label htmlFor="partner-email" className={labelClass} style={{ color: "var(--foreground)" }}>
+            Email Address <span style={{ color: "var(--accent-foreground)" }}>*</span>
           </label>
           <input
             id="partner-email"
@@ -103,14 +103,14 @@ export default function PartnerForm() {
             onChange={handleChange}
             placeholder="you@company.com"
             className={inputClass}
-            style={{ color: "#212121" }}
+            style={{ color: "var(--foreground)" }}
           />
         </div>
       </div>
 
       {/* Company */}
       <div>
-        <label htmlFor="partner-company" className={labelClass} style={{ color: "#061A12" }}>
+        <label htmlFor="partner-company" className={labelClass} style={{ color: "var(--foreground)" }}>
           Company / Organisation
         </label>
         <input
@@ -121,15 +121,15 @@ export default function PartnerForm() {
           onChange={handleChange}
           placeholder="e.g. Apex EdTech Solutions"
           className={inputClass}
-          style={{ color: "#212121" }}
+          style={{ color: "var(--foreground)" }}
         />
       </div>
 
       {/* Row: Country + Partner Type */}
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
-          <label htmlFor="partner-country" className={labelClass} style={{ color: "#061A12" }}>
-            Country <span style={{ color: "#E8A020" }}>*</span>
+          <label htmlFor="partner-country" className={labelClass} style={{ color: "var(--foreground)" }}>
+            Country <span style={{ color: "var(--accent-foreground)" }}>*</span>
           </label>
           <select
             id="partner-country"
@@ -138,7 +138,7 @@ export default function PartnerForm() {
             value={fields.country}
             onChange={handleChange}
             className={inputClass}
-            style={{ color: fields.country ? "#212121" : "#9ca3af" }}
+            style={{ color: fields.country ? "var(--foreground)" : "#9ca3af" }}
           >
             <option value="">Select country…</option>
             <option value="Kenya">Kenya</option>
@@ -150,8 +150,8 @@ export default function PartnerForm() {
           </select>
         </div>
         <div>
-          <label htmlFor="partner-type" className={labelClass} style={{ color: "#061A12" }}>
-            Partner Type <span style={{ color: "#E8A020" }}>*</span>
+          <label htmlFor="partner-type" className={labelClass} style={{ color: "var(--foreground)" }}>
+            Partner Type <span style={{ color: "var(--accent-foreground)" }}>*</span>
           </label>
           <select
             id="partner-type"
@@ -160,7 +160,7 @@ export default function PartnerForm() {
             value={fields.partnerType}
             onChange={handleChange}
             className={inputClass}
-            style={{ color: fields.partnerType ? "#212121" : "#9ca3af" }}
+            style={{ color: fields.partnerType ? "var(--foreground)" : "#9ca3af" }}
           >
             <option value="">Select type…</option>
             <option value="Referral Partner">Referral Partner</option>
@@ -172,8 +172,8 @@ export default function PartnerForm() {
 
       {/* Message */}
       <div>
-        <label htmlFor="partner-message" className={labelClass} style={{ color: "#061A12" }}>
-          How do you plan to bring schools to EduMyles? <span style={{ color: "#E8A020" }}>*</span>
+        <label htmlFor="partner-message" className={labelClass} style={{ color: "var(--foreground)" }}>
+          How do you plan to bring schools to EduMyles? <span style={{ color: "var(--accent-foreground)" }}>*</span>
         </label>
         <textarea
           id="partner-message"
@@ -184,17 +184,17 @@ export default function PartnerForm() {
           onChange={handleChange}
           placeholder="Tell us about your network, approach, and the opportunity you see…"
           className={inputClass}
-          style={{ color: "#212121", resize: "vertical" }}
+          style={{ color: "var(--foreground)", resize: "vertical" }}
         />
       </div>
 
       {/* Error state */}
       {formState === "error" && (
-        <p className="font-jakarta text-[14px]" style={{ color: "#dc2626" }}>
+        <p className="font-jakarta text-[14px]" style={{ color: "var(--danger)" }}>
           Something went wrong. Please try again or email us at{" "}
           <a
             href="mailto:partners@edumyles.com"
-            style={{ color: "#dc2626", textDecoration: "underline" }}
+            style={{ color: "var(--danger)", textDecoration: "underline" }}
           >
             partners@edumyles.com
           </a>
@@ -209,22 +209,22 @@ export default function PartnerForm() {
           disabled={formState === "loading"}
           className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] transition-colors duration-200"
           style={{
-            background: formState === "loading" ? "#5a5a5a" : "#061A12",
-            color: "#ffffff",
+            background: formState === "loading" ? "var(--muted-foreground)" : "var(--primary)",
+            color: "var(--primary-foreground)",
             cursor: formState === "loading" ? "not-allowed" : "pointer",
             border: "none",
             minWidth: "220px",
           }}
           onMouseEnter={(e) => {
             if (formState !== "loading") {
-              e.currentTarget.style.background = "#E8A020";
-              e.currentTarget.style.color = "#061A12";
+              e.currentTarget.style.background = "var(--primary)";
+              e.currentTarget.style.color = "var(--primary-foreground)";
             }
           }}
           onMouseLeave={(e) => {
             if (formState !== "loading") {
-              e.currentTarget.style.background = "#061A12";
-              e.currentTarget.style.color = "#ffffff";
+              e.currentTarget.style.background = "var(--primary)";
+              e.currentTarget.style.color = "var(--primary-foreground)";
             }
           }}
         >

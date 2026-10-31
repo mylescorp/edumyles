@@ -73,17 +73,17 @@ export default function Testimonial() {
     <section
       className="px-4 sm:px-8 py-16 sm:py-20"
       aria-label="Testimonials"
-      style={{ background: "#FEF3DC" }}
+      style={{ background: "var(--muted)" }}
     >
       {/* Section heading */}
       <div className="text-center mb-10 sm:mb-12">
         <h2
           className="font-display font-bold leading-[1.2] mb-2"
-          style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+          style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
         >
           What Schools Say
         </h2>
-        <p className="font-jakarta text-[15px]" style={{ color: "#5a5a5a" }}>
+        <p className="font-jakarta text-[15px]" style={{ color: "var(--muted-foreground)" }}>
           Trusted by schools across East Africa
         </p>
       </div>
@@ -107,16 +107,16 @@ export default function Testimonial() {
             style={{
               background: "rgba(6,26,18,0.08)",
               border: "1px solid rgba(6,26,18,0.15)",
-              color: "#061A12",
+              color: "var(--foreground)",
               cursor: "pointer",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#E8A020";
-              e.currentTarget.style.color = "#061A12";
+              e.currentTarget.style.background = "var(--primary)";
+              e.currentTarget.style.color = "var(--foreground)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "rgba(6,26,18,0.08)";
-              e.currentTarget.style.color = "#061A12";
+              e.currentTarget.style.color = "var(--foreground)";
             }}
           >
             ←
@@ -126,9 +126,9 @@ export default function Testimonial() {
           <div
             className="flex-1 rounded-2xl p-8 sm:p-10 flex flex-col gap-6 text-center"
             style={{
-              background: "#ffffff",
+              background: "var(--card)",
               boxShadow: "0 8px 40px rgba(6,26,18,0.08)",
-              border: "1px solid rgba(232,160,32,0.2)",
+              border: "1px solid rgb(var(--primary-rgb) / 20%)",
               opacity: fading ? 0 : 1,
               transition: "opacity 0.25s ease-in-out",
             }}
@@ -136,7 +136,7 @@ export default function Testimonial() {
             {/* Open-quote decoration */}
             <div
               className="font-display leading-none select-none"
-              style={{ fontSize: "80px", color: "#E8A020", lineHeight: "0.5", marginBottom: "8px" }}
+              style={{ fontSize: "80px", color: "var(--accent-foreground)", lineHeight: "0.5", marginBottom: "8px" }}
               aria-hidden="true"
             >
               &ldquo;
@@ -145,13 +145,13 @@ export default function Testimonial() {
             {/* Quote text */}
             <p
               className="font-display font-normal italic leading-[1.65]"
-              style={{ fontSize: "clamp(1rem,2vw,1.35rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1rem,2vw,1.35rem)", color: "var(--foreground)" }}
             >
               {t.quote}
             </p>
 
             {/* Stars */}
-            <div className="text-[18px]" aria-label="5 stars" style={{ color: "#E8A020" }}>
+            <div className="text-[18px]" aria-label="5 stars" style={{ color: "var(--accent-foreground)" }}>
               ⭐⭐⭐⭐⭐
             </div>
 
@@ -159,16 +159,16 @@ export default function Testimonial() {
             <div className="flex flex-col items-center gap-2">
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center font-jakarta font-bold text-[16px] flex-shrink-0"
-                style={{ background: "#0F4C2A", color: "#E8A020" }}
+                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                 aria-hidden="true"
               >
                 {t.initials}
               </div>
               <div>
-                <div className="font-jakarta font-bold text-[16px]" style={{ color: "#061A12" }}>
+                <div className="font-jakarta font-bold text-[16px]" style={{ color: "var(--foreground)" }}>
                   {t.name}
                 </div>
-                <div className="font-jakarta text-[13px]" style={{ color: "#6B9E83" }}>
+                <div className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
                   {t.role} · {t.school}
                 </div>
               </div>
@@ -183,16 +183,16 @@ export default function Testimonial() {
             style={{
               background: "rgba(6,26,18,0.08)",
               border: "1px solid rgba(6,26,18,0.15)",
-              color: "#061A12",
+              color: "var(--foreground)",
               cursor: "pointer",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#E8A020";
-              e.currentTarget.style.color = "#061A12";
+              e.currentTarget.style.background = "var(--primary)";
+              e.currentTarget.style.color = "var(--foreground)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "rgba(6,26,18,0.08)";
-              e.currentTarget.style.color = "#061A12";
+              e.currentTarget.style.color = "var(--foreground)";
             }}
           >
             →
@@ -210,7 +210,7 @@ export default function Testimonial() {
               style={{
                 width: i === current ? "24px" : "8px",
                 height: "8px",
-                background: i === current ? "#E8A020" : "rgba(6,26,18,0.2)",
+                background: i === current ? "var(--primary)" : "rgba(6,26,18,0.2)",
                 border: "none",
                 cursor: "pointer",
                 padding: 0,

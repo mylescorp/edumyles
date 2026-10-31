@@ -92,20 +92,20 @@ const values: { icon: LucideIcon; title: string; desc: string }[] = [
 
 export default function TeamPage() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden px-4 sm:px-8 py-20 sm:py-24"
         style={{
-          background: "#061A12",
-          borderTop: "3px solid #E8A020",
+          background: "var(--card)",
+          borderTop: "3px solid var(--primary)",
           minHeight: "420px",
         }}
       >
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -114,25 +114,25 @@ export default function TeamPage() {
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
               style={{
-                background: "rgba(232,160,32,0.12)",
-                border: "1px solid #E8A020",
-                color: "#E8A020",
+                background: "rgb(var(--primary-rgb) / 12%)",
+                border: "1px solid var(--accent-foreground)",
+                color: "var(--accent-foreground)",
               }}
             >
               The Team
             </div>
             <h1
               className="font-display font-bold leading-[1.15] mb-5"
-              style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
             >
               People who{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 believe in African education.
               </em>
             </h1>
             <p
               className="font-jakarta font-light leading-[1.8]"
-              style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "580px" }}
+              style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "580px" }}
             >
               We are teachers, engineers, and school operators. We have lived the problem — and we
               are building the solution.
@@ -142,24 +142,24 @@ export default function TeamPage() {
       </section>
 
       {/* ── Founders Featured ─────────────────────────────── */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "#ffffff" }}>
+      <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "var(--card)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-3 px-4 py-1.5 rounded-[50px]"
             style={{
-              background: "rgba(232,160,32,0.1)",
-              border: "1px solid #E8A020",
-              color: "#E8A020",
+              background: "rgb(var(--primary-rgb) / 10%)",
+              border: "1px solid var(--accent-foreground)",
+              color: "var(--accent-foreground)",
             }}
           >
             Leadership
           </div>
           <h2
             className="font-display font-bold leading-[1.2] mb-10 sm:mb-12"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
           >
             The{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
               co-founders
             </em>
           </h2>
@@ -170,7 +170,7 @@ export default function TeamPage() {
                 key={founder.name}
                 className="rounded-2xl overflow-hidden flex flex-col"
                 style={{
-                  border: "1.5px solid #E8A020",
+                  border: "1.5px solid var(--accent-foreground)",
                   boxShadow: "0 4px 24px rgba(6,26,18,0.10)",
                 }}
               >
@@ -194,20 +194,20 @@ export default function TeamPage() {
                   {/* Role badge over photo */}
                   <div
                     className="absolute bottom-4 left-4 font-jakarta font-semibold text-[12px] px-3 py-1 rounded-full"
-                    style={{ background: "#E8A020", color: "#061A12" }}
+                    style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                   >
                     {founder.role}
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3 p-6 flex-1" style={{ background: "#ffffff" }}>
+                <div className="flex flex-col gap-3 p-6 flex-1" style={{ background: "var(--card)" }}>
                   <div>
-                    <h3 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+                    <h3 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
                       {founder.name}
                     </h3>
                     <div
                       className="font-jakarta text-[12px] mt-0.5 flex items-center gap-1"
-                      style={{ color: "#6B9E83" }}
+                      style={{ color: "var(--muted-foreground)" }}
                     >
                       <MapPin className="w-3.5 h-3.5 inline" strokeWidth={1.5} />
                       {founder.location}
@@ -215,7 +215,7 @@ export default function TeamPage() {
                   </div>
                   <p
                     className="font-jakarta text-[14px] leading-[1.75] flex-1"
-                    style={{ color: "#5a5a5a" }}
+                    style={{ color: "var(--muted-foreground)" }}
                   >
                     {founder.bio}
                   </p>
@@ -224,8 +224,8 @@ export default function TeamPage() {
                       href={founder.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] no-underline transition-colors duration-200 hover:text-[#E8A020]"
-                      style={{ color: "#1A7A4A" }}
+                      className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] no-underline transition-colors duration-200 hover:text-[var(--accent-foreground)]"
+                      style={{ color: "var(--primary)" }}
                     >
                       <span
                         className="w-6 h-6 rounded-[6px] flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
@@ -244,24 +244,24 @@ export default function TeamPage() {
       </section>
 
       {/* ── Team Grid ─────────────────────────────────────── */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "#F3FBF6" }}>
+      <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "var(--background)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-3 px-4 py-1.5 rounded-[50px]"
             style={{
               background: "rgba(26,122,74,0.1)",
-              border: "1px solid #1A7A4A",
-              color: "#1A7A4A",
+              border: "1px solid var(--primary)",
+              color: "var(--primary)",
             }}
           >
             Core Team
           </div>
           <h2
             className="font-display font-bold leading-[1.2] mb-10 sm:mb-12"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
           >
             Meet the people{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
               behind EduMyles
             </em>
           </h2>
@@ -270,9 +270,9 @@ export default function TeamPage() {
             {team.map((member) => (
               <div
                 key={member.name}
-                className="bg-white rounded-2xl overflow-hidden flex flex-col"
+                className="bg-card rounded-2xl overflow-hidden flex flex-col"
                 style={{
-                  border: "1px solid #e8f4ec",
+                  border: "1px solid var(--border)",
                   boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
                 }}
               >
@@ -280,15 +280,15 @@ export default function TeamPage() {
                 <div
                   className="flex items-center justify-center"
                   style={{
-                    background: "linear-gradient(135deg, #061A12 0%, #0F4C2A 100%)",
+                    background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
                     height: "180px",
                   }}
                 >
                   <div
                     className="w-20 h-20 rounded-full flex items-center justify-center font-bold text-2xl"
                     style={{
-                      background: "linear-gradient(135deg, #0F4C2A, #1A7A4A)",
-                      color: "#E8A020",
+                      background: "linear-gradient(135deg, var(--primary), var(--primary))",
+                      color: "var(--accent-foreground)",
                     }}
                   >
                     {member.name
@@ -301,18 +301,18 @@ export default function TeamPage() {
 
                 <div className="flex flex-col gap-3 p-6 flex-1">
                   <div>
-                    <h3 className="font-display font-bold text-[20px]" style={{ color: "#061A12" }}>
+                    <h3 className="font-display font-bold text-[20px]" style={{ color: "var(--foreground)" }}>
                       {member.name}
                     </h3>
                     <div
                       className="font-jakarta font-semibold text-[13px] mt-1"
-                      style={{ color: "#E8A020" }}
+                      style={{ color: "var(--accent-foreground)" }}
                     >
                       {member.role}
                     </div>
                     <div
                       className="font-jakarta text-[12px] mt-0.5 flex items-center gap-1"
-                      style={{ color: "#6B9E83" }}
+                      style={{ color: "var(--muted-foreground)" }}
                     >
                       <MapPin className="w-3.5 h-3.5 inline" strokeWidth={1.5} />
                       {member.location}
@@ -321,7 +321,7 @@ export default function TeamPage() {
 
                   <p
                     className="font-jakarta text-[14px] leading-[1.7] flex-1"
-                    style={{ color: "#5a5a5a" }}
+                    style={{ color: "var(--muted-foreground)" }}
                   >
                     {member.bio}
                   </p>
@@ -331,8 +331,8 @@ export default function TeamPage() {
                       href={member.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] no-underline transition-colors duration-200 hover:text-[#E8A020]"
-                      style={{ color: "#1A7A4A" }}
+                      className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] no-underline transition-colors duration-200 hover:text-[var(--accent-foreground)]"
+                      style={{ color: "var(--primary)" }}
                     >
                       <span
                         className="w-6 h-6 rounded-[6px] flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
@@ -351,25 +351,25 @@ export default function TeamPage() {
       </section>
 
       {/* ── Values ────────────────────────────────────────── */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "#ffffff" }}>
+      <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "var(--card)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-10 sm:mb-14">
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-3 px-4 py-1.5 rounded-[50px]"
               style={{
-                background: "rgba(232,160,32,0.1)",
-                border: "1px solid #E8A020",
-                color: "#E8A020",
+                background: "rgb(var(--primary-rgb) / 10%)",
+                border: "1px solid var(--accent-foreground)",
+                color: "var(--accent-foreground)",
               }}
             >
               How We Work
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#061A12" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
             >
               Our{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 values
               </em>
             </h2>
@@ -381,15 +381,15 @@ export default function TeamPage() {
                 key={v.title}
                 className="rounded-2xl p-6 flex flex-col gap-4"
                 style={{
-                  background: "#F3FBF6",
-                  border: "1px solid #d4eade",
+                  background: "var(--background)",
+                  border: "1px solid var(--border)",
                 }}
               >
-                <v.icon className="w-10 h-10" strokeWidth={1.5} style={{ color: "#1A7A4A" }} />
-                <h3 className="font-display font-bold text-[18px]" style={{ color: "#061A12" }}>
+                <v.icon className="w-10 h-10" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+                <h3 className="font-display font-bold text-[18px]" style={{ color: "var(--foreground)" }}>
                   {v.title}
                 </h3>
-                <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "#5a5a5a" }}>
+                <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
                   {v.desc}
                 </p>
               </div>
@@ -399,25 +399,25 @@ export default function TeamPage() {
       </section>
 
       {/* ── Final CTA ─────────────────────────────────────── */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "#0F4C2A" }}>
+      <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "var(--primary)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--primary-foreground)" }}
           >
             Want to know more about{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
               what we&apos;re building?
             </em>
           </h2>
-          <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "#A8E6C3" }}>
+          <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)", opacity: 0.84 }}>
             Book a demo, read our blog, or just say hello. We love talking to schools.
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
             <a
               href="/book-demo"
               className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "#E8A020", color: "#061A12" }}
+              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
             >
               Book a Demo →
             </a>
@@ -426,8 +426,8 @@ export default function TeamPage() {
               className="inline-flex items-center justify-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgba(255,255,255,0.4)",
-                color: "#ffffff",
+                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
+                color: "var(--primary-foreground)",
               }}
             >
               Our Story

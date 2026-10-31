@@ -90,15 +90,15 @@ const tagConfig: Record<
     icon: Sparkles,
     label: "New",
     bg: "rgba(38,166,91,0.1)",
-    color: "#0F4C2A",
+    color: "var(--primary)",
     border: "rgba(38,166,91,0.25)",
   },
   improved: {
     icon: Star,
     label: "Improved",
-    bg: "rgba(232,160,32,0.1)",
+    bg: "rgb(var(--primary-rgb) / 10%)",
     color: "#9A5D00",
-    border: "rgba(232,160,32,0.25)",
+    border: "rgb(var(--primary-rgb) / 25%)",
   },
   fixed: {
     icon: Bug,
@@ -118,13 +118,13 @@ const tagConfig: Record<
 
 export default function ChangelogPage() {
   return (
-    <div style={{ color: "#212121" }}>
+    <div style={{ color: "var(--foreground)" }}>
       {/* ── Hero ───────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "#061A12",
-          borderTop: "3px solid #E8A020",
+          background: "var(--card)",
+          borderTop: "3px solid var(--primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "420px",
         }}
@@ -132,7 +132,7 @@ export default function ChangelogPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgba(232,160,32,0.04) 25%,rgba(232,160,32,0.04) 26%,transparent 27%,transparent 74%,rgba(232,160,32,0.04) 75%,rgba(232,160,32,0.04) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -141,25 +141,25 @@ export default function ChangelogPage() {
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
               style={{
-                background: "rgba(232,160,32,0.12)",
-                border: "1px solid #E8A020",
-                color: "#E8A020",
+                background: "rgb(var(--primary-rgb) / 12%)",
+                border: "1px solid var(--accent-foreground)",
+                color: "var(--accent-foreground)",
               }}
             >
               Product Updates
             </div>
             <h1
               className="font-display font-bold leading-[1.15] mb-5"
-              style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
             >
               What&apos;s new in{" "}
-              <em className="italic" style={{ color: "#E8A020" }}>
+              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
                 EduMyles
               </em>
             </h1>
             <p
               className="font-jakarta font-light leading-[1.8] mb-8"
-              style={{ fontSize: "18px", color: "#90CAF9", maxWidth: "540px" }}
+              style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "540px" }}
             >
               We ship improvements every week. Here&apos;s everything that&apos;s been updated,
               fixed, or launched.
@@ -191,7 +191,7 @@ export default function ChangelogPage() {
       </section>
 
       {/* ── Changelog Timeline ─────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "#ffffff" }}>
+      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
         <div className="max-w-[820px] mx-auto">
           <div className="flex flex-col gap-0">
             {releases.map((release, i) => (
@@ -201,9 +201,9 @@ export default function ChangelogPage() {
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center font-jakarta font-bold text-[11px] z-10 flex-shrink-0"
                     style={{
-                      background: i === 0 ? "#E8A020" : "#F3FBF6",
-                      color: i === 0 ? "#061A12" : "#0F4C2A",
-                      border: `2px solid ${i === 0 ? "#E8A020" : "#d4eade"}`,
+                      background: i === 0 ? "var(--primary)" : "var(--muted)",
+                      color: i === 0 ? "var(--primary-foreground)" : "var(--primary)",
+                      border: `2px solid ${i === 0 ? "var(--primary)" : "var(--border)"}`,
                     }}
                   >
                     {release.version.replace("v", "")}
@@ -211,26 +211,26 @@ export default function ChangelogPage() {
                   {i < releases.length - 1 && (
                     <div
                       className="flex-1 my-2"
-                      style={{ width: "2px", background: "#e8f4ec", minHeight: "40px" }}
+                      style={{ width: "2px", background: "var(--border)", minHeight: "40px" }}
                     />
                   )}
                 </div>
                 {/* Entry content */}
                 <div className="pb-12 flex-1">
                   <div className="flex items-center gap-3 mb-4">
-                    <h2 className="font-display font-bold text-[22px]" style={{ color: "#061A12" }}>
+                    <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
                       {release.version}
                     </h2>
                     <span
                       className="font-jakarta text-[13px] font-medium px-3 py-1 rounded-full"
-                      style={{ background: "#F3FBF6", color: "#6B9E83" }}
+                      style={{ background: "var(--background)", color: "var(--muted-foreground)" }}
                     >
                       {release.date}
                     </span>
                     {i === 0 && (
                       <span
                         className="font-jakarta font-bold text-[11px] px-3 py-1 rounded-full"
-                        style={{ background: "#E8A020", color: "#061A12" }}
+                        style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                       >
                         Latest
                       </span>
@@ -275,21 +275,21 @@ export default function ChangelogPage() {
       </section>
 
       {/* ── Subscribe Strip ────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "#F3FBF6" }}>
+      <section className="py-16 px-4" style={{ background: "var(--background)" }}>
         <div className="max-w-[560px] mx-auto text-center">
           <div
             className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-            style={{ background: "rgba(38,166,91,0.1)", color: "#0F4C2A" }}
+            style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
           >
             Stay Updated
           </div>
           <h2
             className="font-display font-bold mb-3"
-            style={{ fontSize: "clamp(1.5rem,2.5vw,2rem)", color: "#061A12" }}
+            style={{ fontSize: "clamp(1.5rem,2.5vw,2rem)", color: "var(--foreground)" }}
           >
             Get notified of new releases
           </h2>
-          <p className="font-jakarta text-[15px] mb-6" style={{ color: "#5a5a5a" }}>
+          <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--muted-foreground)" }}>
             No spam — just a short email when we ship something meaningful.
           </p>
           <SubscribeForm />

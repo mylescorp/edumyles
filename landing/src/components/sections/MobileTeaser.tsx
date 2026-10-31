@@ -14,24 +14,24 @@ export default function MobileTeaser() {
       id="mobile"
       className="py-16 px-4 sm:px-8"
       aria-label="Mobile-first experience"
-      style={{ background: "#061A12" }}
+      style={{ background: "var(--card)" }}
     >
       <div className="max-w-[1200px] mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* LEFT — Text */}
         <div>
           <span
             className="inline-block text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full mb-6"
-            style={{ background: "rgba(232,160,32,0.15)", color: "#E8A020" }}
+            style={{ background: "rgb(var(--primary-rgb) / 15%)", color: "var(--accent-foreground)" }}
           >
             Mobile-First
           </span>
 
           <h2
             className="font-display font-bold leading-[1.2] mb-5"
-            style={{ fontSize: "clamp(1.75rem, 3vw, 2.75rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(1.75rem, 3vw, 2.75rem)", color: "var(--foreground)" }}
           >
             Runs on any device.{" "}
-            <em className="italic" style={{ color: "#E8A020" }}>
+            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
               Works anywhere in Kenya.
             </em>
           </h2>
@@ -44,7 +44,7 @@ export default function MobileTeaser() {
           <ul className="flex flex-col gap-3 mb-8">
             {bullets.map((bullet) => (
               <li key={bullet} className="flex items-start gap-3">
-                <span className="text-[#E8A020] font-bold text-sm mt-0.5 flex-shrink-0">✓</span>
+                <span className="text-[var(--accent-foreground)] font-bold text-sm mt-0.5 flex-shrink-0">✓</span>
                 <span
                   className="text-sm leading-relaxed"
                   style={{ color: "rgba(255,255,255,0.8)" }}
@@ -71,7 +71,7 @@ export default function MobileTeaser() {
           <Link
             href="/waitlist"
             className="inline-flex items-center gap-2 font-semibold text-sm px-6 py-3 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "#E8A020", color: "#061A12" }}
+            style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
           >
             Try it on your phone →
           </Link>
@@ -83,7 +83,7 @@ export default function MobileTeaser() {
           <div
             className="relative"
             style={{
-              filter: "drop-shadow(0 0 40px rgba(232,160,32,0.25))",
+              filter: "drop-shadow(0 0 40px rgb(var(--primary-rgb) / 25%))",
             }}
           >
             {/* Phone outer */}
@@ -93,8 +93,8 @@ export default function MobileTeaser() {
                 width: "192px",
                 height: "384px",
                 borderRadius: "2.5rem",
-                border: "4px solid #E8A020",
-                background: "#0F4C2A",
+                border: "4px solid var(--accent-foreground)",
+                background: "var(--primary)",
                 boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
               }}
             >
@@ -103,7 +103,7 @@ export default function MobileTeaser() {
                 style={{
                   margin: "8px",
                   borderRadius: "2rem",
-                  background: "#ffffff",
+                  background: "var(--card)",
                   overflow: "hidden",
                   height: "calc(100% - 16px)",
                   display: "flex",
@@ -116,7 +116,7 @@ export default function MobileTeaser() {
                     display: "flex",
                     justifyContent: "center",
                     padding: "6px 0 4px",
-                    background: "#ffffff",
+                    background: "var(--card)",
                   }}
                 >
                   <div
@@ -124,7 +124,7 @@ export default function MobileTeaser() {
                       width: "48px",
                       height: "6px",
                       borderRadius: "3px",
-                      background: "#061A12",
+                      background: "var(--card)",
                     }}
                   />
                 </div>
@@ -132,7 +132,7 @@ export default function MobileTeaser() {
                 {/* App header */}
                 <div
                   style={{
-                    background: "#061A12",
+                    background: "var(--card)",
                     padding: "6px 10px",
                     display: "flex",
                     alignItems: "center",
@@ -141,7 +141,7 @@ export default function MobileTeaser() {
                 >
                   <span
                     style={{
-                      color: "#E8A020",
+                      color: "var(--accent-foreground)",
                       fontSize: "9px",
                       fontWeight: 700,
                       letterSpacing: "0.05em",
@@ -165,24 +165,24 @@ export default function MobileTeaser() {
                   {/* Attendance card */}
                   <div
                     style={{
-                      background: "#F3FBF6",
+                      background: "var(--background)",
                       borderRadius: "8px",
                       padding: "8px",
-                      border: "1px solid #d1fae5",
+                      border: "1px solid var(--border)",
                     }}
                   >
                     <p
                       style={{
                         fontSize: "8px",
                         fontWeight: 600,
-                        color: "#061A12",
+                        color: "var(--foreground)",
                         marginBottom: "4px",
                       }}
                     >
                       Attendance Today
                     </p>
                     <p
-                      style={{ fontSize: "14px", fontWeight: 800, color: "#0F4C2A", lineHeight: 1 }}
+                      style={{ fontSize: "14px", fontWeight: 800, color: "var(--primary)", lineHeight: 1 }}
                     >
                       94%
                     </p>
@@ -192,7 +192,7 @@ export default function MobileTeaser() {
                         marginTop: "5px",
                         height: "4px",
                         borderRadius: "2px",
-                        background: "#e5e7eb",
+                        background: "var(--border)",
                         overflow: "hidden",
                       }}
                     >
@@ -201,7 +201,7 @@ export default function MobileTeaser() {
                           width: "94%",
                           height: "100%",
                           borderRadius: "2px",
-                          background: "#E8A020",
+                          background: "var(--primary)",
                         }}
                       />
                     </div>
@@ -210,7 +210,7 @@ export default function MobileTeaser() {
                   {/* Fee alerts card */}
                   <div
                     style={{
-                      background: "#FEF3DC",
+                      background: "var(--muted)",
                       borderRadius: "8px",
                       padding: "8px",
                       border: "1px solid #fde68a",
@@ -221,7 +221,7 @@ export default function MobileTeaser() {
                   >
                     <span style={{ fontSize: "12px" }}>🔔</span>
                     <div>
-                      <p style={{ fontSize: "8px", fontWeight: 700, color: "#061A12" }}>
+                      <p style={{ fontSize: "8px", fontWeight: 700, color: "var(--foreground)" }}>
                         3 fee alerts
                       </p>
                       <p style={{ fontSize: "7px", color: "#92400e" }}>Pending collections</p>
@@ -231,7 +231,7 @@ export default function MobileTeaser() {
                   {/* Messages card */}
                   <div
                     style={{
-                      background: "#f8fafc",
+                      background: "var(--background)",
                       borderRadius: "8px",
                       padding: "8px",
                       border: "1px solid #e2e8f0",
@@ -242,7 +242,7 @@ export default function MobileTeaser() {
                   >
                     <span style={{ fontSize: "12px" }}>💬</span>
                     <div>
-                      <p style={{ fontSize: "8px", fontWeight: 700, color: "#061A12" }}>
+                      <p style={{ fontSize: "8px", fontWeight: 700, color: "var(--foreground)" }}>
                         2 new messages
                       </p>
                       <p style={{ fontSize: "7px", color: "#64748b" }}>from parents</p>
@@ -266,7 +266,7 @@ export default function MobileTeaser() {
                       style={{
                         width: "14px",
                         height: "14px",
-                        color: i === 0 ? "#1A7A4A" : "#94a3b8",
+                        color: i === 0 ? "var(--primary)" : "#94a3b8",
                       }}
                       strokeWidth={1.5}
                     />
@@ -283,7 +283,7 @@ export default function MobileTeaser() {
               height: "20px",
               borderRadius: "50%",
               background:
-                "radial-gradient(ellipse at center, rgba(232,160,32,0.35) 0%, transparent 70%)",
+                "radial-gradient(ellipse at center, rgb(var(--primary-rgb) / 35%) 0%, transparent 70%)",
               marginTop: "-4px",
             }}
           />

@@ -12,25 +12,25 @@ function AffiliateApplicationSuccessContent() {
   const affiliatePortalHref = getAppHref("/portal/affiliate");
 
   return (
-    <main className="min-h-screen bg-[#EEF6F1] flex items-center justify-center px-4">
+    <main className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="max-w-2xl w-full">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-[#0F4C2A] rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
-          <h1 className="font-display text-4xl font-bold text-[#061A12] mb-4">
+          <h1 className="font-display text-4xl font-bold text-foreground mb-4">
             Application Submitted!
           </h1>
-          <p className="font-jakarta text-[18px] leading-7 text-[#5d6f66] mb-2">
+          <p className="font-jakarta text-[18px] leading-7 text-muted-foreground mb-2">
             Your affiliate application has been received successfully.
           </p>
-          <p className="font-jakarta text-[15px] text-[#6B9E83]">
+          <p className="font-jakarta text-[15px] text-[var(--muted-foreground)]">
             Application ID: <span className="font-mono">{applicationId}</span>
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="font-display text-2xl font-bold text-[#061A12] mb-6">
+        <div className="bg-card rounded-2xl shadow-lg p-8 mb-8">
+          <h2 className="font-display text-2xl font-bold text-foreground mb-6">
             What Happens Next?
           </h2>
 
@@ -66,61 +66,61 @@ function AffiliateApplicationSuccessContent() {
               },
             ].map((step, index) => (
               <div key={step.title} className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 bg-[#0F4C2A] rounded-full flex items-center justify-center text-white font-jakarta text-sm font-bold">
+                <div className="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-jakarta text-sm font-bold">
                   {index + 1}
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-1">
+                  <h3 className="font-jakarta text-[16px] font-bold text-foreground mb-1">
                     {step.title}
                   </h3>
-                  <p className="font-jakarta text-[14px] text-[#5d6f66] mb-2">{step.description}</p>
-                  <p className="font-jakarta text-[12px] text-[#1A7A4A] font-medium">{step.time}</p>
+                  <p className="font-jakarta text-[14px] text-muted-foreground mb-2">{step.description}</p>
+                  <p className="font-jakarta text-[12px] text-primary font-medium">{step.time}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <h2 className="font-display text-2xl font-bold text-[#061A12] mb-6">
+        <div className="bg-card rounded-2xl shadow-lg p-8 mb-8">
+          <h2 className="font-display text-2xl font-bold text-foreground mb-6">
             Affiliate Program Benefits
           </h2>
 
           <div className="space-y-4">
-            <div className="border-l-4 border-[#E8A020] pl-4">
-              <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
+            <div className="border-l-4 border-[var(--accent-foreground)] pl-4">
+              <h3 className="font-jakarta text-[16px] font-bold text-foreground mb-2">
                 10% Commission Rate
               </h3>
-              <p className="font-jakarta text-[14px] text-[#5d6f66]">
+              <p className="font-jakarta text-[14px] text-muted-foreground">
                 Earn 10% commission on every school subscription that comes through your referral
                 link.
               </p>
             </div>
 
-            <div className="border-l-4 border-[#E8A020] pl-4">
-              <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
+            <div className="border-l-4 border-[var(--accent-foreground)] pl-4">
+              <h3 className="font-jakarta text-[16px] font-bold text-foreground mb-2">
                 30-Day Cookie Tracking
               </h3>
-              <p className="font-jakarta text-[14px] text-[#5d6f66]">
+              <p className="font-jakarta text-[14px] text-muted-foreground">
                 Get credit for schools that sign up within 30 days of clicking your referral link.
               </p>
             </div>
 
-            <div className="border-l-4 border-[#E8A020] pl-4">
-              <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
+            <div className="border-l-4 border-[var(--accent-foreground)] pl-4">
+              <h3 className="font-jakarta text-[16px] font-bold text-foreground mb-2">
                 Marketing Materials
               </h3>
-              <p className="font-jakarta text-[14px] text-[#5d6f66]">
+              <p className="font-jakarta text-[14px] text-muted-foreground">
                 Access ready-to-use marketing materials, banners, and content to help you promote
                 EduMyles.
               </p>
             </div>
 
-            <div className="border-l-4 border-[#E8A020] pl-4">
-              <h3 className="font-jakarta text-[16px] font-bold text-[#061A12] mb-2">
+            <div className="border-l-4 border-[var(--accent-foreground)] pl-4">
+              <h3 className="font-jakarta text-[16px] font-bold text-foreground mb-2">
                 Real-Time Dashboard
               </h3>
-              <p className="font-jakarta text-[14px] text-[#5d6f66]">
+              <p className="font-jakarta text-[14px] text-muted-foreground">
                 Track clicks, conversions, and earnings in real-time through your affiliate
                 dashboard.
               </p>
@@ -132,19 +132,19 @@ function AffiliateApplicationSuccessContent() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/"
-              className="inline-flex items-center justify-center rounded-[999px] border border-[#0F4C2A] bg-[#0F4C2A] px-8 py-3 font-jakarta text-[15px] font-bold text-white transition-all duration-200 hover:border-[#061A12] hover:bg-[#061A12]"
+              className="inline-flex items-center justify-center rounded-[999px] border border-primary bg-primary px-8 py-3 font-jakarta text-[15px] font-bold text-primary-foreground transition-all duration-200 hover:border-primary hover:bg-primary"
             >
               Back to Home
             </Link>
             <a
               href={affiliatePortalHref}
-              className="inline-flex items-center justify-center rounded-[999px] border border-[#0F4C2A] bg-white px-8 py-3 font-jakarta text-[15px] font-bold text-[#0F4C2A] transition-all duration-200 hover:border-[#061A12] hover:bg-[#061A12] hover:text-white"
+              className="inline-flex items-center justify-center rounded-[999px] border border-primary bg-card px-8 py-3 font-jakarta text-[15px] font-bold text-primary transition-all duration-200 hover:border-primary hover:bg-primary hover:text-primary-foreground"
             >
               Affiliate Portal
             </a>
           </div>
 
-          <div className="flex items-center justify-center gap-6 text-sm text-[#6B9E83]">
+          <div className="flex items-center justify-center gap-6 text-sm text-[var(--muted-foreground)]">
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
               <span>affiliates@edumyles.com</span>
