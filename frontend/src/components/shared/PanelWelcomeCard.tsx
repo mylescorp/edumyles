@@ -92,14 +92,14 @@ export function PanelWelcomeCard({ description, actions, metrics = [] }: PanelWe
       style={{ backgroundColor: "var(--platform-dashboard-banner)" }}
     >
       <div className="min-w-0 max-w-2xl">
-        <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-100/75">
+        <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/75">
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--platform-highlight)]" />
           {getWorkspaceLabel(role)}
         </p>
         <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-[27px]">
           {greeting}, {displayName}.
         </h2>
-        <p className="mt-1.5 max-w-xl text-sm leading-5 text-blue-50/75">{description}</p>
+        <p className="mt-1.5 max-w-xl text-sm leading-5 text-white/75">{description}</p>
         {actions ? <div className="mt-4 flex flex-wrap items-center gap-2">{actions}</div> : null}
       </div>
       <div className="flex shrink-0 flex-col items-stretch gap-2 md:items-end">
@@ -107,17 +107,17 @@ export function PanelWelcomeCard({ description, actions, metrics = [] }: PanelWe
           <div className="grid grid-cols-3 gap-2">
             {metrics.map((metric) => (
               <div key={metric.label} className="min-w-[5.25rem] rounded-lg border border-white/15 bg-white/[0.08] px-3 py-2">
-                <p className="text-[10px] text-blue-100/70">{metric.label}</p>
+                <p className="text-[10px] text-white/70">{metric.label}</p>
                 <p className="mt-0.5 text-sm font-semibold text-white">{metric.value}</p>
               </div>
             ))}
           </div>
         ) : null}
-        <div className="flex items-center gap-2 self-start rounded-lg border border-white/15 bg-white/[0.08] px-3 py-2 text-xs text-blue-50/85 md:self-end">
+        <div className="flex items-center gap-2 self-start rounded-lg border border-white/15 bg-white/[0.08] px-3 py-2 text-xs text-white/85 md:self-end">
           <Clock3 aria-hidden="true" className="h-4 w-4 shrink-0" />
           <span>
             {localDateTime ?? "Your local time"}
-            {timeZone ? <span className="ml-1.5 text-[10px] text-blue-100/60">{timeZone}</span> : null}
+            {timeZone ? <span className="ml-1.5 text-[10px] text-white/60">{timeZone}</span> : null}
           </span>
         </div>
       </div>

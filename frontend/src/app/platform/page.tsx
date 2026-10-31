@@ -118,7 +118,7 @@ export default function PlatformDashboardPage() {
 
   const stats = {
     activeTenants: asNumber(dashboard.stats?.activeTenants),
-    totalRevenueKes: asNumber(dashboard.stats?.totalRevenueKes),
+    totalRevenueKes: asNumber(dashboard.revenue?.collectedKes),
     mrrKes: asNumber(dashboard.stats?.mrrKes),
     openTickets: asNumber(dashboard.stats?.openTickets),
     activeModules: asNumber(dashboard.stats?.activeModules),
@@ -226,7 +226,7 @@ export default function PlatformDashboardPage() {
 
       <section aria-label="Platform summary metrics" className="grid gap-3 md:grid-cols-3">
         {[
-          { label: "Total collected", value: hasDashboardData ? formatKes(stats.totalRevenueKes) : "—", note: hasDashboardData ? "Lifetime paid invoices" : "Waiting for platform data", icon: CircleDollarSign },
+          { label: "Collected in period", value: hasDashboardData ? formatKes(stats.totalRevenueKes) : "—", note: hasDashboardData ? `${asNumber(dashboard.revenue?.paidInvoices).toLocaleString()} paid invoices in ${timeRange.toUpperCase()}` : "Waiting for platform data", icon: CircleDollarSign },
           { label: "Active tenants", value: hasDashboardData ? stats.activeTenants.toLocaleString() : "—", note: hasDashboardData ? `${stats.activeTenants.toLocaleString()} currently active` : "Waiting for platform data", icon: Building2 },
           { label: "Open tickets", value: hasDashboardData ? stats.openTickets.toLocaleString() : "—", note: hasDashboardData ? `${health.slaBreaches.toLocaleString()} SLA breaches` : "Waiting for platform data", icon: LifeBuoy },
         ].map((metric) => (

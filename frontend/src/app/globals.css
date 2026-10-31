@@ -5401,6 +5401,17 @@ html.dark .auth-loading {
   }
 }
 
+@media (min-width: 768px) and (max-width: 900px) {
+  .shell-search-trigger {
+    left: 0.75rem;
+    width: clamp(7rem, calc(100% - 21rem), 10rem);
+  }
+
+  .shell-ai-link {
+    display: none;
+  }
+}
+
 @media (max-width: 767px) {
   .shell-mobile-tabs {
     display: flex;

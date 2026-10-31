@@ -885,7 +885,7 @@ function LeftSidebar({
 }) {
   const pathname = usePathname();
   const { tenant } = useTenant();
-  const [openPlatformItem, setOpenPlatformItem] = useState<string | null>("/platform/billing");
+  const [openPlatformItem, setOpenPlatformItem] = useState<string | null | undefined>(undefined);
   const [collapsedFlyoutItem, setCollapsedFlyoutItem] = useState<string | null>(null);
   const collapsedFlyoutCloseTimer = useRef<number | null>(null);
   const clearCollapsedFlyoutClose = () => {
@@ -1209,13 +1209,14 @@ function LeftSidebar({
                     const childrenOpen =
                       hasChildren &&
                       (openPlatformItem === item.href ||
-                        activePlatformParent === item.href ||
-                        pathname === item.href);
+                        (openPlatformItem === undefined &&
+                          (activePlatformParent === item.href || pathname === item.href)));
 
                     const navBtn = (
                       <Link
                         key={item.href}
                         href={item.href}
+                        onClick={hasChildren ? () => setOpenPlatformItem(undefined) : undefined}
                         onMouseEnter={collapsed && hasChildren ? () => {
                           clearCollapsedFlyoutClose();
                           setCollapsedFlyoutItem(item.href);
@@ -1329,7 +1330,7 @@ function LeftSidebar({
                               aria-label={`${childrenOpen ? "Collapse" : "Expand"} ${item.label}`}
                               aria-expanded={Boolean(childrenOpen)}
                               className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-muted-foreground"
-                              onClick={() => setOpenPlatformItem((current) => current === item.href ? null : item.href)}
+                              onClick={() => setOpenPlatformItem(childrenOpen ? null : item.href)}
                             />
                           </div>
                         ) : navBtn}

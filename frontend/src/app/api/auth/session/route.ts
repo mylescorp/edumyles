@@ -589,12 +589,20 @@ export async function GET(req: NextRequest) {
       }
 
       try {
-        const session = await getSessionCompat(getConvexClient(), token, process.env.CONVEX_WEBHOOK_SECRET);
+        const convex = getConvexClient();
+        const session = await getSessionCompat(convex, token, process.env.CONVEX_WEBHOOK_SECRET);
         const role = session && isConfiguredMasterAdmin(session.email)
           ? "master_admin"
           : normalizeRole(session?.role);
         const allowed = Boolean(session && isPlatformRole(role));
-        const permissions = Array.isArray(session?.permissions) ? session.permissions : [];
+        const permissionSnapshot = allowed
+          ? await convex.query(api.modules.platform.rbac.getMyPermissions, { sessionToken: token })
+          : null;
+        const permissions = Array.isArray(permissionSnapshot?.permissions)
+          ? permissionSnapshot.permissions
+          : Array.isArray(session?.permissions)
+            ? session.permissions
+            : [];
         const canImpersonate = Boolean(
           allowed && (
             role === "master_admin" ||
@@ -620,8 +628,29 @@ export async function GET(req: NextRequest) {
     }
 
     if (isPlatformWorkspaceReturn) {
-      if (!masterSessionBackup) {
-        return NextResponse.redirect(new URL("/dashboard", req.url), 303);
+      if (!masterSessionBackup || !currentSessionCookie) {
+        return NextResponse.redirect(new URL("/auth/login", req.url), 303);
+      }
+
+      // A saved platform session is a workspace shortcut, not a substitute
+      // for being signed in. Require the currently active workspace session
+      // to remain valid before restoring the saved identity.
+      let activeWorkspaceSession: any;
+      try {
+        activeWorkspaceSession = await getSessionCompat(
+          getConvexClient(),
+          currentSessionCookie,
+          process.env.CONVEX_WEBHOOK_SECRET
+        );
+      } catch {
+        activeWorkspaceSession = null;
+      }
+      if (!activeWorkspaceSession) {
+        const response = NextResponse.redirect(new URL("/auth/login", req.url), 303);
+        response.cookies.delete(MASTER_SESSION_BACKUP_COOKIE);
+        response.cookies.delete(ADMIN_WORKSPACE_MODE_COOKIE);
+        response.cookies.delete(ADMIN_TENANT_COOKIE);
+        return response;
       }
 
       if (isLocalDevPlatformSession(masterSessionBackup, bootstrapVersion)) {
