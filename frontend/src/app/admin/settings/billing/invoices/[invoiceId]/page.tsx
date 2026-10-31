@@ -210,8 +210,8 @@ export default function SubscriptionInvoiceDetailPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="pt-6 flex items-center gap-4">
-            <div className="rounded-full bg-[#0F4C2A]/10 p-3">
-              <FileText className="h-5 w-5 text-[#0F4C2A]" />
+            <div className="rounded-full bg-primary/10 p-3">
+              <FileText className="h-5 w-5 text-primary" />
             </div>
             <div>
               <p className="text-2xl font-bold">{format(invoice.totalAmountKes ?? invoice.amountKes ?? 0)}</p>
@@ -223,7 +223,7 @@ export default function SubscriptionInvoiceDetailPage() {
         <Card>
           <CardContent className="pt-6 flex items-center gap-4">
             <div className="rounded-full bg-blue-100 p-3">
-              <Calendar className="h-5 w-5 text-[#1565C0]" />
+              <Calendar className="h-5 w-5 text-info" />
             </div>
             <div>
               <p className="font-semibold text-sm">{formatDate(invoice.createdAt)}</p>
@@ -238,7 +238,7 @@ export default function SubscriptionInvoiceDetailPage() {
         <Card>
           <CardContent className="pt-6 flex items-center gap-4">
             <div className="rounded-full bg-amber-100 p-3">
-              <CreditCard className="h-5 w-5 text-[#E8A020]" />
+              <CreditCard className="h-5 w-5 text-warning" />
             </div>
             <div>
               <p className="font-semibold text-sm capitalize">

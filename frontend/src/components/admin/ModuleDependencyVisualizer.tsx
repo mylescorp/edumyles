@@ -51,7 +51,7 @@ export function ModuleDependencyVisualizer({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'core': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'core': return 'bg-warning-muted text-warning-muted-foreground border-warning/30';
       case 'active': return 'bg-em-success/10 text-em-success border-em-success/20';
       case 'inactive': return 'bg-gray-100 text-gray-800 border-gray-200';
       case 'not-installed': return 'bg-red-100 text-red-800 border-red-200';
@@ -101,7 +101,7 @@ export function ModuleDependencyVisualizer({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <Star className="h-3 w-3 text-amber-500" />
+                    <Star className="h-3 w-3 text-warning" />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Core module - always available</p>

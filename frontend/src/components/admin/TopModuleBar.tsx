@@ -133,7 +133,7 @@ export function TopModuleBar() {
                   
                   {/* Core module indicator */}
                   {module.isCore && (
-                    <Star className="h-3 w-3 text-amber-500" />
+                    <Star className="h-3 w-3 text-warning" />
                   )}
                   
                   {/* Active/inactive indicator */}
@@ -171,7 +171,7 @@ export function TopModuleBar() {
                           {module.name}
                           <div className="flex items-center gap-1">
                             {module.isCore && (
-                              <Star className="h-3 w-3 text-amber-500" />
+                              <Star className="h-3 w-3 text-warning" />
                             )}
                             {!module.isCore && (
                               <div className={cn(

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
+import { semantic } from "@edumyles/design-tokens";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { toast } from "sonner";
@@ -40,7 +41,7 @@ export function RoleForm({ mode, role }: RoleFormProps) {
   const [name, setName] = useState(role?.name ?? "");
   const [description, setDescription] = useState(role?.description ?? "");
   const [baseRole, setBaseRole] = useState(role?.baseRole ?? "custom");
-  const [color, setColor] = useState(role?.color ?? "#2563EB");
+  const [color, setColor] = useState<string>(role?.color ?? semantic.light.primary);
   const [icon, setIcon] = useState(role?.icon ?? "shield");
   const [permissions, setPermissions] = useState<string[]>(role?.permissions ?? []);
   const [saving, setSaving] = useState(false);

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import Script from "next/script";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ConvexAuthProvider } from "@/components/ConvexAuthProvider";
@@ -11,17 +12,12 @@ import { ThemeProvider } from "@/hooks/useTheme";
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-inter",
   display: "swap",
 });
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-jakarta",
-  display: "swap",
-});
+
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://app.edumyles.com";
 
@@ -33,11 +29,6 @@ export const metadata: Metadata = {
   },
   description:
     "Replace disconnected spreadsheets and messaging groups with one unified platform for admissions, billing, academics, HR, and communication across East Africa.",
-  icons: {
-    icon: [{ url: "/logo-icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/logo-icon.svg", type: "image/svg+xml" }],
-    shortcut: "/logo-icon.svg",
-  },
   alternates: {
     canonical: "./",
   },
@@ -50,10 +41,25 @@ export const metadata: Metadata = {
     },
   },
   manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      {
+        url: "/favicon-light.png",
+        type: "image/png",
+        sizes: "512x512",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/favicon-dark.png",
+        type: "image/png",
+        sizes: "512x512",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+  },
   other: {
-    // EduMyles 2026 brand primary — Forest Deep
-    "msapplication-TileColor": "#061A12",
-    "msapplication-TileImage": "/logo-icon.svg",
+    "msapplication-TileColor": "#FAFAFA",
+    "msapplication-TileImage": "/favicon-192.png",
   },
 };
 
@@ -62,7 +68,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Runs synchronously before paint — prevents dark-mode flash */}
-        <script
+        <Script
+          id="em-theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('em-theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
           }}
@@ -70,7 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body
         suppressHydrationWarning
-        className={`${inter.variable} ${jakarta.variable} font-sans antialiased`}
+        className={`${inter.variable} font-sans antialiased`}
       >
         <ThemeProvider>
           <ErrorBoundary>

@@ -198,6 +198,11 @@ function applyAuthResponse(
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const host = request.headers.get("host") ?? "";
+  const isPort8003LocalPreview =
+    process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
+    process.env.NODE_ENV !== "production" &&
+    /^(localhost|127\.0\.0\.1):8003$/i.test(host);
 
   let workosSession: { user?: unknown } = {};
   let authkitHeaders: Headers | null = null;
@@ -234,7 +239,6 @@ export async function proxy(request: NextRequest) {
 
   const session = request.cookies.get("edumyles_session");
   let role = request.cookies.get("edumyles_role")?.value;
-  const host = request.headers.get("host");
   const tenantSlug = getTenantSubdomainFromHost(host);
   let cookieTenantId: string | undefined;
   if (role === "platform_admin") {
@@ -285,7 +289,7 @@ export async function proxy(request: NextRequest) {
 
   // 1. Unauthenticated → WorkOS login. Legacy cookie-only sessions are allowed
   // temporarily while existing users cycle through the updated callback flow.
-  if (isProtected && !hasServerSession && !session) {
+  if (isProtected && !hasServerSession && !session && !isPort8003LocalPreview) {
     if (tenantSlug) {
       const loginUrl = new URL("/auth/login/api", request.url);
       loginUrl.searchParams.set("returnTo", pathname || "/admin");

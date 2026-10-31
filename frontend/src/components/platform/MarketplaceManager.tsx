@@ -808,7 +808,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
 
             <div className="flex items-center gap-4 text-sm mb-3">
               <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 text-yellow-500" />
+                <Star className="h-4 w-4 text-warning" />
                 <span>{module.rating}</span>
                 <span className="text-muted-foreground">({module.reviews} reviews)</span>
               </div>
@@ -871,7 +871,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
 
       <Card>
         <CardContent className="p-6 text-center">
-          <Star className="h-8 w-8 mx-auto mb-2 text-yellow-600" />
+          <Star className="h-8 w-8 mx-auto mb-2 text-warning-muted-foreground" />
           <div className="text-2xl font-bold">
             {(modules.reduce((sum, m) => sum + m.rating, 0) / modules.length).toFixed(1)}
           </div>
@@ -1017,8 +1017,8 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                     <YAxis yAxisId="right" orientation="right" />
                     <Tooltip />
                     <Legend />
-                    <Line yAxisId="left" type="monotone" dataKey="downloads" stroke="#3b82f6" strokeWidth={2} name="Downloads" />
-                    <Line yAxisId="right" type="monotone" dataKey="newUsers" stroke="#10b981" strokeWidth={2} name="New Users" />
+                    <Line yAxisId="left" type="monotone" dataKey="downloads" stroke="var(--primary)" strokeWidth={2} name="Downloads" />
+                    <Line yAxisId="right" type="monotone" dataKey="newUsers" stroke="var(--success)" strokeWidth={2} name="New Users" />
                   </RechartsLineChart>
                 </ResponsiveContainer>
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
@@ -1054,11 +1054,11 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                       labelLine={false}
                       label={({ name, value }) => `${name}: ${value}%`}
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill="var(--info)"
                       dataKey="value"
                     >
                       {ANALYTICS_DATA.categoryDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b'][index]} />
+                        <Cell key={`cell-${index}`} fill={['var(--primary)', 'var(--success)', 'var(--info)', 'var(--warning)'][index]} />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -1082,7 +1082,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                     <XAxis dataKey="tier" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="revenue" fill="#3b82f6" name="Revenue (KES)" />
+                    <Bar dataKey="revenue" fill="var(--primary)" name="Revenue (KES)" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -1102,8 +1102,8 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                     data={ANALYTICS_DATA.geographicData}
                     dataKey="users"
                     aspectRatio={4/3}
-                    stroke="#fff"
-                    fill="#3b82f6"
+                    stroke="var(--card)"
+                    fill="var(--primary)"
                   >
                     <Tooltip content={({ payload }) => {
                       if (payload && payload[0]) {
@@ -1139,9 +1139,9 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                     <PolarGrid />
                     <PolarAngleAxis dataKey="developer" />
                     <PolarRadiusAxis />
-                    <Radar name="Modules" dataKey="modules" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
-                    <Radar name="Downloads" dataKey="downloads" stroke="#10b981" fill="#10b981" fillOpacity={0.6} />
-                    <Radar name="Rating" dataKey="rating" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.6} />
+                    <Radar name="Modules" dataKey="modules" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.6} />
+                    <Radar name="Downloads" dataKey="downloads" stroke="var(--success)" fill="var(--success)" fillOpacity={0.6} />
+                    <Radar name="Rating" dataKey="rating" stroke="var(--warning)" fill="var(--warning)" fillOpacity={0.6} />
                     <Legend />
                     <Tooltip />
                   </RadarChart>
@@ -1162,7 +1162,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                       </div>
                       <div className="text-right">
                         <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 text-yellow-500" />
+                          <Star className="h-4 w-4 text-warning" />
                           <span className="font-medium">{dev.rating}</span>
                         </div>
                         <div className="text-sm text-muted-foreground">{dev.downloads.toLocaleString()} downloads</div>
@@ -1191,7 +1191,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
-                    <Area type="monotone" dataKey="newUsers" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} name="Revenue Growth" />
+                    <Area type="monotone" dataKey="newUsers" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.6} name="Revenue Growth" />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -1252,7 +1252,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                       <div className={`w-2 h-2 rounded-full ${
                         activity.type === 'install' ? 'bg-green-500' :
                         activity.type === 'update' ? 'bg-blue-500' :
-                        activity.type === 'review' ? 'bg-yellow-500' :
+                        activity.type === 'review' ? 'bg-warning-muted0' :
                         activity.type === 'download' ? 'bg-purple-500' :
                         'bg-orange-500'
                       }`} />

@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { PanelWelcomeCard } from "@/components/shared/PanelWelcomeCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Badge } from "@/components/ui/badge";
@@ -73,6 +74,7 @@ export default function DeveloperDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <PanelWelcomeCard description="Here is your latest marketplace performance, installs, and earnings." />
       <PageHeader
         title="Developer Dashboard"
         description="Live marketplace performance for your publisher account, modules, installs, and earnings."

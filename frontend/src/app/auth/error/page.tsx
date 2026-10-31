@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { AlertTriangle, RefreshCw, Home, Mail, ArrowRight } from "lucide-react";
+import Logo from "@/components/shared/Logo";
 
 interface ReasonConfig {
   title: string;
@@ -76,33 +76,33 @@ export default async function AuthErrorPage({
     <div className="flex min-h-screen flex-col items-center justify-center px-6 py-16">
       {/* Logo */}
       <div className="mb-10">
-        <Image src="/logo-full.svg" alt="EduMyles" width={160} height={44} priority />
+        <Logo variant="full" width={160} height={44} priority href={null} />
       </div>
 
       <div className="w-full max-w-md space-y-8">
         {/* Error card */}
-        <div className="rounded-2xl border border-red-100 bg-white p-8 shadow-sm dark:border-red-900/40 dark:bg-gray-900">
+        <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
           {/* Icon */}
           <div className="mb-6 flex justify-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50 dark:bg-red-950/40">
-              <AlertTriangle className="h-8 w-8 text-red-500 dark:text-red-400" />
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-danger-muted">
+              <AlertTriangle className="h-8 w-8 text-danger" />
             </span>
           </div>
 
           {/* Text */}
           <div className="text-center space-y-2 mb-6">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-xl font-bold text-foreground">
               {config.title}
             </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+            <p className="text-sm text-secondary-foreground leading-relaxed">
               {config.message}
             </p>
           </div>
 
           {/* Hint box */}
           {config.hint && (
-            <div className="mb-6 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40 px-4 py-3">
-              <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
+            <div className="mb-6 rounded-lg border border-warning/30 bg-warning-muted px-4 py-3">
+              <p className="text-sm text-warning-muted-foreground leading-relaxed">
                 {config.hint}
               </p>
             </div>
@@ -110,8 +110,8 @@ export default async function AuthErrorPage({
 
           {/* Error code */}
           {reason && (
-            <p className="mb-6 text-center font-mono text-xs text-gray-400 dark:text-gray-600">
-              Error code: <span className="text-gray-500 dark:text-gray-500">{reason}</span>
+            <p className="mb-6 text-center font-mono text-xs text-muted-foreground">
+              Error code: <span className="text-muted-foreground">{reason}</span>
             </p>
           )}
 
@@ -121,8 +121,7 @@ export default async function AuthErrorPage({
             {config.cta && (
               <Link
                 href={config.cta.href}
-                className="group flex w-full items-center justify-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all hover:shadow-md active:scale-[0.98]"
-                style={{ background: "linear-gradient(135deg, #0F4C2A 0%, #1A7A4A 100%)" }}
+                className="group flex h-[var(--control-lg)] w-full items-center justify-center gap-2.5 rounded-[var(--radius-control)] bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]"
               >
                 {config.cta.label}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -133,8 +132,7 @@ export default async function AuthErrorPage({
             {!config.cta && (
               <a
                 href="/auth/login/api"
-                className="group flex w-full items-center justify-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all hover:shadow-md active:scale-[0.98]"
-                style={{ background: "linear-gradient(135deg, #0F4C2A 0%, #1A7A4A 100%)" }}
+                className="group flex h-[var(--control-lg)] w-full items-center justify-center gap-2.5 rounded-[var(--radius-control)] bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]"
               >
                 <RefreshCw className="h-4 w-4" />
                 Try signing in again
@@ -144,7 +142,7 @@ export default async function AuthErrorPage({
 
             <Link
               href="/"
-              className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-5 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-input bg-background px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
             >
               <Home className="h-4 w-4" />
               Go home
@@ -154,12 +152,10 @@ export default async function AuthErrorPage({
 
         {/* Support */}
         <div className="text-center space-y-1.5">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Still having trouble?</p>
+          <p className="text-sm text-muted-foreground">Still having trouble?</p>
           <a
             href="mailto:support@edumyles.com"
-            className="inline-flex items-center gap-2 text-sm font-medium underline underline-offset-2"
-            style={{ color: "#0F4C2A" }}
-          >
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary underline underline-offset-2">
             <Mail className="h-4 w-4" />
             Contact support@edumyles.com
           </a>
@@ -167,13 +163,13 @@ export default async function AuthErrorPage({
 
         {/* Diagnostic block */}
         <details className="text-center">
-          <summary className="cursor-pointer text-xs text-gray-400 dark:text-gray-600 hover:text-gray-500 select-none">
+          <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground select-none">
             Show diagnostic info
           </summary>
-          <div className="mt-3 rounded-lg border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-4 text-left font-mono text-xs text-gray-500 space-y-1">
-            <p>reason: <span className="text-gray-700 dark:text-gray-400">{reason ?? "none"}</span></p>
-            <p>page: <span className="text-gray-700 dark:text-gray-400">/auth/error</span></p>
-            <p>support: <span className="text-gray-700 dark:text-gray-400">support@edumyles.com</span></p>
+          <div className="mt-3 rounded-lg border border-border bg-muted p-4 text-left font-mono text-xs text-muted-foreground space-y-1">
+            <p>reason: <span className="text-secondary-foreground">{reason ?? "none"}</span></p>
+            <p>page: <span className="text-secondary-foreground">/auth/error</span></p>
+            <p>support: <span className="text-secondary-foreground">support@edumyles.com</span></p>
           </div>
         </details>
       </div>

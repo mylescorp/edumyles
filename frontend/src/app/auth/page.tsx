@@ -13,13 +13,13 @@ import { Icons } from '@/components/ui/icons';
 
 export default function AuthPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-forest-50 to-forest-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-4xl space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex justify-center items-center space-x-2">
-            <Icons.school className="h-8 w-8 text-forest-600" />
-            <h1 className="text-3xl font-bold text-forest-900">EduMyles</h1>
+            <Icons.school className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-foreground">EduMyles</h1>
           </div>
           <p className="text-lg text-muted-foreground">
             School Management Platform for East Africa
@@ -59,23 +59,23 @@ export default function AuthPage() {
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
-                      <Icons.check className="h-4 w-4 text-green-600" />
+                      <Icons.check className="h-4 w-4 text-success" />
                       <span className="text-sm">Single Sign-On (SSO)</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Icons.check className="h-4 w-4 text-green-600" />
+                      <Icons.check className="h-4 w-4 text-success" />
                       <span className="text-sm">Multi-factor Authentication</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Icons.check className="h-4 w-4 text-green-600" />
+                      <Icons.check className="h-4 w-4 text-success" />
                       <span className="text-sm">Session Management</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Icons.check className="h-4 w-4 text-green-600" />
+                      <Icons.check className="h-4 w-4 text-success" />
                       <span className="text-sm">Role-based Access Control</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Icons.check className="h-4 w-4 text-green-600" />
+                      <Icons.check className="h-4 w-4 text-success" />
                       <span className="text-sm">Audit Logging</span>
                     </div>
                   </div>
@@ -106,27 +106,27 @@ export default function AuthPage() {
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
-                      <Icons.school className="h-4 w-4 text-forest-600" />
+                      <Icons.school className="h-4 w-4 text-primary" />
                       <span className="text-sm">Schools & Academies</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Icons.graduationCap className="h-4 w-4 text-forest-600" />
+                      <Icons.graduationCap className="h-4 w-4 text-primary" />
                       <span className="text-sm">Universities & Colleges</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Icons.bookOpen className="h-4 w-4 text-forest-600" />
+                      <Icons.bookOpen className="h-4 w-4 text-primary" />
                       <span className="text-sm">Training Centers</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Icons.award className="h-4 w-4 text-forest-600" />
+                      <Icons.award className="h-4 w-4 text-primary" />
                       <span className="text-sm">Educational NGOs</span>
                     </div>
                   </div>
                   
-                  <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                  <div className="mt-6 p-4 bg-warning-muted rounded-lg border border-warning/30">
                     <div className="flex items-start space-x-2">
-                      <Icons.info className="h-4 w-4 text-amber-600 mt-0.5" />
-                      <div className="text-sm text-amber-800">
+                      <Icons.info className="h-4 w-4 text-warning-muted-foreground mt-0.5" />
+                      <div className="text-sm text-warning-muted-foreground">
                         <p className="font-medium">Note:</p>
                         <p>All new accounts are subject to verification to ensure platform security and compliance.</p>
                       </div>
@@ -161,7 +161,7 @@ export default function AuthPage() {
               href="https://workos.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-forest-600 hover:text-forest-700 underline"
+              className="text-primary hover:text-primary underline"
             >
               WorkOS
             </a>

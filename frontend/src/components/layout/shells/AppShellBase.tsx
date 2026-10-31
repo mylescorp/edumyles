@@ -33,7 +33,7 @@ class ShellErrorBoundary extends React.Component<
         <div className="flex min-h-[400px] items-center justify-center p-6">
           <Card className="w-full max-w-md">
             <CardContent className="space-y-4 pt-6 text-center">
-              <AlertTriangle className="mx-auto h-10 w-10 text-amber-500" />
+              <AlertTriangle className="mx-auto h-10 w-10 text-warning" />
               <div>
                 <h3 className="text-lg font-semibold">Something went wrong</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -75,13 +75,13 @@ export function AppShellBase({
 }: AppShellBaseProps) {
   const content = useModuleAccessGuard ? (
     <ModuleAccessGuard fallbackHref={fallbackHref}>
-      <div className="px-3 pb-8 pt-4 sm:px-4 md:px-6 md:pb-10 md:pt-5 xl:px-8">
-        <div className="mx-auto w-full max-w-[1480px]">{children}</div>
+      <div className="px-4 pb-8 pt-4 md:px-6 md:pb-10 md:pt-6">
+        <div className="mx-auto w-full max-w-page">{children}</div>
       </div>
     </ModuleAccessGuard>
   ) : (
-    <div className="px-3 pb-8 pt-4 sm:px-4 md:px-6 md:pb-10 md:pt-5 xl:px-8">
-      <div className="mx-auto w-full max-w-[1480px]">{children}</div>
+    <div className="px-4 pb-8 pt-4 md:px-6 md:pb-10 md:pt-6">
+      <div className="mx-auto w-full max-w-page">{children}</div>
     </div>
   );
 

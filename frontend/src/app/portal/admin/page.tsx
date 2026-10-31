@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PageHeader } from "@/components/shared/PageHeader";
+import { PanelWelcomeCard } from "@/components/shared/PanelWelcomeCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
@@ -97,11 +97,8 @@ const QUICK_LINKS = [
 ];
 
 export default function PortalAdminHomePage() {
-  const { isLoading, user } = useAuth();
+  const { isLoading } = useAuth();
   const { isModuleInstalled, isLoading: modulesLoading } = useInstalledModules();
-  const firstName =
-    user && typeof user === "object" && "firstName" in user ? (user.firstName as string) : "";
-
   if (isLoading || modulesLoading) return <LoadingSkeleton variant="page" />;
 
   const visibleModules = MODULES.filter((m) =>
@@ -110,10 +107,7 @@ export default function PortalAdminHomePage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader
-        title="Admin Portal"
-        description={`Welcome back${firstName ? `, ${firstName}` : ""}. Manage your school's core modules from here.`}
-      />
+      <PanelWelcomeCard description="Manage your school’s core modules from here." />
 
       {/* Quick navigation */}
       <section>

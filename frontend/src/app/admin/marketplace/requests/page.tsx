@@ -168,7 +168,7 @@ export default function ModuleRequestsPage() {
           { label: "Requests" },
         ]}
         actions={
-          <Button className="bg-[#0F4C2A] hover:bg-[#1A7A4A] text-white" onClick={() => setSubmitOpen(true)}>
+          <Button className="bg-primary hover:bg-primary text-white" onClick={() => setSubmitOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Submit Request
           </Button>
@@ -350,7 +350,7 @@ export default function ModuleRequestsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setSubmitOpen(false)} disabled={submitting}>Cancel</Button>
             <Button
-              className="bg-[#0F4C2A] hover:bg-[#1A7A4A] text-white"
+              className="bg-primary hover:bg-primary text-white"
               onClick={handleSubmit}
               disabled={submitting || (!form.description && !form.name && !form.moduleId)}
             >

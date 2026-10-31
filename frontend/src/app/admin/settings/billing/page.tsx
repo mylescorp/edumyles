@@ -92,7 +92,7 @@ function PlanCard({
   const { format } = useCurrency();
 
   return (
-    <Card className={isCurrent ? "border-[#0F4C2A] ring-2 ring-[#0F4C2A]/20" : "hover:border-[#1A7A4A]"}>
+    <Card className={isCurrent ? "border-primary ring-2 ring-primary/20" : "hover:border-primary"}>
       <CardHeader className="pb-2">
         <CardTitle className="capitalize">{plan.name}</CardTitle>
         <CardDescription>{plan.description ?? `${plan.name} plan for schools`}</CardDescription>
@@ -110,11 +110,11 @@ function PlanCard({
         </div>
         {isCurrent ? (
           <Button variant="outline" disabled className="w-full">
-            <CheckCircle2 className="mr-2 h-4 w-4 text-[#0F4C2A]" />
+            <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
             Active Plan
           </Button>
         ) : (
-          <Button className="w-full bg-[#0F4C2A] text-white hover:bg-[#1A7A4A]" onClick={() => onSelect(plan)}>
+          <Button className="w-full bg-primary text-white hover:bg-primary" onClick={() => onSelect(plan)}>
             {actionLabel}
           </Button>
         )}
@@ -280,9 +280,9 @@ export default function BillingSettingsPage() {
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <Card><CardContent className="flex items-start gap-4 pt-6"><div className="rounded-full bg-[#0F4C2A]/10 p-3"><CreditCard className="h-5 w-5 text-[#0F4C2A]" /></div><div className="space-y-1"><p className="text-sm text-muted-foreground">Current Plan</p><div className="flex flex-wrap items-center gap-2"><p className="text-xl font-bold capitalize">{currentPlan?.name ?? subscription?.planId ?? tenant?.plan ?? "free"}</p><Badge variant={statusVariant(subscription?.status ?? "active")}>{subscription?.status ?? "active"}</Badge></div><p className="text-sm text-muted-foreground">{format(currentPriceKes)} / month</p></div></CardContent></Card>
-        <Card><CardContent className="flex items-start gap-4 pt-6"><div className="rounded-full bg-blue-100 p-3"><Calendar className="h-5 w-5 text-[#1565C0]" /></div><div className="space-y-1"><p className="text-sm text-muted-foreground">Billing Period</p>{subscription ? <><p className="font-semibold text-sm">{formatDate(subscription.currentPeriodStart)} - {formatDate(subscription.currentPeriodEnd)}</p>{subscription.nextPaymentDue && <p className="text-xs text-muted-foreground">Next renewal: {formatDate(subscription.nextPaymentDue)}</p>}{subscription.cancelAtPeriodEnd && <Badge variant="destructive" className="mt-1 text-xs">Cancels at period end</Badge>}</> : <p className="text-sm text-muted-foreground">No active subscription.</p>}</div></CardContent></Card>
-        <Card><CardContent className="flex items-start gap-4 pt-6"><div className="rounded-full bg-amber-100 p-3"><Receipt className="h-5 w-5 text-[#E8A020]" /></div><div className="space-y-1"><p className="text-sm text-muted-foreground">Payment Provider</p><p className="font-semibold capitalize">{subscription?.paymentProvider?.replace("_", " ") ?? "—"}</p>{subscription?.paymentReference && <p className="font-mono text-xs text-muted-foreground">{subscription.paymentReference}</p>}</div></CardContent></Card>
+        <Card><CardContent className="flex items-start gap-4 pt-6"><div className="rounded-full bg-primary/10 p-3"><CreditCard className="h-5 w-5 text-primary" /></div><div className="space-y-1"><p className="text-sm text-muted-foreground">Current Plan</p><div className="flex flex-wrap items-center gap-2"><p className="text-xl font-bold capitalize">{currentPlan?.name ?? subscription?.planId ?? tenant?.plan ?? "free"}</p><Badge variant={statusVariant(subscription?.status ?? "active")}>{subscription?.status ?? "active"}</Badge></div><p className="text-sm text-muted-foreground">{format(currentPriceKes)} / month</p></div></CardContent></Card>
+        <Card><CardContent className="flex items-start gap-4 pt-6"><div className="rounded-full bg-blue-100 p-3"><Calendar className="h-5 w-5 text-info" /></div><div className="space-y-1"><p className="text-sm text-muted-foreground">Billing Period</p>{subscription ? <><p className="font-semibold text-sm">{formatDate(subscription.currentPeriodStart)} - {formatDate(subscription.currentPeriodEnd)}</p>{subscription.nextPaymentDue && <p className="text-xs text-muted-foreground">Next renewal: {formatDate(subscription.nextPaymentDue)}</p>}{subscription.cancelAtPeriodEnd && <Badge variant="destructive" className="mt-1 text-xs">Cancels at period end</Badge>}</> : <p className="text-sm text-muted-foreground">No active subscription.</p>}</div></CardContent></Card>
+        <Card><CardContent className="flex items-start gap-4 pt-6"><div className="rounded-full bg-amber-100 p-3"><Receipt className="h-5 w-5 text-warning" /></div><div className="space-y-1"><p className="text-sm text-muted-foreground">Payment Provider</p><p className="font-semibold capitalize">{subscription?.paymentProvider?.replace("_", " ") ?? "—"}</p>{subscription?.paymentReference && <p className="font-mono text-xs text-muted-foreground">{subscription.paymentReference}</p>}</div></CardContent></Card>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-3">
@@ -295,7 +295,7 @@ export default function BillingSettingsPage() {
             ) : (
               <div className="flex flex-wrap gap-2">
                 {sortedPlans.filter((_, index) => index > currentPlanIndex).map((plan) => (
-                  <Button key={plan._id} className="bg-[#0F4C2A] text-white hover:bg-[#1A7A4A]" onClick={() => openUpgradeDialog(plan)}>
+                  <Button key={plan._id} className="bg-primary text-white hover:bg-primary" onClick={() => openUpgradeDialog(plan)}>
                     <ArrowUpCircle className="mr-2 h-4 w-4" />
                     {plan.name}
                   </Button>
@@ -400,7 +400,7 @@ export default function BillingSettingsPage() {
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>{selectedPlan ? `Upgrade to ${selectedPlan.name}` : "Upgrade Plan"}</DialogTitle><DialogDescription>Confirm your new tier and choose the payment provider.</DialogDescription></DialogHeader>
           {selectedPlan ? <div className="space-y-4"><div className="rounded-lg border bg-muted/30 p-4"><p className="font-semibold capitalize">{selectedPlan.name}</p><p className="text-sm text-muted-foreground">{format(selectedPlan.priceMonthlyKes)} / month</p></div><div className="space-y-2"><Label>Payment Method</Label><Select value={paymentProvider} onValueChange={setPaymentProvider}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="mpesa">M-Pesa</SelectItem><SelectItem value="airtel">Airtel Money</SelectItem><SelectItem value="stripe">Card (Stripe)</SelectItem><SelectItem value="bank_transfer">Bank Transfer</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>Payment Reference</Label><Input placeholder="Optional transaction ID" value={paymentReference} onChange={(event) => setPaymentReference(event.target.value)} /></div></div> : null}
-          <DialogFooter><Button variant="outline" onClick={() => setUpgradeDialogOpen(false)}>Cancel</Button><Button className="bg-[#0F4C2A] text-white hover:bg-[#1A7A4A]" onClick={handleConfirmUpgrade} disabled={processingAction === "upgrade" || !selectedPlan}>{processingAction === "upgrade" ? "Processing..." : "Confirm Upgrade"}</Button></DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => setUpgradeDialogOpen(false)}>Cancel</Button><Button className="bg-primary text-white hover:bg-primary" onClick={handleConfirmUpgrade} disabled={processingAction === "upgrade" || !selectedPlan}>{processingAction === "upgrade" ? "Processing..." : "Confirm Upgrade"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -424,7 +424,7 @@ export default function BillingSettingsPage() {
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Request Enterprise Consultation</DialogTitle><DialogDescription>Send your requirements to the EduMyles team and create a CRM follow-up.</DialogDescription></DialogHeader>
           <div className="space-y-4"><div className="space-y-2"><Label>Contact phone</Label><Input value={enterprisePhone} onChange={(event) => setEnterprisePhone(event.target.value)} placeholder="+254..." /></div><div className="space-y-2"><Label>Decision timeline</Label><Select value={enterpriseTimeline} onValueChange={setEnterpriseTimeline}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="this_week">This week</SelectItem><SelectItem value="this_month">This month</SelectItem><SelectItem value="this_term">This term</SelectItem><SelectItem value="next_term">Next term</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>What do you need?</Label><Textarea rows={5} value={enterpriseNotes} onChange={(event) => setEnterpriseNotes(event.target.value)} placeholder="Tell us about student volume, rollout scope, required modules, or custom pricing needs." /></div></div>
-          <DialogFooter><Button variant="outline" onClick={() => setEnterpriseDialogOpen(false)}>Close</Button><Button className="bg-[#0F4C2A] text-white hover:bg-[#1A7A4A]" onClick={handleRequestEnterprise} disabled={processingAction === "enterprise"}>{processingAction === "enterprise" ? "Sending..." : "Send Request"}</Button></DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => setEnterpriseDialogOpen(false)}>Close</Button><Button className="bg-primary text-white hover:bg-primary" onClick={handleRequestEnterprise} disabled={processingAction === "enterprise"}>{processingAction === "enterprise" ? "Sending..." : "Send Request"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -440,7 +440,7 @@ export default function BillingSettingsPage() {
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Request Enterprise Consultation</DialogTitle><DialogDescription>Send your requirements to the EduMyles team and create a CRM follow-up.</DialogDescription></DialogHeader>
           <div className="space-y-4"><div className="space-y-2"><Label>Contact phone</Label><Input value={enterprisePhone} onChange={(event) => setEnterprisePhone(event.target.value)} placeholder="+254..." /></div><div className="space-y-2"><Label>Decision timeline</Label><Select value={enterpriseTimeline} onValueChange={setEnterpriseTimeline}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="this_week">This week</SelectItem><SelectItem value="this_month">This month</SelectItem><SelectItem value="this_term">This term</SelectItem><SelectItem value="next_term">Next term</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>What do you need?</Label><Textarea rows={5} value={enterpriseNotes} onChange={(event) => setEnterpriseNotes(event.target.value)} placeholder="Tell us about student volume, rollout scope, required modules, or custom pricing needs." /></div></div>
-          <DialogFooter><Button variant="outline" onClick={() => setEnterpriseDialogOpen(false)}>Close</Button><Button className="bg-[#0F4C2A] text-white hover:bg-[#1A7A4A]" onClick={handleRequestEnterprise} disabled={processingAction === "enterprise"}>{processingAction === "enterprise" ? "Sending..." : "Send Request"}</Button></DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => setEnterpriseDialogOpen(false)}>Close</Button><Button className="bg-primary text-white hover:bg-primary" onClick={handleRequestEnterprise} disabled={processingAction === "enterprise"}>{processingAction === "enterprise" ? "Sending..." : "Send Request"}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

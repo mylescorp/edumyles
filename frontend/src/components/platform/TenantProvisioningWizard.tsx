@@ -870,7 +870,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                     index === currentStep
                       ? "border-primary bg-primary/5"
                       : index < currentStep
-                        ? "border-[#26A65B]/30 bg-[rgba(38,166,91,0.08)]"
+                        ? "border-success/30 bg-success-muted"
                         : "border-border/60 bg-background"
                   }`}
                 >
@@ -882,7 +882,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
                       <p className="mt-1 text-sm font-semibold">{step}</p>
                     </div>
                     {index < currentStep ? (
-                      <CheckCircle2 className="h-4 w-4 text-[#26A65B]" />
+                      <CheckCircle2 className="h-4 w-4 text-success-muted-foreground" />
                     ) : index === currentStep ? (
                       <Sparkles className="h-4 w-4 text-primary" />
                     ) : (

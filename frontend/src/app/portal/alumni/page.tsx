@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { PanelWelcomeCard } from "@/components/shared/PanelWelcomeCard";
 import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,7 +16,6 @@ import {
   Send,
   Briefcase,
   Mail,
-  ArrowRight,
   Megaphone,
   MapPin,
 } from "lucide-react";
@@ -30,10 +30,10 @@ import { formatDate, formatRelativeTime } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 
 const STATUS_BADGE: Record<string, string> = {
-  pending:   "text-[#E8A020] bg-[rgba(232,160,32,0.1)] border-[#E8A020]/30",
-  processing:"text-[#1565C0] bg-[rgba(21,101,192,0.1)] border-[#1565C0]/30",
-  ready:     "text-[#26A65B] bg-[rgba(38,166,91,0.1)] border-[#26A65B]/30",
-  rejected:  "text-[#DC2626] bg-[rgba(220,38,38,0.1)] border-[#DC2626]/30",
+  pending:   "text-warning bg-warning/10 border-warning/30",
+  processing:"text-info bg-info/10 border-info/30",
+  ready:     "text-success bg-success/10 border-success/30",
+  rejected:  "text-danger bg-danger/10 border-danger/30",
 };
 
 export default function AlumniDashboardPage() {
@@ -90,6 +90,7 @@ export default function AlumniDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <PanelWelcomeCard description="Your alumni records, community, and upcoming events are here." />
       <PageHeader
         title="Alumni Dashboard"
         description="Access your records and connect with fellow alumni"
@@ -109,7 +110,7 @@ export default function AlumniDashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="pb-3 pt-5 px-5">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <GraduationCap className="h-4 w-4 text-[#0F4C2A]" />
+              <GraduationCap className="h-4 w-4 text-primary" />
               Profile Summary
             </CardTitle>
           </CardHeader>
@@ -130,14 +131,14 @@ export default function AlumniDashboardPage() {
                 </div>
                 <div className="pt-3 border-t space-y-2">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Briefcase className="h-4 w-4 flex-shrink-0 text-[#6B9E83]" />
+                    <Briefcase className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                     <span className="truncate">
                       {profile.jobTitle || "Role not set"}
                       {profile.currentEmployer ? ` at ${profile.currentEmployer}` : ""}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Mail className="h-4 w-4 flex-shrink-0 text-[#6B9E83]" />
+                    <Mail className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                     <span className="truncate">{profile.contactEmail || "No contact email"}</span>
                   </div>
                 </div>
@@ -150,7 +151,7 @@ export default function AlumniDashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="pb-3 pt-5 px-5">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <FileText className="h-4 w-4 text-[#1565C0]" />
+              <FileText className="h-4 w-4 text-info" />
               Request Transcript
             </CardTitle>
           </CardHeader>
@@ -191,7 +192,7 @@ export default function AlumniDashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="pb-3 pt-5 px-5">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <FileText className="h-4 w-4 text-[#E8A020]" />
+              <FileText className="h-4 w-4 text-warning" />
               Recent Transcript Requests
             </CardTitle>
           </CardHeader>
@@ -220,7 +221,7 @@ export default function AlumniDashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="pb-3 pt-5 px-5">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <Calendar className="h-4 w-4 text-[#7C3AED]" />
+              <Calendar className="h-4 w-4 text-info" />
               Upcoming Events
             </CardTitle>
           </CardHeader>
@@ -268,7 +269,7 @@ export default function AlumniDashboardPage() {
       <Card className="shadow-sm">
         <CardHeader className="pb-3 pt-5 px-5">
           <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-            <Megaphone className="h-4 w-4 text-[#1565C0]" />
+            <Megaphone className="h-4 w-4 text-info" />
             Recent Announcements
           </CardTitle>
         </CardHeader>

@@ -54,7 +54,7 @@ export function healthTone(state: RouteHealth) {
     case "ok":
       return "bg-emerald-100 text-emerald-700 border-emerald-200";
     case "redirect":
-      return "bg-amber-100 text-amber-700 border-amber-200";
+      return "bg-warning-muted text-warning-muted-foreground border-warning/30";
     case "missing":
       return "bg-rose-100 text-rose-700 border-rose-200";
     case "error":
@@ -411,7 +411,7 @@ export function DevConsoleShell({
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,_#f8fafc_0%,_#eef2f6_100%)]">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8">
         <PageHeader
           title={title}
@@ -469,7 +469,7 @@ export function DevConsoleShell({
                   className={cn(
                     "flex h-12 items-center gap-2 rounded-lg border px-3 text-sm transition-all",
                     isActive
-                      ? "border-slate-900 bg-slate-900 text-white shadow-sm"
+                      ? "border-platform-chrome bg-platform-chrome text-white shadow-sm"
                       : "border-transparent bg-transparent text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
                   )}
                 >
@@ -545,8 +545,8 @@ export function ExternalOpenButton({ href }: { href: string }) {
 
 export function PrivilegedAccessEmptyState() {
   return (
-    <Card className="border-amber-200 bg-amber-50">
-      <CardContent className="flex items-center gap-3 p-5 text-amber-800">
+    <Card className="border-warning/30 bg-warning-muted">
+      <CardContent className="flex items-center gap-3 p-5 text-warning-muted-foreground">
         <AlertTriangle className="h-5 w-5" />
         <div>
           <div className="font-medium">Privileged operations are restricted</div>

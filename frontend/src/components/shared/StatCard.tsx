@@ -14,29 +14,29 @@ interface StatCardProps {
 
 const variantConfig = {
   default: {
-    iconBg: "bg-[var(--platform-accent-soft)]",
-    iconColor: "text-[var(--platform-accent)]",
-    borderAccent: "border-l-[var(--platform-accent)]",
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary",
+    borderAccent: "border-l-primary",
   },
   success: {
-    iconBg: "bg-[var(--platform-success-soft)]",
-    iconColor: "text-[var(--em-success)]",
-    borderAccent: "border-l-[var(--em-success)]",
+    iconBg: "bg-success-muted",
+    iconColor: "text-success-muted-foreground",
+    borderAccent: "border-l-success",
   },
   warning: {
-    iconBg: "bg-[var(--platform-highlight-soft)]",
-    iconColor: "text-[var(--platform-highlight)]",
-    borderAccent: "border-l-[var(--platform-highlight)]",
+    iconBg: "bg-warning-muted",
+    iconColor: "text-warning-muted-foreground",
+    borderAccent: "border-l-warning",
   },
   danger: {
-    iconBg: "bg-[var(--platform-danger-soft)]",
-    iconColor: "text-[var(--em-danger)]",
-    borderAccent: "border-l-[var(--em-danger)]",
+    iconBg: "bg-danger-muted",
+    iconColor: "text-danger-muted-foreground",
+    borderAccent: "border-l-danger",
   },
   info: {
-    iconBg: "bg-[var(--platform-accent-soft)]",
-    iconColor: "text-[var(--platform-accent)]",
-    borderAccent: "border-l-[var(--platform-accent)]",
+    iconBg: "bg-info-muted",
+    iconColor: "text-info-muted-foreground",
+    borderAccent: "border-l-info",
   },
 };
 
@@ -58,7 +58,7 @@ export function StatCard({ label, value, icon: Icon, trend, className, variant =
             {trend && (
               <div className={cn(
                 "flex items-center gap-1 mt-2 text-xs font-medium",
-                isPositiveTrend ? "text-[var(--em-success)]" : "text-[var(--em-danger)]"
+                isPositiveTrend ? "text-success" : "text-danger"
               )}>
                 {isPositiveTrend
                   ? <TrendingUp className="h-3 w-3" />
@@ -68,7 +68,7 @@ export function StatCard({ label, value, icon: Icon, trend, className, variant =
               </div>
             )}
           </div>
-          <div className={cn("flex h-11 w-11 items-center justify-center rounded-xl flex-shrink-0", cfg.iconBg)}>
+          <div className={cn("flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg", cfg.iconBg)}>
             <Icon className={cn("h-5 w-5", cfg.iconColor)} />
           </div>
         </div>

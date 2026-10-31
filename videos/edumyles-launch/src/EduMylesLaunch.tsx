@@ -657,7 +657,7 @@ const FinalScene = () => {
           transform: `scale(${0.94 + p * 0.06})`,
         }}
       >
-        <Img src={staticFile("logo-full.svg")} style={{ width: 520, filter: "brightness(0) invert(1)" }} />
+        <Img src={staticFile("edumyles-lockup-light.png")} style={{ width: 520 }} />
         <div style={{ color: colors.gold, fontSize: 46, fontWeight: 900, marginTop: 62 }}>
           School management, built for here.
         </div>

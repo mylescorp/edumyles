@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/convex/_generated/api";
+import { useParams } from "next/navigation";
 import { UsersAdminRail } from "@/components/platform/UsersAdminRail";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -8,11 +9,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { RoleForm } from "../../RoleForm";
 
-export default function EditRolePage({ params }: { params: { roleId: string } }) {
+export default function EditRolePage() {
+  const { roleId } = useParams<{ roleId: string }>();
   const { isLoading, sessionToken } = useAuth();
   const role = usePlatformQuery(
     api.modules.platform.rbac.getRole,
-    sessionToken ? { sessionToken, roleId: params.roleId as any } : "skip",
+    sessionToken ? { sessionToken, roleId: roleId as any } : "skip",
     !!sessionToken
   ) as any;
 

@@ -49,6 +49,14 @@ function isPlatformRole(role?: string | null) {
   ].includes(normalizeRole(role));
 }
 
+function isLocalDevPlatformSession(sessionToken?: string, bootstrapVersion?: string) {
+  return (
+    process.env.NODE_ENV !== "production" &&
+    bootstrapVersion === DEV_BOOTSTRAP_VERSION &&
+    sessionToken === DEV_PLATFORM_SESSION_TOKEN
+  );
+}
+
 function getRequestIp(req: NextRequest) {
   return (
     req.headers.get("cf-connecting-ip") ??
@@ -561,6 +569,113 @@ export async function GET(req: NextRequest) {
       req.cookies.get(ADMIN_TENANT_COOKIE)?.value ??
       null;
     const bootstrapVersion = req.cookies.get("edumyles_dev_bootstrap")?.value;
+    const isPlatformWorkspaceReturn =
+      requestedWorkspace === "platform" && req.nextUrl.searchParams.get("redirect") === "platform";
+
+    if (requestedWorkspace === "platform-access-check") {
+      const token = masterSessionBackup ?? currentSessionCookie;
+      if (!token) {
+        return NextResponse.json(
+          { canAccessPlatform: false, canImpersonate: false, hasSavedPlatformSession: false },
+          { headers: { "Cache-Control": "no-store" } }
+        );
+      }
+
+      if (isLocalDevPlatformSession(token, bootstrapVersion)) {
+        return NextResponse.json(
+          { canAccessPlatform: true, canImpersonate: true, hasSavedPlatformSession: Boolean(masterSessionBackup) },
+          { headers: { "Cache-Control": "no-store" } }
+        );
+      }
+
+      try {
+        const session = await getSessionCompat(getConvexClient(), token, process.env.CONVEX_WEBHOOK_SECRET);
+        const role = session && isConfiguredMasterAdmin(session.email)
+          ? "master_admin"
+          : normalizeRole(session?.role);
+        const allowed = Boolean(session && isPlatformRole(role));
+        const permissions = Array.isArray(session?.permissions) ? session.permissions : [];
+        const canImpersonate = Boolean(
+          allowed && (
+            role === "master_admin" ||
+            role === "super_admin" ||
+            permissions.includes("*") ||
+            permissions.includes("tenants.impersonate")
+          )
+        );
+        return NextResponse.json(
+          {
+            canAccessPlatform: allowed,
+            canImpersonate,
+            hasSavedPlatformSession: Boolean(masterSessionBackup && allowed),
+          },
+          { headers: { "Cache-Control": "no-store" } }
+        );
+      } catch {
+        return NextResponse.json(
+          { canAccessPlatform: false, canImpersonate: false, hasSavedPlatformSession: false },
+          { headers: { "Cache-Control": "no-store" } }
+        );
+      }
+    }
+
+    if (isPlatformWorkspaceReturn) {
+      if (!masterSessionBackup) {
+        return NextResponse.redirect(new URL("/dashboard", req.url), 303);
+      }
+
+      if (isLocalDevPlatformSession(masterSessionBackup, bootstrapVersion)) {
+        const platformSession = buildDevSessionFromCookies(DEV_PLATFORM_SESSION_TOKEN);
+        const response = NextResponse.redirect(new URL("/platform", req.url), 303);
+        setSessionCookies(
+          response,
+          platformSession.sessionToken,
+          platformSession.user,
+          platformSession.role,
+          platformSession.tenantId
+        );
+        response.cookies.delete(ADMIN_WORKSPACE_MODE_COOKIE);
+        response.cookies.delete(ADMIN_TENANT_COOKIE);
+        return response;
+      }
+
+      let platformSession: any;
+      try {
+        platformSession = await getSessionCompat(
+          getConvexClient(),
+          masterSessionBackup,
+          process.env.CONVEX_WEBHOOK_SECRET
+        );
+      } catch {
+        platformSession = null;
+      }
+      const platformRole = platformSession && isConfiguredMasterAdmin(platformSession.email)
+        ? "master_admin"
+        : normalizeRole(platformSession?.role);
+      if (!platformSession || !isPlatformRole(platformRole)) {
+        return NextResponse.redirect(new URL("/dashboard?error=unauthorized", req.url), 303);
+      }
+
+      // Rebuild the visible session from the validated saved identity. Never
+      // elevate the role cookie based on workspace mode or a client request.
+      const response = NextResponse.redirect(new URL("/platform", req.url), 303);
+      const normalizedTenantId = platformRole === "master_admin" ? "PLATFORM" : platformSession.tenantId;
+      setSessionCookies(
+        response,
+        platformSession.sessionToken,
+        {
+          email: platformSession.email,
+          firstName: platformSession.firstName ?? "",
+          lastName: platformSession.lastName ?? "",
+        },
+        platformRole,
+        normalizedTenantId
+      );
+      response.cookies.delete(ADMIN_WORKSPACE_MODE_COOKIE);
+      response.cookies.delete(ADMIN_TENANT_COOKIE);
+      return response;
+    }
+
     const isDevBypassEnabled =
       process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
       process.env.NODE_ENV !== "production" &&

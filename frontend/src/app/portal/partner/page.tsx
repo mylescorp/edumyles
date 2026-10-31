@@ -1,6 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/shared/PageHeader";
+import { PanelWelcomeCard } from "@/components/shared/PanelWelcomeCard";
 import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,7 +20,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 function formatCurrency(cents: number, currency: string) {
   return `${currency} ${(cents / 100).toLocaleString()}`;
@@ -49,6 +49,7 @@ export default function PartnerDashboardPage() {
   if (!profile) {
     return (
       <div className="space-y-6">
+        <PanelWelcomeCard description="Your partner access and sponsored student reports will appear here." />
         <PageHeader title="Partner Dashboard" description="Partner access portal" />
         <Card className="shadow-sm">
           <CardContent className="py-12 text-center">
@@ -71,6 +72,7 @@ export default function PartnerDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <PanelWelcomeCard description="Here is your sponsorship overview and latest school activity." />
       <PageHeader
         title="Partner Dashboard"
         description={`${profile.organizationName} — monitor sponsored students and reports`}
@@ -110,7 +112,7 @@ export default function PartnerDashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <TrendingUp className="h-4 w-4 text-[#26A65B]" />
+              <TrendingUp className="h-4 w-4 text-success" />
               Performance Summary
             </CardTitle>
             {financeEnabled && (
@@ -132,13 +134,13 @@ export default function PartnerDashboardPage() {
               <div className="space-y-3">
                 <div className="p-4 rounded-lg border border-[rgba(38,166,91,0.2)] bg-[rgba(38,166,91,0.05)]">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Average Score</p>
-                  <p className="text-2xl font-bold text-[#26A65B]">{report.summary.averageScore.toFixed(1)}</p>
+                  <p className="text-2xl font-bold text-success">{report.summary.averageScore.toFixed(1)}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">Across {reportsCount} sponsored student{reportsCount !== 1 ? "s" : ""}</p>
                 </div>
                 {report.summary.attendanceRate != null && (
                   <div className="p-4 rounded-lg border border-[rgba(21,101,192,0.2)] bg-[rgba(21,101,192,0.05)]">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Attendance Rate</p>
-                    <p className="text-2xl font-bold text-[#1565C0]">{report.summary.attendanceRate.toFixed(1)}%</p>
+                    <p className="text-2xl font-bold text-info">{report.summary.attendanceRate.toFixed(1)}%</p>
                   </div>
                 )}
               </div>
@@ -154,7 +156,7 @@ export default function PartnerDashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <GraduationCap className="h-4 w-4 text-[#0F4C2A]" />
+              <GraduationCap className="h-4 w-4 text-primary" />
               Sponsored Students
             </CardTitle>
             {sisEnabled && sponsoredStudents.length > 3 && (
@@ -182,8 +184,8 @@ export default function PartnerDashboardPage() {
                     className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(15,76,42,0.1)] flex-shrink-0">
-                        <span className="text-xs font-bold text-[#0F4C2A]">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
+                        <span className="text-xs font-bold text-primary">
                           {(student.firstName?.[0] ?? "?").toUpperCase()}
                         </span>
                       </div>
@@ -199,7 +201,7 @@ export default function PartnerDashboardPage() {
                     {student.sponsorshipCurrency && student.sponsorshipAmount != null && (
                       <Badge
                         variant="outline"
-                        className="text-xs flex-shrink-0 text-[#26A65B] border-[#26A65B]/30 bg-[rgba(38,166,91,0.07)]"
+                        className="text-xs flex-shrink-0 text-success border-success/30 bg-success/10"
                       >
                         {student.sponsorshipCurrency} {student.sponsorshipAmount.toLocaleString()}
                       </Badge>

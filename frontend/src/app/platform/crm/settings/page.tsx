@@ -18,6 +18,7 @@ import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { ChevronDown, ChevronUp, Plus, Settings2 } from "lucide-react";
 import { toast } from "sonner";
+import { semantic } from "@edumyles/design-tokens";
 
 type Stage = {
   _id: string;
@@ -45,7 +46,7 @@ export default function CRMSettingsPage() {
   const [draftStage, setDraftStage] = useState({
     name: "",
     slug: "",
-    color: "#0f766e",
+    color: semantic.light.primary as string,
     icon: "CircleDot",
     probabilityDefault: "10",
     autoFollowUpDays: "",
@@ -143,7 +144,7 @@ export default function CRMSettingsPage() {
         setDraftStage({
           name: "",
           slug: "",
-          color: "#0f766e",
+          color: semantic.light.primary,
           icon: "CircleDot",
           probabilityDefault: "10",
           autoFollowUpDays: "",

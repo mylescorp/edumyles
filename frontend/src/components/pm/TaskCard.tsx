@@ -14,7 +14,7 @@ type TaskCardProps = {
 const PRIORITY_STYLES: Record<string, string> = {
   urgent: "bg-red-500",
   high: "bg-orange-500",
-  medium: "bg-amber-400",
+  medium: "bg-warning",
   low: "bg-emerald-500",
   none: "bg-slate-300",
 };

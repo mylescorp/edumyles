@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import type { NavItem } from "@/lib/routes";
 import { isCoreModuleSlug } from "@/lib/moduleSlugs";
 import { WhatsNewNavLink } from "@/components/whats-new/WhatsNewNavLink";
+import Logo from "@/components/shared/Logo";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -107,22 +107,18 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
     <>
       {/* Logo */}
       <div
-        className="flex h-14 items-center gap-2.5 border-b border-sidebar-border px-4"
-        style={{ background: "linear-gradient(135deg,#061A12,#0C3020)" }}
+        className="flex h-16 items-center gap-2.5 border-b border-sidebar-border px-4"
+        style={{ background: "var(--sidebar-bg)" }}
       >
-        <Image
-          src="/logo-icon.svg"
-          alt="EduMyles"
-          width={28}
-          height={28}
-          className="h-auto w-auto flex-shrink-0"
+        <Logo
+          variant={collapsed ? "icon" : "full"}
+          width={collapsed ? 28 : 132}
+          height={collapsed ? 28 : 37}
           priority
+          appearance="dark"
+          className="h-auto w-auto flex-shrink-0"
+          href={null}
         />
-        {!collapsed && (
-            <span className="text-sm font-bold text-[var(--platform-highlight)] tracking-tight transition-all duration-200">
-            EduMyles
-          </span>
-        )}
         {!isMobile && (
           <Button
             variant="ghost"
@@ -231,7 +227,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                       {/* Core module indicator */}
                       {isCoreModuleSlug(item.module) && (
                         <div className="flex items-center">
-                          <Star className="h-3 w-3 text-em-amber-500" />
+                          <Star className="h-3 w-3 text-[var(--platform-highlight)]" />
                         </div>
                       )}
 
@@ -311,7 +307,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                               )}
                               <div className="flex items-center gap-1">
                                 {item.module && isCoreModuleSlug(item.module) && (
-                                  <Star className="h-3 w-3 text-em-amber-500" />
+                                  <Star className="h-3 w-3 text-[var(--platform-highlight)]" />
                                 )}
                                 {badgeCount && (
                                   <Badge
@@ -352,20 +348,20 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
 
       {/* User section at bottom */}
       {!isMobile && (
-        <div className="border-t border-sidebar-border bg-[linear-gradient(to_top,rgba(6,26,18,0.8),rgba(6,26,18,0.2))] p-4">
+        <div className="border-t border-sidebar-border bg-sidebar p-4">
           <div
             className={cn(
               "flex items-center gap-3 transition-all duration-200",
               collapsed ? "justify-center" : ""
             )}
           >
-            <div className="relative h-8 w-8 rounded-full border border-[rgba(232,160,32,0.35)] bg-[rgba(232,160,32,0.15)] flex items-center justify-center shadow-sm">
+            <div className="relative h-8 w-8 rounded-full border border-[var(--sidebar-border)] bg-[var(--sidebar-active)] flex items-center justify-center shadow-sm">
               <span className="text-xs font-bold text-[var(--platform-highlight)]">
                 {(user as any)?.firstName?.[0]?.toUpperCase() ??
                   (user as any)?.email?.[0]?.toUpperCase() ??
                   "U"}
               </span>
-              <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[var(--em-success)] border-2 border-[#0C3020]"></div>
+              <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-success border-2 border-[var(--sidebar-bg)]"></div>
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">
@@ -418,7 +414,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
       className={cn(
         "relative flex h-full flex-col border-r border-sidebar-border bg-sidebar-bg transition-all duration-300 z-[1000]",
         "shadow-lg",
-        collapsed ? "w-16" : "w-64"
+        collapsed ? "w-sidebar-collapsed" : "w-sidebar"
       )}
     >
       {sidebarContent}

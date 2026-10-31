@@ -66,10 +66,10 @@ export function TrialBanner() {
         }
       : urgency.tone === "warning"
         ? {
-            card: "border-amber-200 bg-amber-50/90",
-            icon: "text-amber-700",
-            text: "text-amber-950",
-            subtext: "text-amber-900/80",
+            card: "border-warning/30 bg-warning-muted/90",
+            icon: "text-warning-muted-foreground",
+            text: "text-warning-muted-foreground",
+            subtext: "text-warning-muted-foreground/80",
             badge: "secondary" as const,
             label: `${urgency.daysLeft} days left`,
           }

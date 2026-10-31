@@ -10,7 +10,6 @@ const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL ?? "";
 let _client: ConvexReactClient | null = null;
 function getClient(): ConvexReactClient {
   if (!_client) {
-    if (!convexUrl) throw new Error("Missing NEXT_PUBLIC_CONVEX_URL");
     _client = new ConvexReactClient(convexUrl);
   }
   return _client;
@@ -24,6 +23,12 @@ function getClient(): ConvexReactClient {
  * A plain ConvexProvider is all that's needed here.
  */
 export function ConvexAuthProvider({ children }: { children: ReactNode }) {
+  // Public/auth pages can run locally without a Convex deployment configured.
+  // Routes that use Convex queries still require NEXT_PUBLIC_CONVEX_URL.
+  if (!convexUrl) {
+    return <>{children}</>;
+  }
+
   // This component is client-only, so by the time it renders in the browser
   // we can create the Convex client synchronously without blanking the app.
   if (typeof window === "undefined") {

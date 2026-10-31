@@ -1,9 +1,6 @@
 "use client";
 
-import { Sidebar } from "./Sidebar";
-import { Header } from "./Header";
-import { ImpersonationBanner } from "./ImpersonationBanner";
-import { MobileNav } from "./MobileNav";
+import { GlobalShell } from "@/components/layout/GlobalShell";
 import type { NavItem } from "@/lib/routes";
 
 interface AppShellProps {
@@ -12,21 +9,9 @@ interface AppShellProps {
   installedModules?: string[];
 }
 
-export function AppShell({ children, navItems, installedModules }: AppShellProps) {
+export function AppShell({ children, navItems }: AppShellProps) {
   return (
-    <div className="flex h-screen overflow-hidden">
-      <div className="hidden md:flex">
-        <Sidebar navItems={navItems} installedModules={installedModules} />
-      </div>
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <ImpersonationBanner />
-        <div className="flex items-center md:hidden">
-          <MobileNav navItems={navItems} installedModules={installedModules} />
-        </div>
-        <Header />
-        <main className="flex-1 overflow-y-auto bg-muted/30 p-6">{children}</main>
-      </div>
-    </div>
+    <GlobalShell navItems={navItems}>{children}</GlobalShell>
   );
 }
 

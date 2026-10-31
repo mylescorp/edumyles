@@ -67,7 +67,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   academics: "bg-emerald-100 text-emerald-800",
   administration: "bg-blue-100 text-blue-800",
   communications: "bg-indigo-100 text-indigo-800",
-  finance: "bg-amber-100 text-amber-800",
+  finance: "bg-warning-muted text-warning-muted-foreground",
   analytics: "bg-rose-100 text-rose-800",
   security: "bg-red-100 text-red-800",
   integrations: "bg-violet-100 text-violet-800",
@@ -261,7 +261,7 @@ export function ModuleInstallationPanel() {
             <div className="flex items-center gap-3">
               <div className={cn(
                 "flex h-10 w-10 items-center justify-center rounded-lg",
-                module.isCore ? "bg-amber-100 text-amber-600" : "bg-gray-100 text-gray-600"
+                module.isCore ? "bg-warning-muted text-warning-muted-foreground" : "bg-gray-100 text-gray-600"
               )}>
                 <Icon className="h-5 w-5" />
               </div>
@@ -444,7 +444,7 @@ export function ModuleInstallationPanel() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-amber-500" />
+              <Star className="h-5 w-5 text-warning" />
               <div>
                 <p className="text-2xl font-bold">
                   {resolvedAvailableModules.filter((m: any) => m.isCore).length}
