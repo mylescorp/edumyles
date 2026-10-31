@@ -27,12 +27,15 @@ export function WhatsNewNavLink({
   const pathname = usePathname() ?? "/admin";
   const href = getWhatNewHref(pathname);
   const { sessionToken } = useAuth();
-  const summary = useQuery(
+  const summaryResult = useQuery(
     api.platform.changelog.queries.getWhatsNewUnreadCount,
     { sessionToken: sessionToken ?? "" },
     !!sessionToken
   );
-  const unreadCount = summary ?? 0;
+  const unreadCount =
+    typeof summaryResult === "number"
+      ? summaryResult
+      : summaryResult?.value ?? summaryResult?.data ?? 0;
   const active = pathname === href || pathname.startsWith(`${href}/`);
 
   return (
