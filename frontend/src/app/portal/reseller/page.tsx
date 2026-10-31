@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { PanelWelcomeCard } from "@/components/shared/PanelWelcomeCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Badge } from "@/components/ui/badge";
@@ -128,6 +129,7 @@ export default function ResellerDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <PanelWelcomeCard description="Here is your latest school, order, and commission activity." />
       <PageHeader
         title="Reseller Dashboard"
         description="Live performance across your assigned schools, order activity, and commission balance."

@@ -4,11 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Menu } from "lucide-react";
-import Image from "next/image";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { NavItem } from "@/lib/routes";
 import { WhatsNewNavLink } from "@/components/whats-new/WhatsNewNavLink";
+import Logo from "@/components/shared/Logo";
 
 interface MobileNavProps {
   navItems: NavItem[];
@@ -32,9 +32,9 @@ export function MobileNav({ navItems, installedModules }: MobileNavProps) {
       </SheetTrigger>
       <SheetContent side="left" className="w-72 p-0">
         <SheetTitle className="sr-only">Navigation menu</SheetTitle>
-        <div className="flex h-16 items-center gap-2.5 border-b px-4" style={{ background: "linear-gradient(135deg,#061A12,#0C3020)" }}>
-          <Image src="/logo-icon.svg" alt="EduMyles" width={32} height={32} className="h-auto w-auto flex-shrink-0" priority />
-          <span className="text-sm font-bold" style={{ color: "#D4AF37" }}>EduMyles</span>
+        <div className="flex h-[var(--layout-header)] items-center gap-2.5 border-b border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] px-4">
+          <Logo variant="icon" width={32} height={32} priority className="h-auto w-auto flex-shrink-0" href={null} />
+          <span className="text-sm font-bold text-[var(--platform-highlight)]">EduMyles</span>
         </div>
         <ScrollArea className="h-[calc(100vh-4rem)]">
           <nav className="flex flex-col gap-1 p-4">

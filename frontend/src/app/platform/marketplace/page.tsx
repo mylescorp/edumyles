@@ -57,7 +57,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   security_compliance: "Security",
 };
 
-const CHART_COLORS = ["#0F6B3E", "#2A8A57", "#52A77A", "#7FC29E", "#A8D9BE"];
+const CHART_COLORS = ["var(--primary)", "var(--info)", "var(--success)", "var(--warning)", "var(--steel-500)"];
 
 function formatKes(value: number) {
   return `KES ${Math.round(value).toLocaleString()}`;
@@ -143,7 +143,7 @@ function MarketplaceTooltip({
             <div className="flex items-center gap-2 text-slate-600">
               <span
                 className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: entry.color || "#0F6B3E" }}
+                style={{ backgroundColor: entry.color || "var(--primary)" }}
               />
               <span>{entry.name}</span>
             </div>
@@ -350,11 +350,11 @@ function MarketplaceDashboardContent() {
                 <AreaChart data={installsOverTime}>
                   <defs>
                     <linearGradient id="installsGradient" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stopColor="#0F6B3E" stopOpacity={0.34} />
-                      <stop offset="100%" stopColor="#0F6B3E" stopOpacity={0.04} />
+                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.34} />
+                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.04} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" vertical={false} />
+                  <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="day" tickLine={false} axisLine={false} />
                   <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
                   <Tooltip content={<MarketplaceTooltip />} />
@@ -367,9 +367,9 @@ function MarketplaceDashboardContent() {
                   <Line
                     type="monotone"
                     dataKey="installs"
-                    stroke="#0F6B3E"
+                    stroke="var(--primary)"
                     strokeWidth={3}
-                    dot={{ r: 4, fill: "#0F6B3E" }}
+                    dot={{ r: 4, fill: "var(--primary)" }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -455,7 +455,7 @@ function MarketplaceDashboardContent() {
             {revenueByCategory.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueByCategory} layout="vertical" margin={{ left: 16, right: 8 }}>
-                  <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" horizontal={false} />
+                  <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" horizontal={false} />
                   <XAxis type="number" tickLine={false} axisLine={false} />
                   <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} width={100} />
                   <Tooltip content={<MarketplaceTooltip currency />} />
@@ -486,12 +486,12 @@ function MarketplaceDashboardContent() {
             {installedModules.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={installedModules} layout="vertical" margin={{ left: 32, right: 8 }}>
-                  <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" horizontal={false} />
+                  <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" horizontal={false} />
                   <XAxis type="number" tickLine={false} axisLine={false} />
                   <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} width={130} />
                   <Tooltip content={<MarketplaceTooltip />} />
                   <Legend wrapperStyle={{ fontSize: "12px" }} />
-                  <Bar dataKey="installs" fill="#0F6B3E" radius={[8, 8, 8, 8]} />
+                  <Bar dataKey="installs" fill="var(--primary)" radius={[8, 8, 8, 8]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (

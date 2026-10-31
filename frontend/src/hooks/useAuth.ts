@@ -205,9 +205,12 @@ async function loadAuthSession(force = false) {
 
   authLoadPromise = (async () => {
     const cachedSession = readStoredSession();
+    const cookieSession = cachedSession ?? buildFallbackSessionFromCookies();
 
-    if (cachedSession && !force) {
-      setAuthState({ session: cachedSession, isLoading: false });
+    if (cookieSession && !force) {
+      // Render an existing local session immediately; the server validation
+      // below can refresh it without holding the whole shell on a loader.
+      setAuthState({ session: cookieSession, isLoading: false });
     } else if (!authState.session || force) {
       setAuthState({ isLoading: true });
     } else {

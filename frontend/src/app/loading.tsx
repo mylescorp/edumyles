@@ -1,43 +1,24 @@
-import Image from "next/image";
+import Logo from "@/components/shared/Logo";
 
 export default function Loading() {
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#061A12]">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background">
       {/* Pulsing logo */}
       <div className="relative animate-pulse">
-        <Image
-          src="/logo-icon.svg"
-          alt="EduMyles"
-          width={96}
-          height={96}
-          priority
-          className="h-auto w-auto drop-shadow-[0_0_24px_rgba(212,175,55,0.4)]"
-        />
+        <Logo variant="icon" width={96} height={96} priority className="h-auto w-auto drop-shadow-lg" href={null} />
       </div>
 
       {/* Brand name */}
-      <p
-        className="mt-5 text-2xl font-bold tracking-tight"
-        style={{ color: "#D4AF37", fontFamily: "var(--font-jakarta, system-ui, sans-serif)" }}
-      >
+      <p className="mt-5 text-2xl font-bold tracking-tight text-foreground">
         EduMyles
       </p>
-      <p
-        className="mt-1 text-xs font-medium tracking-[0.22em] uppercase"
-        style={{ color: "#6B9E83" }}
-      >
+      <p className="mt-1 text-xs font-medium tracking-[0.22em] uppercase text-muted-foreground">
         Empowering Education
       </p>
 
       {/* Spinner bar */}
-      <div className="mt-8 w-40 h-1 rounded-full bg-[#0F3D22] overflow-hidden">
-        <div
-          className="h-full rounded-full animate-[shimmer_1.4s_ease-in-out_infinite]"
-          style={{
-            background: "linear-gradient(90deg, #9B7A0A, #F7DF82, #9B7A0A)",
-            backgroundSize: "200% 100%",
-          }}
-        />
+      <div className="mt-8 h-1 w-40 overflow-hidden rounded-full bg-muted">
+        <div className="h-full rounded-full bg-primary" />
       </div>
 
       <style>{`

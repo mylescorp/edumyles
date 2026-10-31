@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +13,8 @@ import { api } from "@/convex/_generated/api";
 
 const STATUSES = ["scheduled", "ongoing", "completed", "cancelled"] as const;
 
-export default function AdminExamDetailPage({ params }: { params: { examId: string } }) {
+export default function AdminExamDetailPage() {
+  const { examId } = useParams<{ examId: string }>();
   const { isLoading, sessionToken } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -27,14 +28,14 @@ export default function AdminExamDetailPage({ params }: { params: { examId: stri
     return <LoadingSkeleton variant="page" />;
   }
 
-  const exam = exams.data?.find((entry: any) => entry._id === params.examId);
+  const exam = exams.data?.find((entry: any) => entry._id === examId);
   if (!exam) {
     return <LoadingSkeleton variant="page" />;
   }
 
   const handleStatusChange = async (status: (typeof STATUSES)[number]) => {
     try {
-      await updateStatus({ id: params.examId as any, status });
+      await updateStatus({ id: examId as any, status });
       toast({
         title: "Exam updated",
         description: `Status changed to ${status}.`,

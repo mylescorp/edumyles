@@ -45,7 +45,7 @@ export function CampusSwitcher() {
       }
       disabled={isPending}
     >
-      <SelectTrigger className="h-9 w-[220px]">
+      <SelectTrigger className="shell-campus-trigger h-9 w-[220px]">
         <SelectValue placeholder="Switch campus" />
       </SelectTrigger>
       <SelectContent>

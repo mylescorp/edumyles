@@ -1,6 +1,6 @@
 "use client";
 
-import { PageHeader } from "@/components/shared/PageHeader";
+import { PanelWelcomeCard } from "@/components/shared/PanelWelcomeCard";
 import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function StudentDashboardPage() {
-  const { user, isLoading, sessionToken } = useAuth();
+  const { isLoading, sessionToken } = useAuth();
   const { isModuleInstalled, isLoading: modulesLoading } = useInstalledModules();
   const academicsEnabled = isModuleInstalled("academics");
   const walletEnabled = isModuleInstalled("ewallet");
@@ -78,18 +78,13 @@ export default function StudentDashboardPage() {
 
   const getGradePercent = (score: number, max: number) => ((score / (max || 100)) * 100).toFixed(1);
   const getGradeBadgeVariant = (pct: number) =>
-    pct >= 80 ? "text-[#26A65B] bg-[rgba(38,166,91,0.1)] border-[#26A65B]/30"
-    : pct >= 60 ? "text-[#E8A020] bg-[rgba(232,160,32,0.1)] border-[#E8A020]/30"
-    : "text-[#DC2626] bg-[rgba(220,38,38,0.1)] border-[#DC2626]/30";
-
-  const anyUser = user as any;
+    pct >= 80 ? "text-success bg-success/10 border-success/30"
+    : pct >= 60 ? "text-warning bg-warning/10 border-warning/30"
+    : "text-danger bg-danger/10 border-danger/30";
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={`Welcome back${anyUser?.firstName ? `, ${anyUser.firstName}` : ""}`}
-        description="Your academic overview and upcoming activities"
-      />
+      <PanelWelcomeCard description="Your learning overview and upcoming activities." />
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -125,7 +120,7 @@ export default function StudentDashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <FileText className="h-4 w-4 text-[#E8A020]" />
+              <FileText className="h-4 w-4 text-warning" />
               Upcoming Assignments
             </CardTitle>
             {academicsEnabled && (
@@ -175,7 +170,7 @@ export default function StudentDashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <GraduationCap className="h-4 w-4 text-[#0F4C2A]" />
+              <GraduationCap className="h-4 w-4 text-primary" />
               Recent Grades
             </CardTitle>
             {academicsEnabled && gradeList.length > 0 && (
@@ -244,7 +239,7 @@ export default function StudentDashboardPage() {
             {academicsEnabled && (
               <Button variant="outline" className="w-full justify-start h-9 text-sm" asChild>
                 <Link href="/portal/student/assignments">
-                  <FileText className="h-4 w-4 mr-2 text-[#E8A020]" />
+                  <FileText className="h-4 w-4 mr-2 text-warning" />
                   View All Assignments
                 </Link>
               </Button>
@@ -253,13 +248,13 @@ export default function StudentDashboardPage() {
               <>
                 <Button variant="outline" className="w-full justify-start h-9 text-sm" asChild>
                   <Link href="/portal/student/wallet/transactions">
-                    <Wallet className="h-4 w-4 mr-2 text-[#1565C0]" />
+                    <Wallet className="h-4 w-4 mr-2 text-info" />
                     View Transactions
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full justify-start h-9 text-sm" asChild>
                   <Link href="/portal/student/wallet">
-                    <Wallet className="h-4 w-4 mr-2 text-[#1565C0]" />
+                    <Wallet className="h-4 w-4 mr-2 text-info" />
                     Open Wallet
                   </Link>
                 </Button>
@@ -267,7 +262,7 @@ export default function StudentDashboardPage() {
             )}
             <Button variant="outline" className="w-full justify-start h-9 text-sm" asChild>
               <Link href="/portal/student/profile">
-                <GraduationCap className="h-4 w-4 mr-2 text-[#0F4C2A]" />
+                <GraduationCap className="h-4 w-4 mr-2 text-primary" />
                 View Profile
               </Link>
             </Button>

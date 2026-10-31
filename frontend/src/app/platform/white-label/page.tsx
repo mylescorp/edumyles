@@ -15,6 +15,7 @@ import { useMutation } from "@/hooks/useSSRSafeConvex";
 import { usePlatformQuery } from "@/hooks/usePlatformQuery";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/convex/_generated/api";
+import { semantic } from "@edumyles/design-tokens";
 import {
   Save,
   RotateCcw,
@@ -31,9 +32,9 @@ export default function WhiteLabelPage() {
   const { sessionToken } = useAuth();
   const [tenantId, setTenantId] = useState("");
   const [brandName, setBrandName] = useState("");
-  const [primaryColor, setPrimaryColor] = useState("#3b82f6");
-  const [secondaryColor, setSecondaryColor] = useState("#6366f1");
-  const [accentColor, setAccentColor] = useState("#f59e0b");
+  const [primaryColor, setPrimaryColor] = useState<string>(semantic.light.primary);
+  const [secondaryColor, setSecondaryColor] = useState<string>(semantic.light.info);
+  const [accentColor, setAccentColor] = useState<string>(semantic.light.warning);
   const [logoUrl, setLogoUrl] = useState("");
   const [favicon, setFavicon] = useState("");
   const [customDomain, setCustomDomain] = useState("");
@@ -66,9 +67,9 @@ export default function WhiteLabelPage() {
   useEffect(() => {
     if (!selectedConfig) return;
     setBrandName(selectedConfig.brandName || "");
-    setPrimaryColor(selectedConfig.primaryColor || "#3b82f6");
-    setSecondaryColor(selectedConfig.secondaryColor || "#6366f1");
-    setAccentColor(selectedConfig.accentColor || "#f59e0b");
+    setPrimaryColor(selectedConfig.primaryColor || semantic.light.primary);
+    setSecondaryColor(selectedConfig.secondaryColor || semantic.light.info);
+    setAccentColor(selectedConfig.accentColor || semantic.light.warning);
     setLogoUrl(selectedConfig.logoUrl || "");
     setFavicon(selectedConfig.favicon || "");
     setCustomDomain(selectedConfig.customDomain || "");
@@ -111,9 +112,9 @@ export default function WhiteLabelPage() {
     try {
       await resetConfig({ sessionToken, tenantId });
       setBrandName("");
-      setPrimaryColor("#3b82f6");
-      setSecondaryColor("#6366f1");
-      setAccentColor("#f59e0b");
+      setPrimaryColor(semantic.light.primary);
+      setSecondaryColor(semantic.light.info);
+      setAccentColor(semantic.light.warning);
       setLogoUrl("");
       setFavicon("");
       setCustomDomain("");
@@ -261,7 +262,7 @@ export default function WhiteLabelPage() {
               <Textarea
                 value={customCSS}
                 onChange={(e) => setCustomCSS(e.target.value)}
-                placeholder=":root { --primary: #3b82f6; }"
+                placeholder=":root { --primary: #276B63; }"
                 rows={6}
                 className="font-mono text-sm"
               />
@@ -311,7 +312,7 @@ export default function WhiteLabelPage() {
                         onClick={() => {
                           setTenantId(c.tenantId);
                         }}>
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.primaryColor || "#3b82f6" }} />
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.primaryColor || semantic.light.primary }} />
                         {c.brandName || c.tenantId}
                       </div>
                     ))}

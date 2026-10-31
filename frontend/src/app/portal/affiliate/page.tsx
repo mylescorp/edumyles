@@ -5,9 +5,9 @@ import { useMemo } from "react";
 import { useQuery } from "@/hooks/useSSRSafeConvex";
 import { api } from "@/convex/_generated/api";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { PanelWelcomeCard } from "@/components/shared/PanelWelcomeCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, MousePointerClick, TrendingUp, Users, Wallet } from "lucide-react";
@@ -60,6 +60,7 @@ export default function AffiliateDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <PanelWelcomeCard description="Here is your latest referral activity and commission overview." />
       <PageHeader
         title="Affiliate Dashboard"
         description="Live affiliate performance from referral clicks, conversions, and commission records."

@@ -39,12 +39,13 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
     : "/admin/notifications";
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-background px-6 z-[2000] relative">
+    <header className="relative z-[2000] flex h-[var(--layout-headerMobile)] items-center justify-between border-b border-border bg-background px-4 md:h-header md:px-6">
       {/* Left: Mobile menu toggle + tenant name */}
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
           size="sm"
+          aria-label="Open navigation menu"
           className="md:hidden h-8 w-8 p-0"
           onClick={onMobileMenuToggle}
         >
@@ -66,6 +67,7 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
         {/* Notifications */}
         <Link
           href={notificationsHref}
+          aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
           className="relative rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <Bell className="h-5 w-5" />
@@ -78,7 +80,10 @@ export function Header({ onMobileMenuToggle }: HeaderProps) {
 
         {/* User dropdown */}
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2 rounded-md p-1 hover:bg-accent">
+          <DropdownMenuTrigger
+            aria-label="Open account menu"
+            className="flex items-center gap-2 rounded-md p-1 hover:bg-accent"
+          >
             <Avatar className="h-8 w-8">
               <AvatarImage src={anyUser?.avatarUrl ?? undefined} alt={displayName} />
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>

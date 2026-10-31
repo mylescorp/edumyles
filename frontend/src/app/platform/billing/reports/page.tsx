@@ -150,8 +150,8 @@ export default function BillingReportsPage() {
                       typeof value === "number" ? formatKes(value) : String(value ?? "")
                     }
                   />
-                  <Bar dataKey="paidKes" name="Collected" fill="#0f766e" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="sentKes" name="Outstanding" fill="#0369a1" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="paidKes" name="Collected" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="sentKes" name="Outstanding" fill="var(--info)" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}

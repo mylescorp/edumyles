@@ -121,7 +121,7 @@ function ChartCard({
             <XAxis dataKey={xKey} tickLine={false} axisLine={false} />
             <YAxis tickLine={false} axisLine={false} />
             <Tooltip />
-            <Bar dataKey={dataKey} fill="#0f766e" radius={[8, 8, 0, 0]} />
+            <Bar dataKey={dataKey} fill="var(--primary)" radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

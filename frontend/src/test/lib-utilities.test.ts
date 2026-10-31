@@ -263,7 +263,7 @@ describe('getRoleColor()', () => {
     const teacher = getRoleColor('teacher');
     expect(teacher).toHaveProperty('bg');
     expect(teacher).toHaveProperty('text');
-    expect(teacher.bg).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    expect(teacher.bg).toMatch(/^var\(--[a-z-]+\)$/);
   });
 
   it('falls back to the student colour for unknown roles', () => {
@@ -273,7 +273,7 @@ describe('getRoleColor()', () => {
     expect(unknown.bg).toBe(student.bg);
   });
 
-  it('each defined role has a distinct bg colour', () => {
+  it('each defined role uses a distinct semantic background token', () => {
     const roles = ['super-admin', 'school-admin', 'teacher', 'parent', 'student'] as const;
     const bgs = roles.map((r) => getRoleColor(r).bg);
     const unique = new Set(bgs);

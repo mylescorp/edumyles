@@ -57,8 +57,8 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
       )}
       style={{
         width: 240,
-        background: "#fff",
-        border: "1px solid #e5e7eb",
+        background: "var(--card)",
+        border: "1px solid var(--border)",
         borderBottom: "none",
       }}
     >
@@ -66,18 +66,18 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
       <div
         className="flex items-center gap-2 px-2.5 py-2 shrink-0 cursor-pointer select-none"
         style={{
-          background: "#f9fafb",
-          borderBottom: minimized ? "none" : "1px solid #e5e7eb",
+          background: "var(--muted)",
+          borderBottom: minimized ? "none" : "1px solid var(--border)",
         }}
         onClick={() => setMinimized((v) => !v)}
       >
         {/* Avatar */}
         <div className="relative shrink-0">
-          <div className="h-6 w-6 rounded-full bg-[var(--em-forest)] flex items-center justify-center text-[9px] font-bold text-[var(--em-gold)]">
+          <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center text-[9px] font-bold text-primary-foreground">
             {chat.initials}
           </div>
           {chat.online && (
-            <span className="absolute -bottom-px -right-px h-2 w-2 rounded-full bg-emerald-400 border border-[#f9fafb]" />
+            <span className="absolute -bottom-px -right-px h-2 w-2 rounded-full bg-success border border-card" />
           )}
         </div>
 
@@ -139,7 +139,7 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
                   className={cn(
                     "max-w-[90%] rounded-xl px-3 py-2 text-[11px] leading-relaxed whitespace-pre-wrap",
                     msg.fromMe
-                      ? "bg-[var(--em-gold)] text-[var(--topnav-bg)] rounded-br-sm"
+                      ? "bg-primary text-primary-foreground rounded-br-sm"
                       : "bg-gray-100 text-gray-800 rounded-bl-sm"
                   )}
                 >
@@ -156,7 +156,7 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
           {/* ── Actions bar ── */}
           <div
             className="shrink-0 flex items-center justify-end px-2 py-1"
-            style={{ borderTop: "1px solid #f3f4f6" }}
+            style={{ borderTop: "1px solid var(--border)" }}
           >
             <div className="relative">
               <button
@@ -187,7 +187,7 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
           {/* ── Input area ── */}
           <div
             className="shrink-0 flex items-center gap-1.5 px-2 py-2"
-            style={{ borderTop: "1px solid #e5e7eb" }}
+            style={{ borderTop: "1px solid var(--border)" }}
           >
             <button className="h-6 w-6 shrink-0 flex items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
               <Paperclip className="h-3.5 w-3.5" />

@@ -70,7 +70,7 @@ type BestTimeSuggestion = {
   reason: string;
 };
 
-const PLATFORM_COLORS = ["#2563eb", "#f97316", "#16a34a", "#7c3aed", "#dc2626", "#0891b2", "#ca8a04", "#0f766e"];
+const PLATFORM_COLORS = ["var(--primary)", "var(--warning)", "var(--success)", "var(--info)", "var(--danger)", "var(--info)", "var(--warning)", "var(--primary)"];
 const WEEKDAY_INDEX: Record<string, number> = {
   Sunday: 0,
   Monday: 1,
@@ -203,12 +203,12 @@ function SocialAccessDenied({ scope, permission }: { scope: SocialScope; permiss
         description="This workspace is permission-aware and only unlocks the sections assigned to your role."
         breadcrumbs={breadcrumbsFor(scope, "Access")}
       />
-      <Card className="border-amber-200 bg-amber-50/70">
+      <Card className="border-warning/30 bg-warning-muted/70">
         <CardContent className="flex items-start gap-3 py-8">
-          <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-700" />
+          <AlertTriangle className="mt-0.5 h-5 w-5 text-warning-muted-foreground" />
           <div className="space-y-1">
-            <p className="font-medium text-amber-900">Access required</p>
-            <p className="text-sm text-amber-800">
+            <p className="font-medium text-warning-muted-foreground">Access required</p>
+            <p className="text-sm text-warning-muted-foreground">
               Your account does not currently include <code>{permission}</code>.
             </p>
           </div>
@@ -340,14 +340,14 @@ export function SocialDashboardPage({ scope }: { scope: SocialScope }) {
                 <AreaChart data={trend}>
                   <defs>
                     <linearGradient id="reachGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#2563eb" stopOpacity={0.45} />
-                      <stop offset="100%" stopColor="#2563eb" stopOpacity={0.02} />
+                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.45} />
+                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="label" tickLine={false} axisLine={false} />
                   <RechartsTooltip />
-                  <Area type="monotone" dataKey="reach" stroke="#2563eb" fill="url(#reachGradient)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="reach" stroke="var(--primary)" fill="url(#reachGradient)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -949,7 +949,7 @@ export function SocialPostDetailPage({ scope }: { scope: SocialScope }) {
                 </Button>
               </>
             ) : (
-              <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-3 text-sm text-amber-900">
+              <div className="rounded-lg border border-warning/30 bg-warning-muted/70 p-3 text-sm text-warning-muted-foreground">
                 Approval and publish actions are restricted to platform managers.
               </div>
             )}
@@ -1552,15 +1552,15 @@ export function SocialAnalyticsPage({ scope }: { scope: SocialScope }) {
                 <AreaChart data={trend}>
                   <defs>
                     <linearGradient id="engagementGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#16a34a" stopOpacity={0.45} />
-                      <stop offset="100%" stopColor="#16a34a" stopOpacity={0.04} />
+                      <stop offset="0%" stopColor="var(--success)" stopOpacity={0.45} />
+                      <stop offset="100%" stopColor="var(--success)" stopOpacity={0.04} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="label" tickLine={false} axisLine={false} />
                   <RechartsTooltip />
-                  <Area type="monotone" dataKey="reach" stroke="#2563eb" strokeWidth={2} fillOpacity={0} />
-                  <Area type="monotone" dataKey="engagements" stroke="#16a34a" strokeWidth={2} fill="url(#engagementGradient)" />
+                  <Area type="monotone" dataKey="reach" stroke="var(--primary)" strokeWidth={2} fillOpacity={0} />
+                  <Area type="monotone" dataKey="engagements" stroke="var(--success)" strokeWidth={2} fill="url(#engagementGradient)" />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -1621,8 +1621,8 @@ export function SocialAnalyticsPage({ scope }: { scope: SocialScope }) {
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="platform" tickLine={false} axisLine={false} />
                       <RechartsTooltip />
-                      <Bar dataKey="impressions" radius={[8, 8, 0, 0]} fill="#2563eb" />
-                      <Bar dataKey="engagements" radius={[8, 8, 0, 0]} fill="#16a34a" />
+                      <Bar dataKey="impressions" radius={[8, 8, 0, 0]} fill="var(--primary)" />
+                      <Bar dataKey="engagements" radius={[8, 8, 0, 0]} fill="var(--success)" />
                     </BarChart>
                   </ResponsiveContainer>
                 )}

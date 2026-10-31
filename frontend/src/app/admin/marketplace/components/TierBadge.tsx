@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 const TIER_COLORS: Record<string, string> = {
   free: "bg-muted text-muted-foreground border",
   starter: "bg-info-bg text-info border-info",
-  standard: "bg-[#EDE9FE] text-role-student border-[#DDD6FE]",
-  growth: "bg-[#EDE9FE] text-role-student border-[#DDD6FE]",
+  standard: "bg-info-muted text-role-student border-info/30",
+  growth: "bg-info-muted text-role-student border-info/30",
   pro: "bg-warning-bg text-em-accent-dark border-warning",
   enterprise: "bg-success-bg text-success border-success",
 };

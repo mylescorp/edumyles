@@ -90,7 +90,7 @@ export function AdminBottomBar() {
         <div className="flex-1 max-w-md mx-4">
           <div className="relative">
             <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
-              <Zap className="h-3 w-3 text-yellow-500" />
+              <Zap className="h-3 w-3 text-warning" />
               <span className="text-xs text-gray-500">Quick Message</span>
             </div>
             <Input

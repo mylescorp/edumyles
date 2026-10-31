@@ -15,7 +15,7 @@ export function OperationsSuiteRail({ currentHref }: { currentHref: string }) {
 
   return (
     <div className="flex justify-start pb-2">
-      <div className="w-fit max-w-full overflow-x-auto rounded-xl border border-emerald-950/10 bg-white/95 p-2 shadow-[0_18px_36px_-26px_rgba(15,23,42,0.24)] backdrop-blur supports-[backdrop-filter]:bg-white/85">
+      <div className="w-fit max-w-full overflow-x-auto rounded-xl border border-border bg-card/95 p-2 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-card/85">
         <div className="flex w-max min-w-max items-center gap-2">
           {OPERATIONS_LINKS.map((link) => {
             const active = currentHref === link.href;

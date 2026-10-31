@@ -11,6 +11,13 @@ const COOKIE_CLEAR_OPTIONS = {
 };
 
 const WORKOS_COOKIE_NAME = process.env.WORKOS_COOKIE_NAME || "wos-session";
+const MASTER_SESSION_BACKUP_COOKIE = "edumyles_master_session";
+const WORKSPACE_COOKIES = [
+  MASTER_SESSION_BACKUP_COOKIE,
+  "edumyles_admin_workspace_mode",
+  "edumyles_admin_tenant",
+  "edumyles_dev_bootstrap",
+] as const;
 
 function clearSessionCookies(response: NextResponse): void {
   response.cookies.set("edumyles_session", "", { ...COOKIE_CLEAR_OPTIONS, httpOnly: true });
@@ -19,6 +26,9 @@ function clearSessionCookies(response: NextResponse): void {
   response.cookies.set("workos_state", "", { ...COOKIE_CLEAR_OPTIONS, httpOnly: true });
   response.cookies.set(WORKOS_COOKIE_NAME, "", { ...COOKIE_CLEAR_OPTIONS, httpOnly: true });
   response.cookies.set("workos-access-token", "", { ...COOKIE_CLEAR_OPTIONS, httpOnly: true });
+  for (const name of WORKSPACE_COOKIES) {
+    response.cookies.set(name, "", { ...COOKIE_CLEAR_OPTIONS, httpOnly: true });
+  }
 }
 
 async function invalidateSession(sessionToken: string): Promise<void> {
@@ -34,13 +44,22 @@ async function invalidateSession(sessionToken: string): Promise<void> {
   }
 }
 
+async function invalidateRequestSessions(request: NextRequest): Promise<void> {
+  const sessionTokens = new Set(
+    [
+      request.cookies.get("edumyles_session")?.value,
+      request.cookies.get(MASTER_SESSION_BACKUP_COOKIE)?.value,
+    ].filter((token): token is string => Boolean(token))
+  );
+  for (const token of sessionTokens) {
+    await invalidateSession(token);
+  }
+}
+
 // POST — called by client-side fetch in useAuth.logout()
 export async function POST(request: NextRequest) {
   try {
-    const sessionToken = request.cookies.get("edumyles_session")?.value;
-    if (sessionToken) {
-      await invalidateSession(sessionToken);
-    }
+    await invalidateRequestSessions(request);
 
     const response = NextResponse.json({ success: true, message: "Logged out successfully" });
     clearSessionCookies(response);
@@ -57,10 +76,7 @@ export async function POST(request: NextRequest) {
 // GET — for direct browser navigation to /auth/logout (e.g., bookmarks, links)
 export async function GET(request: NextRequest) {
   try {
-    const sessionToken = request.cookies.get("edumyles_session")?.value;
-    if (sessionToken) {
-      await invalidateSession(sessionToken);
-    }
+    await invalidateRequestSessions(request);
   } catch {
     // Ignore errors — still redirect to login
   }

@@ -126,7 +126,7 @@ export default function PMBoardsPage() {
             <CardContent className="grid gap-6 p-6 xl:grid-cols-[1.15fr_0.85fr]">
               <div className="space-y-5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge className="border-0 bg-slate-900 text-white">Kanban Launch Surface</Badge>
+                  <Badge className="border-0 bg-platform-chrome text-white">Kanban Launch Surface</Badge>
                   <Badge variant="outline" className="border-slate-300 bg-white/90 text-slate-700">
                     Live PM data
                   </Badge>
@@ -287,7 +287,7 @@ function StatCard({
   return (
     <div className="rounded-[24px] border border-slate-200 bg-white/92 p-4 shadow-sm">
       <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-white">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-platform-chrome text-white">
           <Icon className="h-5 w-5" />
         </div>
         <div>

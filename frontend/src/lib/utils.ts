@@ -17,12 +17,12 @@ export function cn(...inputs: ClassValue[]) {
 // Used for badges, avatars, dashboard accents, sidebar header tints.
 // ---------------------------------------------------------------------------
 export const RoleColors = {
-  "super-admin":   { bg: "#1A4731", text: "#FFFFFF", light: "#DCFCE7" },
-  "school-admin":  { bg: "#1E3A8A", text: "#FFFFFF", light: "#DBEAFE" },
-  "teacher":       { bg: "#16A34A", text: "#FFFFFF", light: "#DCFCE7" },
-  "finance-officer":{ bg: "#F59E0B", text: "#1E293B", light: "#FEF9C3" },
-  "parent":        { bg: "#0D9488", text: "#FFFFFF", light: "#CCFBF1" },
-  "student":       { bg: "#7C3AED", text: "#FFFFFF", light: "#EDE9FE" },
+  "super-admin":    { bg: "var(--platform-chrome)", text: "var(--primary-foreground)", light: "var(--muted)" },
+  "school-admin":   { bg: "var(--primary)", text: "var(--primary-foreground)", light: "var(--accent)" },
+  teacher:          { bg: "var(--success)", text: "var(--success-foreground)", light: "var(--success-muted)" },
+  "finance-officer":{ bg: "var(--warning)", text: "var(--warning-foreground)", light: "var(--warning-muted)" },
+  parent:           { bg: "var(--info)", text: "var(--info-foreground)", light: "var(--info-muted)" },
+  student:          { bg: "var(--accent-foreground)", text: "var(--primary-foreground)", light: "var(--accent)" },
 } as const;
 
 export type RoleKey = keyof typeof RoleColors;
@@ -48,11 +48,11 @@ export interface GradeColor {
  * for a given numeric score (0-100).
  */
 export function getGradeColor(score: number): GradeColor {
-  if (score >= 90) return { bg: "#16A34A", text: "#FFFFFF", label: "Excellent", grade: "A" };
-  if (score >= 80) return { bg: "#22C55E", text: "#FFFFFF", label: "Good", grade: "B" };
-  if (score >= 70) return { bg: "#F59E0B", text: "#1E293B", label: "Average", grade: "C" };
-  if (score >= 60) return { bg: "#F97316", text: "#FFFFFF", label: "Below Average", grade: "D" };
-  return { bg: "#DC2626", text: "#FFFFFF", label: "Poor", grade: "F" };
+  if (score >= 90) return { bg: "var(--success)", text: "var(--success-foreground)", label: "Excellent", grade: "A" };
+  if (score >= 80) return { bg: "var(--success-muted)", text: "var(--success-muted-foreground)", label: "Good", grade: "B" };
+  if (score >= 70) return { bg: "var(--warning-muted)", text: "var(--warning-muted-foreground)", label: "Average", grade: "C" };
+  if (score >= 60) return { bg: "var(--warning)", text: "var(--warning-foreground)", label: "Below Average", grade: "D" };
+  return { bg: "var(--danger)", text: "var(--danger-foreground)", label: "Poor", grade: "F" };
 }
 
 // ---------------------------------------------------------------------------
@@ -95,27 +95,27 @@ export function formatRelativeTime(timestamp: number): string {
 export const chartColors = {
   /** Ordered categorical palette — use for multi-series bar/line/pie */
   categorical: [
-    "#16A34A", // 1 — Attendance present / fees paid / pass
-    "#1E3A8A", // 2 — Second series / enrolment count
-    "#F59E0B", // 3 — Pending / partial / in-progress
-    "#7C3AED", // 4 — Student metrics, assignments
-    "#0D9488", // 5 — Parent engagement, communication
-    "#DC2626", // 6 — Absent / overdue / failed (use last)
+    "var(--success)",
+    "var(--primary)",
+    "var(--warning)",
+    "var(--info)",
+    "var(--accent-foreground)",
+    "var(--danger)",
   ] as const,
 
   /** Sequential palette — for heatmaps, attendance grids, performance maps */
   sequential: [
-    "#FEE2E2", // Very Low  0–40%
-    "#FEF9C3", // Low       41–60%
-    "#FDE68A", // Medium    61–70%
-    "#DCFCE7", // Good      71–85%
-    "#16A34A", // Excellent 86–100%
+    "var(--danger-muted)",
+    "var(--warning-muted)",
+    "var(--warning-muted-foreground)",
+    "var(--success-muted)",
+    "var(--success)",
   ] as const,
 
-  grid:         "#E2E8F0",
-  axis:         "#64748B",
-  tooltip_bg:   "#1E293B",
-  tooltip_text: "#F1F5F9",
+  grid:         "var(--border)",
+  axis:         "var(--muted-foreground)",
+  tooltip_bg:   "var(--popover)",
+  tooltip_text: "var(--popover-foreground)",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -123,28 +123,28 @@ export const chartColors = {
 // ---------------------------------------------------------------------------
 export const alertConfig = {
   success: {
-    bg:      "bg-success-bg",
+    bg:      "bg-success-muted",
     border:  "border-success",
-    heading: "text-[#166534]",
-    body:    "text-[#14532D]",
+    heading: "text-success-muted-foreground",
+    body:    "text-success-muted-foreground",
   },
   warning: {
-    bg:      "bg-warning-bg",
+    bg:      "bg-warning-muted",
     border:  "border-warning",
-    heading: "text-[#92400E]",
-    body:    "text-[#78350F]",
+    heading: "text-warning-muted-foreground",
+    body:    "text-warning-muted-foreground",
   },
   danger: {
-    bg:      "bg-danger-bg",
+    bg:      "bg-danger-muted",
     border:  "border-danger",
-    heading: "text-[#991B1B]",
-    body:    "text-[#7F1D1D]",
+    heading: "text-danger-muted-foreground",
+    body:    "text-danger-muted-foreground",
   },
   info: {
-    bg:      "bg-info-bg",
+    bg:      "bg-info-muted",
     border:  "border-info",
-    heading: "text-[#1E40AF]",
-    body:    "text-[#1E3A8A]",
+    heading: "text-info-muted-foreground",
+    body:    "text-info-muted-foreground",
   },
 } as const;
 
@@ -154,15 +154,15 @@ export type AlertVariant = keyof typeof alertConfig;
 // Payment UI helpers (Section 16)
 // ---------------------------------------------------------------------------
 export const paymentColors = {
-  pageBg:      "#F8FAFC",
-  cardBg:      "#FFFFFF",
-  payButton:   "#16A34A",
-  amount:      "#1E293B",
-  successBg:   "#DCFCE7",
-  pendingBg:   "#FEF9C3",
-  failedBg:    "#FEE2E2",
-  secureIcon:  "#16A34A",
-  reference:   "#64748B",
+  pageBg:      "var(--background)",
+  cardBg:      "var(--card)",
+  payButton:   "var(--success)",
+  amount:      "var(--foreground)",
+  successBg:   "var(--success-muted)",
+  pendingBg:   "var(--warning-muted)",
+  failedBg:    "var(--danger-muted)",
+  secureIcon:  "var(--success)",
+  reference:   "var(--muted-foreground)",
 } as const;
 
 // ---------------------------------------------------------------------------

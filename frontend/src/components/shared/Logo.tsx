@@ -3,55 +3,67 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
-  variant?: "icon" | "full";
+  variant?: "icon" | "full" | "lockup";
   size?: "sm" | "md" | "lg" | "xl";
-  href?: string;
+  width?: number;
+  height?: number;
+  href?: string | null;
   className?: string;
-  /** White/light version for dark backgrounds */
-  inverted?: boolean;
+  priority?: boolean;
+  /** Force a version for fixed-color surfaces; auto follows the active theme. */
+  appearance?: "auto" | "light" | "dark";
 }
 
 const SIZE_MAP = {
-  sm:  { icon: 28,  text: "text-sm",  tagline: "text-[9px]"  },
-  md:  { icon: 36,  text: "text-base", tagline: "text-[10px]" },
-  lg:  { icon: 48,  text: "text-xl",  tagline: "text-xs"     },
-  xl:  { icon: 72,  text: "text-3xl", tagline: "text-sm"     },
+  sm: { full: 132, icon: 28, lockup: 320 },
+  md: { full: 180, icon: 36, lockup: 360 },
+  lg: { full: 220, icon: 48, lockup: 420 },
+  xl: { full: 280, icon: 72, lockup: 520 },
 };
 
-export function Logo({ variant = "full", size = "md", href = "/", className }: LogoProps) {
-  const { icon, text, tagline } = SIZE_MAP[size];
+export function Logo({
+  variant = "full",
+  size = "md",
+  width,
+  height,
+  href = "/",
+  className,
+  priority = false,
+  appearance = "auto",
+}: LogoProps) {
+  const imageWidth = width ?? SIZE_MAP[size][variant];
+  const imageHeight = height ?? (variant === "icon" ? imageWidth : Math.round(imageWidth / (variant === "lockup" ? 3.52 : 3.59)));
+  const asset = variant === "icon" ? "mark" : variant === "lockup" ? "lockup" : "wordmark";
+  const variants = appearance === "auto" ? ["light", "dark"] : [appearance];
 
   const content = (
-    <span className={cn("flex items-center gap-2.5 select-none", className)}>
-      <Image
-        src="/logo-icon.svg"
-        alt="EduMyles"
-        width={icon}
-        height={icon}
-        className="h-auto w-auto flex-shrink-0"
-        priority
-      />
-      {variant === "full" && (
-        <span className="flex flex-col gap-0 leading-none">
-          <span className={cn("font-bold text-[#D4AF37] tracking-tight", text)}>
-            EduMyles
-          </span>
-          <span className={cn("font-medium text-[#6B9E83] tracking-wide uppercase", tagline)}>
-            Empowering Education
-          </span>
-        </span>
-      )}
+    <span className={cn("inline-flex shrink-0 select-none", className)}>
+      {variants.map((theme) => (
+        <Image
+          key={theme}
+          src={`/edumyles-${asset}-${theme}.png`}
+          alt="EduMyles"
+          width={imageWidth}
+          height={imageHeight}
+          priority={priority}
+          sizes={variant === "full" ? `${imageWidth}px` : `${imageWidth}px`}
+          className={cn(
+            "h-auto max-w-full",
+            variant === "icon" && "aspect-square",
+            appearance === "auto" && (theme === "dark" ? "hidden dark:block" : "block dark:hidden")
+          )}
+        />
+      ))}
     </span>
   );
 
-  if (href) {
-    return (
-      <Link href={href} aria-label="EduMyles — home" className="no-underline">
-        {content}
-      </Link>
-    );
-  }
-  return content;
+  return href ? (
+    <Link href={href} aria-label="EduMyles — home" className="inline-flex no-underline">
+      {content}
+    </Link>
+  ) : (
+    content
+  );
 }
 
 export default Logo;

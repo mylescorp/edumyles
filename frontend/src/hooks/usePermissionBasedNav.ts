@@ -1,14 +1,19 @@
 import { platformNavItems, type NavItem } from "@/lib/routes";
 import { usePlatformPermissions } from "@/hooks/usePlatformPermissions";
+import { useAuth } from "@/hooks/useAuth";
 const PLATFORM_NAV_ITEMS: NavItem[] = platformNavItems;
 
 export function usePermissionBasedNavItems(): NavItem[] {
   const { can, isLoaded } = usePlatformPermissions();
+  const { role } = useAuth();
+  const isMasterAdmin = role === "master_admin";
 
-  if (!isLoaded) return [];
+  // A master admin has full platform access. Keep the navigation available
+  // while the permissions query is loading or unavailable in local previews.
+  if (!isLoaded && !isMasterAdmin) return [];
 
   return PLATFORM_NAV_ITEMS.filter(item => 
-    !item.permission || can(item.permission)
+    !item.permission || isMasterAdmin || can(item.permission)
   );
 }
 

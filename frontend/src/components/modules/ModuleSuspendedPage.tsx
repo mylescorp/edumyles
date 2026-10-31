@@ -18,8 +18,8 @@ export function ModuleSuspendedPage({ variant, moduleName }: Props) {
     <div className="flex min-h-[50vh] items-center justify-center">
       <Card className="w-full max-w-xl">
         <CardContent className="space-y-4 p-8 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
-            <AlertTriangle className="h-7 w-7 text-amber-600" />
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-warning-muted">
+            <AlertTriangle className="h-7 w-7 text-warning-muted-foreground" />
           </div>
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold">{title}</h2>

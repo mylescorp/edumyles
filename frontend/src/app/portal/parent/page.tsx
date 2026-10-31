@@ -1,6 +1,6 @@
 "use client";
 
-import { PageHeader } from "@/components/shared/PageHeader";
+import { PanelWelcomeCard } from "@/components/shared/PanelWelcomeCard";
 import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,10 +23,10 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
-  active: { label: "Active", cls: "text-[#26A65B] bg-[rgba(38,166,91,0.1)] border-[#26A65B]/30" },
+  active: { label: "Active", cls: "text-success bg-success/10 border-success/30" },
   inactive: { label: "Inactive", cls: "text-muted-foreground bg-muted border-border" },
-  graduated: { label: "Graduated", cls: "text-[#1565C0] bg-[rgba(21,101,192,0.1)] border-[#1565C0]/30" },
-  suspended: { label: "Suspended", cls: "text-[#DC2626] bg-[rgba(220,38,38,0.1)] border-[#DC2626]/30" },
+  graduated: { label: "Graduated", cls: "text-info bg-info/10 border-info/30" },
+  suspended: { label: "Suspended", cls: "text-danger bg-danger/10 border-danger/30" },
 };
 
 export default function ParentDashboardPage() {
@@ -66,14 +66,9 @@ export default function ParentDashboardPage() {
     0
   );
 
-  const anyUser = user as any;
-
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={`Welcome back${anyUser?.firstName ? `, ${anyUser.firstName}` : ""}`}
-        description="Monitor your children's progress and manage fees"
-      />
+      <PanelWelcomeCard description="Monitor your children’s progress and manage fees." />
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -109,7 +104,7 @@ export default function ParentDashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <Users className="h-4 w-4 text-[#0F4C2A]" />
+              <Users className="h-4 w-4 text-primary" />
               Children Summary
             </CardTitle>
             {sisEnabled && childList.length > 0 && (
@@ -139,8 +134,8 @@ export default function ParentDashboardPage() {
                       className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 transition-colors"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(15,76,42,0.1)] flex-shrink-0">
-                          <span className="text-xs font-bold text-[#0F4C2A]">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
+                          <span className="text-xs font-bold text-primary">
                             {(child.firstName?.[0] ?? "?").toUpperCase()}
                           </span>
                         </div>
@@ -168,7 +163,7 @@ export default function ParentDashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <DollarSign className="h-4 w-4 text-[#E8A020]" />
+              <DollarSign className="h-4 w-4 text-warning" />
               Fee Overview
             </CardTitle>
             {financeEnabled && (
@@ -210,8 +205,8 @@ export default function ParentDashboardPage() {
                       className={cn(
                         "text-xs font-semibold flex-shrink-0",
                         (item.balance ?? 0) > 0
-                          ? "text-[#E8A020] border-[#E8A020]/40 bg-[rgba(232,160,32,0.07)]"
-                          : "text-[#26A65B] border-[#26A65B]/30 bg-[rgba(38,166,91,0.07)]"
+                          ? "text-warning border-warning/40 bg-warning/10"
+                          : "text-success border-success/30 bg-success/10"
                       )}
                     >
                       {formatCurrency(item.balance ?? 0)}
@@ -228,7 +223,7 @@ export default function ParentDashboardPage() {
       <Card className="shadow-sm">
         <CardHeader className="pb-3 pt-5 px-5">
           <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-            <Megaphone className="h-4 w-4 text-[#1565C0]" />
+            <Megaphone className="h-4 w-4 text-info" />
             Announcements
           </CardTitle>
         </CardHeader>

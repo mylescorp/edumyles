@@ -13,7 +13,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actions, breadcrumbs, className, badge }: PageHeaderProps) {
   return (
-    <div className={cn("mb-6", className)}>
+    <div className={cn("mb-6 border-b border-border pb-5", className)}>
       {/* Breadcrumbs */}
       {breadcrumbs && breadcrumbs.length > 0 && (
         <nav className="mb-2.5 flex items-center gap-1 text-xs text-muted-foreground">
@@ -36,10 +36,10 @@ export function PageHeader({ title, description, actions, breadcrumbs, className
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3">
           {/* Accent bar */}
-          <div className="mt-1.5 hidden h-6 w-1 flex-shrink-0 rounded-full bg-[var(--platform-accent)] sm:block" />
+          <div className="mt-1.5 hidden h-7 w-1 flex-shrink-0 rounded-full bg-primary sm:block" />
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl font-bold tracking-tight text-foreground leading-tight">{title}</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground leading-tight">{title}</h1>
               {badge && <div className="flex-shrink-0">{badge}</div>}
             </div>
             {description && (
@@ -54,8 +54,6 @@ export function PageHeader({ title, description, actions, breadcrumbs, className
         )}
       </div>
 
-      {/* Separator */}
-      <div className="mt-4 h-px bg-border/60" />
     </div>
   );
 }

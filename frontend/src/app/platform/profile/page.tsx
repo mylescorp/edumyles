@@ -937,7 +937,7 @@ export default function ProfilePage() {
                   </h2>
                   <p className="text-sm text-muted-foreground">{email}</p>
                   <div className="mt-2">
-                    <Badge className="bg-[#EDE9FE] text-role-student">
+                    <Badge className="bg-info-muted text-role-student">
                       {getRoleLabel(role)}
                     </Badge>
                   </div>

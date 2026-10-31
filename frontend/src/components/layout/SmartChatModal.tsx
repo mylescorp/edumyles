@@ -146,7 +146,7 @@ export function SmartChatModal({ open, onClose, onSelectChat }: SmartChatModalPr
             placeholder="Start a group chat by @name and #topic. Eg @Brian @James #Paris trip"
             className="flex-1 text-[14px] text-gray-800 placeholder:text-gray-400 outline-none bg-transparent"
           />
-          <Lightbulb className="h-5 w-5 text-amber-400 shrink-0" />
+          <Lightbulb className="h-5 w-5 text-warning shrink-0" />
           <button
             onClick={onClose}
             className="h-7 w-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors shrink-0"

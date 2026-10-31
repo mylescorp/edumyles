@@ -184,7 +184,7 @@ export function TenantInviteAcceptPage() {
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
         <Card className="w-full max-w-lg">
           <CardHeader className="text-center">
-            <AlertCircle className="mx-auto h-10 w-10 text-amber-500" />
+            <AlertCircle className="mx-auto h-10 w-10 text-warning" />
             <CardTitle className="mt-4">{copy.title}</CardTitle>
             <CardDescription>{copy.description}</CardDescription>
           </CardHeader>
@@ -197,7 +197,7 @@ export function TenantInviteAcceptPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#f8fafc,_#eef2ff_50%,_#e2e8f0)] px-4 py-12">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_var(--accent),_var(--background)_50%,_var(--muted))] px-4 py-12">
       <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <Card className="border-slate-200/70 bg-white/90 shadow-xl shadow-slate-200/50">
           <CardHeader className="space-y-4">

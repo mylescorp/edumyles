@@ -1,6 +1,6 @@
 "use client";
 
-import { PageHeader } from "@/components/shared/PageHeader";
+import { PanelWelcomeCard } from "@/components/shared/PanelWelcomeCard";
 import { StatCard } from "@/components/shared/StatCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,7 +11,6 @@ import {
   BookOpen,
   ClipboardList,
   Calendar,
-  FileText,
   Users,
   ArrowRight,
   Plus,
@@ -23,15 +22,15 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const QUICK_ACTIONS = [
-  { label: "Record Attendance", href: "/portal/teacher/attendance", icon: Calendar, iconBg: "bg-[rgba(38,166,91,0.1)]", iconColor: "text-[#26A65B]", module: "sis" },
-  { label: "View Classes", href: "/portal/teacher/classes", icon: BookOpen, iconBg: "bg-[rgba(15,76,42,0.1)]", iconColor: "text-[#0F4C2A]", module: "sis" },
-  { label: "Create Assignment", href: "/portal/teacher/assignments/create", icon: Plus, iconBg: "bg-[rgba(232,160,32,0.1)]", iconColor: "text-[#E8A020]", module: "academics" },
-  { label: "Manage Assignments", href: "/portal/teacher/assignments", icon: ClipboardList, iconBg: "bg-[rgba(21,101,192,0.1)]", iconColor: "text-[#1565C0]", module: "academics" },
-  { label: "View Timetable", href: "/portal/teacher/timetable", icon: Calendar, iconBg: "bg-[rgba(124,58,237,0.1)]", iconColor: "text-[#7C3AED]", module: "timetable" },
+  { label: "Record Attendance", href: "/portal/teacher/attendance", icon: Calendar, iconBg: "bg-success/10", iconColor: "text-success", module: "sis" },
+  { label: "View Classes", href: "/portal/teacher/classes", icon: BookOpen, iconBg: "bg-primary/10", iconColor: "text-primary", module: "sis" },
+  { label: "Create Assignment", href: "/portal/teacher/assignments/create", icon: Plus, iconBg: "bg-warning/10", iconColor: "text-warning", module: "academics" },
+  { label: "Manage Assignments", href: "/portal/teacher/assignments", icon: ClipboardList, iconBg: "bg-info/10", iconColor: "text-info", module: "academics" },
+  { label: "View Timetable", href: "/portal/teacher/timetable", icon: Calendar, iconBg: "bg-[rgba(124,58,237,0.1)]", iconColor: "text-info", module: "timetable" },
 ];
 
 export default function TeacherDashboardPage() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading } = useAuth();
   const { isModuleInstalled, isLoading: modulesLoading } = useInstalledModules();
   const sisEnabled = isModuleInstalled("sis");
   const academicsEnabled = isModuleInstalled("academics");
@@ -73,14 +72,9 @@ export default function TeacherDashboardPage() {
     return true;
   });
 
-  const anyUser = user as any;
-
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={`Welcome back, ${anyUser?.firstName || anyUser?.email?.split("@")[0] || "Teacher"}`}
-        description="Here's an overview of your teaching activity today."
-      />
+      <PanelWelcomeCard description="Here is an overview of your teaching activity today." />
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -116,7 +110,7 @@ export default function TeacherDashboardPage() {
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <BookOpen className="h-4 w-4 text-[#0F4C2A]" />
+              <BookOpen className="h-4 w-4 text-primary" />
               My Classes
             </CardTitle>
             {sisEnabled && teacherClasses.length > 3 && (
@@ -144,8 +138,8 @@ export default function TeacherDashboardPage() {
                     className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[rgba(15,76,42,0.1)] flex-shrink-0">
-                        <BookOpen className="h-4 w-4 text-[#0F4C2A]" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 flex-shrink-0">
+                        <BookOpen className="h-4 w-4 text-primary" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{cls.name}</p>
@@ -164,7 +158,7 @@ export default function TeacherDashboardPage() {
                           className={cn(
                             "text-xs hidden sm:flex",
                             cls.status === "active"
-                              ? "text-[#26A65B] border-[#26A65B]/30 bg-[rgba(38,166,91,0.07)]"
+                              ? "text-success border-success/30 bg-success/10"
                               : "text-muted-foreground"
                           )}
                         >

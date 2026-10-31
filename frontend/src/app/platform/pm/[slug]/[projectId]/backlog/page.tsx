@@ -164,7 +164,7 @@ export default function BacklogPage() {
               <BarChart data={chartData}>
                 <XAxis dataKey="name" hide />
                 <YAxis allowDecimals={false} />
-                <Bar dataKey="velocity" fill="#0f766e" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="velocity" fill="var(--primary)" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

@@ -66,7 +66,7 @@ export function ImpersonationBanner() {
     if (!isActiveBrowse) return null;
 
     return (
-        <div className="flex items-center justify-center gap-2 bg-amber-500 px-4 py-2 text-sm font-medium text-amber-950">
+        <div className="shell-impersonation-banner flex items-center justify-center gap-2 bg-warning-muted px-4 py-2 text-sm font-medium text-warning-muted-foreground">
             <AlertTriangle className="h-4 w-4 shrink-0" />
             <span>
                 You are browsing the platform as another user. All actions are being logged against your admin account.
@@ -74,7 +74,7 @@ export function ImpersonationBanner() {
             <button
                 onClick={handleExitImpersonation}
                 disabled={exitLoading}
-                className="ml-4 rounded bg-amber-700 px-3 py-0.5 text-xs font-semibold text-white hover:bg-amber-800 disabled:opacity-60"
+                className="ml-4 rounded bg-warning px-3 py-0.5 text-xs font-semibold text-white hover:bg-warning disabled:opacity-60"
             >
                 {exitLoading ? "Exiting..." : "Exit Impersonation"}
             </button>

@@ -304,7 +304,7 @@ export default function PlatformCrmDashboardPage() {
           </Card>
 
           {can("crm.view_reports") ? (
-            <Card className="border-slate-900 bg-slate-950 text-white">
+            <Card className="border-platform-chrome bg-platform-chrome text-white">
               <CardHeader>
                 <CardTitle className="text-white">Revenue pressure</CardTitle>
                 <CardDescription className="text-slate-300">

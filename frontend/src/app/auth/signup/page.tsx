@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Logo from "@/components/shared/Logo";
 import {
   ArrowRight,
   CheckCircle,
@@ -43,22 +43,18 @@ export default function SignupPage() {
     <div className="flex min-h-screen">
       {/* ── Left brand panel ── */}
       <div
-        className="hidden lg:flex lg:w-[52%] xl:w-[55%] flex-col justify-between p-12 xl:p-16"
-        style={{ background: "linear-gradient(160deg, #0C3020 0%, #061A12 100%)" }}
-      >
+        className="hidden flex-col justify-between bg-[var(--platform-chrome)] p-12 text-white lg:flex lg:w-[52%] xl:w-[55%] xl:p-16">
         <div>
-          <Image src="/logo-full.svg" alt="EduMyles" width={180} height={48} priority />
+          <Logo variant="lockup" width={320} height={91} priority appearance="dark" href={null} />
         </div>
 
         <div className="space-y-10">
           <div className="space-y-4">
             <h1
-              className="text-4xl xl:text-5xl font-bold leading-tight"
-              style={{ color: "#F3FBF6", fontFamily: "var(--font-jakarta)" }}
-            >
+              className="text-4xl font-bold leading-tight text-white xl:text-5xl">
               Every role. One platform.
             </h1>
-            <p className="text-lg" style={{ color: "#A8E6C3" }}>
+            <p className="text-white/80">
               Whether you are an administrator, teacher, student or parent — EduMyles has a portal
               built for your exact needs.
             </p>
@@ -70,21 +66,21 @@ export default function SignupPage() {
                 key={label}
                 className="flex items-center gap-3 rounded-xl px-4 py-3"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(168,230,195,0.15)",
+                  background: "rgb(255 255 255 / 6%)",
+                  border: "1px solid rgb(255 255 255 / 14%)",
                 }}
               >
                 <span
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                  style={{ background: "rgba(232,160,32,0.15)" }}
+                  style={{ background: "rgb(255 255 255 / 14%)" }}
                 >
-                  <Icon className="h-4 w-4" style={{ color: "#E8A020" }} />
+                  <Icon className="h-4 w-4 text-white" />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: "#F3FBF6" }}>
+                  <p className="text-sm font-semibold text-white">
                     {label}
                   </p>
-                  <p className="text-xs" style={{ color: "#6B9E83" }}>
+                  <p className="text-white/65">
                     {desc}
                   </p>
                 </div>
@@ -93,7 +89,7 @@ export default function SignupPage() {
           </div>
         </div>
 
-        <p className="text-xs" style={{ color: "#6B9E83" }}>
+        <p className="text-white/65">
           Set up takes less than 5 minutes · No credit card required to start
         </p>
       </div>
@@ -101,18 +97,16 @@ export default function SignupPage() {
       {/* ── Right auth panel ── */}
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 lg:px-12">
         <div className="mb-8 lg:hidden">
-          <Image src="/logo-full.svg" alt="EduMyles" width={160} height={44} priority />
+          <Logo variant="full" width={160} height={44} priority href={null} />
         </div>
 
         <div className="w-full max-w-md space-y-7">
           <div className="space-y-2">
             <h2
-              className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white"
-              style={{ fontFamily: "var(--font-jakarta)" }}
-            >
+              className="text-3xl font-bold tracking-tight text-foreground">
               Get started today
             </h2>
-            <p className="text-gray-500 dark:text-gray-400">
+            <p className="text-muted-foreground">
               Create your EduMyles account and set up your school in minutes.
             </p>
           </div>
@@ -125,9 +119,9 @@ export default function SignupPage() {
             ].map((item) => (
               <li
                 key={item}
-                className="flex items-start gap-2.5 text-sm text-gray-600 dark:text-gray-400"
+                className="flex items-start gap-2.5 text-sm text-secondary-foreground"
               >
-                <CheckCircle className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "#26A65B" }} />
+                <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-success" />
                 {item}
               </li>
             ))}
@@ -137,9 +131,9 @@ export default function SignupPage() {
             <div className="space-y-1.5">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block text-sm font-medium text-foreground"
               >
-                Work email <span className="text-gray-400 font-normal">(optional)</span>
+                Work email <span className="font-normal text-muted-foreground">(optional)</span>
               </label>
               <input
                 id="email"
@@ -148,9 +142,9 @@ export default function SignupPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@school.ac.ke"
                 autoComplete="email"
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-700 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-600"
+                className="h-[var(--control-touch)] w-full rounded-[var(--radius-control)] border border-input bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               />
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted-foreground">
                 Pre-fills your email on the next step — you can skip this.
               </p>
             </div>
@@ -158,8 +152,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="group flex w-full items-center justify-center gap-3 rounded-xl px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all hover:shadow-lg active:scale-[0.98] disabled:opacity-70"
-              style={{ background: "linear-gradient(135deg, #0F4C2A 0%, #1A7A4A 100%)" }}
+              className="group flex h-[var(--control-touch)] w-full items-center justify-center gap-3 rounded-[var(--radius-control)] bg-primary px-6 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-70"
             >
               {loading ? "Redirecting…" : "Create Account"}
               {!loading && (
@@ -167,37 +160,35 @@ export default function SignupPage() {
               )}
             </button>
 
-            <div className="flex items-center gap-3 text-xs text-gray-400">
-              <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="h-px flex-1 bg-border" />
               <span>Secure sign-up powered by WorkOS</span>
-              <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+              <div className="h-px flex-1 bg-border" />
             </div>
           </form>
 
-          <p className="text-xs text-gray-400 dark:text-gray-600 text-center leading-relaxed">
+          <p className="text-center text-xs leading-relaxed text-muted-foreground">
             By creating an account you agree to our{" "}
-            <a href="/terms" className="underline underline-offset-2 hover:text-gray-600">
+            <a href="/terms" className="underline underline-offset-2 hover:text-foreground">
               Terms of Service
             </a>{" "}
             and{" "}
-            <a href="/privacy" className="underline underline-offset-2 hover:text-gray-600">
+            <a href="/privacy" className="underline underline-offset-2 hover:text-foreground">
               Privacy Policy
             </a>
             .
           </p>
 
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link
               href="/auth/login"
-              className="font-semibold underline-offset-2 hover:underline"
-              style={{ color: "#0F4C2A" }}
-            >
+              className="font-semibold text-primary underline-offset-2 hover:underline">
               Sign in
             </Link>
           </p>
 
-          <p className="text-center text-xs text-gray-400 dark:text-gray-600">
+          <p className="text-center text-xs text-muted-foreground">
             Need help?{" "}
             <a href="mailto:support@edumyles.com" className="hover:underline underline-offset-2">
               support@edumyles.com

@@ -88,7 +88,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                     <Star
                       className="h-6 w-6 transition-colors"
                       fill={(hovered || rating) >= star ? "var(--platform-highlight)" : "none"}
-                      stroke={(hovered || rating) >= star ? "var(--platform-highlight)" : "#d1d5db"}
+                      stroke={(hovered || rating) >= star ? "var(--platform-highlight)" : "var(--border)"}
                     />
                   </button>
                 ))}

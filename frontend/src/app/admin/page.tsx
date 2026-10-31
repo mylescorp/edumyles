@@ -9,6 +9,7 @@ import { AdminRecentActivity } from "@/components/admin/AdminRecentActivity";
 import { AdminQuickActions } from "@/components/admin/AdminQuickActions";
 import { OnboardingProgress } from "@/components/admin/OnboardingProgress";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { PanelWelcomeCard } from "@/components/shared/PanelWelcomeCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,14 +27,14 @@ import Link from "next/link";
 import { useState } from "react";
 
 const STATUS_DOTS: Record<string, string> = {
-  active: "bg-[#26A65B]",
-  graduated: "bg-[#1565C0]",
-  suspended: "bg-[#DC2626]",
-  transferred: "bg-[#6B9E83]",
+  active: "bg-success",
+  graduated: "bg-info",
+  suspended: "bg-danger",
+  transferred: "bg-muted-foreground",
 };
 
 export default function AdminDashboard() {
-  const { isLoading, user, sessionToken } = useAuth();
+  const { isLoading, sessionToken } = useAuth();
   const { format: formatCurrency } = useCurrency();
   const [currentTime] = useState(() => Date.now());
 
@@ -137,21 +138,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-foreground tracking-tight">
-            Welcome back{(user as any)?.firstName ? `, ${(user as any).firstName}` : ""}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Here&apos;s what&apos;s happening with your school today.
-          </p>
-        </div>
+      <PanelWelcomeCard description="Here is what is happening across your school today." />
+      <div className="flex items-center justify-end">
         <Badge
           variant="outline"
-          className="text-xs gap-1.5 shrink-0 border-[#26A65B]/40 text-[#26A65B] bg-[rgba(38,166,91,0.07)]"
+          className="text-xs gap-1.5 shrink-0 border-success/40 text-success bg-success/10"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#26A65B] inline-block animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-success inline-block animate-pulse" />
           Live
         </Badge>
       </div>
@@ -213,7 +206,7 @@ export default function AdminDashboard() {
             <Card className="shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-3 pt-5 px-5">
                 <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                  <Clock className="h-4 w-4 text-[#E8A020]" />
+                  <Clock className="h-4 w-4 text-warning" />
                   Outstanding Invoices
                 </CardTitle>
                 <Button asChild size="sm" variant="ghost" className="h-7 text-xs">
@@ -239,7 +232,7 @@ export default function AdminDashboard() {
                       </div>
                       <Badge
                         variant="outline"
-                        className="text-[#E8A020] border-[#E8A020]/40 bg-[rgba(232,160,32,0.07)] text-xs font-semibold"
+                        className="text-warning border-warning/40 bg-warning/10 text-xs font-semibold"
                       >
                         {formatCurrency(inv.amount ?? 0)}
                       </Badge>
@@ -299,7 +292,7 @@ export default function AdminDashboard() {
                   {studentBreakdown.map((row) => (
                     <div key={row.label} className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2.5">
-                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_DOTS[row.status] ?? "bg-[#6B9E83]"}`} />
+                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_DOTS[row.status] ?? "bg-muted-foreground"}`} />
                         <span className="text-muted-foreground">{row.label}</span>
                       </div>
                       <span className="font-semibold tabular-nums">{row.count}</span>

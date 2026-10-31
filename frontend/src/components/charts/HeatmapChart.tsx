@@ -21,11 +21,11 @@ export function HeatmapChart({ data, title }: HeatmapChartProps) {
   };
 
   const getColor = (intensity: number) => {
-    if (intensity === 0) return 'rgb(229, 231, 235)';
-    if (intensity < 0.3) return 'rgb(67, 160, 71)';
-    if (intensity < 0.6) return 'rgb(246, 178, 107)';
-    if (intensity < 0.8) return 'rgb(254, 210, 132)';
-    return 'rgb(254, 78, 56)';
+    if (intensity === 0) return 'var(--muted)';
+    if (intensity < 0.3) return 'var(--success-muted)';
+    if (intensity < 0.6) return 'var(--warning-muted)';
+    if (intensity < 0.8) return 'var(--warning-muted-foreground)';
+    return 'var(--danger)';
   };
 
   return (
