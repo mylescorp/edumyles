@@ -632,25 +632,34 @@ export async function GET(req: NextRequest) {
         return NextResponse.redirect(new URL("/auth/login", req.url), 303);
       }
 
+      const isLocalDevWorkspaceReturn =
+        process.env.NODE_ENV !== "production" &&
+        process.env.ENABLE_DEV_AUTH_BYPASS === "true" &&
+        bootstrapVersion === DEV_BOOTSTRAP_VERSION &&
+        currentSessionCookie === DEV_TENANT_SESSION_TOKEN &&
+        isLocalDevPlatformSession(masterSessionBackup, bootstrapVersion);
+
       // A saved platform session is a workspace shortcut, not a substitute
       // for being signed in. Require the currently active workspace session
       // to remain valid before restoring the saved identity.
-      let activeWorkspaceSession: any;
-      try {
-        activeWorkspaceSession = await getSessionCompat(
-          getConvexClient(),
-          currentSessionCookie,
-          process.env.CONVEX_WEBHOOK_SECRET
-        );
-      } catch {
-        activeWorkspaceSession = null;
-      }
-      if (!activeWorkspaceSession) {
-        const response = NextResponse.redirect(new URL("/auth/login", req.url), 303);
-        response.cookies.delete(MASTER_SESSION_BACKUP_COOKIE);
-        response.cookies.delete(ADMIN_WORKSPACE_MODE_COOKIE);
-        response.cookies.delete(ADMIN_TENANT_COOKIE);
-        return response;
+      if (!isLocalDevWorkspaceReturn) {
+        let activeWorkspaceSession: any;
+        try {
+          activeWorkspaceSession = await getSessionCompat(
+            getConvexClient(),
+            currentSessionCookie,
+            process.env.CONVEX_WEBHOOK_SECRET
+          );
+        } catch {
+          activeWorkspaceSession = null;
+        }
+        if (!activeWorkspaceSession) {
+          const response = NextResponse.redirect(new URL("/auth/login", req.url), 303);
+          response.cookies.delete(MASTER_SESSION_BACKUP_COOKIE);
+          response.cookies.delete(ADMIN_WORKSPACE_MODE_COOKIE);
+          response.cookies.delete(ADMIN_TENANT_COOKIE);
+          return response;
+        }
       }
 
       if (isLocalDevPlatformSession(masterSessionBackup, bootstrapVersion)) {
