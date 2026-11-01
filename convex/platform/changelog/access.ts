@@ -32,9 +32,23 @@ export async function getFeedContext(ctx: any, sessionToken: string) {
     .withIndex("by_userId", (q: any) => q.eq("userId", platformUserId))
     .first();
   const normalizedRole = session.role === "platform_admin" ? "super_admin" : session.role;
-  if (PLATFORM_ROLES.includes(normalizedRole) || session.tenantId === "PLATFORM" || platformUser) {
+  if (PLATFORM_ROLES.includes(normalizedRole) || platformUser) {
     const platform = await requirePlatformSession(ctx, { sessionToken });
     return { ...platform, workspaceId: "PLATFORM", panel: "platform", canSeeAllPanels: true };
+  }
+  // A WorkOS organization membership alone does not grant EduMyles platform access.
+  // Older callbacks could nevertheless create a PLATFORM session with a tenant role;
+  // keep shared shell queries safe for those sessions without exposing platform entries.
+  if (session.tenantId === "PLATFORM") {
+    return {
+      userId: session.userId,
+      email: session.email ?? "",
+      role: normalizedRole,
+      tenantId: "PLATFORM",
+      workspaceId: "PLATFORM",
+      panel: "unauthorized",
+      canSeeAllPanels: false,
+    };
   }
   const tenant = await requireTenantSession(ctx, { sessionToken });
   const panel =
