@@ -460,7 +460,7 @@ export default function PMPage() {
         </Card>
       </div>
 
-      <Card className="overflow-hidden border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.07),transparent_35%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.98))]">
+      <Card className="overflow-hidden border-slate-200/80 surface-gradient">
         <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <CardTitle>Kanban boards</CardTitle>

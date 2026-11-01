@@ -91,7 +91,7 @@ export default function ProposalTrackingPage() {
 
   if (!proposal) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(15,118,110,0.12),_transparent_45%),linear-gradient(180deg,#f8fafc_0%,#eefbf4_100%)] px-4 py-16">
+      <div className="min-h-screen page-gradient px-4 py-16">
         <div className="mx-auto max-w-3xl">
           <Card>
             <CardContent className="py-16">
@@ -108,7 +108,7 @@ export default function ProposalTrackingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(15,118,110,0.16),_transparent_42%),linear-gradient(180deg,#f8fafc_0%,#edf7f1_100%)] px-4 py-10">
+    <div className="min-h-screen page-gradient px-4 py-10">
       <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.35fr_0.65fr]">
         <div className="space-y-6">
           <Card className="overflow-hidden border-emerald-100 bg-card/95 shadow-xl shadow-emerald-950/5">

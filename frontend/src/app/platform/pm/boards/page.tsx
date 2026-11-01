@@ -122,7 +122,7 @@ export default function PMBoardsPage() {
         </Card>
       ) : (
         <>
-          <Card className="overflow-hidden border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.08),transparent_34%),radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_32%),linear-gradient(180deg,rgba(248,250,252,0.96),rgba(255,255,255,1))]">
+          <Card className="overflow-hidden border-slate-200/80 surface-gradient">
             <CardContent className="grid gap-6 p-6 xl:grid-cols-[1.15fr_0.85fr]">
               <div className="space-y-5">
                 <div className="flex flex-wrap items-center gap-2">
@@ -213,7 +213,7 @@ export default function PMBoardsPage() {
                     return (
                       <Card
                         key={project._id}
-                        className="overflow-hidden border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.96))] shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+                        className="overflow-hidden border-slate-200/80 bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
                       >
                         <CardHeader className="space-y-3 pb-4">
                           <div className="flex items-start justify-between gap-3">

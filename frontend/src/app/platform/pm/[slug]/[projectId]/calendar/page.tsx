@@ -71,7 +71,7 @@ export default function CalendarPage() {
 
         <PmProjectRail workspaceSlug={workspaceSlug} projectId={projectId} currentHref={`/platform/pm/${workspaceSlug}/${projectId}/calendar`} />
 
-        <Card className="overflow-hidden border-slate-200/80 bg-[linear-gradient(180deg,rgba(248,250,252,0.9),rgba(255,255,255,0.98))]">
+        <Card className="overflow-hidden border-slate-200/80 surface-gradient">
           <CardContent className="grid gap-4 p-6 md:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Dated tasks</p>

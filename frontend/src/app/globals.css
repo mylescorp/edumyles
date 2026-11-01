@@ -4729,6 +4729,20 @@ html.dark .auth-loading {
   background: var(--shell-canvas) !important;
 }
 
+.page-gradient {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at top, rgb(var(--primary-rgb) / 14%), transparent 42%),
+    linear-gradient(180deg, var(--background), var(--card));
+}
+
+.surface-gradient {
+  background-color: var(--card);
+  background-image:
+    radial-gradient(circle at top left, rgb(var(--primary-rgb) / 8%), transparent 34%),
+    linear-gradient(180deg, var(--card), var(--background));
+}
+
 /* Older routes use Tailwind's literal white surface utility. Keep opaque cards
    on the semantic surface without overriding intentional translucent whites. */
 .bg-white {

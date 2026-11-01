@@ -190,7 +190,7 @@ export default function CRMPipelinePage() {
         </Card>
       ) : (
         <>
-          <Card className="overflow-hidden border-emerald-100 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.16),transparent_32%),linear-gradient(180deg,rgba(240,253,250,0.82),rgba(255,255,255,0.98))]">
+          <Card className="overflow-hidden border-emerald-100 surface-gradient">
             <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.2fr_0.8fr]">
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-2">
@@ -262,10 +262,10 @@ export default function CRMPipelinePage() {
                       className="rounded-t-[28px] border-b px-5 py-4"
                       style={{
                         background: isToneWon
-                          ? "linear-gradient(135deg, rgba(22,163,74,0.12), rgba(255,255,255,0.95))"
+                          ? "linear-gradient(135deg, color-mix(in srgb, var(--success) 12%, var(--card)), var(--card))"
                           : isToneLost
-                            ? "linear-gradient(135deg, rgba(244,63,94,0.12), rgba(255,255,255,0.95))"
-                            : `linear-gradient(135deg, ${bucket.stage.color}18, rgba(255,255,255,0.96))`,
+                            ? "linear-gradient(135deg, color-mix(in srgb, var(--danger) 12%, var(--card)), var(--card))"
+                            : `linear-gradient(135deg, color-mix(in srgb, ${bucket.stage.color} 10%, var(--card)), var(--card))`,
                       }}
                     >
                       <div className="flex items-start justify-between gap-3">

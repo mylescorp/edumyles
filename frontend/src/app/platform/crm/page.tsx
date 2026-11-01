@@ -184,7 +184,7 @@ export default function PlatformCrmDashboardPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <Card className="border-emerald-100 bg-[linear-gradient(180deg,rgba(240,253,250,0.7),rgba(255,255,255,0.96))]">
+        <Card className="border-emerald-100 surface-gradient">
           <CardHeader>
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>

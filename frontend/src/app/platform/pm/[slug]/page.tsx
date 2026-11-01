@@ -208,7 +208,7 @@ export default function WorkspacePage() {
 
       <PmAdminRail currentHref="/platform/pm/workspaces" />
 
-      <Card className="overflow-hidden border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.08),transparent_30%),linear-gradient(180deg,rgba(248,250,252,0.95),rgba(255,255,255,0.98))]">
+      <Card className="overflow-hidden border-slate-200/80 surface-gradient">
         <CardContent className="grid gap-6 p-6 md:grid-cols-[1.2fr_0.8fr]">
               <div className="space-y-3">
             <div className="text-3xl">{workspace.icon || "📁"}</div>
