@@ -2,6 +2,7 @@ import { internalMutation, mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
+import { historyPanels } from "./visibility";
 import {
   getFeedContext,
   historyAudienceKey,
@@ -52,7 +53,7 @@ function historyContributionKeys(record: {
   ) {
     return [];
   }
-  const panels = record.panels?.length ? [...new Set(record.panels)] : ["platform"];
+  const panels = [...new Set(historyPanels(record.panels))];
   return ["all", ...panels.map((panel) => `panel:${panel}`)];
 }
 
@@ -109,7 +110,7 @@ async function syncHistoryPanelRows(ctx: any, record: any, historyId: any) {
     record.displayTitle &&
     record.displayDescription &&
     record.type
-      ? new Set(record.panels?.length ? record.panels : ["platform"])
+      ? new Set(historyPanels(record.panels))
       : new Set<string>();
   const fields = searchableHistoryRecord(record);
 

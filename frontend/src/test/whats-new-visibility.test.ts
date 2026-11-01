@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { historyAudienceKey, isVisibleTo } from "../../../convex/platform/changelog/visibility";
+import {
+  historyAudienceKey,
+  historyPanels,
+  isVisibleTo,
+} from "../../../convex/platform/changelog/visibility";
 import {
   classifyType,
   displayDescription,
@@ -59,6 +63,11 @@ describe("What's new panel visibility", () => {
         canSeeAllPanels: true,
       })
     ).toBe(true);
+  });
+
+  it("defaults missing or empty history audiences to Platform", () => {
+    expect(historyPanels()).toEqual(["platform"]);
+    expect(historyPanels([])).toEqual(["platform"]);
   });
 
   it("keeps breaking conventional commit titles in the breaking category", () => {

@@ -12,6 +12,7 @@ import {
   visibleHistoryPage,
 } from "./access";
 import { requirePlatformSession } from "../../helpers/platformGuard";
+import { historyPanels } from "./visibility";
 
 export const listChangelogs = query({
   args: {
@@ -141,10 +142,7 @@ export const getWhatsNewHistoryEntry = query({
       !record.displayTitle ||
       !record.displayDescription ||
       !record.type ||
-      !isVisibleTo(
-        { panels: record.panels?.length ? record.panels : ["platform"] },
-        context,
-      )
+      !isVisibleTo({ panels: historyPanels(record.panels) }, context)
     ) {
       return null;
     }

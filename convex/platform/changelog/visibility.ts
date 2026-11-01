@@ -11,6 +11,10 @@ export function isVisibleTo(
   );
 }
 
+export function historyPanels(panels?: string[]) {
+  return panels?.length ? panels : ["platform"];
+}
+
 export function historyAudienceKey(context: { canSeeAllPanels: boolean; panel: string }) {
   return context.canSeeAllPanels ? "all" : `panel:${context.panel}`;
 }
