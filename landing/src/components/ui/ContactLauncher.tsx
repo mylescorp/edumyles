@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Component, FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery as useConvexQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
@@ -130,9 +130,38 @@ export default function ContactLauncher({
 }) {
   return (
     <LandingConvexProvider>
-      <ContactLauncherPanel initialMode={initialMode} isOpen={isOpen} onClose={onClose} />
+      <ContactWidgetErrorBoundary>
+        <ContactLauncherPanel initialMode={initialMode} isOpen={isOpen} onClose={onClose} />
+      </ContactWidgetErrorBoundary>
     </LandingConvexProvider>
   );
+}
+
+class ContactWidgetErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error("Contact widget failed to render:", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          role="alert"
+          className="fixed bottom-24 right-5 z-[9997] max-w-[360px] rounded-lg border border-border bg-card p-4 text-sm text-foreground shadow-lg"
+        >
+          Live chat is temporarily unavailable. Please use WhatsApp or try again later.
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
 }
 
 function ContactLauncherPanel({
@@ -148,11 +177,18 @@ function ContactLauncherPanel({
   const [profile, setProfile] = useState<ContactProfile>(readSavedContactProfile);
   const [topicId, setTopicId] = useState<ContactTopicId>(CONTACT_TOPICS[0].id);
   const [message, setMessage] = useState<string>(CONTACT_TOPICS[0].prompt);
-  const [status, setStatus] = useState<SubmitState>("idle");
+  const [submission, setSubmission] = useState<{ mode: ContactMode; status: SubmitState }>({
+    mode: initialMode,
+    status: "idle",
+  });
+  const status = submission.mode === mode ? submission.status : "idle";
+  const setStatus = (nextStatus: SubmitState) => setSubmission({ mode, status: nextStatus });
   const [resultId, setResultId] = useState<string | null>(null);
+  const [whatsAppResultId, setWhatsAppResultId] = useState<string | null>(null);
   const [visitorToken, setVisitorToken] = useState<string | null>(null);
   const [thread, setThread] = useState<ChatThread | null>(null);
   const [reply, setReply] = useState("");
+  const replyDraftRef = useRef("");
   const transcriptRef = useRef<HTMLDivElement | null>(null);
   const realtimeThread = useVisitorChatThread(
     resultId && visitorToken && mode === "chat" && isOpen
@@ -219,7 +255,7 @@ function ContactLauncherPanel({
           }),
         });
         const result = await response.json().catch(() => ({}));
-        if (result?.engagementId) setResultId(result.engagementId);
+        if (result?.engagementId) setWhatsAppResultId(result.engagementId);
         window.open(whatsappUrl, "_blank", "noopener,noreferrer");
         setStatus("sent");
         return;
@@ -258,6 +294,8 @@ function ContactLauncherPanel({
     if (!reply.trim() || !resultId || !visitorToken) return;
     const body = reply.trim();
     setReply("");
+    replyDraftRef.current = "";
+    setStatus("idle");
     try {
       const response = await fetch("/api/chat/thread", {
         method: "POST",
@@ -266,7 +304,10 @@ function ContactLauncherPanel({
       });
       if (!response.ok) throw new Error("Unable to send chat reply");
     } catch {
-      setReply(body);
+      if (!replyDraftRef.current) {
+        setReply(body);
+        replyDraftRef.current = body;
+      }
       setStatus("error");
     }
   }
@@ -397,7 +438,10 @@ function ContactLauncherPanel({
               <div className="flex items-end gap-2">
                 <textarea
                   value={reply}
-                  onChange={(event) => setReply(event.target.value)}
+                  onChange={(event) => {
+                    setReply(event.target.value);
+                    replyDraftRef.current = event.target.value;
+                  }}
                   rows={2}
                   className="min-h-11 flex-1 resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm leading-5 text-foreground outline-none focus:border-primary"
                   placeholder="Type your reply..."
@@ -424,8 +468,10 @@ function ContactLauncherPanel({
                 ? "WhatsApp should open with your full message prefilled. The EduMyles team will follow up from there."
                 : "Your live chat is open. Keep this window here for replies from the EduMyles team."}
             </p>
-            {resultId && (
-              <p className="mt-3 text-xs text-muted-foreground">Reference: {resultId}</p>
+            {(mode === "chat" ? resultId : whatsAppResultId) && (
+              <p className="mt-3 text-xs text-muted-foreground">
+                Reference: {mode === "chat" ? resultId : whatsAppResultId}
+              </p>
             )}
             <button
               type="button"

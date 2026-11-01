@@ -21,16 +21,20 @@ const ContactLauncherPanel = dynamic(() => import("./ContactLauncher"), {
 export default function ContactLauncherLoader() {
   const [mode, setMode] = useState<ContactMode | null>(null);
   const [lastMode, setLastMode] = useState<ContactMode>("chat");
+  const [hasOpened, setHasOpened] = useState(false);
+
+  function open(nextMode: ContactMode) {
+    setLastMode(nextMode);
+    setMode(nextMode);
+    setHasOpened(true);
+  }
 
   return (
     <>
       <div className="fixed bottom-6 left-5 z-[9996]">
         <button
           type="button"
-          onClick={() => {
-            setLastMode("whatsapp");
-            setMode("whatsapp");
-          }}
+          onClick={() => open("whatsapp")}
           className="group flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-[#052E16] shadow-[0_18px_40px_-18px_rgba(37,211,102,0.9)] ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:bg-[#20bd5b] focus:outline-none focus:ring-4 focus:ring-[#25D366]/30"
           aria-label="Open WhatsApp message form"
         >
@@ -41,10 +45,7 @@ export default function ContactLauncherLoader() {
       <div className="fixed bottom-6 right-5 z-[9996]">
         <button
           type="button"
-          onClick={() => {
-            setLastMode("chat");
-            setMode("chat");
-          }}
+          onClick={() => open("chat")}
           className="group flex h-14 w-14 items-center justify-center rounded-full bg-slate-950 text-white shadow-[0_18px_42px_-20px_rgba(15,23,42,0.9)] ring-1 ring-white/10 transition hover:-translate-y-0.5 hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-400/30"
           aria-label="Open live chat"
         >
@@ -52,11 +53,13 @@ export default function ContactLauncherLoader() {
         </button>
       </div>
 
-      <ContactLauncherPanel
-        initialMode={lastMode}
-        isOpen={mode !== null}
-        onClose={() => setMode(null)}
-      />
+      {hasOpened && (
+        <ContactLauncherPanel
+          initialMode={lastMode}
+          isOpen={mode !== null}
+          onClose={() => setMode(null)}
+        />
+      )}
     </>
   );
 }
