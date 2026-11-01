@@ -983,7 +983,7 @@ function Metric({
   } as const;
 
   return (
-    <div className="rounded-2xl border bg-white/90 p-4">
+    <div className="rounded-2xl border bg-card/90 p-4">
       <div className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${tones[tone]}`}>{label}</div>
       <p className="mt-4 text-2xl font-semibold">{value}</p>
     </div>

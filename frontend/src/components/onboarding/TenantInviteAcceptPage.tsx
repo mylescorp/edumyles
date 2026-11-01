@@ -199,7 +199,7 @@ export function TenantInviteAcceptPage() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_var(--accent),_var(--background)_50%,_var(--muted))] px-4 py-12">
       <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-slate-200/70 bg-white/90 shadow-xl shadow-slate-200/50">
+        <Card className="border-slate-200/70 bg-card/90 shadow-xl shadow-slate-200/50">
           <CardHeader className="space-y-4">
             <div className="flex items-center gap-2 text-sm text-slate-500">
               <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
@@ -355,7 +355,7 @@ export function TenantInviteAcceptPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-slate-200/70 bg-white/90">
+          <Card className="border-slate-200/70 bg-card/90">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl text-slate-900">
                 <UserRound className="h-5 w-5 text-sky-600" />

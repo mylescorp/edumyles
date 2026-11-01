@@ -131,7 +131,7 @@ function MarketplaceTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white/95 px-3 py-2 shadow-lg backdrop-blur">
+    <div className="rounded-xl border border-slate-200 bg-card/95 px-3 py-2 shadow-lg backdrop-blur">
       {label ? (
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
           {label}

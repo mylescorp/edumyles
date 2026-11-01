@@ -111,7 +111,7 @@ export default function ProposalTrackingPage() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(15,118,110,0.16),_transparent_42%),linear-gradient(180deg,#f8fafc_0%,#edf7f1_100%)] px-4 py-10">
       <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.35fr_0.65fr]">
         <div className="space-y-6">
-          <Card className="overflow-hidden border-emerald-100 bg-white/95 shadow-xl shadow-emerald-950/5">
+          <Card className="overflow-hidden border-emerald-100 bg-card/95 shadow-xl shadow-emerald-950/5">
             <CardContent className="space-y-6 p-8">
               <div className="flex flex-wrap items-center gap-3">
                 <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">EduMyles Proposal</Badge>

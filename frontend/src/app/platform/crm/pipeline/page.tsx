@@ -195,7 +195,7 @@ export default function CRMPipelinePage() {
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge className="border-0 bg-emerald-600/10 text-emerald-700">Drag & drop board</Badge>
-                  <Badge variant="outline" className="border-slate-300 bg-white/80">
+                  <Badge variant="outline" className="border-slate-300 bg-card/80">
                     <Sparkles className="mr-1.5 h-3.5 w-3.5" />
                     Live Convex pipeline
                   </Badge>
@@ -398,7 +398,7 @@ export default function CRMPipelinePage() {
 
 function PipelineStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/70 bg-white/90 p-4">
+    <div className="rounded-2xl border border-white/70 bg-card/90 p-4">
       <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
       <p className="mt-3 text-xl font-semibold text-slate-950">{value}</p>
     </div>

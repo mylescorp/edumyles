@@ -60,7 +60,7 @@ export function KanbanBoard({ statuses, tasks, onOpenTask, onMoveTask }: KanbanB
 
             <div className="space-y-3">
               {column.tasks.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-white/70 p-4 text-xs text-slate-500">
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-card/70 p-4 text-xs text-slate-500">
                   Drop a task here.
                 </div>
               ) : (

@@ -489,7 +489,7 @@ export default function PMPage() {
             activeProjects.map((project) => {
               const workspace = workspaceRows.find((row) => row._id === project.workspaceId);
               return (
-                <div key={project._id} className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                <div key={project._id} className="rounded-2xl border border-slate-200 bg-card/90 p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-semibold text-slate-950">{project.name}</p>

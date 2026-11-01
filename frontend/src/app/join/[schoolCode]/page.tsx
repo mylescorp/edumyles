@@ -123,7 +123,7 @@ export default function ParentJoinPage() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(15,61,46,0.14),_transparent_34%),linear-gradient(180deg,_#f5faf7_0%,_#edf5ef_100%)] px-4 py-10">
       <div className="mx-auto max-w-3xl">
-        <Card className="border-emerald-100 bg-white/95 shadow-xl">
+        <Card className="border-emerald-100 bg-card/95 shadow-xl">
           <CardHeader className="space-y-4">
             <Badge variant="outline" className="w-fit border-emerald-200 text-emerald-900">
               Parent Access

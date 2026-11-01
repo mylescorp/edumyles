@@ -127,7 +127,7 @@ export default function PMBoardsPage() {
               <div className="space-y-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge className="border-0 bg-platform-chrome text-white">Kanban Launch Surface</Badge>
-                  <Badge variant="outline" className="border-slate-300 bg-white/90 text-slate-700">
+                  <Badge variant="outline" className="border-slate-300 bg-card/90 text-slate-700">
                     Live PM data
                   </Badge>
                 </div>
@@ -141,7 +141,7 @@ export default function PMBoardsPage() {
                   </p>
                 </div>
                 {featuredProject && featuredWorkspace ? (
-                  <div className="rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-sm">
+                  <div className="rounded-[28px] border border-slate-200 bg-card/90 p-5 shadow-sm">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div className="space-y-2">
                         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
@@ -221,7 +221,7 @@ export default function PMBoardsPage() {
                               <CardTitle className="text-lg text-slate-950">{project.name}</CardTitle>
                               <p className="text-sm text-muted-foreground">{group.workspace.name}</p>
                             </div>
-                            <Badge variant="outline" className="border-slate-300 bg-white/90">
+                            <Badge variant="outline" className="border-slate-300 bg-card/90">
                               {project.status}
                             </Badge>
                           </div>
@@ -285,7 +285,7 @@ function StatCard({
   icon: typeof Columns3;
 }) {
   return (
-    <div className="rounded-[24px] border border-slate-200 bg-white/92 p-4 shadow-sm">
+    <div className="rounded-[24px] border border-slate-200 bg-card/92 p-4 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-platform-chrome text-white">
           <Icon className="h-5 w-5" />

@@ -1979,7 +1979,7 @@ export function SocialCalendarPage({ scope }: { scope: SocialScope }) {
                     href={`${socialBasePath(scope)}/posts/${post._id}`}
                     draggable
                     onDragStart={() => setDraggingPostId(String(post._id))}
-                    className="block rounded-lg border bg-white/90 p-2 text-xs transition hover:border-primary/50"
+                    className="block rounded-lg border bg-card/90 p-2 text-xs transition hover:border-primary/50"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="line-clamp-2 font-medium">{post.title}</p>

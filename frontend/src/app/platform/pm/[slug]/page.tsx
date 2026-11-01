@@ -222,15 +222,15 @@ export default function WorkspacePage() {
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-1 xl:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white/90 p-4">
+            <div className="rounded-2xl border border-slate-200 bg-card/90 p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Type</p>
               <Badge variant="secondary" className="mt-3">{workspace.type}</Badge>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white/90 p-4">
+            <div className="rounded-2xl border border-slate-200 bg-card/90 p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Projects</p>
               <p className="mt-3 text-2xl font-semibold text-slate-950">{projectRows.length}</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white/90 p-4">
+            <div className="rounded-2xl border border-slate-200 bg-card/90 p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Navigation</p>
               <p className="mt-3 text-sm text-muted-foreground">Board, list, timeline, backlog, calendar, settings</p>
             </div>

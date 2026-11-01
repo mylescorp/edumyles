@@ -17,7 +17,7 @@ export default function AdminSetupCompletePage() {
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-3xl items-center justify-center px-4 py-10">
-      <Card className="w-full border-emerald-200 bg-white/95 text-center">
+      <Card className="w-full border-emerald-200 bg-card/95 text-center">
         <CardHeader className="space-y-4">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
             <CheckCircle2 className="h-8 w-8 text-emerald-700" />
