@@ -129,7 +129,7 @@ export default function ParentJoinPage() {
               Parent Access
             </Badge>
             <div className="space-y-2">
-              <CardTitle className="text-3xl font-semibold text-slate-950">
+              <CardTitle className="text-3xl font-semibold text-foreground">
                 Join {schoolContext?.schoolName ?? "your school"} on EduMyles
               </CardTitle>
               <CardDescription className="max-w-2xl text-base text-slate-600">
@@ -178,7 +178,7 @@ export default function ParentJoinPage() {
                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-5">
                   <div className="flex flex-wrap items-center gap-3">
                     <ShieldCheck className="h-5 w-5 text-emerald-700" />
-                    <p className="text-sm font-medium text-emerald-950">
+                    <p className="text-sm font-medium text-success-muted-foreground">
                       We found {totalChildren} child record{totalChildren === 1 ? "" : "s"} linked to this contact.
                     </p>
                   </div>

@@ -75,11 +75,11 @@ export default function CalendarPage() {
           <CardContent className="grid gap-4 p-6 md:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Dated tasks</p>
-              <p className="mt-3 text-3xl font-semibold text-slate-950">{tasksWithDates.length}</p>
+              <p className="mt-3 text-3xl font-semibold text-foreground">{tasksWithDates.length}</p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Next due</p>
-              <p className="mt-3 text-sm font-medium text-slate-950">
+              <p className="mt-3 text-sm font-medium text-foreground">
                 {tasksWithDates[0]?.dueDate ? new Date(tasksWithDates[0].dueDate).toLocaleDateString() : "Nothing scheduled"}
               </p>
             </div>

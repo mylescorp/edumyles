@@ -74,7 +74,7 @@ export default function MyTasksPage() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-medium text-slate-950">{task.title}</p>
+                      <p className="font-medium text-foreground">{task.title}</p>
                       <p className="mt-1 text-sm text-slate-500">{task.description || "No description"}</p>
                     </div>
                     <div className="flex flex-wrap gap-2">

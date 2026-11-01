@@ -208,7 +208,7 @@ function ModuleAdminPageContent() {
               <Badge variant="outline">v{moduleRecord.version}</Badge>
             </div>
             <div>
-              <h2 className="text-2xl font-semibold text-slate-950">{moduleRecord.name}</h2>
+              <h2 className="text-2xl font-semibold text-foreground">{moduleRecord.name}</h2>
               <p className="mt-1 max-w-3xl text-sm text-slate-600">{moduleRecord.shortDescription}</p>
             </div>
             <div className="grid gap-3 md:grid-cols-4">

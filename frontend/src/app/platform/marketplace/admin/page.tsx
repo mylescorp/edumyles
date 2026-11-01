@@ -56,7 +56,7 @@ function QueueMetric({
       ? "text-red-700"
       : tone === "warning"
         ? "text-amber-700"
-        : "text-slate-950";
+        : "text-foreground";
 
   return (
     <Card className="border-slate-200/80 shadow-sm">
@@ -336,7 +336,7 @@ function MarketplaceAdminContent() {
                       </div>
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-base font-semibold text-slate-950">{module.name}</h3>
+                          <h3 className="text-base font-semibold text-foreground">{module.name}</h3>
                           <Badge variant="outline" className="capitalize">
                             {module.category.replace(/_/g, " ")}
                           </Badge>
@@ -402,7 +402,7 @@ function MarketplaceAdminContent() {
             <div className="space-y-6">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-lg font-semibold text-slate-950">{selectedModule.name}</h3>
+                  <h3 className="text-lg font-semibold text-foreground">{selectedModule.name}</h3>
                   <Badge variant="outline" className="capitalize">
                     {selectedModule.category.replace(/_/g, " ")}
                   </Badge>

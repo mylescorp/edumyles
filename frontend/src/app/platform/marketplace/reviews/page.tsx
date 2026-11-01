@@ -220,7 +220,7 @@ export default function ReviewModerationPage() {
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-semibold text-slate-950">
+                      <h3 className="font-semibold text-foreground">
                         {review.moduleName}
                       </h3>
                       <Badge variant="outline">{review.publisherName}</Badge>

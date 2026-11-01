@@ -119,7 +119,7 @@ export default function ProposalTrackingPage() {
               </div>
 
               <div className="space-y-3">
-                <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-slate-950">
+                <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-foreground">
                   Proposal for {proposal.lead?.schoolName ?? "your institution"}
                 </h1>
                 <p className="max-w-2xl text-base leading-7 text-slate-600">
@@ -130,13 +130,13 @@ export default function ProposalTrackingPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-3xl border border-emerald-100 bg-emerald-50/60 p-5">
                   <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">Primary Contact</p>
-                  <p className="mt-3 text-lg font-semibold text-slate-950">{proposal.lead?.contactName ?? "School contact"}</p>
+                  <p className="mt-3 text-lg font-semibold text-foreground">{proposal.lead?.contactName ?? "School contact"}</p>
                   <p className="mt-1 text-sm text-slate-600">{proposal.lead?.email ?? "No email captured"}</p>
                   <p className="text-sm text-slate-500">{proposal.lead?.phone ?? "No phone captured"}</p>
                 </div>
                 <div className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
                   <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Institution Snapshot</p>
-                  <p className="mt-3 text-lg font-semibold text-slate-950">
+                  <p className="mt-3 text-lg font-semibold text-foreground">
                     {proposal.lead?.studentCount ?? proposal.studentCount ?? "—"} students
                   </p>
                   <p className="mt-1 text-sm text-slate-600">
@@ -155,7 +155,7 @@ export default function ProposalTrackingPage() {
               {pricingRows.map((row) => (
                 <div key={row.label} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{row.label}</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-950">{row.value}</p>
+                  <p className="mt-2 text-lg font-semibold text-foreground">{row.value}</p>
                 </div>
               ))}
             </CardContent>
