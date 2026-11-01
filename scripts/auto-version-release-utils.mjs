@@ -74,7 +74,10 @@ export function inferChange(title, changedPaths = []) {
       : /^(?:feat|feature)(?:\([^)]*\))?!?(?::|\s)/i.test(firstLine)
         ? "feature"
         : "improvement";
-  const safeTitle = normalizeDisplayTitle(firstLine, type).slice(0, 140);
+  const safeTitle = normalizeDisplayTitle(firstLine.replace(/\s*\(#\d+\)\s*$/, ""), type).slice(
+    0,
+    140
+  );
   const panels = panelsForFiles(changedPaths);
   const description =
     type === "feature"

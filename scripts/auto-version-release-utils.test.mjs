@@ -5,7 +5,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { changedFilesForCommit, commitIdsForPush } from "./auto-version-release.mjs";
+import {
+  changedFilesForCommit,
+  commitIdsForPush,
+  createUnitsForPush,
+} from "./auto-version-release.mjs";
 import {
   highestBump,
   inferChange,
@@ -102,6 +106,13 @@ test("hides PR references without a hash from customer-facing release titles", (
   assert.equal(change.entry.title, "Product improvement");
 });
 
+test("removes a trailing parenthesized PR number without leaving empty parentheses", () => {
+  const change = inferChange("fix: correct invoice totals (#123)", [
+    "frontend/src/app/admin/invoices/page.tsx",
+  ]);
+  assert.equal(change.entry.title, "correct invoice totals");
+});
+
 test("the release script entry point exits successfully after a valid empty push", () => {
   const directory = mkdtempSync(join(tmpdir(), "edumyles-release-entry-"));
   const eventPath = join(directory, "event.json");
@@ -152,10 +163,14 @@ test("push processing enumerates commits and their files from Git history", () =
 
     const runGit = (...args) => git(...args);
     assert.deepEqual(commitIdsForPush({ before, after }, runGit), [after]);
-    assert.deepEqual(changedFilesForCommit(after, runGit), [
+    const units = createUnitsForPush({ before, after }, runGit);
+    assert.equal(units.length, 1);
+    assert.equal(units[0].title, "feat: add admin capability");
+    assert.deepEqual(units[0].changedFiles, [
       ".changeset/release-note.md",
       "frontend/src/app/admin/page.tsx",
     ]);
+    assert.deepEqual(changedFilesForCommit(after, runGit), units[0].changedFiles);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

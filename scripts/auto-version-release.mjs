@@ -209,20 +209,17 @@ function changedFilesForCommit(commit, runGit = git) {
     .filter(Boolean);
 }
 
-function createUnitForCommit(commit) {
+function createUnitForCommit(commit, runGit = git) {
   return {
     sourceId: `commit:${commit}`,
     commit,
-    title: git("show", "-s", "--format=%s", commit) || "Product update",
-    changedFiles: changedFilesForCommit(commit),
+    title: runGit("show", "-s", "--format=%s", commit) || "Product update",
+    changedFiles: changedFilesForCommit(commit, runGit),
   };
 }
 
-function createUnitsForPush(event) {
-  return commitIdsForPush(event).map((commit) => ({
-    sourceId: `commit:${commit}`,
-    commit,
-  }));
+function createUnitsForPush(event, runGit = git) {
+  return commitIdsForPush(event, runGit).map((commit) => createUnitForCommit(commit, runGit));
 }
 
 function releaseCommitExists(sourceId) {
@@ -297,7 +294,7 @@ function main() {
       processUnit(createUnitForPullRequest(pullRequest));
       continue;
     }
-    processUnit(createUnitForCommit(unit.commit));
+    processUnit(unit);
   }
 }
 
@@ -310,4 +307,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   }
 }
 
-export { bumpFor, changedFilesForCommit, commitIdsForPush, entriesFor, makeManifest };
+export {
+  bumpFor,
+  changedFilesForCommit,
+  commitIdsForPush,
+  createUnitsForPush,
+  entriesFor,
+  makeManifest,
+};
