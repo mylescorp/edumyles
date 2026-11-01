@@ -1,0 +1,24 @@
+{
+  "sourceId": "pull-request:550",
+  "sourceCommit": "d81c3d9e48a68ea7118eba80735063e765f2f220",
+  "entries": [
+    {
+      "title": "Publish a version for each merged change",
+      "description": "Every pull request merged to the main branch and every direct main-branch commit now receives its own semantic version and published What's new entry.",
+      "type": "improvement",
+      "panels": [
+        "admin",
+        "teacher",
+        "student",
+        "parent",
+        "alumni",
+        "partner",
+        "developer",
+        "affiliate",
+        "reseller",
+        "platform"
+      ],
+      "tags": []
+    }
+  ]
+}
