@@ -25,7 +25,7 @@ for k,v in S["light"].items(): c+=f"  --{k}: {m.get(k,v)};\n"
 for k,v in S["light"].items():
     actual={"primary":P["teal"]["700"],"primary-foreground":P["neutral"]["0"],"accent":S["light"]["accent"]}.get(k,v)
     c+=f"  --{k}-rgb: {rgb(actual)};\n"
-c+="  --platform-chrome: var(--navy-700);\n  --platform-chrome-rgb: "+rgb(P["navy"]["700"])+";\n}\n\n.dark {\n  color-scheme: dark;\n  --tenant-primary-dark: "+S["dark"]["primary"]+";\n  --tenant-primary-dark-foreground: "+S["dark"]["primary-foreground"]+";\n  --platform-chrome: var(--navy-800);\n  --platform-chrome-rgb: "+rgb(P["navy"]["800"])+";\n"
+c+="  --platform-chrome: var(--navy-700);\n  --platform-chrome-rgb: "+rgb(P["navy"]["700"])+";\n}\n\n.dark {\n  color-scheme: dark;\n  --tenant-primary-dark: "+S["dark"]["primary"]+";\n  --tenant-primary-dark-foreground: "+S["dark"]["primary-foreground"]+";\n  --platform-chrome: var(--navy-700);\n  --platform-chrome-rgb: "+rgb(P["navy"]["700"])+";\n"
 md={"primary":"var(--tenant-primary-dark)","primary-foreground":"var(--tenant-primary-dark-foreground)"}
 for k,v in S["dark"].items(): c+=f"  --{k}: {md.get(k,v)};\n"
 for k,v in S["dark"].items():

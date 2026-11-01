@@ -215,8 +215,8 @@
   color-scheme: dark;
   --tenant-primary-dark: #78A5F8;
   --tenant-primary-dark-foreground: #0B1424;
-  --platform-chrome: var(--navy-800);
-  --platform-chrome-rgb: 20 43 70;
+  --platform-chrome: var(--navy-700);
+  --platform-chrome-rgb: 26 57 91;
   --background: #0B101B;
   --foreground: #F1F5FB;
   --card: #182337;
