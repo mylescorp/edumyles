@@ -1,0 +1,24 @@
+{
+  "sourceId": "pull-request:552",
+  "sourceCommit": "4b108a71aff7cc733fa4a992c8d29faaebb3de23",
+  "entries": [
+    {
+      "title": "Align dark mode surfaces across panels",
+      "description": "Use the shared navy design tokens for dark surfaces, readable status indicators, and navigation controls across the supported panels.",
+      "type": "improvement",
+      "panels": [
+        "admin",
+        "teacher",
+        "student",
+        "parent",
+        "alumni",
+        "partner",
+        "developer",
+        "affiliate",
+        "reseller",
+        "platform"
+      ],
+      "tags": []
+    }
+  ]
+}
