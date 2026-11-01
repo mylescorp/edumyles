@@ -79,3 +79,18 @@ export async function visibleEntries(ctx: any, context: any) {
     )
     .sort((a: any, b: any) => b.date - a.date || b.createdAt - a.createdAt);
 }
+
+export async function getUnreadCount(ctx: any, context: any) {
+  const entries = await visibleEntries(ctx, context);
+  const reads = await ctx.db
+    .query("whatsNewReads")
+    .withIndex("by_user_workspace", (q: any) =>
+      q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
+    )
+    .collect();
+  const readIds = new Set(reads.map((read: any) => String(read.entryId)));
+  return entries.reduce(
+    (count: number, entry: any) => count + (readIds.has(String(entry._id)) ? 0 : 1),
+    0
+  );
+}
