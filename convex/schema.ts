@@ -3951,14 +3951,19 @@ export default defineSchema({
     .index("by_user_workspace_entry", ["userId", "workspaceId", "entryId"])
     .index("by_user_workspace", ["userId", "workspaceId"]),
 
-  whatsNewHistoryReads: defineTable({
+  // Aggregate counts keep unread badges independent from repository history size.
+  whatsNewGitHubHistoryStats: defineTable({
+    key: v.string(),
+    count: v.number(),
+  }).index("by_key", ["key"]),
+
+  // One read snapshot per signed-in user and workspace replaces per-PR read rows.
+  whatsNewHistoryReadSnapshots: defineTable({
     userId: v.string(),
     workspaceId: v.string(),
-    externalId: v.string(),
+    readThroughCount: v.number(),
     readAt: v.number(),
-  })
-    .index("by_user_workspace_externalId", ["userId", "workspaceId", "externalId"])
-    .index("by_user_workspace", ["userId", "workspaceId"]),
+  }).index("by_user_workspace", ["userId", "workspaceId"]),
 
   whatsNewGitHubHistory: defineTable({
     externalId: v.string(),

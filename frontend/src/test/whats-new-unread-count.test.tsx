@@ -12,6 +12,11 @@ vi.mock("@/hooks/useSSRSafeConvex", () => ({
   useMutation: () => vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("convex/react", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("convex/react")>()),
+  usePaginatedQuery: () => ({ results: [], status: "Exhausted", loadMore: vi.fn() }),
+}));
+
 vi.mock("@/hooks/useAuth", () => ({
   useAuth: () => ({ sessionToken: "session-token" }),
 }));

@@ -2,7 +2,7 @@ import { internalMutation, mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
-import { getFeedContext, visibleEntries, visibleHistoryRecords } from "./access";
+import { getFeedContext, historyVisibleCount, visibleEntries } from "./access";
 
 const ALLOWED_PANELS = [
   "admin",
@@ -28,6 +28,54 @@ function validateAudience(panels: string[], links?: Array<{ label: string; url: 
     ) {
       throw new Error("Links must be labelled HTTPS URLs or relative application paths");
     }
+  }
+}
+
+function historyContributionKeys(record: {
+  kind: "pull_request" | "commit";
+  displayTitle?: string;
+  displayDescription?: string;
+  type?: string;
+  panels?: string[];
+}) {
+  if (
+    record.kind !== "pull_request" ||
+    !record.displayTitle ||
+    !record.displayDescription ||
+    !record.type
+  ) {
+    return [];
+  }
+  const panels = record.panels?.length ? [...new Set(record.panels)] : ["platform"];
+  return ["all", ...panels.map((panel) => `panel:${panel}`)];
+}
+
+async function adjustHistoryCounter(ctx: any, key: string, delta: number) {
+  if (delta === 0) return;
+  const stats = await ctx.db
+    .query("whatsNewGitHubHistoryStats")
+    .withIndex("by_key", (q: any) => q.eq("key", key))
+    .unique();
+  if (stats) {
+    const count = Math.max(0, stats.count + delta);
+    await ctx.db.patch(stats._id, { count });
+  } else if (delta > 0) {
+    await ctx.db.insert("whatsNewGitHubHistoryStats", { key, count: delta });
+  }
+}
+
+function accumulateHistoryCounterChanges(
+  changes: Map<string, number>,
+  before: string[],
+  after: string[]
+) {
+  const beforeSet = new Set(before);
+  const afterSet = new Set(after);
+  for (const key of beforeSet) {
+    if (!afterSet.has(key)) changes.set(key, (changes.get(key) ?? 0) - 1);
+  }
+  for (const key of afterSet) {
+    if (!beforeSet.has(key)) changes.set(key, (changes.get(key) ?? 0) + 1);
   }
 }
 
@@ -233,6 +281,7 @@ export const upsertGitHubHistoryInternal = internalMutation({
     const now = Date.now();
     let inserted = 0;
     let updated = 0;
+    const counterChanges = new Map<string, number>();
     for (const record of args.records) {
       if (
         !record.externalId ||
@@ -257,6 +306,9 @@ export const upsertGitHubHistoryInternal = internalMutation({
         .withIndex("by_externalId", (q) => q.eq("externalId", record.externalId))
         .first();
       if (existing) {
+        const previousContributions = historyContributionKeys(existing);
+        const nextContributions = historyContributionKeys(record);
+        accumulateHistoryCounterChanges(counterChanges, previousContributions, nextContributions);
         await ctx.db.patch(existing._id, {
           ...record,
           isHistorical: existing.isHistorical && record.isHistorical,
@@ -264,10 +316,46 @@ export const upsertGitHubHistoryInternal = internalMutation({
         updated += 1;
       } else {
         await ctx.db.insert("whatsNewGitHubHistory", { ...record, createdAt: now });
+        accumulateHistoryCounterChanges(counterChanges, [], historyContributionKeys(record));
         inserted += 1;
       }
     }
+    for (const [key, delta] of counterChanges) {
+      await adjustHistoryCounter(ctx, key, delta);
+    }
     return { inserted, updated };
+  },
+});
+
+export const replaceGitHubHistoryStatsInternal = internalMutation({
+  args: {
+    counts: v.array(v.object({ key: v.string(), count: v.number() })),
+  },
+  handler: async (ctx, args) => {
+    const allowedKeys = new Set(["all", ...ALLOWED_PANELS.map((panel) => `panel:${panel}`)]);
+    const nextCounts = new Map<string, number>();
+    for (const { key, count } of args.counts) {
+      if (!allowedKeys.has(key) || !Number.isSafeInteger(count) || count < 0) {
+        throw new Error("GitHub history counters are invalid");
+      }
+      nextCounts.set(key, count);
+    }
+
+    const existingStats = await ctx.db.query("whatsNewGitHubHistoryStats").take(20);
+    const existingKeys = new Set<string>();
+    for (const stat of existingStats) {
+      const count = nextCounts.get(stat.key);
+      if (count === undefined) {
+        await ctx.db.delete(stat._id);
+        continue;
+      }
+      await ctx.db.patch(stat._id, { count });
+      existingKeys.add(stat.key);
+    }
+    for (const [key, count] of nextCounts) {
+      if (!existingKeys.has(key)) await ctx.db.insert("whatsNewGitHubHistoryStats", { key, count });
+    }
+    return { success: true, keys: nextCounts.size };
   },
 });
 
@@ -429,17 +517,10 @@ export const markAllRead = mutation({
   args: { sessionToken: v.string(), version: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const context = await getFeedContext(ctx, args.sessionToken);
-    const [visible, history, reads, historyReads] = await Promise.all([
+    const [visible, reads] = await Promise.all([
       visibleEntries(ctx, context),
-      args.version ? Promise.resolve([]) : visibleHistoryRecords(ctx, context),
       ctx.db
         .query("whatsNewReads")
-        .withIndex("by_user_workspace", (q) =>
-          q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
-        )
-        .collect(),
-      ctx.db
-        .query("whatsNewHistoryReads")
         .withIndex("by_user_workspace", (q) =>
           q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
         )
@@ -449,7 +530,6 @@ export const markAllRead = mutation({
       ? visible.filter((entry: any) => entry.version === args.version)
       : visible;
     const readIds = new Set(reads.map((read) => String(read.entryId)));
-    const readHistoryIds = new Set(historyReads.map((read) => read.externalId));
     let marked = 0;
     for (const entry of entries) {
       if (readIds.has(String(entry._id))) continue;
@@ -461,18 +541,26 @@ export const markAllRead = mutation({
       });
       marked += 1;
     }
-    let markedHistory = 0;
-    for (const record of history) {
-      if (readHistoryIds.has(record.externalId)) continue;
-      await ctx.db.insert("whatsNewHistoryReads", {
-        userId: context.userId,
-        workspaceId: context.workspaceId,
-        externalId: record.externalId,
-        readAt: Date.now(),
-      });
-      markedHistory += 1;
+    if (!args.version) {
+      const readThroughCount = await historyVisibleCount(ctx, context);
+      const existingSnapshot = await ctx.db
+        .query("whatsNewHistoryReadSnapshots")
+        .withIndex("by_user_workspace", (q) =>
+          q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
+        )
+        .unique();
+      if (existingSnapshot) {
+        await ctx.db.patch(existingSnapshot._id, { readThroughCount, readAt: Date.now() });
+      } else {
+        await ctx.db.insert("whatsNewHistoryReadSnapshots", {
+          userId: context.userId,
+          workspaceId: context.workspaceId,
+          readThroughCount,
+          readAt: Date.now(),
+        });
+      }
     }
-    return { success: true, marked: marked + markedHistory };
+    return { success: true, marked };
   },
 });
 

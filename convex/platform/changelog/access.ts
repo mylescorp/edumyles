@@ -60,25 +60,49 @@ export async function visibleEntries(ctx: any, context: any) {
       (entry: any) =>
         (entry.status === undefined ||
           entry.status === "published" ||
-          (entry.status === "scheduled" && !!entry.scheduledAt && entry.scheduledAt <= Date.now())) &&
+          (entry.status === "scheduled" &&
+            !!entry.scheduledAt &&
+            entry.scheduledAt <= Date.now())) &&
         isVisibleTo(entry, context)
     )
     .sort((a: any, b: any) => b.date - a.date || b.createdAt - a.createdAt);
 }
 
-export async function visibleHistoryRecords(ctx: any, context: any) {
-  const records = await ctx.db
+export async function visibleHistoryPage(ctx: any, context: any, paginationOpts: any) {
+  const result = await ctx.db
     .query("whatsNewGitHubHistory")
     .withIndex("by_kind_mergedAt", (q: any) => q.eq("kind", "pull_request"))
     .order("desc")
-    .collect();
-  return records
-    .filter(
-      (record: any) =>
-        !!record.displayTitle &&
-        !!record.displayDescription &&
-        !!record.type &&
-        isVisibleTo({ panels: record.panels?.length ? record.panels : ["platform"] }, context)
-    )
-    .sort((a: any, b: any) => b.mergedAt - a.mergedAt || b.createdAt - a.createdAt);
+    .paginate(paginationOpts);
+  return {
+    ...result,
+    page: result.page
+      .filter(
+        (record: any) =>
+          !!record.displayTitle &&
+          !!record.displayDescription &&
+          !!record.type &&
+          isVisibleTo({ panels: record.panels?.length ? record.panels : ["platform"] }, context)
+      )
+      .map((record: any) => ({
+        _id: record._id,
+        groupKey: `history:${record._id}`,
+        isRelease: false,
+        version: "",
+        title: record.displayTitle,
+        description: record.displayDescription,
+        type: record.type,
+        tags: record.tags ?? [],
+        date: record.mergedAt,
+      })),
+  };
+}
+
+export async function historyVisibleCount(ctx: any, context: any) {
+  const key = context.canSeeAllPanels ? "all" : `panel:${context.panel}`;
+  const stats = await ctx.db
+    .query("whatsNewGitHubHistoryStats")
+    .withIndex("by_key", (q: any) => q.eq("key", key))
+    .unique();
+  return stats?.count ?? 0;
 }

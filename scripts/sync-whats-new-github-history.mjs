@@ -1,5 +1,11 @@
 import { execFileSync, spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
+import {
+  classifyType,
+  displayDescription,
+  normalizeDisplayTitle,
+  panelsForFiles,
+} from "./whats-new-github-history-utils.mjs";
 
 const eventPath = process.env.GITHUB_EVENT_PATH;
 const repository = process.env.GITHUB_REPOSITORY;
@@ -68,108 +74,6 @@ function clipped(value, limit = 4000) {
   return (value ?? "").toString().slice(0, limit).trim();
 }
 
-const PANELS = [
-  "admin",
-  "teacher",
-  "student",
-  "parent",
-  "alumni",
-  "partner",
-  "developer",
-  "affiliate",
-  "reseller",
-  "platform",
-];
-
-function normalizeDisplayTitle(title) {
-  const safeTitle = clipped(title, 300)
-    .replace(
-      /^\s*(?:feat(?:ure)?|fix|bug|improvement|refactor|docs|chore|perf)(?:\([^)]*\))?!?:\s*/i,
-      ""
-    )
-    .replace(/https?:\/\/\S+/gi, "")
-    .replace(/@[\w-]+/g, "")
-    .replace(/\b(?:github|mylescorp|edumyles)\b/gi, "")
-    .replace(/#\d+\b/g, "")
-    .replace(/\s+/g, " ")
-    .replace(/^[\s:–—-]+|[\s:–—-]+$/g, "")
-    .trim();
-  return safeTitle || "Product update";
-}
-
-function classifyType(pullRequest) {
-  const labels = (pullRequest.labels ?? []).map((label) => label.name.toLowerCase());
-  const title = pullRequest.title.toLowerCase();
-  if (labels.some((label) => /breaking/.test(label)) || /\bbreaking\b/.test(title))
-    return "breaking";
-  if (labels.some((label) => /^(fix|bug)(\b|:)/.test(label)) || /^(fix|bug)(\(|:|\s)/.test(title))
-    return "fix";
-  if (
-    labels.some((label) => /^(feature|feat|enhancement)(\b|:)/.test(label)) ||
-    /^(feat|feature)(\(|:|\s)/.test(title)
-  )
-    return "feature";
-  return "improvement";
-}
-
-function panelsForFiles(files) {
-  const panels = new Set();
-  let hasUnknownScope = files.length === 0;
-  for (const file of files) {
-    const path = file.toLowerCase().replaceAll("\\", "/");
-    if (
-      path.startsWith("shared/") ||
-      path.startsWith("packages/") ||
-      path.startsWith("frontend/src/components/ui/") ||
-      path.startsWith("frontend/src/components/whats-new/") ||
-      path.startsWith("frontend/src/app/(")
-    ) {
-      return PANELS;
-    }
-
-    const portal = path.match(/(?:^|\/)portal\/([a-z-]+)(?:\/|$)/);
-    const route = path.match(
-      /(?:^|\/)(platform|admin|teacher|student|parent|alumni|partner|developer|affiliate|reseller)(?:\/|$)/
-    );
-    const panel = portal?.[1] ?? route?.[1];
-    if (panel && PANELS.includes(panel)) panels.add(panel);
-    else hasUnknownScope = true;
-  }
-  if (hasUnknownScope) panels.add("platform");
-  return [...panels].length ? [...panels] : ["platform"];
-}
-
-function displayDescription(pullRequest, type) {
-  const sanitizedBody = clipped(pullRequest.body, 1200)
-    .replace(/<!--[\s\S]*?-->/g, " ")
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
-    .replace(/https?:\/\/\S+/gi, "")
-    .replace(/@[\w-]+/g, "")
-    .replace(/\b(?:github|mylescorp|edumyles)\b/gi, "")
-    .replace(/#\d+\b/g, "")
-    .replace(/^\s*(?:#{1,6}|[-*+]\s*\[[ xX]\])\s*/gm, "")
-    .replace(/\*\*|__|`|~~/g, "")
-    .split(/\r?\n/)
-    .map((line) => line.replace(/^\s*[-*+]\s*/, "").trim())
-    .filter(
-      (line) =>
-        line &&
-        !/^(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#?\d+/i.test(line) &&
-        !/^co-authored-by:/i.test(line)
-    )
-    .slice(0, 2)
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (sanitizedBody.length >= 24) return sanitizedBody.slice(0, 500);
-  return {
-    feature: "Adds a capability to an affected EduMyles workflow.",
-    fix: "Fixes an issue in an affected EduMyles workflow.",
-    improvement: "Improves an affected EduMyles workflow.",
-    breaking: "Updates an affected EduMyles workflow in a way that may require teams to adjust.",
-  }[type];
-}
-
 function makePullRequestRecord(pullRequest, isHistorical, files = []) {
   const type = classifyType(pullRequest);
   return {
@@ -180,8 +84,8 @@ function makePullRequestRecord(pullRequest, isHistorical, files = []) {
     url: pullRequest.html_url,
     author: pullRequest.user?.login,
     pullRequestNumber: pullRequest.number,
-    displayTitle: normalizeDisplayTitle(pullRequest.title),
-    displayDescription: displayDescription(pullRequest, type),
+    displayTitle: normalizeDisplayTitle(pullRequest.title, type),
+    displayDescription: displayDescription(type),
     type,
     panels: panelsForFiles(files.map((file) => file.filename ?? file)),
     tags: [],
@@ -314,3 +218,44 @@ for (let offset = 0; offset < uniqueRecords.length; offset += 15) {
   }
 }
 console.log(`GitHub history sync complete: ${inserted} inserted, ${updated} updated.`);
+
+if (eventName === "workflow_dispatch") {
+  const audienceCounts = new Map([["all", 0]]);
+  for (const record of uniqueRecords) {
+    if (
+      record.kind !== "pull_request" ||
+      !record.displayTitle ||
+      !record.displayDescription ||
+      !record.type
+    ) {
+      continue;
+    }
+    audienceCounts.set("all", audienceCounts.get("all") + 1);
+    for (const panel of record.panels?.length ? new Set(record.panels) : ["platform"]) {
+      const key = `panel:${panel}`;
+      audienceCounts.set(key, (audienceCounts.get(key) ?? 0) + 1);
+    }
+  }
+  try {
+    execFileSync(
+      "npx",
+      [
+        "convex",
+        "run",
+        "platform/changelog/release:rebuildGitHubHistoryStats",
+        JSON.stringify({
+          releaseSecret,
+          counts: [...audienceCounts].map(([key, count]) => ({ key, count })),
+        }),
+      ],
+      {
+        encoding: "utf8",
+        env: { ...process.env, CONVEX_DEPLOY_KEY: deployKey ?? "" },
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    );
+  } catch (error) {
+    const stderr = error?.stderr?.toString?.().replaceAll(releaseSecret, "[REDACTED]");
+    throw new Error(stderr || "Convex rejected the GitHub history counter rebuild.");
+  }
+}

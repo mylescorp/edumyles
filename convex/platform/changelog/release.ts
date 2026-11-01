@@ -86,3 +86,20 @@ export const syncGitHubHistory: any = action({
     );
   },
 });
+
+/** Rebuilds audience totals after a full repository-history sync. */
+export const rebuildGitHubHistoryStats: any = action({
+  args: {
+    releaseSecret: v.string(),
+    counts: v.array(v.object({ key: v.string(), count: v.number() })),
+  },
+  handler: async (ctx, args): Promise<any> => {
+    const configuredSecret = process.env.WHATS_NEW_RELEASE_SECRET;
+    if (!configuredSecret || args.releaseSecret !== configuredSecret)
+      throw new Error("UNAUTHORIZED: GitHub history credentials are invalid");
+    return await ctx.runMutation(
+      (internal as any).platform.changelog.mutations.replaceGitHubHistoryStatsInternal,
+      { counts: args.counts }
+    );
+  },
+});

@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import { usePaginatedQuery } from "convex/react";
 import { useAuth } from "@/hooks/useAuth";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
@@ -115,6 +116,11 @@ export function WhatsNewPage({ version }: { version?: string }) {
     { sessionToken: sessionToken ?? "" },
     !!sessionToken
   );
+  const historyQuery = usePaginatedQuery(
+    api.platform.changelog.queries.getWhatsNewHistory,
+    sessionToken ? { sessionToken } : "skip",
+    { initialNumItems: 50 }
+  );
   const unreadCountResult = useQuery(
     api.platform.changelog.queries.getWhatsNewUnreadCount,
     { sessionToken: sessionToken ?? "" },
@@ -133,7 +139,12 @@ export function WhatsNewPage({ version }: { version?: string }) {
     );
   }, [data, markAllRead, scopeKey, sessionToken, version]);
 
-  const entries = (data?.entries ?? EMPTY_ENTRIES) as Entry[];
+  const releaseEntries = (data?.entries ?? EMPTY_ENTRIES) as Entry[];
+  const historyEntries = (historyQuery.results ?? EMPTY_ENTRIES) as Entry[];
+  const entries = useMemo(
+    () => [...releaseEntries, ...historyEntries].sort((a, b) => b.date - a.date),
+    [historyEntries, releaseEntries]
+  );
   const activeVersion = version ? decodeURIComponent(version) : undefined;
 
   useEffect(() => {
@@ -208,7 +219,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
     window.open(url.toString(), "_blank", "noopener,noreferrer");
   }
 
-  if (!data) {
+  if (!data || historyQuery.status === "LoadingFirstPage") {
     return (
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:py-10">
         <div className="h-10 w-56 animate-pulse rounded bg-muted" />
@@ -455,6 +466,18 @@ export function WhatsNewPage({ version }: { version?: string }) {
                 </div>
               </section>
             ))}
+          </div>
+        )}
+        {(historyQuery.status === "CanLoadMore" || historyQuery.status === "LoadingMore") && (
+          <div className="mt-3 flex justify-center">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={historyQuery.status === "LoadingMore"}
+              onClick={() => historyQuery.loadMore(50)}
+            >
+              {historyQuery.status === "LoadingMore" ? "Loading updates…" : "Load more updates"}
+            </Button>
           </div>
         )}
       </div>
