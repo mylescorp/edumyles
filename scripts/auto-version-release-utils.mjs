@@ -1,3 +1,5 @@
+import { normalizeDisplayTitle } from "./whats-new-github-history-utils.mjs";
+
 export const PANELS = [
   "admin",
   "teacher",
@@ -12,13 +14,6 @@ export const PANELS = [
 ];
 
 const BUMP_RANK = { patch: 0, minor: 1, major: 2 };
-const safeFallbackTitle = {
-  feature: "New product capability",
-  fix: "Product fix",
-  improvement: "Product improvement",
-  breaking: "Important product change",
-};
-
 export function nextSemanticVersion(current, bump) {
   const match = current.match(/^(\d+)\.(\d+)\.(\d+)(?:-.+)?$/);
   if (!match) throw new Error(`Cannot bump non-semantic app version ${current}.`);
@@ -68,37 +63,18 @@ export function parseChangeset(source, filename = "Changeset") {
 }
 
 export function inferChange(title, changedPaths = []) {
-  const subject = (title ?? "")
-    .split(/\r?\n/, 1)[0]
-    .replace(/\s*\(#\d+\)\s*$/, "")
-    .replace(/^(?:feat|feature|fix|bug|improvement|chore)(?:\([^)]*\))?!?:\s*/i, "")
-    .replace(/\s+/g, " ")
-    .trim();
-  const type = /breaking|!:/i.test(title)
+  const firstLine = (title ?? "").split(/\r?\n/, 1)[0];
+  const isBreaking =
+    /^[a-z][\w-]*(?:\([^)]+\))?!:/i.test(firstLine) ||
+    /(?:^|\s)BREAKING(?:\s+CHANGE)?:/i.test(firstLine);
+  const type = isBreaking
     ? "breaking"
-    : /^(?:fix|bug)(?:\([^)]*\))?!?(?::|\s)/i.test(title)
+    : /^(?:fix|bug)(?:\([^)]*\))?!?(?::|\s)/i.test(firstLine)
       ? "fix"
-      : /^(?:feat|feature)(?:\([^)]*\))?!?(?::|\s)/i.test(title)
+      : /^(?:feat|feature)(?:\([^)]*\))?!?(?::|\s)/i.test(firstLine)
         ? "feature"
         : "improvement";
-  const safeSubject = subject
-    .replace(/https?:\/\/\S+/gi, "")
-    .replace(/@[\w-]+/g, "")
-    .replace(/\b(?:github|mylescorp|edumyles)\b/gi, "")
-    .replace(/#\d+\b/g, "")
-    .replace(/\s+/g, " ")
-    .replace(/^[\s:–—-]+|[\s:–—-]+$/g, "")
-    .trim();
-  const looksLikePersonalAttribution =
-    /\b[A-Z][\p{L}'-]+\s+[A-Z][\p{L}'-]+\b/u.test(safeSubject) ||
-    /\b(?:by|from|author|contributor)\s+[A-Z][\p{L}'-]+(?:\s+[A-Z][\p{L}'-]+)?/u.test(
-      safeSubject
-    ) ||
-    /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.test(safeSubject);
-  const safeTitle =
-    safeSubject && !looksLikePersonalAttribution
-      ? safeSubject.slice(0, 140)
-      : safeFallbackTitle[type];
+  const safeTitle = normalizeDisplayTitle(firstLine, type).slice(0, 140);
   const panels = panelsForFiles(changedPaths);
   const description =
     type === "feature"

@@ -166,8 +166,7 @@ function makeManifest(unit, version, changesets) {
   };
 }
 
-function createUnitForPullRequest(event) {
-  const pullRequest = event.pull_request;
+function createUnitForPullRequest(pullRequest) {
   const commit = pullRequest.merge_commit_sha;
   return {
     sourceId: `pull-request:${pullRequest.number}`,
@@ -177,21 +176,52 @@ function createUnitForPullRequest(event) {
   };
 }
 
-function hasMergedPullRequest(commit) {
+function mergedPullRequestForCommit(commit) {
   const associated = JSON.parse(
     gh("api", "-H", "Accept: application/vnd.github+json", `repos/${repo}/commits/${commit}/pulls`)
   );
-  return associated.some(
+  return associated.find(
     (pullRequest) => pullRequest.merged_at && pullRequest.base?.ref === "main"
   );
 }
 
+function commitIdsForPush(event, runGit = git) {
+  if (event.before && event.after && !/^0+$/.test(event.before)) {
+    return runGit("rev-list", "--reverse", "--topo-order", `${event.before}..${event.after}`)
+      .split(/\r?\n/)
+      .filter(Boolean);
+  }
+  return (event.commits ?? []).map(({ id }) => id).filter(Boolean);
+}
+
+function changedFilesForCommit(commit, runGit = git) {
+  return runGit(
+    "diff-tree",
+    "--root",
+    "--first-parent",
+    "--no-commit-id",
+    "--name-only",
+    "-r",
+    commit
+  )
+    .split(/\r?\n/)
+    .map((path) => path.trim())
+    .filter(Boolean);
+}
+
+function createUnitForCommit(commit) {
+  return {
+    sourceId: `commit:${commit}`,
+    commit,
+    title: git("show", "-s", "--format=%s", commit) || "Product update",
+    changedFiles: changedFilesForCommit(commit),
+  };
+}
+
 function createUnitsForPush(event) {
-  return (event.commits ?? []).map((commit) => ({
-    sourceId: `commit:${commit.id}`,
-    commit: commit.id,
-    title: commit.message ?? "Product update",
-    changedFiles: [...(commit.added ?? []), ...(commit.modified ?? []), ...(commit.removed ?? [])],
+  return commitIdsForPush(event).map((commit) => ({
+    sourceId: `commit:${commit}`,
+    commit,
   }));
 }
 
@@ -231,7 +261,7 @@ function processUnit(unit) {
     git("config", "user.name", "github-actions[bot]");
     git("config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com");
     git("add", "package.json", "package-lock.json", `release-notes/${version}.json`);
-    for (const { path } of changesets) git("add", "--", path);
+    if (changesets.length) git("add", "-u", "--", ".changeset");
     git(
       "commit",
       "-m",
@@ -255,28 +285,29 @@ function processUnit(unit) {
 function main() {
   if (!repo) throw new Error("GITHUB_REPOSITORY is required.");
   const event = readEvent();
-  if (process.env.GITHUB_EVENT_NAME === "pull_request") {
-    if (!event.pull_request?.merged || event.pull_request.base?.ref !== "main") return;
-    processUnit(createUnitForPullRequest(event));
-    return;
-  }
   if (process.env.GITHUB_EVENT_NAME !== "push")
     throw new Error(`Unsupported GitHub event: ${process.env.GITHUB_EVENT_NAME ?? "unknown"}.`);
 
+  const releasedPullRequests = new Set();
   for (const unit of createUnitsForPush(event)) {
-    if (hasMergedPullRequest(unit.commit)) {
-      console.log(`Skipping ${unit.sourceId}; its pull request is released by the merge event.`);
+    const pullRequest = mergedPullRequestForCommit(unit.commit);
+    if (pullRequest) {
+      if (releasedPullRequests.has(pullRequest.number)) continue;
+      releasedPullRequests.add(pullRequest.number);
+      processUnit(createUnitForPullRequest(pullRequest));
       continue;
     }
-    processUnit(unit);
+    processUnit(createUnitForCommit(unit.commit));
   }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main().catch((error) => {
+  try {
+    main();
+  } catch (error) {
     console.error(error?.message ?? "Automatic release failed.");
     process.exitCode = 1;
-  });
+  }
 }
 
-export { bumpFor, entriesFor, makeManifest };
+export { bumpFor, changedFilesForCommit, commitIdsForPush, entriesFor, makeManifest };
