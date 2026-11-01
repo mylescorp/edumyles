@@ -57,7 +57,7 @@ export function WhatsNewNavLink({
         {!collapsed && <span className="min-w-0 flex-1">What’s new</span>}
         {unreadCount > 0 && (
           <span
-            className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--platform-highlight)] px-1.5 text-[10px] font-bold text-[var(--platform-chrome)]"
+            className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--platform-highlight)] px-1.5 text-[10px] font-bold text-[var(--primary-foreground)]"
             aria-hidden="true"
           >
             {unreadCount > 99 ? "99+" : unreadCount}

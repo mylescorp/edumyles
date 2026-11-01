@@ -1895,7 +1895,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                       <Zap className="h-4 w-4 text-[var(--em-sage-muted)]" />
                       Notifications
                         {normalizedUnreadCount > 0 && (
-                          <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-red-500 text-white border-0 text-[10px] font-bold">
+                          <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-destructive text-destructive-foreground border-0 text-[10px] font-bold">
                             {normalizedUnreadCount > 9 ? "9+" : normalizedUnreadCount}
                           </Badge>
                         )}
