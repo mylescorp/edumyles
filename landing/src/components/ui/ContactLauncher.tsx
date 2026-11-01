@@ -140,7 +140,7 @@ export default function ContactLauncher({
 class ContactWidgetErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   override state = { hasError: false };
 
-  static override getDerivedStateFromError() {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
 
