@@ -54,13 +54,14 @@ function useFallbackChatThread(
   engagementId: string | null,
   visitorToken: string | null
 ) {
-  const [thread, setThread] = useState<ChatThread | undefined>();
+  const [threadState, setThreadState] = useState<{
+    key: string;
+    thread: ChatThread;
+  } | null>(null);
+  const key = enabled && engagementId && visitorToken ? `${engagementId}:${visitorToken}` : null;
 
   useEffect(() => {
-    if (!enabled || !engagementId || !visitorToken) {
-      setThread(undefined);
-      return;
-    }
+    if (!key || !engagementId || !visitorToken) return;
 
     let cancelled = false;
     const refresh = async () => {
@@ -69,7 +70,9 @@ function useFallbackChatThread(
         const response = await fetch(`/api/chat/thread?${params.toString()}`);
         if (!response.ok) return;
         const result = await response.json();
-        if (!cancelled && result?.thread) setThread(result.thread as ChatThread);
+        if (!cancelled && result?.thread) {
+          setThreadState({ key, thread: result.thread as ChatThread });
+        }
       } catch {
         // Retry on the next interval; chat remains usable while offline.
       }
@@ -81,9 +84,9 @@ function useFallbackChatThread(
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [enabled, engagementId, visitorToken]);
+  }, [key, engagementId, visitorToken]);
 
-  return thread;
+  return key && threadState?.key === key ? threadState.thread : undefined;
 }
 
 function readAttribution() {
