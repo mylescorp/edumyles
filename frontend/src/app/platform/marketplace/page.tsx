@@ -106,7 +106,7 @@ function StatsCard({
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
             {title}
           </p>
-          <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
+          <p className="mt-2 text-2xl font-semibold text-foreground">{value}</p>
           <p className="mt-1 text-xs text-slate-600">{description}</p>
         </div>
         <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-2.5 text-emerald-700 shadow-sm">
@@ -147,7 +147,7 @@ function MarketplaceTooltip({
               />
               <span>{entry.name}</span>
             </div>
-            <span className="font-semibold text-slate-950">
+            <span className="font-semibold text-foreground">
               {currency
                 ? formatKes(entry.value || 0)
                 : (entry.value || 0).toLocaleString()}
@@ -591,7 +591,7 @@ function MarketplaceDashboardContent() {
                     </div>
                   </div>
                   <div className="text-right text-sm">
-                    <p className="font-semibold text-slate-950">
+                    <p className="font-semibold text-foreground">
                       {(module.totalInstalls || 0).toLocaleString()}
                     </p>
                     <p className="text-xs text-slate-500">

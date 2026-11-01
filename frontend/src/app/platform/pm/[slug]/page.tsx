@@ -214,7 +214,7 @@ export default function WorkspacePage() {
             <div className="text-3xl">{workspace.icon || "📁"}</div>
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Workspace posture</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-950">{workspace.name}</h2>
+              <h2 className="mt-2 text-2xl font-semibold text-foreground">{workspace.name}</h2>
             </div>
             <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
               This workspace centralizes delivery lanes for {workspace.type} work. Open any project below to jump into board, list, backlog,
@@ -228,7 +228,7 @@ export default function WorkspacePage() {
             </div>
             <div className="rounded-2xl border border-slate-200 bg-card/90 p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Projects</p>
-              <p className="mt-3 text-2xl font-semibold text-slate-950">{projectRows.length}</p>
+              <p className="mt-3 text-2xl font-semibold text-foreground">{projectRows.length}</p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-card/90 p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Navigation</p>

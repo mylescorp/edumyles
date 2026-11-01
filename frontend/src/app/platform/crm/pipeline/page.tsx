@@ -201,7 +201,7 @@ export default function CRMPipelinePage() {
                   </Badge>
                 </div>
                 <div className="space-y-2">
-                  <h2 className="max-w-3xl text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
+                  <h2 className="max-w-3xl text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
                     Move schools through the funnel with less friction and more commercial clarity.
                   </h2>
                   <p className="max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
@@ -278,7 +278,7 @@ export default function CRMPipelinePage() {
                             {bucket.stage.name}
                           </Badge>
                           <div>
-                            <p className="text-xl font-semibold text-slate-950">{formatKes(bucket.totalValueKes)}</p>
+                            <p className="text-xl font-semibold text-foreground">{formatKes(bucket.totalValueKes)}</p>
                             <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
                               {bucket.count} lead{bucket.count === 1 ? "" : "s"} · {bucket.stage.probabilityDefault}% close
                             </p>
@@ -318,7 +318,7 @@ export default function CRMPipelinePage() {
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                  <Link href={`/platform/crm/${lead._id}`} className="line-clamp-2 font-medium text-slate-950 hover:text-emerald-700">
+                                  <Link href={`/platform/crm/${lead._id}`} className="line-clamp-2 font-medium text-foreground hover:text-emerald-700">
                                     {lead.schoolName}
                                   </Link>
                                   <p className="mt-1 text-sm text-muted-foreground">{lead.contactName}</p>
@@ -400,7 +400,7 @@ function PipelineStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/70 bg-card/90 p-4">
       <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-      <p className="mt-3 text-xl font-semibold text-slate-950">{value}</p>
+      <p className="mt-3 text-xl font-semibold text-foreground">{value}</p>
     </div>
   );
 }

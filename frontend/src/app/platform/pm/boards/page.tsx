@@ -132,7 +132,7 @@ export default function PMBoardsPage() {
                   </Badge>
                 </div>
                 <div className="space-y-3">
-                  <h2 className="max-w-3xl text-3xl font-semibold tracking-tight text-slate-950">
+                  <h2 className="max-w-3xl text-3xl font-semibold tracking-tight text-foreground">
                     Jump straight into delivery lanes, not admin detours.
                   </h2>
                   <p className="max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
@@ -148,7 +148,7 @@ export default function PMBoardsPage() {
                           Featured board
                         </p>
                         <div>
-                          <h3 className="text-2xl font-semibold text-slate-950">{featuredProject.name}</h3>
+                          <h3 className="text-2xl font-semibold text-foreground">{featuredProject.name}</h3>
                           <p className="mt-1 text-sm text-muted-foreground">{featuredWorkspace.name}</p>
                         </div>
                         <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
@@ -197,7 +197,7 @@ export default function PMBoardsPage() {
                 <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Workspace boards</p>
-                    <h3 className="mt-1 text-2xl font-semibold text-slate-950">{group.workspace.name}</h3>
+                    <h3 className="mt-1 text-2xl font-semibold text-foreground">{group.workspace.name}</h3>
                   </div>
                   <Button asChild variant="outline" className="w-fit gap-2">
                     <Link href={`/platform/pm/${group.workspace.slug}`}>
@@ -218,7 +218,7 @@ export default function PMBoardsPage() {
                         <CardHeader className="space-y-3 pb-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="space-y-1">
-                              <CardTitle className="text-lg text-slate-950">{project.name}</CardTitle>
+                              <CardTitle className="text-lg text-foreground">{project.name}</CardTitle>
                               <p className="text-sm text-muted-foreground">{group.workspace.name}</p>
                             </div>
                             <Badge variant="outline" className="border-slate-300 bg-card/90">
@@ -233,11 +233,11 @@ export default function PMBoardsPage() {
                           <div className="grid gap-3 sm:grid-cols-2">
                             <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">
                               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Progress</p>
-                              <p className="mt-2 text-xl font-semibold text-slate-950">{Math.round(project.progress ?? 0)}%</p>
+                              <p className="mt-2 text-xl font-semibold text-foreground">{Math.round(project.progress ?? 0)}%</p>
                             </div>
                             <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">
                               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Members</p>
-                              <p className="mt-2 text-xl font-semibold text-slate-950">{project.memberIds?.length ?? 0}</p>
+                              <p className="mt-2 text-xl font-semibold text-foreground">{project.memberIds?.length ?? 0}</p>
                             </div>
                           </div>
 
@@ -292,7 +292,7 @@ function StatCard({
         </div>
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-          <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
+          <p className="mt-2 text-2xl font-semibold text-foreground">{value}</p>
         </div>
       </div>
     </div>

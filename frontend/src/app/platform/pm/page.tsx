@@ -403,7 +403,7 @@ export default function PMPage() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-medium text-slate-950">{task.title}</p>
+                      <p className="font-medium text-foreground">{task.title}</p>
                       <p className="mt-1 text-sm text-slate-500">{task.project?.name ?? "Project"}</p>
                     </div>
                     <Badge variant="secondary">
@@ -444,7 +444,7 @@ export default function PMPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-medium text-slate-950">{project.name}</p>
+                        <p className="font-medium text-foreground">{project.name}</p>
                         <p className="mt-1 line-clamp-2 text-sm text-slate-500">{project.description}</p>
                       </div>
                       <Badge variant="outline">{project.status}</Badge>
@@ -492,7 +492,7 @@ export default function PMPage() {
                 <div key={project._id} className="rounded-2xl border border-slate-200 bg-card/90 p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-semibold text-slate-950">{project.name}</p>
+                      <p className="font-semibold text-foreground">{project.name}</p>
                       <p className="mt-1 text-sm text-muted-foreground">{workspace?.name ?? "Workspace"}</p>
                     </div>
                     <Badge variant="outline">{project.status}</Badge>
