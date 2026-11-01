@@ -312,7 +312,8 @@ function ContactLauncherPanel({
     }
   }
 
-  const disabled = status === "sending" || !profile.name.trim() || !message.trim();
+  const disabled =
+    submission.status === "sending" || !profile.name.trim() || !message.trim();
 
   return (
     <>
