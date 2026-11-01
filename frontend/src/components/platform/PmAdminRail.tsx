@@ -28,8 +28,8 @@ export function PmAdminRail({ currentHref }: { currentHref: string }) {
                 className={cn(
                   "h-9 rounded-lg px-3 text-sm whitespace-nowrap",
                   active
-                    ? "bg-platform-chrome text-white shadow-sm hover:bg-platform-chrome/90"
-                    : "border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                    : "border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
                 onClick={() => router.push(link.href)}
               >

@@ -27,8 +27,8 @@ export function OperationsAdminRail({ currentHref }: { currentHref: string }) {
                 className={cn(
                   "h-9 rounded-lg px-3 text-sm whitespace-nowrap",
                   active
-                    ? "bg-emerald-700 text-white shadow-sm hover:bg-emerald-800"
-                    : "border-emerald-200 bg-white/90 text-slate-700 hover:bg-emerald-50 hover:text-emerald-900"
+                    ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                    : "border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
                 onClick={() => router.push(link.href)}
               >
