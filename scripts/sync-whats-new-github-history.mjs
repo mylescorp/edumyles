@@ -165,34 +165,17 @@ async function loadCompleteHistory() {
 }
 
 let records = [];
-if (eventName === "workflow_dispatch") {
-  records = await loadCompleteHistory();
-} else if (eventName === "pull_request_target") {
-  const pullRequest = event.pull_request;
-  if (!pullRequest?.merged_at) {
-    console.log("Pull request was closed without merging; no history was added.");
-    process.exit(0);
-  }
-  const [commits, files] = await Promise.all([
-    getAllPages(`${apiRoot}/pulls/${pullRequest.number}/commits`),
-    getAllPages(`${apiRoot}/pulls/${pullRequest.number}/files`),
-  ]);
-  records = [makePullRequestRecord(pullRequest, false, files)];
-  records.push(
-    ...commits.map((commit) =>
-      makeCommitRecord(commit, Date.parse(pullRequest.merged_at), pullRequest.number, false)
-    )
-  );
-} else if (eventName === "push") {
+if (eventName === "pull_request_target" && !event.pull_request?.merged_at) {
+  console.log("Pull request was closed without merging; no history was added.");
+  process.exit(0);
+}
+if (eventName === "push") {
   const branch = event.ref?.replace("refs/heads/", "");
   if (branch !== (event.repository?.default_branch ?? "main")) {
     console.log("Push was not to the default branch; no history was added.");
     process.exit(0);
   }
-  records = (event.commits ?? []).map((commit) =>
-    makeCommitRecord(commit, Date.parse(commit.timestamp), undefined, false)
-  );
-} else {
+} else if (!new Set(["workflow_dispatch", "pull_request_target"]).has(eventName)) {
   throw new Error(`Unsupported GitHub history event: ${eventName}`);
 }
 
@@ -232,17 +215,7 @@ async function syncBatches(inputRecords, completeBackfill = false) {
   return { inserted, updated, needsBackfill };
 }
 
-let totals = await syncBatches(records, eventName === "workflow_dispatch");
-if (eventName !== "workflow_dispatch" && totals.needsBackfill) {
-  console.log(
-    "No complete repository history is indexed yet; running the one-time history backfill."
-  );
-  const backfillTotals = await syncBatches(await loadCompleteHistory(), true);
-  totals = {
-    inserted: totals.inserted + backfillTotals.inserted,
-    updated: totals.updated + backfillTotals.updated,
-  };
-}
+const totals = await syncBatches(await loadCompleteHistory(), true);
 console.log(
   `GitHub history sync complete: ${totals.inserted} inserted, ${totals.updated} updated.`
 );

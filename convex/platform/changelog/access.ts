@@ -1,7 +1,7 @@
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { requireTenantSession } from "../../helpers/tenantGuard";
-import { historyAudienceKey, isVisibleTo } from "./visibility";
-export { historyAudienceKey, isVisibleTo } from "./visibility";
+import { historyAudienceKey, isVisibleTo, legacyHistoryAudienceKey } from "./visibility";
+export { historyAudienceKey, isVisibleTo, legacyHistoryAudienceKey } from "./visibility";
 
 const PLATFORM_ROLES = [
   "master_admin",

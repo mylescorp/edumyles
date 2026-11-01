@@ -9,8 +9,8 @@ import {
 
 describe("What's new panel visibility", () => {
   it("stores unread snapshots separately for each panel and all-panel access", () => {
-    expect(historyAudienceKey({ panel: "teacher", canSeeAllPanels: false })).toBe("teacher");
-    expect(historyAudienceKey({ panel: "admin", canSeeAllPanels: false })).toBe("admin");
+    expect(historyAudienceKey({ panel: "teacher", canSeeAllPanels: false })).toBe("panel:teacher");
+    expect(historyAudienceKey({ panel: "admin", canSeeAllPanels: false })).toBe("panel:admin");
     expect(historyAudienceKey({ panel: "platform", canSeeAllPanels: true })).toBe("all");
   });
 

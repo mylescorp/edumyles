@@ -2,7 +2,13 @@ import { internalMutation, mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
-import { getFeedContext, historyAudienceKey, historyVisibleCount, visibleEntries } from "./access";
+import {
+  getFeedContext,
+  historyAudienceKey,
+  historyVisibleCount,
+  legacyHistoryAudienceKey,
+  visibleEntries,
+} from "./access";
 
 const ALLOWED_PANELS = [
   "admin",
@@ -553,8 +559,25 @@ export const markAllRead = mutation({
             .eq("audienceKey", historyAudienceKey(context))
         )
         .unique();
-      if (existingSnapshot) {
-        await ctx.db.patch(existingSnapshot._id, { readThroughCount, readAt: Date.now() });
+      const scopedSnapshot =
+        existingSnapshot ??
+        (!context.canSeeAllPanels
+          ? await ctx.db
+              .query("whatsNewHistoryReadSnapshots")
+              .withIndex("by_user_workspace_audience", (q) =>
+                q
+                  .eq("userId", context.userId)
+                  .eq("workspaceId", context.workspaceId)
+                  .eq("audienceKey", legacyHistoryAudienceKey(context))
+              )
+              .unique()
+          : undefined);
+      if (scopedSnapshot) {
+        await ctx.db.patch(scopedSnapshot._id, {
+          audienceKey: historyAudienceKey(context),
+          readThroughCount,
+          readAt: Date.now(),
+        });
       } else {
         await ctx.db.insert("whatsNewHistoryReadSnapshots", {
           userId: context.userId,

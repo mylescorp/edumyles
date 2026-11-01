@@ -181,6 +181,10 @@ export function WhatsNewPage({ version }: { version?: string }) {
 
   const releaseEntries = (data?.entries ?? EMPTY_ENTRIES) as Entry[];
   const historyEntries = (historyResults ?? EMPTY_ENTRIES) as Entry[];
+  const historyIsLoading =
+    !!sessionToken &&
+    !activeVersion &&
+    (historyStatus === "LoadingFirstPage" || historyStatus === "LoadingMore");
   const entries = useMemo(() => {
     const byId = new Map<string, Entry>();
     for (const entry of [...releaseEntries, ...historyEntries]) byId.set(entry._id, entry);
@@ -417,7 +421,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
                 <Sparkles className="h-6 w-6" />
               </span>
               <h2 className="mt-4 text-lg font-semibold text-foreground">
-                {historyStatus === "LoadingFirstPage" || historyStatus === "LoadingMore"
+                {historyIsLoading
                   ? "Loading updates…"
                   : historyStatus === "CanLoadMore"
                     ? "More updates are available"
@@ -426,7 +430,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
                       : "No updates found"}
               </h2>
               <p className="mt-1 max-w-md text-sm leading-6 text-muted-foreground">
-                {historyStatus === "LoadingFirstPage" || historyStatus === "LoadingMore"
+                {historyIsLoading
                   ? "Your timeline is updating while you search."
                   : historyStatus === "CanLoadMore"
                     ? "Load more updates to continue browsing this timeline."

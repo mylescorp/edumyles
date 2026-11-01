@@ -6,6 +6,7 @@ import {
   historyAudienceKey,
   historyVisibleCount,
   isVisibleTo,
+  legacyHistoryAudienceKey,
   visibleEntries,
   visibleHistoryPage,
 } from "./access";
@@ -59,13 +60,26 @@ export const getWhatsNewUnreadCount = query({
         )
         .unique(),
     ]);
+    const scopedHistoryRead =
+      historyRead ??
+      (!context.canSeeAllPanels
+        ? await ctx.db
+            .query("whatsNewHistoryReadSnapshots")
+            .withIndex("by_user_workspace_audience", (q) =>
+              q
+                .eq("userId", context.userId)
+                .eq("workspaceId", context.workspaceId)
+                .eq("audienceKey", legacyHistoryAudienceKey(context))
+            )
+            .unique()
+        : undefined);
     const readIds = new Set(reads.map((read) => String(read.entryId)));
     const totalHistory = await historyVisibleCount(ctx, context);
     return (
       entries.reduce(
         (count: number, entry: any) => count + (readIds.has(String(entry._id)) ? 0 : 1),
         0
-      ) + Math.max(0, totalHistory - (historyRead?.readThroughCount ?? 0))
+      ) + Math.max(0, totalHistory - (scopedHistoryRead?.readThroughCount ?? 0))
     );
   },
 });
