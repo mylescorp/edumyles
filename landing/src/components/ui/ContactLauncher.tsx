@@ -1,6 +1,10 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery as useConvexQuery } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
+import type { Id } from "../../../../convex/_generated/dataModel";
+import { LandingConvexProvider } from "@/components/providers/LandingConvexProvider";
 import {
   CheckCircle2,
   ChevronLeft,
@@ -36,6 +40,15 @@ type ChatThread = {
   messages: ChatMessage[];
 };
 
+const convexEnabled = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
+
+function useVisitorChatThread(args: Parameters<typeof useConvexQuery>[1]) {
+  if (typeof window === "undefined" || !convexEnabled) return undefined;
+  // The widget is client-only; during server prerender there is no Convex provider.
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  return useConvexQuery(api.publicEngagements.getVisitorChatThread, args);
+}
+
 function readAttribution() {
   if (typeof window === "undefined") return {};
   const params = new URLSearchParams(window.location.search);
@@ -66,9 +79,28 @@ function readSavedContactProfile(): ContactProfile {
   }
 }
 
-export default function ContactLauncher() {
-  const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<ContactMode>("chat");
+export default function ContactLauncher({
+  initialMode,
+  onClose,
+}: {
+  initialMode: ContactMode;
+  onClose: () => void;
+}) {
+  return (
+    <LandingConvexProvider>
+      <ContactLauncherPanel initialMode={initialMode} onClose={onClose} />
+    </LandingConvexProvider>
+  );
+}
+
+function ContactLauncherPanel({
+  initialMode,
+  onClose,
+}: {
+  initialMode: ContactMode;
+  onClose: () => void;
+}) {
+  const [mode] = useState<ContactMode>(initialMode);
   const [profile, setProfile] = useState<ContactProfile>(readSavedContactProfile);
   const [topicId, setTopicId] = useState<ContactTopicId>(CONTACT_TOPICS[0].id);
   const [message, setMessage] = useState<string>(CONTACT_TOPICS[0].prompt);
@@ -78,6 +110,15 @@ export default function ContactLauncher() {
   const [thread, setThread] = useState<ChatThread | null>(null);
   const [reply, setReply] = useState("");
   const transcriptRef = useRef<HTMLDivElement | null>(null);
+  const realtimeThread = useVisitorChatThread(
+    resultId && visitorToken && mode === "chat"
+      ? { engagementId: resultId as Id<"landingEngagements">, visitorToken }
+      : "skip"
+  );
+  const activeThread =
+    realtimeThread && thread && thread.messages.length > realtimeThread.messages.length
+      ? thread
+      : realtimeThread ?? thread;
 
   useEffect(() => {
     try {
@@ -88,51 +129,14 @@ export default function ContactLauncher() {
   }, [profile]);
 
   useEffect(() => {
-    if (!resultId || !visitorToken || mode !== "chat" || !open) return;
-
-    let cancelled = false;
-    async function loadThread() {
-      try {
-        const response = await fetch(
-          `/api/chat/thread?engagementId=${encodeURIComponent(resultId!)}&visitorToken=${encodeURIComponent(visitorToken!)}`
-        );
-        const result = await response.json().catch(() => ({}));
-        if (!cancelled && response.ok && result.thread) {
-          setThread(result.thread);
-        }
-      } catch {
-        // Polling should stay quiet for visitors.
-      }
-    }
-
-    loadThread();
-    const interval = window.setInterval(loadThread, 4000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
-  }, [resultId, visitorToken, mode, open]);
-
-  useEffect(() => {
     transcriptRef.current?.scrollTo({ top: transcriptRef.current.scrollHeight });
-  }, [thread?.messages.length, status]);
+  }, [activeThread?.messages.length, status]);
 
   const selectedTopic = useMemo(() => getContactTopic(topicId), [topicId]);
   const pagePath = typeof window !== "undefined" ? window.location.pathname : undefined;
   const composedMessage = buildContactMessage({ profile, topicId, message, pagePath });
   const whatsappUrl = buildWhatsAppUrl(composedMessage);
   const hasActiveChat = mode === "chat" && Boolean(resultId && visitorToken);
-
-  function openPanel(nextMode: ContactMode) {
-    setMode(nextMode);
-    setOpen(true);
-    setStatus("idle");
-    if (nextMode === "whatsapp") {
-      setResultId(null);
-      setVisitorToken(null);
-      setThread(null);
-    }
-  }
 
   function updateProfile(field: keyof ContactProfile, value: string) {
     setProfile((current) => ({ ...current, [field]: value }));
@@ -204,14 +208,14 @@ export default function ContactLauncher() {
     if (!reply.trim() || !resultId || !visitorToken) return;
     const body = reply.trim();
     setReply("");
-    setThread((current) => ({
-      chatStatus: current?.chatStatus ?? "waiting",
-      agentName: current?.agentName,
+    setThread({
+      chatStatus: activeThread?.chatStatus ?? "waiting",
+      agentName: activeThread?.agentName,
       messages: [
-        ...(current?.messages ?? []),
+        ...(activeThread?.messages ?? []),
         { sender: "visitor", body, authorName: profile.name, createdAt: Date.now() },
       ],
-    }));
+    });
 
     try {
       await fetch("/api/chat/thread", {
@@ -240,29 +244,6 @@ export default function ContactLauncher() {
 
   return (
     <>
-      <div className="fixed bottom-6 left-5 z-[9996]">
-        <button
-          type="button"
-          onClick={() => openPanel("whatsapp")}
-          className="group flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-[#052E16] shadow-[0_18px_40px_-18px_rgba(37,211,102,0.9)] ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:bg-[#20bd5b] focus:outline-none focus:ring-4 focus:ring-[#25D366]/30"
-          aria-label="Open WhatsApp message form"
-        >
-          <MessageCircle className="h-6 w-6 transition group-hover:scale-105" />
-        </button>
-      </div>
-
-      <div className="fixed bottom-6 right-5 z-[9996]">
-        <button
-          type="button"
-          onClick={() => openPanel("chat")}
-          className="group flex h-14 w-14 items-center justify-center rounded-full bg-slate-950 text-white shadow-[0_18px_42px_-20px_rgba(15,23,42,0.9)] ring-1 ring-white/10 transition hover:-translate-y-0.5 hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-400/30"
-          aria-label="Open live chat"
-        >
-          <MessagesSquare className="h-5 w-5 transition group-hover:scale-105" />
-        </button>
-      </div>
-
-      {open && (
         <div className={launcherClass(mode)}>
           <div className="border-b border-border px-5 py-4 text-white" style={{ background: "var(--platform-chrome)" }}>
             <div className="flex items-start justify-between gap-4">
@@ -281,7 +262,7 @@ export default function ContactLauncher() {
               </div>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={onClose}
                 className="rounded-md p-1 text-white/70 hover:bg-card/10 hover:text-white"
                 aria-label="Close contact form"
               >
@@ -299,7 +280,7 @@ export default function ContactLauncher() {
               <div className="flex items-center justify-between border-b border-border bg-card px-5 py-3">
                 <div>
                   <p className="text-sm font-semibold text-foreground">
-                    {thread?.chatStatus === "active" ? `${thread.agentName ?? "EduMyles"} joined` : "Waiting for a specialist"}
+                    {activeThread?.chatStatus === "active" ? `${activeThread.agentName ?? "EduMyles"} joined` : "Waiting for a specialist"}
                   </p>
                   <p className="text-xs text-muted-foreground">Reference: {resultId}</p>
                 </div>
@@ -318,7 +299,7 @@ export default function ContactLauncher() {
                 </button>
               </div>
               <div ref={transcriptRef} className="max-h-[360px] space-y-3 overflow-y-auto px-5 py-4">
-                {(thread?.messages ?? []).map((item, index) => (
+                {(activeThread?.messages ?? []).map((item, index) => (
                   <div
                     key={`${item.createdAt}-${index}`}
                     className={[
@@ -466,7 +447,6 @@ export default function ContactLauncher() {
             </form>
           )}
         </div>
-      )}
     </>
   );
 }

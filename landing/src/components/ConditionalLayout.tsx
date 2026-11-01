@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/nav/Navbar";
 import Footer from "@/components/footer/Footer";
-import ContactLauncher from "@/components/ui/ContactLauncher";
+import ContactLauncherLoader from "@/components/ui/ContactLauncherLoader";
 import ProgressBar from "@/components/ui/ProgressBar";
 import CookieBanner from "@/components/ui/CookieBanner";
 
@@ -24,7 +24,7 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
       </Suspense>
       <main>{children}</main>
       <Footer />
-      <ContactLauncher />
+      <ContactLauncherLoader />
       <CookieBanner />
     </>
   );

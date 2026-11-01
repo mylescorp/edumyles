@@ -80,8 +80,8 @@ export default function StatusPage() {
       );
     };
     update();
-    const interval = setInterval(update, 1000);
-    return () => clearInterval(interval);
+    // This timestamp describes when the static status page was rendered; it
+    // does not represent a live health check, so avoid rerendering every second.
   }, []);
 
   return (

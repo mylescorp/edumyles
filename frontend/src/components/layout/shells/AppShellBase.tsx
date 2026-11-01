@@ -1,7 +1,6 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { ConvexAuthProvider } from "@/components/ConvexAuthProvider";
 import { GlobalShell } from "@/components/layout/GlobalShell";
 import { ModuleAccessGuard } from "@/components/shared/ModuleAccessGuard";
 import { RoleGuard } from "@/components/shared/RoleGuard";
@@ -86,12 +85,10 @@ export function AppShellBase({
   );
 
   return (
-    <ConvexAuthProvider>
-      <RoleGuard allowedRoles={allowedRoles}>
-        <GlobalShell navItems={navItems}>
-          <ShellErrorBoundary>{content}</ShellErrorBoundary>
-        </GlobalShell>
-      </RoleGuard>
-    </ConvexAuthProvider>
+    <RoleGuard allowedRoles={allowedRoles}>
+      <GlobalShell navItems={navItems}>
+        <ShellErrorBoundary>{content}</ShellErrorBoundary>
+      </GlobalShell>
+    </RoleGuard>
   );
 }
