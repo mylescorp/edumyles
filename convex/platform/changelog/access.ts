@@ -68,7 +68,12 @@ export async function visibleEntries(ctx: any, context: any) {
     .sort((a: any, b: any) => b.date - a.date || b.createdAt - a.createdAt);
 }
 
-export async function visibleHistoryPage(ctx: any, context: any, paginationOpts: any) {
+export async function visibleHistoryPage(
+  ctx: any,
+  context: any,
+  paginationOpts: any,
+  filters: { search?: string; types?: string[]; fromDate?: number; toDate?: number }
+) {
   const result = await ctx.db
     .query("whatsNewGitHubHistory")
     .withIndex("by_kind_mergedAt", (q: any) => q.eq("kind", "pull_request"))
@@ -82,6 +87,13 @@ export async function visibleHistoryPage(ctx: any, context: any, paginationOpts:
           !!record.displayTitle &&
           !!record.displayDescription &&
           !!record.type &&
+          (!filters.types?.length || filters.types.includes(record.type)) &&
+          (filters.fromDate === undefined || record.mergedAt >= filters.fromDate) &&
+          (filters.toDate === undefined || record.mergedAt <= filters.toDate) &&
+          (!filters.search ||
+            [record.displayTitle, record.displayDescription, ...(record.tags ?? [])].some((value) =>
+              value?.toLowerCase().includes(filters.search!.toLowerCase())
+            )) &&
           isVisibleTo({ panels: record.panels?.length ? record.panels : ["platform"] }, context)
       )
       .map((record: any) => ({

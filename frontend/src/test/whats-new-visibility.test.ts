@@ -64,6 +64,11 @@ describe("What's new panel visibility", () => {
     );
   });
 
+  it("recognizes plain-language fix and feature titles", () => {
+    expect(classifyType({ title: "Fix invoice export" })).toBe("fix");
+    expect(classifyType({ title: "Feature bulk import" })).toBe("feature");
+  });
+
   it("uses safe generic text when PR copy contains contributor or ticket details", () => {
     expect(normalizeDisplayTitle("Replace export flow by Jane Smith", "feature")).toBe(
       "New product capability"
@@ -71,6 +76,7 @@ describe("What's new panel visibility", () => {
     expect(normalizeDisplayTitle("Jane Smith adds invoice exports", "feature")).toBe(
       "New product capability"
     );
+    expect(normalizeDisplayTitle("Fix export flow by Jane", "fix")).toBe("Product fix");
     expect(normalizeDisplayTitle("Fix invoice export PR 123", "fix")).toBe("Product fix");
     expect(displayDescription("feature")).not.toContain("Jane Smith");
   });

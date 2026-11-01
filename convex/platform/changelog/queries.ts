@@ -44,8 +44,11 @@ export const getWhatsNewUnreadCount = query({
         .collect(),
       ctx.db
         .query("whatsNewHistoryReadSnapshots")
-        .withIndex("by_user_workspace", (q) =>
-          q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
+        .withIndex("by_user_workspace_audience", (q) =>
+          q
+            .eq("userId", context.userId)
+            .eq("workspaceId", context.workspaceId)
+            .eq("audienceKey", context.canSeeAllPanels ? "all" : context.panel)
         )
         .unique(),
     ]);
@@ -85,10 +88,17 @@ export const getWhatsNewFeed = query({
 });
 
 export const getWhatsNewHistory = query({
-  args: { sessionToken: v.string(), paginationOpts: paginationOptsValidator },
+  args: {
+    sessionToken: v.string(),
+    paginationOpts: paginationOptsValidator,
+    search: v.optional(v.string()),
+    types: v.optional(v.array(v.string())),
+    fromDate: v.optional(v.number()),
+    toDate: v.optional(v.number()),
+  },
   handler: async (ctx, args) => {
     const context = await getFeedContext(ctx, args.sessionToken);
-    return await visibleHistoryPage(ctx, context, args.paginationOpts);
+    return await visibleHistoryPage(ctx, context, args.paginationOpts, args);
   },
 });
 

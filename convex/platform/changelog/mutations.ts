@@ -327,38 +327,6 @@ export const upsertGitHubHistoryInternal = internalMutation({
   },
 });
 
-export const replaceGitHubHistoryStatsInternal = internalMutation({
-  args: {
-    counts: v.array(v.object({ key: v.string(), count: v.number() })),
-  },
-  handler: async (ctx, args) => {
-    const allowedKeys = new Set(["all", ...ALLOWED_PANELS.map((panel) => `panel:${panel}`)]);
-    const nextCounts = new Map<string, number>();
-    for (const { key, count } of args.counts) {
-      if (!allowedKeys.has(key) || !Number.isSafeInteger(count) || count < 0) {
-        throw new Error("GitHub history counters are invalid");
-      }
-      nextCounts.set(key, count);
-    }
-
-    const existingStats = await ctx.db.query("whatsNewGitHubHistoryStats").take(20);
-    const existingKeys = new Set<string>();
-    for (const stat of existingStats) {
-      const count = nextCounts.get(stat.key);
-      if (count === undefined) {
-        await ctx.db.delete(stat._id);
-        continue;
-      }
-      await ctx.db.patch(stat._id, { count });
-      existingKeys.add(stat.key);
-    }
-    for (const [key, count] of nextCounts) {
-      if (!existingKeys.has(key)) await ctx.db.insert("whatsNewGitHubHistoryStats", { key, count });
-    }
-    return { success: true, keys: nextCounts.size };
-  },
-});
-
 export const updateChangelogEntry = mutation({
   args: {
     sessionToken: v.string(),
@@ -545,8 +513,11 @@ export const markAllRead = mutation({
       const readThroughCount = await historyVisibleCount(ctx, context);
       const existingSnapshot = await ctx.db
         .query("whatsNewHistoryReadSnapshots")
-        .withIndex("by_user_workspace", (q) =>
-          q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
+        .withIndex("by_user_workspace_audience", (q) =>
+          q
+            .eq("userId", context.userId)
+            .eq("workspaceId", context.workspaceId)
+            .eq("audienceKey", context.canSeeAllPanels ? "all" : context.panel)
         )
         .unique();
       if (existingSnapshot) {
@@ -555,6 +526,7 @@ export const markAllRead = mutation({
         await ctx.db.insert("whatsNewHistoryReadSnapshots", {
           userId: context.userId,
           workspaceId: context.workspaceId,
+          audienceKey: context.canSeeAllPanels ? "all" : context.panel,
           readThroughCount,
           readAt: Date.now(),
         });

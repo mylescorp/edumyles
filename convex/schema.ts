@@ -3961,9 +3961,10 @@ export default defineSchema({
   whatsNewHistoryReadSnapshots: defineTable({
     userId: v.string(),
     workspaceId: v.string(),
+    audienceKey: v.string(),
     readThroughCount: v.number(),
     readAt: v.number(),
-  }).index("by_user_workspace", ["userId", "workspaceId"]),
+  }).index("by_user_workspace_audience", ["userId", "workspaceId", "audienceKey"]),
 
   whatsNewGitHubHistory: defineTable({
     externalId: v.string(),

@@ -36,7 +36,7 @@ export function normalizeDisplayTitle(title, type) {
     !cleaned ||
     /\b(?:pr|pull request|issue|ticket)\s*#?\d+\b/i.test(cleaned) ||
     /\b[A-Z][\p{L}'-]+\s+[A-Z][\p{L}'-]+\b/u.test(cleaned) ||
-    /\b(?:by|from|author(?:ed)?|contributor)\s+[A-Z][\p{L}'-]+(?:\s+[A-Z][\p{L}'-]+)+/u.test(
+    /\b(?:by|from|author(?:ed)?|contributor)\s+[A-Z][\p{L}'-]+(?:\s+[A-Z][\p{L}'-]+)?/u.test(
       cleaned
     ) ||
     /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.test(cleaned)
@@ -58,12 +58,12 @@ export function classifyType(pullRequest) {
   }
   if (
     labels.some((label) => /^(fix|bug)(\b|:)/.test(label)) ||
-    /^(fix|bug)(\([^)]*\))?!?:/i.test(title)
+    /^(fix|bug)(\([^)]*\))?!?(?::|\s)/i.test(title)
   )
     return "fix";
   if (
     labels.some((label) => /^(feature|feat|enhancement)(\b|:)/.test(label)) ||
-    /^(feat|feature)(\([^)]*\))?!?:/i.test(title)
+    /^(feat|feature)(\([^)]*\))?!?(?::|\s)/i.test(title)
   )
     return "feature";
   return "improvement";

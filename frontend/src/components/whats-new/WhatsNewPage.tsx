@@ -111,16 +111,36 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const [showFilters, setShowFilters] = useState(false);
   const openedScopeRef = useRef<string | null>(null);
   const lastScrolledHashRef = useRef<string | null>(null);
+  const historySearch = search.trim().toLowerCase();
+  const historyTypes =
+    category === "feature"
+      ? ["feature"]
+      : category === "fix"
+        ? ["fix"]
+        : category === "improvement"
+          ? ["improvement", "breaking"]
+          : undefined;
+  const historyFromDate = releaseDateBoundary(fromDate);
+  const historyToDate = releaseDateBoundary(toDate, true);
   const data = useQuery(
     api.platform.changelog.queries.getWhatsNewFeed,
     { sessionToken: sessionToken ?? "" },
     !!sessionToken
   );
-  const historyQuery = usePaginatedQuery(
-    api.platform.changelog.queries.getWhatsNewHistory,
-    sessionToken ? { sessionToken } : "skip",
-    { initialNumItems: 50 }
-  );
+  const { results: historyResults, status: historyStatus, loadMore: loadMoreHistory } =
+    usePaginatedQuery(
+      api.platform.changelog.queries.getWhatsNewHistory,
+      sessionToken
+        ? {
+            sessionToken,
+            ...(historySearch ? { search: historySearch } : {}),
+            ...(historyTypes ? { types: historyTypes } : {}),
+            ...(historyFromDate === undefined ? {} : { fromDate: historyFromDate }),
+            ...(historyToDate === undefined ? {} : { toDate: historyToDate }),
+          }
+        : "skip",
+      { initialNumItems: 50 }
+    );
   const unreadCountResult = useQuery(
     api.platform.changelog.queries.getWhatsNewUnreadCount,
     { sessionToken: sessionToken ?? "" },
@@ -140,15 +160,41 @@ export function WhatsNewPage({ version }: { version?: string }) {
   }, [data, markAllRead, scopeKey, sessionToken, version]);
 
   const releaseEntries = (data?.entries ?? EMPTY_ENTRIES) as Entry[];
-  const historyEntries = (historyQuery.results ?? EMPTY_ENTRIES) as Entry[];
+  const historyEntries = (historyResults ?? EMPTY_ENTRIES) as Entry[];
   const entries = useMemo(
     () => [...releaseEntries, ...historyEntries].sort((a, b) => b.date - a.date),
     [historyEntries, releaseEntries]
   );
   const activeVersion = version ? decodeURIComponent(version) : undefined;
+  const filtersNeedAllHistory =
+    !activeVersion && (category !== "all" || !!search.trim() || !!fromDate || !!toDate);
 
   useEffect(() => {
-    if (!data || entries.length === 0 || !window.location.hash) return;
+    if (!data || historyStatus !== "CanLoadMore") return;
+    let linkedCardNeedsMore = false;
+    if (window.location.hash) {
+      try {
+        linkedCardNeedsMore = !document.getElementById(
+          decodeURIComponent(window.location.hash.slice(1))
+        );
+      } catch {
+        linkedCardNeedsMore = false;
+      }
+    }
+    if (filtersNeedAllHistory || linkedCardNeedsMore) loadMoreHistory(50);
+  }, [
+    category,
+    data,
+    filtersNeedAllHistory,
+    fromDate,
+    historyStatus,
+    loadMoreHistory,
+    search,
+    toDate,
+  ]);
+
+  useEffect(() => {
+    if (!data || !window.location.hash) return;
     const hash = window.location.hash;
     if (lastScrolledHashRef.current === hash) return;
     let targetId: string;
@@ -219,7 +265,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
     window.open(url.toString(), "_blank", "noopener,noreferrer");
   }
 
-  if (!data || historyQuery.status === "LoadingFirstPage") {
+  if (!data || historyStatus === "LoadingFirstPage") {
     return (
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:py-10">
         <div className="h-10 w-56 animate-pulse rounded bg-muted" />
@@ -359,12 +405,18 @@ export function WhatsNewPage({ version }: { version?: string }) {
                 <Sparkles className="h-6 w-6" />
               </span>
               <h2 className="mt-4 text-lg font-semibold text-foreground">
-                {entries.length === 0 ? "No updates published yet" : "No updates found"}
+                {historyStatus === "CanLoadMore" || historyStatus === "LoadingMore"
+                  ? "Searching updates…"
+                  : entries.length === 0
+                    ? "No updates published yet"
+                    : "No updates found"}
               </h2>
               <p className="mt-1 max-w-md text-sm leading-6 text-muted-foreground">
-                {entries.length === 0
-                  ? "When a release is published, its updates will appear here."
-                  : "Try a different search or filter to find a published update."}
+                {historyStatus === "CanLoadMore" || historyStatus === "LoadingMore"
+                  ? "Checking the full update timeline for matches."
+                  : entries.length === 0
+                    ? "When a release is published, its updates will appear here."
+                    : "Try a different search or filter to find a published update."}
               </p>
             </div>
           </Card>
@@ -468,18 +520,19 @@ export function WhatsNewPage({ version }: { version?: string }) {
             ))}
           </div>
         )}
-        {(historyQuery.status === "CanLoadMore" || historyQuery.status === "LoadingMore") && (
-          <div className="mt-3 flex justify-center">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={historyQuery.status === "LoadingMore"}
-              onClick={() => historyQuery.loadMore(50)}
-            >
-              {historyQuery.status === "LoadingMore" ? "Loading updates…" : "Load more updates"}
-            </Button>
-          </div>
-        )}
+        {!filtersNeedAllHistory &&
+          (historyStatus === "CanLoadMore" || historyStatus === "LoadingMore") && (
+            <div className="mt-3 flex justify-center">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={historyStatus === "LoadingMore"}
+                onClick={() => loadMoreHistory(50)}
+              >
+                {historyStatus === "LoadingMore" ? "Loading updates…" : "Load more updates"}
+              </Button>
+            </div>
+          )}
       </div>
     </main>
   );
