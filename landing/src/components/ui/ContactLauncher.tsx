@@ -138,17 +138,17 @@ export default function ContactLauncher({
 }
 
 class ContactWidgetErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
-  state = { hasError: false };
+  override state = { hasError: false };
 
-  static getDerivedStateFromError() {
+  static override getDerivedStateFromError() {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error) {
+  override componentDidCatch(error: Error) {
     console.error("Contact widget failed to render:", error);
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       return (
         <div
