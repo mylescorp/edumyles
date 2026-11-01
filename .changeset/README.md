@@ -1,7 +1,8 @@
 # Changesets
 
-Add one Changeset Markdown file for each user-visible feature, fix, or improvement. The release workflow
-turns every Changeset into its own What's new card when its version is published.
+Add one Changeset Markdown file for each user-visible feature, fix, or improvement. Every pull request
+merged to `main` creates and publishes its own semantic version. Each Changeset in that pull request
+becomes its own What's new card in that release.
 
 Use the `edumyles` package with a semantic version bump:
 
@@ -11,6 +12,7 @@ edumyles: patch
 type: improvement
 panels: admin, platform
 ---
+
 Short user-facing title
 
 Describe the user benefit in one or two concise sentences.
@@ -22,6 +24,8 @@ the affected panels (`admin`, `teacher`, `student`, `parent`, `alumni`, `partner
 `affiliate`, `reseller`, or `platform`). Separate unrelated changes into separate files. Do not edit
 release manifests by hand for an ordinary feature pull request.
 
-Merging Changesets to `main` prepares a versioned release pull request and a release manifest. The
-manifest is published to the What&apos;s new timeline only when the corresponding semantic version is
-published. Preview builds and pending Changesets never appear as published releases.
+The largest bump in a merged pull request's Changesets determines that release's version increment.
+Each direct commit to `main` also creates one patch, minor, or major release; when it has no Changeset,
+the release uses a concise card inferred from the commit subject and changed panel paths. Multiple
+direct commits pushed together still receive separate versions. Preview builds and unmerged Changesets
+never appear as published releases.
