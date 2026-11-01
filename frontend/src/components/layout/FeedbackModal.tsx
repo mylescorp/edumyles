@@ -37,7 +37,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-[440px] mx-4 rounded-2xl bg-white shadow-2xl overflow-hidden"
+        className="relative w-full max-w-[440px] mx-4 rounded-2xl bg-card shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

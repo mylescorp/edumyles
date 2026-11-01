@@ -1109,7 +1109,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                       if (payload && payload[0]) {
                         const data = payload[0].payload;
                         return (
-                          <div className="bg-white p-2 border rounded shadow">
+                          <div className="bg-card p-2 border rounded shadow">
                             <p className="font-medium">{data.country}</p>
                             <p className="text-sm">Users: {data.users.toLocaleString()}</p>
                             <p className="text-sm">Percentage: {data.percentage}%</p>

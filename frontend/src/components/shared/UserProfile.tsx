@@ -218,7 +218,7 @@ export function UserProfile({
             <div className="relative">
               <Avatar className="h-24 w-24 ring-4 ring-white ring-offset-0">
                 <AvatarImage src={avatarUrl} alt={`${firstName} ${lastName}`} />
-                <AvatarFallback className="text-2xl bg-primary text-white">
+                <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
                   {isUploadingAvatar ? (
                     <Loader2 className="h-8 w-8 animate-spin" />
                   ) : (

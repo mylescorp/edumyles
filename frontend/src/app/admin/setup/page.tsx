@@ -1691,7 +1691,7 @@ export default function AdminSetupPage() {
                   email and SMS where available.
                 </p>
                 <div className="grid gap-3 md:grid-cols-3">
-                  <div className="rounded-xl border bg-white p-4">
+                  <div className="rounded-xl border bg-card p-4">
                     <p className="text-xs uppercase tracking-wide text-slate-500">
                       Guardian contacts
                     </p>
@@ -1700,13 +1700,13 @@ export default function AdminSetupPage() {
                     </p>
                     <p className="mt-1 text-sm text-slate-500">students captured in onboarding</p>
                   </div>
-                  <div className="rounded-xl border bg-white p-4">
+                  <div className="rounded-xl border bg-card p-4">
                     <p className="text-xs uppercase tracking-wide text-slate-500">Delivery</p>
                     <p className="mt-2 text-sm text-slate-700">
                       Email + SMS are sent automatically when contact details are present.
                     </p>
                   </div>
-                  <div className="rounded-xl border bg-white p-4">
+                  <div className="rounded-xl border bg-card p-4">
                     <p className="text-xs uppercase tracking-wide text-slate-500">Join route</p>
                     <p className="mt-2 text-sm text-slate-700 font-medium">
                       /join/{wizardContext.tenantSlug}

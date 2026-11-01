@@ -36,7 +36,7 @@ export function AdminBottomBar() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-gray-200 px-4 py-2 z-50">
       <div className="flex items-center justify-between max-w-screen-2xl mx-auto">
         {/* Left side — Navigation tabs */}
         <div className="flex items-center gap-1">

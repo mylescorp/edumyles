@@ -184,7 +184,7 @@ export default function ParentJoinPage() {
                   </div>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     {lookup.matches.map((match: any) => (
-                      <div key={String(match.guardianId)} className="rounded-xl border border-emerald-200 bg-white p-4">
+                      <div key={String(match.guardianId)} className="rounded-xl border border-emerald-200 bg-card p-4">
                         <p className="text-sm font-semibold text-slate-900">{match.guardianName}</p>
                         <p className="mt-1 text-xs text-slate-500">{match.relationship}</p>
                         <div className="mt-3 space-y-2">
@@ -221,7 +221,7 @@ export default function ParentJoinPage() {
             ) : null}
 
             {requestResult ? (
-              <form onSubmit={handleVerifyOtp} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+              <form onSubmit={handleVerifyOtp} className="space-y-4 rounded-2xl border border-slate-200 bg-card p-5">
                 <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
                   {requestResult.deliveryChannel === "email" ? (
                     <Mail className="h-4 w-4 text-emerald-700" />

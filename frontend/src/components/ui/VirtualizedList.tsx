@@ -60,7 +60,7 @@ export function VirtualizedList<T>({
       {/* Scroll indicators */}
       {scrollTop > 50 && (
         <button
-          className="fixed top-4 right-4 p-2 bg-white border border-gray-300 rounded shadow-lg z-10"
+          className="fixed top-4 right-4 p-2 bg-card border border-gray-300 rounded shadow-lg z-10"
           onClick={() => scrollToItem(0)}
         >
           <ChevronUp className="h-4 w-4" />
@@ -69,7 +69,7 @@ export function VirtualizedList<T>({
       
       {scrollTop < totalHeight - containerHeight - 50 && (
         <button
-          className="fixed bottom-4 right-4 p-2 bg-white border border-gray-300 rounded shadow-lg z-10"
+          className="fixed bottom-4 right-4 p-2 bg-card border border-gray-300 rounded shadow-lg z-10"
           onClick={() => scrollToItem(items.length - 1)}
         >
           <ChevronDown className="h-4 w-4" />

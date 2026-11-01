@@ -121,7 +121,7 @@ export function BulkOperations({ items, itemType, onBulkAction }: BulkOperationP
             {selectedItems.slice(0, 10).map(id => {
               const item = items.find(i => (i._id || i.id) === id);
               return (
-                <div key={id} className="flex items-center justify-between p-2 bg-white rounded border">
+                <div key={id} className="flex items-center justify-between p-2 bg-card rounded border">
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       checked={selectedItems.includes(id)}

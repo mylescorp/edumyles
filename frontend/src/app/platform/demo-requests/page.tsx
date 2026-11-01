@@ -973,7 +973,7 @@ export default function DemoRequestsPage() {
                         key={day.key}
                         className={cn(
                           "min-h-[120px] rounded-xl border p-2",
-                          day.inMonth ? "bg-white" : "bg-muted/30 text-muted-foreground"
+                          day.inMonth ? "bg-card" : "bg-muted/30 text-muted-foreground"
                         )}
                       >
                         <div className="flex items-center justify-between">

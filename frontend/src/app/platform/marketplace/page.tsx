@@ -81,9 +81,9 @@ function formatRelativeTime(timestamp: number) {
 
 function EmptyBlock({ title, body }: { title: string; body: string }) {
   return (
-    <div className="flex min-h-28 flex-col items-center justify-center rounded-xl border border-dashed border-emerald-200/70 bg-emerald-50/30 px-6 py-8 text-center">
-      <p className="text-sm font-semibold text-slate-900">{title}</p>
-      <p className="mt-1 max-w-sm text-sm text-slate-600">{body}</p>
+    <div className="flex min-h-28 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 px-6 py-8 text-center">
+      <p className="text-sm font-semibold text-foreground">{title}</p>
+      <p className="mt-1 max-w-sm text-sm text-muted-foreground">{body}</p>
     </div>
   );
 }
@@ -100,16 +100,16 @@ function StatsCard({
   icon: ReactNode;
 }) {
   return (
-    <Card className="border-slate-200/80 shadow-sm">
+    <Card className="border-border shadow-sm">
       <CardContent className="flex items-start justify-between gap-4 pt-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             {title}
           </p>
           <p className="mt-2 text-2xl font-semibold text-foreground">{value}</p>
-          <p className="mt-1 text-xs text-slate-600">{description}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{description}</p>
         </div>
-        <div className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-2.5 text-emerald-700 shadow-sm">
+        <div className="rounded-xl border border-primary/15 bg-accent p-2.5 text-primary shadow-sm">
           <div className="h-5 w-5">{icon}</div>
         </div>
       </CardContent>
@@ -131,16 +131,16 @@ function MarketplaceTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-card/95 px-3 py-2 shadow-lg backdrop-blur">
+    <div className="rounded-xl border border-border bg-card/95 px-3 py-2 shadow-lg backdrop-blur">
       {label ? (
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           {label}
         </p>
       ) : null}
       <div className="space-y-1.5">
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center justify-between gap-4 text-sm">
-            <div className="flex items-center gap-2 text-slate-600">
+            <div className="flex items-center gap-2 text-muted-foreground">
               <span
                 className="h-2.5 w-2.5 rounded-full"
                 style={{ backgroundColor: entry.color || "var(--primary)" }}
@@ -401,15 +401,15 @@ function MarketplaceDashboardContent() {
               pendingModules.slice(0, 5).map((module: any) => (
                 <button
                   key={module._id}
-                  className="flex w-full items-start justify-between rounded-xl border border-slate-200 px-4 py-3 text-left transition hover:border-emerald-300 hover:bg-emerald-50/40"
+                  className="flex w-full items-start justify-between rounded-xl border border-border px-4 py-3 text-left transition hover:border-primary/40 hover:bg-accent"
                   onClick={() => router.push("/platform/marketplace/admin")}
                   type="button"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-slate-900">
+                    <p className="truncate text-sm font-semibold text-foreground">
                       {module.name}
                     </p>
-                    <p className="truncate text-xs text-slate-600">
+                    <p className="truncate text-xs text-muted-foreground">
                       {module.publisherName}
                     </p>
                     <div className="mt-2 flex items-center gap-2">
@@ -421,7 +421,7 @@ function MarketplaceDashboardContent() {
                       </Badge>
                     </div>
                   </div>
-                  <div className="ml-4 shrink-0 text-right text-xs text-slate-500">
+                  <div className="ml-4 shrink-0 text-right text-xs text-muted-foreground">
                     <p>{formatRelativeTime(module.createdAt)}</p>
                     <p className="mt-1 font-medium text-amber-700">
                       {Math.max(
@@ -531,11 +531,11 @@ function MarketplaceDashboardContent() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <AlertTriangle className="h-4 w-4 text-amber-600" />
-                      <p className="truncate text-sm font-semibold text-slate-900">
+                      <p className="truncate text-sm font-semibold text-foreground">
                         {flag.moduleName}
                       </p>
                     </div>
-                    <p className="mt-1 text-sm text-slate-600">{flag.description}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{flag.description}</p>
                     <div className="mt-2 flex items-center gap-2">
                       <Badge variant="outline" className="capitalize">
                         {String(flag.type || "flag").replace(/_/g, " ")}
@@ -543,7 +543,7 @@ function MarketplaceDashboardContent() {
                       <Badge variant="secondary">{flag.status}</Badge>
                     </div>
                   </div>
-                  <div className="ml-4 shrink-0 text-right text-xs text-slate-500">
+                  <div className="ml-4 shrink-0 text-right text-xs text-muted-foreground">
                     <p>{formatRelativeTime(flag.createdAt)}</p>
                     <p className="mt-1">{flag.filedByEmail}</p>
                   </div>
@@ -579,22 +579,22 @@ function MarketplaceDashboardContent() {
                   key={module.moduleId}
                   type="button"
                   onClick={() => router.push(`/platform/marketplace/${module.moduleId}`)}
-                  className="flex w-full items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-left transition hover:border-emerald-300 hover:bg-emerald-50/40"
+                  className="flex w-full items-center justify-between rounded-xl border border-border px-4 py-3 text-left transition hover:border-primary/40 hover:bg-accent"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-2 text-emerald-700">
+                    <div className="rounded-xl border border-primary/15 bg-accent p-2 text-primary">
                       <PieChartIcon className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">{module.name}</p>
-                      <p className="text-xs text-slate-600">{module.publisherName}</p>
+                      <p className="text-sm font-semibold text-foreground">{module.name}</p>
+                      <p className="text-xs text-muted-foreground">{module.publisherName}</p>
                     </div>
                   </div>
                   <div className="text-right text-sm">
                     <p className="font-semibold text-foreground">
                       {(module.totalInstalls || 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-muted-foreground">
                       {(module.totalReviews || 0).toLocaleString()} reviews
                     </p>
                   </div>

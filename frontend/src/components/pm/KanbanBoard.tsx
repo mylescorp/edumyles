@@ -83,7 +83,7 @@ export function KanbanBoard({ statuses, tasks, onOpenTask, onMoveTask }: KanbanB
             </div>
 
             {dragTaskId && dropStatus === column.status ? (
-              <div className="mt-3 rounded-2xl border border-emerald-300 bg-white px-3 py-2 text-xs text-emerald-700">
+              <div className="mt-3 rounded-2xl border border-emerald-300 bg-card px-3 py-2 text-xs text-emerald-700">
                 Release to move into {column.status}.
               </div>
             ) : null}

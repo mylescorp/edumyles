@@ -239,7 +239,7 @@ export default function CRMPipelinePage() {
                 return (
                   <div
                     key={bucket.stage.slug}
-                    className={`w-[320px] shrink-0 rounded-[28px] border bg-white shadow-sm transition ${
+                    className={`w-[320px] shrink-0 rounded-[28px] border bg-card shadow-sm transition ${
                       isActiveDrop ? "border-emerald-400 bg-emerald-50/50 shadow-emerald-100" : "border-slate-200"
                     }`}
                     onDragOver={(event) => {
@@ -308,7 +308,7 @@ export default function CRMPipelinePage() {
                               draggable={movable}
                               onDragStart={() => setDraggedLeadId(lead._id)}
                               onDragEnd={resetDnD}
-                              className={`group rounded-2xl border bg-white p-4 transition ${
+                              className={`group rounded-2xl border bg-card p-4 transition ${
                                 dragging
                                   ? "cursor-grabbing border-emerald-400 opacity-65 shadow-lg"
                                   : movable

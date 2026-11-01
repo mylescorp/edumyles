@@ -27,7 +27,7 @@ export function TaskCard({ task, onClick, draggable, onDragStart, onDragEnd }: T
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       onClick={onClick}
-      className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+      className="w-full rounded-2xl border border-slate-200 bg-card p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="flex items-start gap-3">
         <span

@@ -73,17 +73,17 @@ export default function CalendarPage() {
 
         <Card className="overflow-hidden border-slate-200/80 surface-gradient">
           <CardContent className="grid gap-4 p-6 md:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-2xl border border-slate-200 bg-card p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Dated tasks</p>
               <p className="mt-3 text-3xl font-semibold text-foreground">{tasksWithDates.length}</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-2xl border border-slate-200 bg-card p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Next due</p>
               <p className="mt-3 text-sm font-medium text-foreground">
                 {tasksWithDates[0]?.dueDate ? new Date(tasksWithDates[0].dueDate).toLocaleDateString() : "Nothing scheduled"}
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-2xl border border-slate-200 bg-card p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">View posture</p>
               <p className="mt-3 text-sm text-muted-foreground">Calendar surface for delivery planning and deadline reviews.</p>
             </div>
