@@ -1,5 +1,11 @@
 import { execFileSync, spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
+import {
+  classifyType,
+  displayDescription,
+  normalizeDisplayTitle,
+  panelsForFiles,
+} from "./whats-new-github-history-utils.mjs";
 
 const eventPath = process.env.GITHUB_EVENT_PATH;
 const repository = process.env.GITHUB_REPOSITORY;
@@ -68,7 +74,8 @@ function clipped(value, limit = 4000) {
   return (value ?? "").toString().slice(0, limit).trim();
 }
 
-function makePullRequestRecord(pullRequest, isHistorical) {
+function makePullRequestRecord(pullRequest, isHistorical, files = []) {
+  const type = classifyType(pullRequest);
   return {
     externalId: `pr:${pullRequest.number}`,
     kind: "pull_request",
@@ -77,6 +84,11 @@ function makePullRequestRecord(pullRequest, isHistorical) {
     url: pullRequest.html_url,
     author: pullRequest.user?.login,
     pullRequestNumber: pullRequest.number,
+    displayTitle: normalizeDisplayTitle(pullRequest.title, type),
+    displayDescription: displayDescription(type),
+    type,
+    panels: panelsForFiles(files.map((file) => file.filename ?? file)),
+    tags: [],
     mergedAt: Date.parse(pullRequest.merged_at),
     isHistorical,
   };
@@ -102,17 +114,21 @@ function makeCommitRecord(commit, mergedAt, pullRequestNumber, isHistorical) {
   };
 }
 
-let records = [];
-if (eventName === "workflow_dispatch") {
+async function loadCompleteHistory() {
   const allPullRequests = await getAllPages(`${apiRoot}/pulls?state=closed`);
   const mergedPullRequests = allPullRequests.filter((pullRequest) => pullRequest.merged_at);
   const pullRequestCommits = new Map();
   const mergedCommitRecords = new Map();
+  const mergedPullRequestRecords = [];
   let nextPullRequest = 0;
   const workers = Array.from({ length: 4 }, async () => {
     while (nextPullRequest < mergedPullRequests.length) {
       const pullRequest = mergedPullRequests[nextPullRequest++];
-      const commits = await getAllPages(`${apiRoot}/pulls/${pullRequest.number}/commits`);
+      const [commits, files] = await Promise.all([
+        getAllPages(`${apiRoot}/pulls/${pullRequest.number}/commits`),
+        getAllPages(`${apiRoot}/pulls/${pullRequest.number}/files`),
+      ]);
+      mergedPullRequestRecords.push(makePullRequestRecord(pullRequest, true, files));
       for (const commit of commits) {
         pullRequestCommits.set(commit.sha, pullRequest.number);
         mergedCommitRecords.set(
@@ -124,8 +140,8 @@ if (eventName === "workflow_dispatch") {
   });
   await Promise.all(workers);
 
-  records = mergedPullRequests.map((pullRequest) => makePullRequestRecord(pullRequest, true));
-  records.push(...mergedCommitRecords.values());
+  const historyRecords = mergedPullRequestRecords;
+  historyRecords.push(...mergedCommitRecords.values());
   const repositoryInfo = await github(apiRoot);
   const branchCommits = await getAllPages(
     `${apiRoot}/commits?sha=${encodeURIComponent(repositoryInfo.default_branch)}`
@@ -133,7 +149,7 @@ if (eventName === "workflow_dispatch") {
   for (const commit of branchCommits) {
     if (mergedCommitRecords.has(commit.sha)) continue;
     const pullRequestNumber = pullRequestCommits.get(commit.sha);
-    records.push(
+    historyRecords.push(
       makeCommitRecord(
         commit,
         Date.parse(commit.commit?.committer?.date ?? commit.commit?.author?.date ?? ""),
@@ -145,14 +161,23 @@ if (eventName === "workflow_dispatch") {
   console.log(
     `Prepared ${mergedPullRequests.length} merged pull requests and ${branchCommits.length} default-branch commits.`
   );
+  return historyRecords;
+}
+
+let records = [];
+if (eventName === "workflow_dispatch") {
+  records = await loadCompleteHistory();
 } else if (eventName === "pull_request_target") {
   const pullRequest = event.pull_request;
   if (!pullRequest?.merged_at) {
     console.log("Pull request was closed without merging; no history was added.");
     process.exit(0);
   }
-  const commits = await getAllPages(`${apiRoot}/pulls/${pullRequest.number}/commits`);
-  records = [makePullRequestRecord(pullRequest, false)];
+  const [commits, files] = await Promise.all([
+    getAllPages(`${apiRoot}/pulls/${pullRequest.number}/commits`),
+    getAllPages(`${apiRoot}/pulls/${pullRequest.number}/files`),
+  ]);
+  records = [makePullRequestRecord(pullRequest, false, files)];
   records.push(
     ...commits.map((commit) =>
       makeCommitRecord(commit, Date.parse(pullRequest.merged_at), pullRequest.number, false)
@@ -167,34 +192,53 @@ if (eventName === "workflow_dispatch") {
   records = (event.commits ?? []).map((commit) =>
     makeCommitRecord(commit, Date.parse(commit.timestamp), undefined, false)
   );
-} else {
+} else if (!new Set(["workflow_dispatch", "pull_request_target"]).has(eventName)) {
   throw new Error(`Unsupported GitHub history event: ${eventName}`);
 }
 
-const uniqueRecords = [...new Map(records.map((record) => [record.externalId, record])).values()];
-let inserted = 0;
-let updated = 0;
-for (let offset = 0; offset < uniqueRecords.length; offset += 15) {
-  const args = JSON.stringify({
-    releaseSecret,
-    records: uniqueRecords.slice(offset, offset + 15),
-  });
-  try {
-    const result = execFileSync(
-      "npx",
-      ["convex", "run", "platform/changelog/release:syncGitHubHistory", args],
-      {
-        encoding: "utf8",
-        env: { ...process.env, CONVEX_DEPLOY_KEY: deployKey ?? "" },
-        stdio: ["ignore", "pipe", "pipe"],
-      }
-    );
-    const counts = JSON.parse(result);
-    inserted += counts.inserted ?? 0;
-    updated += counts.updated ?? 0;
-  } catch (error) {
-    const stderr = error?.stderr?.toString?.().replaceAll(releaseSecret, "[REDACTED]");
-    throw new Error(stderr || "Convex rejected the GitHub history batch.");
+async function syncBatches(inputRecords, completeBackfill = false) {
+  const uniqueRecords = [
+    ...new Map(inputRecords.map((record) => [record.externalId, record])).values(),
+  ];
+  const batchCount = Math.max(1, Math.ceil(uniqueRecords.length / 15));
+  let inserted = 0;
+  let updated = 0;
+  let needsBackfill = false;
+  let needsPanelBackfill = false;
+  for (let batchIndex = 0; batchIndex < batchCount; batchIndex += 1) {
+    const args = JSON.stringify({
+      releaseSecret,
+      records: uniqueRecords.slice(batchIndex * 15, (batchIndex + 1) * 15),
+      ...(completeBackfill && batchIndex === batchCount - 1 ? { backfillComplete: true } : {}),
+    });
+    try {
+      const result = execFileSync(
+        "npx",
+        ["convex", "run", "platform/changelog/release:syncGitHubHistory", args],
+        {
+          encoding: "utf8",
+          env: { ...process.env, CONVEX_DEPLOY_KEY: deployKey ?? "" },
+          stdio: ["ignore", "pipe", "pipe"],
+        }
+      );
+      const counts = JSON.parse(result);
+      inserted += counts.inserted ?? 0;
+      updated += counts.updated ?? 0;
+      needsBackfill ||= counts.needsBackfill === true;
+      needsPanelBackfill ||= counts.needsPanelBackfill === true;
+    } catch (error) {
+      const stderr = error?.stderr?.toString?.().replaceAll(releaseSecret, "[REDACTED]");
+      throw new Error(stderr || "Convex rejected the GitHub history batch.");
+    }
   }
+  return { inserted, updated, needsBackfill, needsPanelBackfill };
 }
-console.log(`GitHub history sync complete: ${inserted} inserted, ${updated} updated.`);
+
+let totals = await syncBatches(records, eventName === "workflow_dispatch");
+if (totals.needsPanelBackfill && eventName !== "workflow_dispatch") {
+  console.log("Backfilling panel-specific history rows for existing updates.");
+  totals = await syncBatches(await loadCompleteHistory(), true);
+}
+console.log(
+  `GitHub history sync complete: ${totals.inserted} inserted, ${totals.updated} updated.`
+);

@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import { usePaginatedQuery } from "convex/react";
 import { useAuth } from "@/hooks/useAuth";
 import { useInstalledModules } from "@/hooks/useInstalledModules";
 import { useQuery, useMutation } from "@/hooks/useSSRSafeConvex";
@@ -25,6 +26,8 @@ import { Input } from "@/components/ui/input";
 
 type Entry = {
   _id: string;
+  groupKey: string;
+  isRelease: boolean;
   version: string;
   title: string;
   description: string;
@@ -59,6 +62,34 @@ function getSafeCount(value: unknown): number {
   return typeof current === "number" && Number.isFinite(current) ? current : 0;
 }
 
+function getLinkedHistoryEntry(value: unknown): Entry | null {
+  if (!value || typeof value !== "object") return null;
+  const candidate = value as Record<string, unknown>;
+  const unwrapped =
+    Object.prototype.hasOwnProperty.call(candidate, "data") && candidate.data !== value
+      ? candidate.data
+      : value;
+  if (!unwrapped || typeof unwrapped !== "object") return null;
+  const entry = unwrapped as Partial<Entry>;
+  if (
+    typeof entry._id !== "string" ||
+    typeof entry.groupKey !== "string" ||
+    typeof entry.isRelease !== "boolean" ||
+    typeof entry.version !== "string" ||
+    typeof entry.date !== "number" ||
+    !Number.isFinite(entry.date) ||
+    !Number.isFinite(new Date(entry.date).getTime()) ||
+    typeof entry.title !== "string" ||
+    typeof entry.description !== "string" ||
+    !["feature", "improvement", "fix", "breaking"].includes(entry.type ?? "") ||
+    !Array.isArray(entry.tags) ||
+    !entry.tags.every((tag) => typeof tag === "string")
+  ) {
+    return null;
+  }
+  return entry as Entry;
+}
+
 function formatReleaseDate(timestamp: number) {
   return new Intl.DateTimeFormat("en", {
     month: "short",
@@ -85,10 +116,10 @@ function releaseDateBoundary(date: string, endOfDay = false) {
 }
 
 function getEntryUrl(routeBase: string, entry: Entry) {
-  const url = new URL(
-    `${routeBase}/releases/${encodeURIComponent(entry.version)}`,
-    window.location.origin
-  );
+  const pathname = entry.isRelease
+    ? `${routeBase}/releases/${encodeURIComponent(entry.version)}`
+    : routeBase;
+  const url = new URL(pathname, window.location.origin);
   url.hash = `update-${encodeURIComponent(entry._id)}`;
   return url.toString();
 }
@@ -98,6 +129,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const releasePathIndex = pathname.indexOf("/releases/");
   const routeBase =
     releasePathIndex >= 0 ? pathname.slice(0, releasePathIndex) : pathname.replace(/\/$/, "");
+  const activeVersion = version ? decodeURIComponent(version) : undefined;
   const { sessionToken } = useAuth();
   const { installedModules } = useInstalledModules();
   const [category, setCategory] = useState<(typeof FILTERS)[number]["id"]>("all");
@@ -108,10 +140,54 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const [showFilters, setShowFilters] = useState(false);
   const openedScopeRef = useRef<string | null>(null);
   const lastScrolledHashRef = useRef<string | null>(null);
+  const [linkedHistoryId] = useState<string | null>(() => {
+    if (typeof window === "undefined" || !window.location.hash.startsWith("#update-")) return null;
+    try {
+      return decodeURIComponent(window.location.hash.slice("#update-".length));
+    } catch {
+      return null;
+    }
+  });
+  const historySearch = search.trim().toLowerCase().split(/\s+/).slice(0, 16).join(" ");
+  const historyType =
+    category === "feature"
+      ? "feature"
+      : category === "fix"
+        ? "fix"
+        : category === "improvement"
+          ? "improvement"
+          : undefined;
+  const historyFromDate = releaseDateBoundary(fromDate);
+  const historyToDate = releaseDateBoundary(toDate, true);
   const data = useQuery(
     api.platform.changelog.queries.getWhatsNewFeed,
     { sessionToken: sessionToken ?? "" },
     !!sessionToken
+  );
+  const {
+    results: historyResults,
+    status: historyStatus,
+    loadMore: loadMoreHistory,
+  } = usePaginatedQuery(
+    api.platform.changelog.queries.getWhatsNewHistory,
+    sessionToken && !activeVersion
+      ? {
+          sessionToken,
+          ...(historySearch ? { search: historySearch } : {}),
+          ...(historyType ? { type: historyType } : {}),
+          ...(historyFromDate === undefined ? {} : { fromDate: historyFromDate }),
+          ...(historyToDate === undefined ? {} : { toDate: historyToDate }),
+        }
+      : "skip",
+    { initialNumItems: 50 }
+  );
+  const linkedHistoryEntry = useQuery(
+    api.platform.changelog.queries.getWhatsNewHistoryEntry,
+    {
+      sessionToken: sessionToken ?? "",
+      entryId: linkedHistoryId as any,
+    },
+    !!sessionToken && !!linkedHistoryId && !activeVersion
   );
   const unreadCountResult = useQuery(
     api.platform.changelog.queries.getWhatsNewUnreadCount,
@@ -131,11 +207,39 @@ export function WhatsNewPage({ version }: { version?: string }) {
     );
   }, [data, markAllRead, scopeKey, sessionToken, version]);
 
-  const entries = (data?.entries ?? EMPTY_ENTRIES) as Entry[];
-  const activeVersion = version ? decodeURIComponent(version) : undefined;
-
+  const releaseEntries = (data?.entries ?? EMPTY_ENTRIES) as Entry[];
+  const historyEntries = (historyResults ?? EMPTY_ENTRIES) as Entry[];
+  const historyIsLoading =
+    !!sessionToken &&
+    !activeVersion &&
+    (historyStatus === "LoadingFirstPage" || historyStatus === "LoadingMore");
+  const entries = useMemo(() => {
+    const byId = new Map<string, Entry>();
+    for (const entry of [...releaseEntries, ...historyEntries]) byId.set(entry._id, entry);
+    const linkedEntry = getLinkedHistoryEntry(linkedHistoryEntry);
+    if (
+      linkedEntry &&
+      category === "all" &&
+      !search.trim() &&
+      !fromDate &&
+      !toDate &&
+      !personalized
+    ) {
+      byId.set(linkedEntry._id, linkedEntry);
+    }
+    return [...byId.values()].sort((a, b) => b.date - a.date);
+  }, [
+    category,
+    fromDate,
+    historyEntries,
+    linkedHistoryEntry,
+    personalized,
+    releaseEntries,
+    search,
+    toDate,
+  ]);
   useEffect(() => {
-    if (!data || entries.length === 0 || !window.location.hash) return;
+    if (!data || !window.location.hash) return;
     const hash = window.location.hash;
     if (lastScrolledHashRef.current === hash) return;
     let targetId: string;
@@ -157,7 +261,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const filtered = useMemo(
     () =>
       entries.filter((entry) => {
-        if (activeVersion && entry.version !== activeVersion) return false;
+        if (activeVersion && (!entry.isRelease || entry.version !== activeVersion)) return false;
         if (category === "feature" && entry.type !== "feature") return false;
         if (category === "improvement" && entry.type !== "improvement" && entry.type !== "breaking")
           return false;
@@ -167,11 +271,11 @@ export function WhatsNewPage({ version }: { version?: string }) {
         const toBoundary = releaseDateBoundary(toDate, true);
         if (fromBoundary !== undefined && entry.date < fromBoundary) return false;
         if (toBoundary !== undefined && entry.date > toBoundary) return false;
-        const needle = search.trim().toLowerCase();
+        const needle = entry.isRelease ? search.trim().toLowerCase() : "";
         return (
           !needle ||
-          [entry.title, entry.description, entry.version, entry.module, ...entry.tags].some((value) =>
-            value?.toLowerCase().includes(needle)
+          [entry.title, entry.description, entry.version, entry.module, ...entry.tags].some(
+            (value) => value?.toLowerCase().includes(needle)
           )
         );
       }),
@@ -180,12 +284,14 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const releases = useMemo(() => {
     const grouped = new Map<string, Entry[]>();
     for (const entry of filtered) {
-      grouped.set(entry.version, [...(grouped.get(entry.version) ?? []), entry]);
+      grouped.set(entry.groupKey, [...(grouped.get(entry.groupKey) ?? []), entry]);
     }
-    return [...grouped].map(([releaseVersion, releaseEntries]) => ({
-      version: releaseVersion,
-      date: Math.max(...releaseEntries.map((entry) => entry.date)),
-      entries: releaseEntries,
+    return [...grouped].map(([groupKey, groupEntries]) => ({
+      groupKey,
+      isRelease: groupEntries[0]?.isRelease ?? false,
+      version: groupEntries[0]?.version ?? "",
+      date: Math.max(...groupEntries.map((entry) => entry.date)),
+      entries: groupEntries,
     }));
   }, [filtered]);
 
@@ -344,12 +450,22 @@ export function WhatsNewPage({ version }: { version?: string }) {
                 <Sparkles className="h-6 w-6" />
               </span>
               <h2 className="mt-4 text-lg font-semibold text-foreground">
-                {entries.length === 0 ? "No updates published yet" : "No updates found"}
+                {historyIsLoading
+                  ? "Loading updates…"
+                  : historyStatus === "CanLoadMore"
+                    ? "More updates are available"
+                    : entries.length === 0
+                      ? "No updates published yet"
+                      : "No updates found"}
               </h2>
               <p className="mt-1 max-w-md text-sm leading-6 text-muted-foreground">
-                {entries.length === 0
-                  ? "When a release is published, its updates will appear here."
-                  : "Try a different search or filter to find a published update."}
+                {historyIsLoading
+                  ? "Your timeline is updating while you search."
+                  : historyStatus === "CanLoadMore"
+                    ? "Load more updates to continue browsing this timeline."
+                    : entries.length === 0
+                      ? "When a release is published, its updates will appear here."
+                      : "Try a different search or filter to find a published update."}
               </p>
             </div>
           </Card>
@@ -357,8 +473,8 @@ export function WhatsNewPage({ version }: { version?: string }) {
           <div className="relative">
             {releases.map((release, index) => (
               <section
-                key={release.version}
-                aria-label={`Release ${release.version}`}
+                key={release.groupKey}
+                aria-label={release.isRelease ? `Release ${release.version}` : "Product update"}
                 className="grid grid-cols-[4.5rem_1.25rem_minmax(0,1fr)] gap-3 pb-5 sm:grid-cols-[6rem_1.5rem_minmax(0,1fr)] sm:gap-4"
               >
                 <time className="pt-4 text-right text-xs font-medium leading-4 text-muted-foreground sm:text-sm">
@@ -366,7 +482,10 @@ export function WhatsNewPage({ version }: { version?: string }) {
                 </time>
                 <div className="relative flex justify-center">
                   {index < releases.length - 1 && (
-                    <span className="absolute bottom-[-1.25rem] top-0 w-px bg-border" aria-hidden="true" />
+                    <span
+                      className="absolute bottom-[-1.25rem] top-0 w-px bg-border"
+                      aria-hidden="true"
+                    />
                   )}
                   <span className="relative mt-5 h-3 w-3 rounded-full border-2 border-background bg-primary ring-1 ring-primary/30" />
                 </div>
@@ -381,11 +500,13 @@ export function WhatsNewPage({ version }: { version?: string }) {
                         <div className="p-4 sm:p-5">
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge className="rounded-full bg-primary px-2.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground hover:bg-primary">
-                              Release
+                              {release.isRelease ? "Release" : "Update"}
                             </Badge>
-                            <span className="font-semibold text-foreground">
-                              Release {release.version}
-                            </span>
+                            {release.isRelease && (
+                              <span className="font-semibold text-foreground">
+                                Release {release.version}
+                              </span>
+                            )}
                           </div>
                           <div className="mt-3 flex flex-wrap items-center gap-2">
                             <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -449,6 +570,18 @@ export function WhatsNewPage({ version }: { version?: string }) {
                 </div>
               </section>
             ))}
+          </div>
+        )}
+        {(historyStatus === "CanLoadMore" || historyStatus === "LoadingMore") && (
+          <div className="mt-3 flex justify-center">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={historyStatus === "LoadingMore"}
+              onClick={() => loadMoreHistory(50)}
+            >
+              {historyStatus === "LoadingMore" ? "Loading updates…" : "Load more updates"}
+            </Button>
           </div>
         )}
       </div>

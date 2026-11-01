@@ -3951,6 +3951,21 @@ export default defineSchema({
     .index("by_user_workspace_entry", ["userId", "workspaceId", "entryId"])
     .index("by_user_workspace", ["userId", "workspaceId"]),
 
+  // Aggregate counts keep unread badges independent from repository history size.
+  whatsNewGitHubHistoryStats: defineTable({
+    key: v.string(),
+    count: v.number(),
+  }).index("by_key", ["key"]),
+
+  // Read snapshots are scoped to the signed-in user, workspace, and visible audience.
+  whatsNewHistoryReadSnapshots: defineTable({
+    userId: v.string(),
+    workspaceId: v.string(),
+    audienceKey: v.optional(v.string()),
+    readThroughCount: v.number(),
+    readAt: v.number(),
+  }).index("by_user_workspace_audience", ["userId", "workspaceId", "audienceKey"]),
+
   whatsNewGitHubHistory: defineTable({
     externalId: v.string(),
     kind: v.union(v.literal("pull_request"), v.literal("commit")),
@@ -3960,6 +3975,22 @@ export default defineSchema({
     author: v.optional(v.string()),
     pullRequestNumber: v.optional(v.number()),
     commitSha: v.optional(v.string()),
+    displayTitle: v.optional(v.string()),
+    displayDescription: v.optional(v.string()),
+    searchText: v.optional(v.string()),
+    filterType: v.optional(
+      v.union(v.literal("feature"), v.literal("fix"), v.literal("improvement"))
+    ),
+    type: v.optional(
+      v.union(
+        v.literal("feature"),
+        v.literal("fix"),
+        v.literal("improvement"),
+        v.literal("breaking")
+      )
+    ),
+    panels: v.optional(v.array(v.string())),
+    tags: v.optional(v.array(v.string())),
     mergedAt: v.number(),
     createdAt: v.number(),
     isHistorical: v.boolean(),
@@ -3967,7 +3998,39 @@ export default defineSchema({
     .index("by_externalId", ["externalId"])
     .index("by_mergedAt", ["mergedAt"])
     .index("by_kind_mergedAt", ["kind", "mergedAt"])
+    .index("by_kind_filterType_mergedAt", ["kind", "filterType", "mergedAt"])
+    .searchIndex("search_searchText", {
+      searchField: "searchText",
+      filterFields: ["kind", "filterType"],
+    })
     .index("by_isHistorical_createdAt", ["isHistorical", "createdAt"]),
+
+  // Per-panel feed rows let tenant panels paginate only their own updates.
+  // The platform feed continues to use the complete history table.
+  whatsNewGitHubHistoryPanels: defineTable({
+    panel: v.string(),
+    historyId: v.id("whatsNewGitHubHistory"),
+    externalId: v.string(),
+    displayTitle: v.string(),
+    displayDescription: v.string(),
+    searchText: v.string(),
+    filterType: v.union(v.literal("feature"), v.literal("fix"), v.literal("improvement")),
+    type: v.union(
+      v.literal("feature"),
+      v.literal("fix"),
+      v.literal("improvement"),
+      v.literal("breaking")
+    ),
+    tags: v.array(v.string()),
+    mergedAt: v.number(),
+  })
+    .index("by_panel_mergedAt", ["panel", "mergedAt"])
+    .index("by_panel_filterType_mergedAt", ["panel", "filterType", "mergedAt"])
+    .index("by_externalId_panel", ["externalId", "panel"])
+    .searchIndex("search_searchText", {
+      searchField: "searchText",
+      filterFields: ["panel", "filterType"],
+    }),
 
   whatsNewAudit: defineTable({
     entryId: v.optional(v.id("changelogEntries")),

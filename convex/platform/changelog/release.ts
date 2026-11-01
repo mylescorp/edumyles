@@ -49,6 +49,7 @@ export const publishReleaseManifest: any = action({
 export const syncGitHubHistory: any = action({
   args: {
     releaseSecret: v.string(),
+    backfillComplete: v.optional(v.boolean()),
     records: v.array(
       v.object({
         externalId: v.string(),
@@ -59,6 +60,18 @@ export const syncGitHubHistory: any = action({
         author: v.optional(v.string()),
         pullRequestNumber: v.optional(v.number()),
         commitSha: v.optional(v.string()),
+        displayTitle: v.optional(v.string()),
+        displayDescription: v.optional(v.string()),
+        type: v.optional(
+          v.union(
+            v.literal("feature"),
+            v.literal("fix"),
+            v.literal("improvement"),
+            v.literal("breaking")
+          )
+        ),
+        panels: v.optional(v.array(v.string())),
+        tags: v.optional(v.array(v.string())),
         mergedAt: v.number(),
         isHistorical: v.boolean(),
       })
@@ -68,9 +81,19 @@ export const syncGitHubHistory: any = action({
     const configuredSecret = process.env.WHATS_NEW_RELEASE_SECRET;
     if (!configuredSecret || args.releaseSecret !== configuredSecret)
       throw new Error("UNAUTHORIZED: GitHub history credentials are invalid");
-    return await ctx.runMutation(
+    const result = await ctx.runMutation(
       (internal as any).platform.changelog.mutations.upsertGitHubHistoryInternal,
       { records: args.records }
     );
+    if (args.backfillComplete) {
+      await ctx.runMutation(
+        (internal as any).platform.changelog.mutations.markGitHubHistoryBackfillCompleteInternal,
+        {}
+      );
+    }
+    return {
+      ...result,
+      needsPanelBackfill: args.backfillComplete ? false : result.needsPanelBackfill,
+    };
   },
 });

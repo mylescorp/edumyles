@@ -2,7 +2,14 @@ import { internalMutation, mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
-import { getFeedContext, visibleEntries } from "./access";
+import { historyPanels } from "./visibility";
+import {
+  getFeedContext,
+  historyAudienceKey,
+  historyVisibleCount,
+  legacyHistoryAudienceKey,
+  visibleEntries,
+} from "./access";
 
 const ALLOWED_PANELS = [
   "admin",
@@ -28,6 +35,116 @@ function validateAudience(panels: string[], links?: Array<{ label: string; url: 
     ) {
       throw new Error("Links must be labelled HTTPS URLs or relative application paths");
     }
+  }
+}
+
+function historyContributionKeys(record: {
+  kind: "pull_request" | "commit";
+  displayTitle?: string;
+  displayDescription?: string;
+  type?: string;
+  panels?: string[];
+}) {
+  if (
+    record.kind !== "pull_request" ||
+    !record.displayTitle ||
+    !record.displayDescription ||
+    !record.type
+  ) {
+    return [];
+  }
+  const panels = [...new Set(historyPanels(record.panels))];
+  return ["all", ...panels.map((panel) => `panel:${panel}`)];
+}
+
+async function adjustHistoryCounter(ctx: any, key: string, delta: number) {
+  if (delta === 0) return;
+  const stats = await ctx.db
+    .query("whatsNewGitHubHistoryStats")
+    .withIndex("by_key", (q: any) => q.eq("key", key))
+    .unique();
+  if (stats) {
+    const count = Math.max(0, stats.count + delta);
+    await ctx.db.patch(stats._id, { count });
+  } else if (delta > 0) {
+    await ctx.db.insert("whatsNewGitHubHistoryStats", { key, count: delta });
+  }
+}
+
+function accumulateHistoryCounterChanges(
+  changes: Map<string, number>,
+  before: string[],
+  after: string[]
+) {
+  const beforeSet = new Set(before);
+  const afterSet = new Set(after);
+  for (const key of beforeSet) {
+    if (!afterSet.has(key)) changes.set(key, (changes.get(key) ?? 0) - 1);
+  }
+  for (const key of afterSet) {
+    if (!beforeSet.has(key)) changes.set(key, (changes.get(key) ?? 0) + 1);
+  }
+}
+
+function searchableHistoryRecord(record: {
+  displayTitle?: string;
+  displayDescription?: string;
+  tags?: string[];
+  type?: "feature" | "fix" | "improvement" | "breaking";
+}) {
+  return {
+    searchText: [record.displayTitle, record.displayDescription, ...(record.tags ?? [])]
+      .filter((part): part is string => !!part?.trim())
+      .join(" "),
+    filterType: record.type === "breaking" ? "improvement" : record.type,
+  };
+}
+
+async function syncHistoryPanelRows(ctx: any, record: any, historyId: any) {
+  const panelRows = await ctx.db
+    .query("whatsNewGitHubHistoryPanels")
+    .withIndex("by_externalId_panel", (q: any) => q.eq("externalId", record.externalId))
+    .collect();
+  const visiblePanels =
+    record.kind === "pull_request" &&
+    record.displayTitle &&
+    record.displayDescription &&
+    record.type
+      ? new Set(historyPanels(record.panels))
+      : new Set<string>();
+  const fields = searchableHistoryRecord(record);
+
+  for (const panelRow of panelRows) {
+    if (!visiblePanels.has(panelRow.panel)) {
+      await ctx.db.delete(panelRow._id);
+      continue;
+    }
+    await ctx.db.patch(panelRow._id, {
+      historyId,
+      displayTitle: record.displayTitle,
+      displayDescription: record.displayDescription,
+      searchText: fields.searchText,
+      filterType: fields.filterType,
+      type: record.type,
+      tags: record.tags ?? [],
+      mergedAt: record.mergedAt,
+    });
+    visiblePanels.delete(panelRow.panel);
+  }
+
+  for (const panel of visiblePanels) {
+    await ctx.db.insert("whatsNewGitHubHistoryPanels", {
+      panel,
+      historyId,
+      externalId: record.externalId,
+      displayTitle: record.displayTitle,
+      displayDescription: record.displayDescription,
+      searchText: fields.searchText,
+      filterType: fields.filterType,
+      type: record.type,
+      tags: record.tags ?? [],
+      mergedAt: record.mergedAt,
+    });
   }
 }
 
@@ -212,6 +329,18 @@ export const upsertGitHubHistoryInternal = internalMutation({
         author: v.optional(v.string()),
         pullRequestNumber: v.optional(v.number()),
         commitSha: v.optional(v.string()),
+        displayTitle: v.optional(v.string()),
+        displayDescription: v.optional(v.string()),
+        type: v.optional(
+          v.union(
+            v.literal("feature"),
+            v.literal("fix"),
+            v.literal("improvement"),
+            v.literal("breaking")
+          )
+        ),
+        panels: v.optional(v.array(v.string())),
+        tags: v.optional(v.array(v.string())),
         mergedAt: v.number(),
         isHistorical: v.boolean(),
       })
@@ -221,6 +350,15 @@ export const upsertGitHubHistoryInternal = internalMutation({
     const now = Date.now();
     let inserted = 0;
     let updated = 0;
+    const counterChanges = new Map<string, number>();
+    const backfillMarker = await ctx.db
+      .query("whatsNewGitHubHistoryStats")
+      .withIndex("by_key", (q) => q.eq("key", "backfill-complete"))
+      .unique();
+    const panelBackfillMarker = await ctx.db
+      .query("whatsNewGitHubHistoryStats")
+      .withIndex("by_key", (q) => q.eq("key", "panel-backfill-complete"))
+      .unique();
     for (const record of args.records) {
       if (
         !record.externalId ||
@@ -230,22 +368,74 @@ export const upsertGitHubHistoryInternal = internalMutation({
       ) {
         throw new Error("GitHub history record is invalid");
       }
+      if (
+        record.kind === "pull_request" &&
+        (!record.displayTitle?.trim() ||
+          !record.displayDescription?.trim() ||
+          !record.type ||
+          !record.panels?.length ||
+          record.panels.some((panel) => !ALLOWED_PANELS.includes(panel)))
+      ) {
+        throw new Error("Merged updates need a safe title, category, and panel audience");
+      }
+      const searchFields = searchableHistoryRecord(record);
+      const nextRecord = { ...record, ...searchFields };
       const existing = await ctx.db
         .query("whatsNewGitHubHistory")
         .withIndex("by_externalId", (q) => q.eq("externalId", record.externalId))
         .first();
       if (existing) {
+        const previousContributions = historyContributionKeys(existing);
+        const nextContributions = historyContributionKeys(nextRecord);
+        accumulateHistoryCounterChanges(counterChanges, previousContributions, nextContributions);
         await ctx.db.patch(existing._id, {
-          ...record,
+          ...nextRecord,
           isHistorical: existing.isHistorical && record.isHistorical,
         });
+        await syncHistoryPanelRows(ctx, nextRecord, existing._id);
         updated += 1;
       } else {
-        await ctx.db.insert("whatsNewGitHubHistory", { ...record, createdAt: now });
+        const historyId = await ctx.db.insert("whatsNewGitHubHistory", {
+          ...nextRecord,
+          createdAt: now,
+        });
+        await syncHistoryPanelRows(ctx, nextRecord, historyId);
+        accumulateHistoryCounterChanges(counterChanges, [], historyContributionKeys(nextRecord));
         inserted += 1;
       }
     }
-    return { inserted, updated };
+    for (const [key, delta] of counterChanges) {
+      await adjustHistoryCounter(ctx, key, delta);
+    }
+    return {
+      inserted,
+      updated,
+      needsBackfill: !backfillMarker,
+      needsPanelBackfill: !panelBackfillMarker,
+    };
+  },
+});
+
+export const markGitHubHistoryBackfillCompleteInternal = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const marker = await ctx.db
+      .query("whatsNewGitHubHistoryStats")
+      .withIndex("by_key", (q) => q.eq("key", "backfill-complete"))
+      .unique();
+    if (marker) await ctx.db.patch(marker._id, { count: 1 });
+    else await ctx.db.insert("whatsNewGitHubHistoryStats", { key: "backfill-complete", count: 1 });
+    const panelMarker = await ctx.db
+      .query("whatsNewGitHubHistoryStats")
+      .withIndex("by_key", (q) => q.eq("key", "panel-backfill-complete"))
+      .unique();
+    if (panelMarker) await ctx.db.patch(panelMarker._id, { count: 1 });
+    else
+      await ctx.db.insert("whatsNewGitHubHistoryStats", {
+        key: "panel-backfill-complete",
+        count: 1,
+      });
+    return { complete: true };
   },
 });
 
@@ -430,6 +620,46 @@ export const markAllRead = mutation({
         readAt: Date.now(),
       });
       marked += 1;
+    }
+    if (!args.version) {
+      const readThroughCount = await historyVisibleCount(ctx, context);
+      const existingSnapshot = await ctx.db
+        .query("whatsNewHistoryReadSnapshots")
+        .withIndex("by_user_workspace_audience", (q) =>
+          q
+            .eq("userId", context.userId)
+            .eq("workspaceId", context.workspaceId)
+            .eq("audienceKey", historyAudienceKey(context))
+        )
+        .unique();
+      const scopedSnapshot =
+        existingSnapshot ??
+        (!context.canSeeAllPanels
+          ? await ctx.db
+              .query("whatsNewHistoryReadSnapshots")
+              .withIndex("by_user_workspace_audience", (q) =>
+                q
+                  .eq("userId", context.userId)
+                  .eq("workspaceId", context.workspaceId)
+                  .eq("audienceKey", legacyHistoryAudienceKey(context))
+              )
+              .unique()
+          : undefined);
+      if (scopedSnapshot) {
+        await ctx.db.patch(scopedSnapshot._id, {
+          audienceKey: historyAudienceKey(context),
+          readThroughCount,
+          readAt: Date.now(),
+        });
+      } else {
+        await ctx.db.insert("whatsNewHistoryReadSnapshots", {
+          userId: context.userId,
+          workspaceId: context.workspaceId,
+          audienceKey: historyAudienceKey(context),
+          readThroughCount,
+          readAt: Date.now(),
+        });
+      }
     }
     return { success: true, marked };
   },
