@@ -1,6 +1,6 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
-import { getFeedContext, visibleEntries } from "./access";
+import { getFeedContext, getUnreadCount, visibleEntries } from "./access";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const listChangelogs = query({
@@ -33,18 +33,7 @@ export const getWhatsNewUnreadCount = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     const context = await getFeedContext(ctx, args.sessionToken);
-    const entries = await visibleEntries(ctx, context);
-    const reads = await ctx.db
-      .query("whatsNewReads")
-      .withIndex("by_user_workspace", (q) =>
-        q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
-      )
-      .collect();
-    const readIds = new Set(reads.map((read) => String(read.entryId)));
-    return entries.reduce(
-      (count: number, entry: any) => count + (readIds.has(String(entry._id)) ? 0 : 1),
-      0
-    );
+    return await getUnreadCount(ctx, context);
   },
 });
 

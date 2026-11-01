@@ -50,6 +50,13 @@ const REASON_CONFIG: Record<string, ReasonConfig> = {
       "or sign up to join the waitlist for review.",
     cta: { label: "Sign up for access", href: "/auth/signup" },
   },
+  platform_role_required: {
+    title: "EduMyles platform access required",
+    message:
+      "Your WorkOS account is recognized, but it does not have an EduMyles platform role.",
+    hint:
+      "A WorkOS organization invitation does not grant EduMyles permissions. Ask an EduMyles platform administrator to invite you through EduMyles and assign the appropriate role.",
+  },
   account_inactive: {
     title: "Account deactivated",
     message: "Your account has been deactivated and can no longer sign in.",
