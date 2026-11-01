@@ -28,9 +28,13 @@ vi.mock("@/hooks/useInstalledModules", () => ({
 const feed = { entries: [], workspaceId: "workspace-1" };
 
 function setUnreadResult(result: unknown) {
-  mockUseQuery.mockImplementation((query: unknown) =>
-    query === api.platform.changelog.queries.getWhatsNewFeed ? feed : result
-  );
+  mockUseQuery.mockImplementation((query: unknown) => {
+    if (query === api.platform.changelog.queries.getWhatsNewFeed) return feed;
+    // This optional deep-link query is disabled in these tests. Model Convex's
+    // skipped result instead of returning the unread-count fixture as an entry.
+    if (query === api.platform.changelog.queries.getWhatsNewHistoryEntry) return undefined;
+    return result;
+  });
 }
 
 let container: HTMLDivElement;
@@ -72,7 +76,13 @@ describe("What's new unread count rendering", () => {
   });
 
   it("treats an unresolved sidebar count as zero", () => {
-    setUnreadResult({ data: undefined, isLoading: true, error: undefined, refetch: vi.fn(), value: undefined });
+    setUnreadResult({
+      data: undefined,
+      isLoading: true,
+      error: undefined,
+      refetch: vi.fn(),
+      value: undefined,
+    });
 
     render(<WhatsNewNavLink />);
 
@@ -97,7 +107,13 @@ describe("What's new unread count rendering", () => {
   });
 
   it("treats an unresolved page count as zero", () => {
-    setUnreadResult({ data: undefined, isLoading: true, error: undefined, refetch: vi.fn(), value: undefined });
+    setUnreadResult({
+      data: undefined,
+      isLoading: true,
+      error: undefined,
+      refetch: vi.fn(),
+      value: undefined,
+    });
 
     render(<WhatsNewPage />);
 
