@@ -25,6 +25,8 @@ import { Input } from "@/components/ui/input";
 
 type Entry = {
   _id: string;
+  groupKey: string;
+  isRelease: boolean;
   version: string;
   title: string;
   description: string;
@@ -85,10 +87,10 @@ function releaseDateBoundary(date: string, endOfDay = false) {
 }
 
 function getEntryUrl(routeBase: string, entry: Entry) {
-  const url = new URL(
-    `${routeBase}/releases/${encodeURIComponent(entry.version)}`,
-    window.location.origin
-  );
+  const pathname = entry.isRelease
+    ? `${routeBase}/releases/${encodeURIComponent(entry.version)}`
+    : routeBase;
+  const url = new URL(pathname, window.location.origin);
   url.hash = `update-${encodeURIComponent(entry._id)}`;
   return url.toString();
 }
@@ -157,7 +159,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const filtered = useMemo(
     () =>
       entries.filter((entry) => {
-        if (activeVersion && entry.version !== activeVersion) return false;
+        if (activeVersion && (!entry.isRelease || entry.version !== activeVersion)) return false;
         if (category === "feature" && entry.type !== "feature") return false;
         if (category === "improvement" && entry.type !== "improvement" && entry.type !== "breaking")
           return false;
@@ -180,12 +182,14 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const releases = useMemo(() => {
     const grouped = new Map<string, Entry[]>();
     for (const entry of filtered) {
-      grouped.set(entry.version, [...(grouped.get(entry.version) ?? []), entry]);
+      grouped.set(entry.groupKey, [...(grouped.get(entry.groupKey) ?? []), entry]);
     }
-    return [...grouped].map(([releaseVersion, releaseEntries]) => ({
-      version: releaseVersion,
-      date: Math.max(...releaseEntries.map((entry) => entry.date)),
-      entries: releaseEntries,
+    return [...grouped].map(([groupKey, groupEntries]) => ({
+      groupKey,
+      isRelease: groupEntries[0]?.isRelease ?? false,
+      version: groupEntries[0]?.version ?? "",
+      date: Math.max(...groupEntries.map((entry) => entry.date)),
+      entries: groupEntries,
     }));
   }, [filtered]);
 
@@ -357,8 +361,8 @@ export function WhatsNewPage({ version }: { version?: string }) {
           <div className="relative">
             {releases.map((release, index) => (
               <section
-                key={release.version}
-                aria-label={`Release ${release.version}`}
+                key={release.groupKey}
+                aria-label={release.isRelease ? `Release ${release.version}` : "Product update"}
                 className="grid grid-cols-[4.5rem_1.25rem_minmax(0,1fr)] gap-3 pb-5 sm:grid-cols-[6rem_1.5rem_minmax(0,1fr)] sm:gap-4"
               >
                 <time className="pt-4 text-right text-xs font-medium leading-4 text-muted-foreground sm:text-sm">
@@ -381,11 +385,13 @@ export function WhatsNewPage({ version }: { version?: string }) {
                         <div className="p-4 sm:p-5">
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge className="rounded-full bg-primary px-2.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground hover:bg-primary">
-                              Release
+                              {release.isRelease ? "Release" : "Update"}
                             </Badge>
-                            <span className="font-semibold text-foreground">
-                              Release {release.version}
-                            </span>
+                            {release.isRelease && (
+                              <span className="font-semibold text-foreground">
+                                Release {release.version}
+                              </span>
+                            )}
                           </div>
                           <div className="mt-3 flex flex-wrap items-center gap-2">
                             <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">

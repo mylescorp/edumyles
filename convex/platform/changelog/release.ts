@@ -59,6 +59,18 @@ export const syncGitHubHistory: any = action({
         author: v.optional(v.string()),
         pullRequestNumber: v.optional(v.number()),
         commitSha: v.optional(v.string()),
+        displayTitle: v.optional(v.string()),
+        displayDescription: v.optional(v.string()),
+        type: v.optional(
+          v.union(
+            v.literal("feature"),
+            v.literal("fix"),
+            v.literal("improvement"),
+            v.literal("breaking")
+          )
+        ),
+        panels: v.optional(v.array(v.string())),
+        tags: v.optional(v.array(v.string())),
         mergedAt: v.number(),
         isHistorical: v.boolean(),
       })

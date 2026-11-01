@@ -2,7 +2,7 @@ import { internalMutation, mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
-import { getFeedContext, visibleEntries } from "./access";
+import { getFeedContext, visibleEntries, visibleHistoryRecords } from "./access";
 
 const ALLOWED_PANELS = [
   "admin",
@@ -212,6 +212,18 @@ export const upsertGitHubHistoryInternal = internalMutation({
         author: v.optional(v.string()),
         pullRequestNumber: v.optional(v.number()),
         commitSha: v.optional(v.string()),
+        displayTitle: v.optional(v.string()),
+        displayDescription: v.optional(v.string()),
+        type: v.optional(
+          v.union(
+            v.literal("feature"),
+            v.literal("fix"),
+            v.literal("improvement"),
+            v.literal("breaking")
+          )
+        ),
+        panels: v.optional(v.array(v.string())),
+        tags: v.optional(v.array(v.string())),
         mergedAt: v.number(),
         isHistorical: v.boolean(),
       })
@@ -229,6 +241,16 @@ export const upsertGitHubHistoryInternal = internalMutation({
         !Number.isFinite(record.mergedAt)
       ) {
         throw new Error("GitHub history record is invalid");
+      }
+      if (
+        record.kind === "pull_request" &&
+        (!record.displayTitle?.trim() ||
+          !record.displayDescription?.trim() ||
+          !record.type ||
+          !record.panels?.length ||
+          record.panels.some((panel) => !ALLOWED_PANELS.includes(panel)))
+      ) {
+        throw new Error("Merged updates need a safe title, category, and panel audience");
       }
       const existing = await ctx.db
         .query("whatsNewGitHubHistory")
@@ -407,10 +429,17 @@ export const markAllRead = mutation({
   args: { sessionToken: v.string(), version: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const context = await getFeedContext(ctx, args.sessionToken);
-    const [visible, reads] = await Promise.all([
+    const [visible, history, reads, historyReads] = await Promise.all([
       visibleEntries(ctx, context),
+      args.version ? Promise.resolve([]) : visibleHistoryRecords(ctx, context),
       ctx.db
         .query("whatsNewReads")
+        .withIndex("by_user_workspace", (q) =>
+          q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
+        )
+        .collect(),
+      ctx.db
+        .query("whatsNewHistoryReads")
         .withIndex("by_user_workspace", (q) =>
           q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
         )
@@ -420,6 +449,7 @@ export const markAllRead = mutation({
       ? visible.filter((entry: any) => entry.version === args.version)
       : visible;
     const readIds = new Set(reads.map((read) => String(read.entryId)));
+    const readHistoryIds = new Set(historyReads.map((read) => read.externalId));
     let marked = 0;
     for (const entry of entries) {
       if (readIds.has(String(entry._id))) continue;
@@ -431,7 +461,18 @@ export const markAllRead = mutation({
       });
       marked += 1;
     }
-    return { success: true, marked };
+    let markedHistory = 0;
+    for (const record of history) {
+      if (readHistoryIds.has(record.externalId)) continue;
+      await ctx.db.insert("whatsNewHistoryReads", {
+        userId: context.userId,
+        workspaceId: context.workspaceId,
+        externalId: record.externalId,
+        readAt: Date.now(),
+      });
+      markedHistory += 1;
+    }
+    return { success: true, marked: marked + markedHistory };
   },
 });
 

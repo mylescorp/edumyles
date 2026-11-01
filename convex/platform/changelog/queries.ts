@@ -1,6 +1,6 @@
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
-import { getFeedContext, visibleEntries } from "./access";
+import { getFeedContext, visibleEntries, visibleHistoryRecords } from "./access";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const listChangelogs = query({
@@ -33,17 +33,33 @@ export const getWhatsNewUnreadCount = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     const context = await getFeedContext(ctx, args.sessionToken);
-    const entries = await visibleEntries(ctx, context);
-    const reads = await ctx.db
-      .query("whatsNewReads")
-      .withIndex("by_user_workspace", (q) =>
-        q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
-      )
-      .collect();
+    const [entries, history, reads, historyReads] = await Promise.all([
+      visibleEntries(ctx, context),
+      visibleHistoryRecords(ctx, context),
+      ctx.db
+        .query("whatsNewReads")
+        .withIndex("by_user_workspace", (q) =>
+          q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
+        )
+        .collect(),
+      ctx.db
+        .query("whatsNewHistoryReads")
+        .withIndex("by_user_workspace", (q) =>
+          q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
+        )
+        .collect(),
+    ]);
     const readIds = new Set(reads.map((read) => String(read.entryId)));
-    return entries.reduce(
-      (count: number, entry: any) => count + (readIds.has(String(entry._id)) ? 0 : 1),
-      0
+    const readHistoryIds = new Set(historyReads.map((read) => read.externalId));
+    return (
+      entries.reduce(
+        (count: number, entry: any) => count + (readIds.has(String(entry._id)) ? 0 : 1),
+        0
+      ) +
+      history.reduce(
+        (count: number, record: any) => count + (readHistoryIds.has(record.externalId) ? 0 : 1),
+        0
+      )
     );
   },
 });
@@ -52,19 +68,37 @@ export const getWhatsNewFeed = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     const context = await getFeedContext(ctx, args.sessionToken);
-    const entries = await visibleEntries(ctx, context);
+    const [entries, history] = await Promise.all([
+      visibleEntries(ctx, context),
+      visibleHistoryRecords(ctx, context),
+    ]);
     return {
-      entries: entries.map((entry: any) => ({
-        _id: entry._id,
-        version: entry.version,
-        title: entry.title,
-        description: entry.description,
-        type: entry.type,
-        tags: entry.tags,
-        module: entry.module,
-        links: entry.links,
-        date: entry.date,
-      })),
+      entries: [
+        ...entries.map((entry: any) => ({
+          _id: entry._id,
+          groupKey: `release:${entry.version}`,
+          isRelease: true,
+          version: entry.version,
+          title: entry.title,
+          description: entry.description,
+          type: entry.type,
+          tags: entry.tags,
+          module: entry.module,
+          links: entry.links,
+          date: entry.date,
+        })),
+        ...history.map((record: any) => ({
+          _id: record._id,
+          groupKey: `history:${record._id}`,
+          isRelease: false,
+          version: "",
+          title: record.displayTitle,
+          description: record.displayDescription,
+          type: record.type,
+          tags: record.tags ?? [],
+          date: record.mergedAt,
+        })),
+      ].sort((a: any, b: any) => b.date - a.date),
       workspaceId: context.workspaceId,
     };
   },

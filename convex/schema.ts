@@ -3951,6 +3951,15 @@ export default defineSchema({
     .index("by_user_workspace_entry", ["userId", "workspaceId", "entryId"])
     .index("by_user_workspace", ["userId", "workspaceId"]),
 
+  whatsNewHistoryReads: defineTable({
+    userId: v.string(),
+    workspaceId: v.string(),
+    externalId: v.string(),
+    readAt: v.number(),
+  })
+    .index("by_user_workspace_externalId", ["userId", "workspaceId", "externalId"])
+    .index("by_user_workspace", ["userId", "workspaceId"]),
+
   whatsNewGitHubHistory: defineTable({
     externalId: v.string(),
     kind: v.union(v.literal("pull_request"), v.literal("commit")),
@@ -3960,6 +3969,18 @@ export default defineSchema({
     author: v.optional(v.string()),
     pullRequestNumber: v.optional(v.number()),
     commitSha: v.optional(v.string()),
+    displayTitle: v.optional(v.string()),
+    displayDescription: v.optional(v.string()),
+    type: v.optional(
+      v.union(
+        v.literal("feature"),
+        v.literal("fix"),
+        v.literal("improvement"),
+        v.literal("breaking")
+      )
+    ),
+    panels: v.optional(v.array(v.string())),
+    tags: v.optional(v.array(v.string())),
     mergedAt: v.number(),
     createdAt: v.number(),
     isHistorical: v.boolean(),

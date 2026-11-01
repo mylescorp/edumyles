@@ -30,4 +30,22 @@ describe("What's new panel visibility", () => {
       )
     ).toBe(true);
   });
+
+  it("keeps merged history with unknown panel scope visible only to Platform", () => {
+    const historyEntry = { panels: ["platform"] };
+    expect(
+      isVisibleTo(historyEntry, {
+        panel: "teacher",
+        workspaceId: "TENANT-1",
+        canSeeAllPanels: false,
+      })
+    ).toBe(false);
+    expect(
+      isVisibleTo(historyEntry, {
+        panel: "platform",
+        workspaceId: "PLATFORM",
+        canSeeAllPanels: true,
+      })
+    ).toBe(true);
+  });
 });

@@ -65,3 +65,20 @@ export async function visibleEntries(ctx: any, context: any) {
     )
     .sort((a: any, b: any) => b.date - a.date || b.createdAt - a.createdAt);
 }
+
+export async function visibleHistoryRecords(ctx: any, context: any) {
+  const records = await ctx.db
+    .query("whatsNewGitHubHistory")
+    .withIndex("by_kind_mergedAt", (q: any) => q.eq("kind", "pull_request"))
+    .order("desc")
+    .collect();
+  return records
+    .filter(
+      (record: any) =>
+        !!record.displayTitle &&
+        !!record.displayDescription &&
+        !!record.type &&
+        isVisibleTo({ panels: record.panels?.length ? record.panels : ["platform"] }, context)
+    )
+    .sort((a: any, b: any) => b.mergedAt - a.mergedAt || b.createdAt - a.createdAt);
+}
