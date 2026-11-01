@@ -1,15 +1,7 @@
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { requireTenantSession } from "../../helpers/tenantGuard";
-import {
-  historyAudienceKey,
-  isVisibleTo,
-  legacyHistoryAudienceKey,
-} from "./visibility";
-export {
-  historyAudienceKey,
-  isVisibleTo,
-  legacyHistoryAudienceKey,
-} from "./visibility";
+import { historyAudienceKey, isVisibleTo, legacyHistoryAudienceKey } from "./visibility";
+export { historyAudienceKey, isVisibleTo, legacyHistoryAudienceKey } from "./visibility";
 
 const PLATFORM_ROLES = [
   "master_admin",
@@ -39,8 +31,7 @@ export async function getFeedContext(ctx: any, sessionToken: string) {
     .query("platform_users")
     .withIndex("by_userId", (q: any) => q.eq("userId", platformUserId))
     .first();
-  const normalizedRole =
-    session.role === "platform_admin" ? "super_admin" : session.role;
+  const normalizedRole = session.role === "platform_admin" ? "super_admin" : session.role;
   if (PLATFORM_ROLES.includes(normalizedRole) || platformUser) {
     const platform = await requirePlatformSession(ctx, { sessionToken });
     return {
@@ -87,10 +78,7 @@ export async function getFeedContext(ctx: any, sessionToken: string) {
 }
 
 export async function visibleEntries(ctx: any, context: any) {
-  const entries = await ctx.db
-    .query("changelogEntries")
-    .order("desc")
-    .collect();
+  const entries = await ctx.db.query("changelogEntries").order("desc").collect();
   return entries
     .filter(
       (entry: any) =>
@@ -99,7 +87,7 @@ export async function visibleEntries(ctx: any, context: any) {
           (entry.status === "scheduled" &&
             !!entry.scheduledAt &&
             entry.scheduledAt <= Date.now())) &&
-        isVisibleTo(entry, context),
+        isVisibleTo(entry, context)
     )
     .sort((a: any, b: any) => b.date - a.date || b.createdAt - a.createdAt);
 }
@@ -113,65 +101,84 @@ export async function visibleHistoryPage(
     type?: string;
     fromDate?: number;
     toDate?: number;
-  },
+  }
 ) {
   const search = filters.search?.trim();
   let historyQuery: any;
 
-  if (search) {
+  if (context.canSeeAllPanels) {
+    if (search) {
+      historyQuery = ctx.db
+        .query("whatsNewGitHubHistory")
+        .withSearchIndex("search_searchText", (q: any) => {
+          const searchQuery = search.split(/\s+/).slice(0, 16).join(" ");
+          const searchFilter = q.search("searchText", searchQuery).eq("kind", "pull_request");
+          return filters.type ? searchFilter.eq("filterType", filters.type) : searchFilter;
+        });
+    } else if (filters.type) {
+      historyQuery = ctx.db
+        .query("whatsNewGitHubHistory")
+        .withIndex("by_kind_filterType_mergedAt", (q: any) => {
+          let range = q.eq("kind", "pull_request").eq("filterType", filters.type);
+          if (filters.fromDate !== undefined) range = range.gte("mergedAt", filters.fromDate);
+          if (filters.toDate !== undefined) range = range.lte("mergedAt", filters.toDate);
+          return range;
+        });
+    } else {
+      historyQuery = ctx.db
+        .query("whatsNewGitHubHistory")
+        .withIndex("by_kind_mergedAt", (q: any) => {
+          let range = q.eq("kind", "pull_request");
+          if (filters.fromDate !== undefined) range = range.gte("mergedAt", filters.fromDate);
+          if (filters.toDate !== undefined) range = range.lte("mergedAt", filters.toDate);
+          return range;
+        });
+    }
+  } else if (search) {
     historyQuery = ctx.db
-      .query("whatsNewGitHubHistory")
+      .query("whatsNewGitHubHistoryPanels")
       .withSearchIndex("search_searchText", (q: any) => {
         const searchQuery = search.split(/\s+/).slice(0, 16).join(" ");
-        const searchFilter = q
-          .search("searchText", searchQuery)
-          .eq("kind", "pull_request");
-        return filters.type
-          ? searchFilter.eq("filterType", filters.type)
-          : searchFilter;
+        const panelFilter = q.search("searchText", searchQuery).eq("panel", context.panel);
+        return filters.type ? panelFilter.eq("filterType", filters.type) : panelFilter;
       });
-    if (filters.fromDate !== undefined || filters.toDate !== undefined) {
-      historyQuery = historyQuery.filter((q: any) => {
-        const mergedAt = q.field("mergedAt");
-        const afterFrom =
-          filters.fromDate === undefined
-            ? undefined
-            : q.gte(mergedAt, filters.fromDate);
-        const beforeTo =
-          filters.toDate === undefined
-            ? undefined
-            : q.lte(mergedAt, filters.toDate);
-        if (afterFrom && beforeTo) return q.and(afterFrom, beforeTo);
-        return afterFrom ?? beforeTo;
-      });
-    }
   } else if (filters.type) {
     historyQuery = ctx.db
-      .query("whatsNewGitHubHistory")
-      .withIndex("by_kind_filterType_mergedAt", (q: any) => {
-        let range = q.eq("kind", "pull_request").eq("filterType", filters.type);
-        if (filters.fromDate !== undefined)
-          range = range.gte("mergedAt", filters.fromDate);
-        if (filters.toDate !== undefined)
-          range = range.lte("mergedAt", filters.toDate);
+      .query("whatsNewGitHubHistoryPanels")
+      .withIndex("by_panel_filterType_mergedAt", (q: any) => {
+        let range = q.eq("panel", context.panel).eq("filterType", filters.type);
+        if (filters.fromDate !== undefined) range = range.gte("mergedAt", filters.fromDate);
+        if (filters.toDate !== undefined) range = range.lte("mergedAt", filters.toDate);
         return range;
       });
   } else {
     historyQuery = ctx.db
-      .query("whatsNewGitHubHistory")
-      .withIndex("by_kind_mergedAt", (q: any) => {
-        let range = q.eq("kind", "pull_request");
-        if (filters.fromDate !== undefined)
-          range = range.gte("mergedAt", filters.fromDate);
-        if (filters.toDate !== undefined)
-          range = range.lte("mergedAt", filters.toDate);
+      .query("whatsNewGitHubHistoryPanels")
+      .withIndex("by_panel_mergedAt", (q: any) => {
+        let range = q.eq("panel", context.panel);
+        if (filters.fromDate !== undefined) range = range.gte("mergedAt", filters.fromDate);
+        if (filters.toDate !== undefined) range = range.lte("mergedAt", filters.toDate);
         return range;
       });
   }
 
-  const result = await (
-    search ? historyQuery : historyQuery.order("desc")
-  ).paginate(paginationOpts);
+  // Date filtering is only needed for search results because the search index
+  // orders by relevance. Audience is already scoped by the indexed panel field
+  // before pagination, so a tenant page cannot be drained by other panels.
+  if (search && (filters.fromDate !== undefined || filters.toDate !== undefined)) {
+    historyQuery = historyQuery.filter((q: any) => {
+      const mergedAt = q.field("mergedAt");
+      const afterFrom =
+        filters.fromDate === undefined ? undefined : q.gte(mergedAt, filters.fromDate);
+      const beforeTo = filters.toDate === undefined ? undefined : q.lte(mergedAt, filters.toDate);
+      if (afterFrom && beforeTo) return q.and(afterFrom, beforeTo);
+      return afterFrom ?? beforeTo;
+    });
+  }
+
+  const result = await (search ? historyQuery : historyQuery.order("desc")).paginate(
+    paginationOpts
+  );
   return {
     ...result,
     page: result.page
@@ -180,14 +187,11 @@ export async function visibleHistoryPage(
           !!record.displayTitle &&
           !!record.displayDescription &&
           !!record.type &&
-          isVisibleTo(
-            { panels: record.panels?.length ? record.panels : ["platform"] },
-            context,
-          ),
+          (context.canSeeAllPanels || record.panel === context.panel)
       )
       .map((record: any) => ({
-        _id: record._id,
-        groupKey: `history:${record._id}`,
+        _id: record.historyId ?? record._id,
+        groupKey: `history:${record.historyId ?? record._id}`,
         isRelease: false,
         version: "",
         title: record.displayTitle,
@@ -213,13 +217,12 @@ export async function getUnreadCount(ctx: any, context: any) {
   const reads = await ctx.db
     .query("whatsNewReads")
     .withIndex("by_user_workspace", (q: any) =>
-      q.eq("userId", context.userId).eq("workspaceId", context.workspaceId),
+      q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
     )
     .collect();
   const readIds = new Set(reads.map((read: any) => String(read.entryId)));
   return entries.reduce(
-    (count: number, entry: any) =>
-      count + (readIds.has(String(entry._id)) ? 0 : 1),
-    0,
+    (count: number, entry: any) => count + (readIds.has(String(entry._id)) ? 0 : 1),
+    0
   );
 }

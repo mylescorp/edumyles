@@ -47,6 +47,7 @@ afterEach(() => {
 
 beforeEach(() => {
   mockUseQuery.mockReset();
+  window.location.hash = "";
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -119,5 +120,21 @@ describe("What's new unread count rendering", () => {
 
     expect(container.textContent).not.toContain("[object Object]");
     expect(container.textContent).not.toContain("undefined new");
+  });
+
+  it("ignores a missing linked history card returned in a query wrapper", () => {
+    window.location.hash = "#update-missing";
+    mockUseQuery.mockImplementation((query: unknown) => {
+      if (query === api.platform.changelog.queries.getWhatsNewFeed) return feed;
+      if (query === api.platform.changelog.queries.getWhatsNewHistoryEntry) {
+        return { data: null, isLoading: false, error: undefined, refetch: vi.fn() };
+      }
+      return 0;
+    });
+
+    render(<WhatsNewPage />);
+
+    expect(container.textContent).toContain("No updates published yet");
+    expect(container.textContent).not.toContain("Invalid time value");
   });
 });

@@ -204,6 +204,7 @@ async function syncBatches(inputRecords, completeBackfill = false) {
   let inserted = 0;
   let updated = 0;
   let needsBackfill = false;
+  let needsPanelBackfill = false;
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex += 1) {
     const args = JSON.stringify({
       releaseSecret,
@@ -224,15 +225,20 @@ async function syncBatches(inputRecords, completeBackfill = false) {
       inserted += counts.inserted ?? 0;
       updated += counts.updated ?? 0;
       needsBackfill ||= counts.needsBackfill === true;
+      needsPanelBackfill ||= counts.needsPanelBackfill === true;
     } catch (error) {
       const stderr = error?.stderr?.toString?.().replaceAll(releaseSecret, "[REDACTED]");
       throw new Error(stderr || "Convex rejected the GitHub history batch.");
     }
   }
-  return { inserted, updated, needsBackfill };
+  return { inserted, updated, needsBackfill, needsPanelBackfill };
 }
 
-const totals = await syncBatches(records, eventName === "workflow_dispatch");
+let totals = await syncBatches(records, eventName === "workflow_dispatch");
+if (totals.needsPanelBackfill && eventName !== "workflow_dispatch") {
+  console.log("Backfilling panel-specific history rows for existing updates.");
+  totals = await syncBatches(await loadCompleteHistory(), true);
+}
 console.log(
   `GitHub history sync complete: ${totals.inserted} inserted, ${totals.updated} updated.`
 );

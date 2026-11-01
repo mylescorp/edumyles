@@ -62,6 +62,34 @@ function getSafeCount(value: unknown): number {
   return typeof current === "number" && Number.isFinite(current) ? current : 0;
 }
 
+function getLinkedHistoryEntry(value: unknown): Entry | null {
+  if (!value || typeof value !== "object") return null;
+  const candidate = value as Record<string, unknown>;
+  const unwrapped =
+    Object.prototype.hasOwnProperty.call(candidate, "data") && candidate.data !== value
+      ? candidate.data
+      : value;
+  if (!unwrapped || typeof unwrapped !== "object") return null;
+  const entry = unwrapped as Partial<Entry>;
+  if (
+    typeof entry._id !== "string" ||
+    typeof entry.groupKey !== "string" ||
+    typeof entry.isRelease !== "boolean" ||
+    typeof entry.version !== "string" ||
+    typeof entry.date !== "number" ||
+    !Number.isFinite(entry.date) ||
+    !Number.isFinite(new Date(entry.date).getTime()) ||
+    typeof entry.title !== "string" ||
+    typeof entry.description !== "string" ||
+    !["feature", "improvement", "fix", "breaking"].includes(entry.type ?? "") ||
+    !Array.isArray(entry.tags) ||
+    !entry.tags.every((tag) => typeof tag === "string")
+  ) {
+    return null;
+  }
+  return entry as Entry;
+}
+
 function formatReleaseDate(timestamp: number) {
   return new Intl.DateTimeFormat("en", {
     month: "short",
@@ -188,15 +216,16 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const entries = useMemo(() => {
     const byId = new Map<string, Entry>();
     for (const entry of [...releaseEntries, ...historyEntries]) byId.set(entry._id, entry);
+    const linkedEntry = getLinkedHistoryEntry(linkedHistoryEntry);
     if (
-      linkedHistoryEntry &&
+      linkedEntry &&
       category === "all" &&
       !search.trim() &&
       !fromDate &&
       !toDate &&
       !personalized
     ) {
-      byId.set(linkedHistoryEntry._id, linkedHistoryEntry as Entry);
+      byId.set(linkedEntry._id, linkedEntry);
     }
     return [...byId.values()].sort((a, b) => b.date - a.date);
   }, [

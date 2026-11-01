@@ -91,6 +91,9 @@ export const syncGitHubHistory: any = action({
         {}
       );
     }
-    return result;
+    return {
+      ...result,
+      needsPanelBackfill: args.backfillComplete ? false : result.needsPanelBackfill,
+    };
   },
 });

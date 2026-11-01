@@ -4005,6 +4005,33 @@ export default defineSchema({
     })
     .index("by_isHistorical_createdAt", ["isHistorical", "createdAt"]),
 
+  // Per-panel feed rows let tenant panels paginate only their own updates.
+  // The platform feed continues to use the complete history table.
+  whatsNewGitHubHistoryPanels: defineTable({
+    panel: v.string(),
+    historyId: v.id("whatsNewGitHubHistory"),
+    externalId: v.string(),
+    displayTitle: v.string(),
+    displayDescription: v.string(),
+    searchText: v.string(),
+    filterType: v.union(v.literal("feature"), v.literal("fix"), v.literal("improvement")),
+    type: v.union(
+      v.literal("feature"),
+      v.literal("fix"),
+      v.literal("improvement"),
+      v.literal("breaking")
+    ),
+    tags: v.array(v.string()),
+    mergedAt: v.number(),
+  })
+    .index("by_panel_mergedAt", ["panel", "mergedAt"])
+    .index("by_panel_filterType_mergedAt", ["panel", "filterType", "mergedAt"])
+    .index("by_externalId_panel", ["externalId", "panel"])
+    .searchIndex("search_searchText", {
+      searchField: "searchText",
+      filterFields: ["panel", "filterType"],
+    }),
+
   whatsNewAudit: defineTable({
     entryId: v.optional(v.id("changelogEntries")),
     releaseKey: v.optional(v.string()),
