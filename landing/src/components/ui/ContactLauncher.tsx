@@ -49,6 +49,43 @@ function useVisitorChatThread(args: Parameters<typeof useConvexQuery>[1]) {
   return useConvexQuery(api.publicEngagements.getVisitorChatThread, args);
 }
 
+function useFallbackChatThread(
+  enabled: boolean,
+  engagementId: string | null,
+  visitorToken: string | null
+) {
+  const [thread, setThread] = useState<ChatThread | undefined>();
+
+  useEffect(() => {
+    if (!enabled || !engagementId || !visitorToken) {
+      setThread(undefined);
+      return;
+    }
+
+    let cancelled = false;
+    const refresh = async () => {
+      try {
+        const params = new URLSearchParams({ engagementId, visitorToken });
+        const response = await fetch(`/api/chat/thread?${params.toString()}`);
+        if (!response.ok) return;
+        const result = await response.json();
+        if (!cancelled && result?.thread) setThread(result.thread as ChatThread);
+      } catch {
+        // Retry on the next interval; chat remains usable while offline.
+      }
+    };
+
+    void refresh();
+    const interval = window.setInterval(() => void refresh(), 4000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [enabled, engagementId, visitorToken]);
+
+  return thread;
+}
+
 function readAttribution() {
   if (typeof window === "undefined") return {};
   const params = new URLSearchParams(window.location.search);
@@ -81,26 +118,30 @@ function readSavedContactProfile(): ContactProfile {
 
 export default function ContactLauncher({
   initialMode,
+  isOpen,
   onClose,
 }: {
   initialMode: ContactMode;
+  isOpen: boolean;
   onClose: () => void;
 }) {
   return (
     <LandingConvexProvider>
-      <ContactLauncherPanel initialMode={initialMode} onClose={onClose} />
+      <ContactLauncherPanel initialMode={initialMode} isOpen={isOpen} onClose={onClose} />
     </LandingConvexProvider>
   );
 }
 
 function ContactLauncherPanel({
   initialMode,
+  isOpen,
   onClose,
 }: {
   initialMode: ContactMode;
+  isOpen: boolean;
   onClose: () => void;
 }) {
-  const [mode] = useState<ContactMode>(initialMode);
+  const mode = initialMode;
   const [profile, setProfile] = useState<ContactProfile>(readSavedContactProfile);
   const [topicId, setTopicId] = useState<ContactTopicId>(CONTACT_TOPICS[0].id);
   const [message, setMessage] = useState<string>(CONTACT_TOPICS[0].prompt);
@@ -111,14 +152,16 @@ function ContactLauncherPanel({
   const [reply, setReply] = useState("");
   const transcriptRef = useRef<HTMLDivElement | null>(null);
   const realtimeThread = useVisitorChatThread(
-    resultId && visitorToken && mode === "chat"
+    resultId && visitorToken && mode === "chat" && isOpen
       ? { engagementId: resultId as Id<"landingEngagements">, visitorToken }
       : "skip"
   );
-  const activeThread =
-    realtimeThread && thread && thread.messages.length > realtimeThread.messages.length
-      ? thread
-      : realtimeThread ?? thread;
+  const fallbackThread = useFallbackChatThread(
+    !convexEnabled && isOpen && mode === "chat",
+    resultId,
+    visitorToken
+  );
+  const activeThread = realtimeThread ?? fallbackThread ?? thread;
 
   useEffect(() => {
     try {
@@ -166,7 +209,11 @@ function ContactLauncherPanel({
         const response = await fetch("/api/whatsapp/track", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...payload, composedWhatsAppMessage: composedMessage, whatsappUrl }),
+          body: JSON.stringify({
+            ...payload,
+            composedWhatsAppMessage: composedMessage,
+            whatsappUrl,
+          }),
         });
         const result = await response.json().catch(() => ({}));
         if (result?.engagementId) setResultId(result.engagementId);
@@ -208,35 +255,16 @@ function ContactLauncherPanel({
     if (!reply.trim() || !resultId || !visitorToken) return;
     const body = reply.trim();
     setReply("");
-    setThread({
-      chatStatus: activeThread?.chatStatus ?? "waiting",
-      agentName: activeThread?.agentName,
-      messages: [
-        ...(activeThread?.messages ?? []),
-        { sender: "visitor", body, authorName: profile.name, createdAt: Date.now() },
-      ],
-    });
-
     try {
-      await fetch("/api/chat/thread", {
+      const response = await fetch("/api/chat/thread", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ engagementId: resultId, visitorToken, message: body }),
       });
+      if (!response.ok) throw new Error("Unable to send chat reply");
     } catch {
-      setThread((current) => ({
-        chatStatus: current?.chatStatus ?? "waiting",
-        agentName: current?.agentName,
-        messages: [
-          ...(current?.messages ?? []),
-          {
-            sender: "system",
-            body: "We could not send that message. Please try again.",
-            authorName: "EduMyles",
-            createdAt: Date.now(),
-          },
-        ],
-      }));
+      setReply(body);
+      setStatus("error");
     }
   }
 
@@ -244,209 +272,248 @@ function ContactLauncherPanel({
 
   return (
     <>
-        <div className={launcherClass(mode)}>
-          <div className="border-b border-border px-5 py-4 text-white" style={{ background: "var(--platform-chrome)" }}>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-card/10">
-                    {mode === "whatsapp" ? <MessageCircle className="h-4 w-4" /> : <MessagesSquare className="h-4 w-4" />}
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold">{mode === "whatsapp" ? "WhatsApp EduMyles" : "EduMyles live chat"}</p>
-                    <p className="text-xs text-white/55">
-                      {mode === "whatsapp" ? "Send a complete prefilled message." : hasActiveChat ? "Stay here for replies." : "Start a secure visitor chat."}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-md p-1 text-white/70 hover:bg-card/10 hover:text-white"
-                aria-label="Close contact form"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 bg-card/[0.06] px-3 py-2 text-xs text-white/70">
-              <ShieldCheck className="h-4 w-4 text-emerald-300" />
-              Your contact details are used only so our team can respond accurately.
-            </div>
-          </div>
-
-          {hasActiveChat ? (
-            <div className="bg-background">
-              <div className="flex items-center justify-between border-b border-border bg-card px-5 py-3">
+      <div
+        className={launcherClass(mode)}
+        style={!isOpen ? { display: "none" } : undefined}
+        aria-hidden={!isOpen}
+      >
+        <div
+          className="border-b border-border px-5 py-4 text-white"
+          style={{ background: "var(--platform-chrome)" }}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-card/10">
+                  {mode === "whatsapp" ? (
+                    <MessageCircle className="h-4 w-4" />
+                  ) : (
+                    <MessagesSquare className="h-4 w-4" />
+                  )}
+                </span>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {activeThread?.chatStatus === "active" ? `${activeThread.agentName ?? "EduMyles"} joined` : "Waiting for a specialist"}
+                  <p className="text-sm font-semibold">
+                    {mode === "whatsapp" ? "WhatsApp EduMyles" : "EduMyles live chat"}
                   </p>
-                  <p className="text-xs text-muted-foreground">Reference: {resultId}</p>
+                  <p className="text-xs text-white/55">
+                    {mode === "whatsapp"
+                      ? "Send a complete prefilled message."
+                      : hasActiveChat
+                        ? "Stay here for replies."
+                        : "Start a secure visitor chat."}
+                  </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setResultId(null);
-                    setVisitorToken(null);
-                    setThread(null);
-                    setStatus("idle");
-                  }}
-                  className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
-                >
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                  New chat
-                </button>
               </div>
-              <div ref={transcriptRef} className="max-h-[360px] space-y-3 overflow-y-auto px-5 py-4">
-                {(activeThread?.messages ?? []).map((item, index) => (
-                  <div
-                    key={`${item.createdAt}-${index}`}
-                    className={[
-                      "flex",
-                      item.sender === "visitor" ? "justify-end" : item.sender === "system" ? "justify-center" : "justify-start",
-                    ].join(" ")}
-                  >
-                    {item.sender === "system" ? (
-                      <p className="max-w-[90%] rounded-full bg-card px-3 py-1.5 text-center text-xs text-muted-foreground ring-1 ring-border">
-                        {item.body}
-                      </p>
-                    ) : (
-                      <div
-                        className={[
-                          "max-w-[82%] rounded-xl px-3.5 py-2 text-sm leading-6 shadow-sm",
-                          item.sender === "visitor"
-                            ? "rounded-br-sm bg-emerald-700 text-white"
-                            : "rounded-bl-sm border border-border bg-card text-card-foreground",
-                        ].join(" ")}
-                      >
-                        {item.sender === "agent" && <p className="mb-1 text-[11px] font-semibold text-primary">{item.authorName ?? "EduMyles"}</p>}
-                        <p className="whitespace-pre-wrap">{item.body}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <form onSubmit={sendReply} className="border-t border-border bg-card p-3">
-                <div className="flex items-end gap-2">
-                  <textarea
-                    value={reply}
-                    onChange={(event) => setReply(event.target.value)}
-                    rows={2}
-                    className="min-h-11 flex-1 resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm leading-5 text-foreground outline-none focus:border-primary"
-                    placeholder="Type your reply..."
-                  />
-                  <button
-                    type="submit"
-                    disabled={!reply.trim()}
-                    className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-700 text-white transition hover:bg-emerald-800 disabled:bg-muted disabled:text-muted-foreground"
-                    aria-label="Send chat reply"
-                  >
-                    <Send className="h-4 w-4" />
-                  </button>
-                </div>
-              </form>
             </div>
-          ) : status === "sent" ? (
-            <div className="p-6">
-              <CheckCircle2 className="h-10 w-10 text-success" />
-              <h2 className="mt-4 text-lg font-semibold text-foreground">
-                {mode === "whatsapp" ? "WhatsApp message prepared" : "Message received"}
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {mode === "whatsapp"
-                  ? "WhatsApp should open with your full message prefilled. The EduMyles team will follow up from there."
-                  : "Your live chat is open. Keep this window here for replies from the EduMyles team."}
-              </p>
-              {resultId && <p className="mt-3 text-xs text-muted-foreground">Reference: {resultId}</p>}
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md p-1 text-white/70 hover:bg-card/10 hover:text-white"
+              aria-label="Close contact form"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 bg-card/[0.06] px-3 py-2 text-xs text-white/70">
+            <ShieldCheck className="h-4 w-4 text-emerald-300" />
+            Your contact details are used only so our team can respond accurately.
+          </div>
+        </div>
+
+        {hasActiveChat ? (
+          <div className="bg-background">
+            <div className="flex items-center justify-between border-b border-border bg-card px-5 py-3">
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  {activeThread?.chatStatus === "active"
+                    ? `${activeThread.agentName ?? "EduMyles"} joined`
+                    : "Waiting for a specialist"}
+                </p>
+                <p className="text-xs text-muted-foreground">Reference: {resultId}</p>
+              </div>
               <button
                 type="button"
-                onClick={() => setStatus("idle")}
-                className="mt-5 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted"
+                onClick={() => {
+                  setResultId(null);
+                  setVisitorToken(null);
+                  setThread(null);
+                  setStatus("idle");
+                }}
+                className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
               >
-                Send another message
+                <ChevronLeft className="h-3.5 w-3.5" />
+                New chat
               </button>
             </div>
-          ) : (
-            <form onSubmit={submit} className="max-h-[72vh] space-y-4 overflow-y-auto bg-card p-5">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {[
-                  ["name", "Name", "Your name", true],
-                  ["phone", "Phone", "+254...", false],
-                  ["email", "Email", "name@school.com", false],
-                  ["country", "Country", "Kenya", false],
-                  ["schoolName", "School", "School name", false],
-                  ["role", "Role", "Director, principal...", false],
-                ].map(([field, label, placeholder, required]) => (
-                  <label key={field as string} className="text-xs font-semibold text-foreground">
-                    {label}
-                    <input
-                      required={Boolean(required)}
-                      type={field === "email" ? "email" : "text"}
-                      value={profile[field as keyof ContactProfile]}
-                      onChange={(event) => updateProfile(field as keyof ContactProfile, event.target.value)}
-                      className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary focus:bg-card"
-                      placeholder={placeholder as string}
-                    />
-                  </label>
-                ))}
-              </div>
-
-              <div>
-                <p className="mb-2 text-xs font-semibold text-foreground">What do you need?</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {CONTACT_TOPICS.map((topic) => (
-                    <button
-                      type="button"
-                      key={topic.id}
-                      onClick={() => updateTopic(topic.id)}
+            <div ref={transcriptRef} className="max-h-[360px] space-y-3 overflow-y-auto px-5 py-4">
+              {(activeThread?.messages ?? []).map((item, index) => (
+                <div
+                  key={`${item.createdAt}-${index}`}
+                  className={[
+                    "flex",
+                    item.sender === "visitor"
+                      ? "justify-end"
+                      : item.sender === "system"
+                        ? "justify-center"
+                        : "justify-start",
+                  ].join(" ")}
+                >
+                  {item.sender === "system" ? (
+                    <p className="max-w-[90%] rounded-full bg-card px-3 py-1.5 text-center text-xs text-muted-foreground ring-1 ring-border">
+                      {item.body}
+                    </p>
+                  ) : (
+                    <div
                       className={[
-                        "rounded-lg border px-3 py-2 text-left text-xs font-semibold transition",
-                        topicId === topic.id
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-card text-muted-foreground hover:border-primary",
+                        "max-w-[82%] rounded-xl px-3.5 py-2 text-sm leading-6 shadow-sm",
+                        item.sender === "visitor"
+                          ? "rounded-br-sm bg-emerald-700 text-white"
+                          : "rounded-bl-sm border border-border bg-card text-card-foreground",
                       ].join(" ")}
                     >
-                      {topic.label}
-                    </button>
-                  ))}
+                      {item.sender === "agent" && (
+                        <p className="mb-1 text-[11px] font-semibold text-primary">
+                          {item.authorName ?? "EduMyles"}
+                        </p>
+                      )}
+                      <p className="whitespace-pre-wrap">{item.body}</p>
+                    </div>
+                  )}
                 </div>
-              </div>
-
-              <label className="block text-xs font-semibold text-foreground">
-                Message
-                <textarea
-                  value={message}
-                  onChange={(event) => setMessage(event.target.value)}
-                  rows={5}
-                  className="mt-1 w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm leading-6 text-foreground outline-none transition focus:border-primary focus:bg-card"
-                />
-              </label>
-
-              {mode === "whatsapp" && (
-                <div className="rounded-lg border border-border bg-muted px-3 py-2 text-xs leading-5 text-foreground">
-                  <Sparkles className="mr-1 inline h-3.5 w-3.5" />
-                  WhatsApp will open with your profile and message already filled in.
-                </div>
-              )}
-
+              ))}
+            </div>
+            <form onSubmit={sendReply} className="border-t border-border bg-card p-3">
               {status === "error" && (
-                <p className="rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground">
-                  We could not send this right now. Please try again.
+                <p
+                  role="alert"
+                  className="mb-2 rounded-md bg-muted px-3 py-2 text-xs text-foreground"
+                >
+                  We could not send that message. It is still in the box so you can retry.
                 </p>
               )}
-
-              <button
-                type="submit"
-                disabled={disabled}
-                className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
-              >
-                {status === "sending" && <Loader2 className="h-4 w-4 animate-spin" />}
-                {mode === "whatsapp" ? "Open WhatsApp with message" : "Start live chat"}
-              </button>
+              <div className="flex items-end gap-2">
+                <textarea
+                  value={reply}
+                  onChange={(event) => setReply(event.target.value)}
+                  rows={2}
+                  className="min-h-11 flex-1 resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm leading-5 text-foreground outline-none focus:border-primary"
+                  placeholder="Type your reply..."
+                />
+                <button
+                  type="submit"
+                  disabled={!reply.trim()}
+                  className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-700 text-white transition hover:bg-emerald-800 disabled:bg-muted disabled:text-muted-foreground"
+                  aria-label="Send chat reply"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </div>
             </form>
-          )}
-        </div>
+          </div>
+        ) : status === "sent" ? (
+          <div className="p-6">
+            <CheckCircle2 className="h-10 w-10 text-success" />
+            <h2 className="mt-4 text-lg font-semibold text-foreground">
+              {mode === "whatsapp" ? "WhatsApp message prepared" : "Message received"}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {mode === "whatsapp"
+                ? "WhatsApp should open with your full message prefilled. The EduMyles team will follow up from there."
+                : "Your live chat is open. Keep this window here for replies from the EduMyles team."}
+            </p>
+            {resultId && (
+              <p className="mt-3 text-xs text-muted-foreground">Reference: {resultId}</p>
+            )}
+            <button
+              type="button"
+              onClick={() => setStatus("idle")}
+              className="mt-5 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted"
+            >
+              Send another message
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={submit} className="max-h-[72vh] space-y-4 overflow-y-auto bg-card p-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {[
+                ["name", "Name", "Your name", true],
+                ["phone", "Phone", "+254...", false],
+                ["email", "Email", "name@school.com", false],
+                ["country", "Country", "Kenya", false],
+                ["schoolName", "School", "School name", false],
+                ["role", "Role", "Director, principal...", false],
+              ].map(([field, label, placeholder, required]) => (
+                <label key={field as string} className="text-xs font-semibold text-foreground">
+                  {label}
+                  <input
+                    required={Boolean(required)}
+                    type={field === "email" ? "email" : "text"}
+                    value={profile[field as keyof ContactProfile]}
+                    onChange={(event) =>
+                      updateProfile(field as keyof ContactProfile, event.target.value)
+                    }
+                    className="mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary focus:bg-card"
+                    placeholder={placeholder as string}
+                  />
+                </label>
+              ))}
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs font-semibold text-foreground">What do you need?</p>
+              <div className="grid grid-cols-2 gap-2">
+                {CONTACT_TOPICS.map((topic) => (
+                  <button
+                    type="button"
+                    key={topic.id}
+                    onClick={() => updateTopic(topic.id)}
+                    className={[
+                      "rounded-lg border px-3 py-2 text-left text-xs font-semibold transition",
+                      topicId === topic.id
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-card text-muted-foreground hover:border-primary",
+                    ].join(" ")}
+                  >
+                    {topic.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <label className="block text-xs font-semibold text-foreground">
+              Message
+              <textarea
+                value={message}
+                onChange={(event) => setMessage(event.target.value)}
+                rows={5}
+                className="mt-1 w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm leading-6 text-foreground outline-none transition focus:border-primary focus:bg-card"
+              />
+            </label>
+
+            {mode === "whatsapp" && (
+              <div className="rounded-lg border border-border bg-muted px-3 py-2 text-xs leading-5 text-foreground">
+                <Sparkles className="mr-1 inline h-3.5 w-3.5" />
+                WhatsApp will open with your profile and message already filled in.
+              </div>
+            )}
+
+            {status === "error" && (
+              <p className="rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground">
+                We could not send this right now. Please try again.
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={disabled}
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
+            >
+              {status === "sending" && <Loader2 className="h-4 w-4 animate-spin" />}
+              {mode === "whatsapp" ? "Open WhatsApp with message" : "Start live chat"}
+            </button>
+          </form>
+        )}
+      </div>
     </>
   );
 }

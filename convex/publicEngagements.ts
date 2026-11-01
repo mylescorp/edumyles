@@ -71,7 +71,10 @@ export const submitLandingEngagement = mutation({
 
     const duplicate = recentByEmail ?? recentByPhone;
     const duplicateWindowMs = 1000 * 60 * 60 * 24;
+    // A live chat is a distinct conversation with its own visitor token. Reusing
+    // an older engagement here would pair the new token with the old transcript.
     const isDuplicate =
+      args.channel === "whatsapp" &&
       Boolean(duplicate) &&
       duplicate!.channel === args.channel &&
       duplicate!.topic === topic &&
@@ -149,7 +152,8 @@ export const submitLandingEngagement = mutation({
       await ctx.db.insert("notifications", {
         tenantId: "PLATFORM",
         userId: admin.workosUserId,
-        title: args.channel === "whatsapp" ? "WhatsApp lead captured" : "Live chat message received",
+        title:
+          args.channel === "whatsapp" ? "WhatsApp lead captured" : "Live chat message received",
         message: `${clean(args.name) ?? "A landing visitor"} asked about ${topic}.`,
         type: "support",
         isRead: false,
