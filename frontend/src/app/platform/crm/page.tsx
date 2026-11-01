@@ -184,7 +184,7 @@ export default function PlatformCrmDashboardPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <Card className="border-emerald-100 bg-[linear-gradient(180deg,rgba(240,253,250,0.7),rgba(255,255,255,0.96))]">
+        <Card className="border-emerald-100 surface-gradient">
           <CardHeader>
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
@@ -210,7 +210,7 @@ export default function PlatformCrmDashboardPage() {
               </div>
             ) : (
               stageCards.map((bucket) => (
-                <div key={bucket.stage.slug} className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-sm">
+                <div key={bucket.stage.slug} className="rounded-2xl border border-slate-200/80 bg-card/90 p-4 shadow-sm">
                   <div className="flex items-center justify-between gap-3">
                     <Badge
                       variant="outline"

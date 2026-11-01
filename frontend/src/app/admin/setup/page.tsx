@@ -849,7 +849,7 @@ export default function AdminSetupPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-8">
-      <Card className="border-slate-200/70 bg-white/90">
+      <Card className="border-slate-200/70 bg-card/90">
         <CardHeader className="space-y-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -898,7 +898,7 @@ export default function AdminSetupPage() {
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
-        <Card className="h-fit border-slate-200/70 bg-white/90">
+        <Card className="h-fit border-slate-200/70 bg-card/90">
           <CardHeader>
             <CardTitle className="text-base">Steps</CardTitle>
             <CardDescription>
@@ -946,7 +946,7 @@ export default function AdminSetupPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200/70 bg-white/90">
+        <Card className="border-slate-200/70 bg-card/90">
           <CardHeader>
             <div className="flex items-center justify-between gap-4">
               <div>
@@ -1691,7 +1691,7 @@ export default function AdminSetupPage() {
                   email and SMS where available.
                 </p>
                 <div className="grid gap-3 md:grid-cols-3">
-                  <div className="rounded-xl border bg-white p-4">
+                  <div className="rounded-xl border bg-card p-4">
                     <p className="text-xs uppercase tracking-wide text-slate-500">
                       Guardian contacts
                     </p>
@@ -1700,13 +1700,13 @@ export default function AdminSetupPage() {
                     </p>
                     <p className="mt-1 text-sm text-slate-500">students captured in onboarding</p>
                   </div>
-                  <div className="rounded-xl border bg-white p-4">
+                  <div className="rounded-xl border bg-card p-4">
                     <p className="text-xs uppercase tracking-wide text-slate-500">Delivery</p>
                     <p className="mt-2 text-sm text-slate-700">
                       Email + SMS are sent automatically when contact details are present.
                     </p>
                   </div>
-                  <div className="rounded-xl border bg-white p-4">
+                  <div className="rounded-xl border bg-card p-4">
                     <p className="text-xs uppercase tracking-wide text-slate-500">Join route</p>
                     <p className="mt-2 text-sm text-slate-700 font-medium">
                       /join/{wizardContext.tenantSlug}

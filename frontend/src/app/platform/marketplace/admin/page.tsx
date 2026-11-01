@@ -56,12 +56,12 @@ function QueueMetric({
       ? "text-red-700"
       : tone === "warning"
         ? "text-amber-700"
-        : "text-slate-950";
+        : "text-foreground";
 
   return (
     <Card className="border-slate-200/80 shadow-sm">
       <CardContent className="pt-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">{label}</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{label}</p>
         <p className={`mt-3 text-3xl font-semibold ${toneClass}`}>{value}</p>
       </CardContent>
     </Card>
@@ -283,10 +283,10 @@ function MarketplaceAdminContent() {
         <Card className="border-amber-200 bg-amber-50/70">
           <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-5">
             <div>
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-foreground">
                 {selectedModules.length} submission{selectedModules.length === 1 ? "" : "s"} selected
               </p>
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-muted-foreground">
                 Bulk approve or bulk reject the current selection from the queue.
               </p>
             </div>
@@ -321,7 +321,7 @@ function MarketplaceAdminContent() {
               return (
                 <div
                   key={module._id}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm"
+                  className="rounded-2xl border border-slate-200 bg-card px-4 py-4 shadow-sm"
                 >
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div className="flex items-start gap-3">
@@ -331,21 +331,21 @@ function MarketplaceAdminContent() {
                         onChange={() => toggleModule(module._id)}
                         className="mt-1 h-4 w-4 rounded border-slate-300"
                       />
-                      <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-2.5 text-emerald-700">
+                      <div className="rounded-xl border border-primary/15 bg-accent p-2.5 text-primary">
                         <Package className="h-5 w-5" />
                       </div>
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-base font-semibold text-slate-950">{module.name}</h3>
+                          <h3 className="text-base font-semibold text-foreground">{module.name}</h3>
                           <Badge variant="outline" className="capitalize">
                             {module.category.replace(/_/g, " ")}
                           </Badge>
                           <Badge variant="secondary">{module.status.replace(/_/g, " ")}</Badge>
                           {urgent && <Badge className="bg-red-100 text-red-700 hover:bg-red-100">Over 5 days</Badge>}
                         </div>
-                        <p className="mt-1 text-sm text-slate-600">{module.shortDescription}</p>
-                        <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-slate-500">
-                          <span className="font-medium text-slate-700">{module.publisherName}</span>
+                        <p className="mt-1 text-sm text-muted-foreground">{module.shortDescription}</p>
+                        <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                          <span className="font-medium text-foreground">{module.publisherName}</span>
                           <span>Submitted {formatDate(module.createdAt)}</span>
                           <span className={urgent ? "font-semibold text-red-700" : ""}>
                             {waitDays} day{waitDays === 1 ? "" : "s"} waiting
@@ -382,10 +382,10 @@ function MarketplaceAdminContent() {
               );
             })
           ) : (
-            <div className="flex min-h-52 flex-col items-center justify-center rounded-xl border border-dashed border-emerald-200/70 bg-emerald-50/40 text-center">
-              <CheckCircle2 className="h-10 w-10 text-emerald-700" />
-              <p className="mt-4 text-base font-semibold text-slate-900">No pending submissions</p>
-              <p className="mt-1 max-w-sm text-sm text-slate-600">
+            <div className="flex min-h-52 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 text-center">
+              <CheckCircle2 className="h-10 w-10 text-primary" />
+              <p className="mt-4 text-base font-semibold text-foreground">No pending submissions</p>
+              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
                 The review queue is clear right now. New publisher submissions will appear here automatically.
               </p>
             </div>
@@ -402,31 +402,31 @@ function MarketplaceAdminContent() {
             <div className="space-y-6">
               <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-lg font-semibold text-slate-950">{selectedModule.name}</h3>
+                  <h3 className="text-lg font-semibold text-foreground">{selectedModule.name}</h3>
                   <Badge variant="outline" className="capitalize">
                     {selectedModule.category.replace(/_/g, " ")}
                   </Badge>
                   <Badge variant="secondary">{selectedModule.status.replace(/_/g, " ")}</Badge>
                 </div>
-                <p className="mt-2 text-sm text-slate-600">{selectedModule.shortDescription}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{selectedModule.shortDescription}</p>
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Publisher</p>
-                    <p className="mt-2 text-sm font-semibold text-slate-900">{selectedModule.publisherName}</p>
+                  <div className="rounded-xl border border-slate-200 bg-card p-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Publisher</p>
+                    <p className="mt-2 text-sm font-semibold text-foreground">{selectedModule.publisherName}</p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Queue Age</p>
-                    <p className="mt-2 text-sm font-semibold text-slate-900">
+                  <div className="rounded-xl border border-slate-200 bg-card p-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Queue Age</p>
+                    <p className="mt-2 text-sm font-semibold text-foreground">
                       {daysWaiting(selectedModule.createdAt)} day{daysWaiting(selectedModule.createdAt) === 1 ? "" : "s"}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Version</p>
-                    <p className="mt-2 text-sm font-semibold text-slate-900">v{selectedModule.version}</p>
+                  <div className="rounded-xl border border-slate-200 bg-card p-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Version</p>
+                    <p className="mt-2 text-sm font-semibold text-foreground">v{selectedModule.version}</p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Submitted</p>
-                    <p className="mt-2 text-sm font-semibold text-slate-900">{formatDate(selectedModule.createdAt)}</p>
+                  <div className="rounded-xl border border-slate-200 bg-card p-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Submitted</p>
+                    <p className="mt-2 text-sm font-semibold text-foreground">{formatDate(selectedModule.createdAt)}</p>
                   </div>
                 </div>
               </div>
@@ -444,11 +444,11 @@ function MarketplaceAdminContent() {
                   />
                 </div>
                 <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                     <Clock3 className="h-4 w-4 text-amber-600" />
                     Queue guidance
                   </div>
-                  <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                  <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                     <li>Approve when listing data is complete and ready for publish.</li>
                     <li>Request changes for fixable issues like metadata or screenshots.</li>
                     <li>Reject only when policy or quality issues block publication.</li>

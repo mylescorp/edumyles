@@ -144,7 +144,7 @@ export default function PortalAdminHomePage() {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className={`flex h-9 w-9 items-center justify-center rounded-lg bg-white dark:bg-gray-900 shadow-sm`}>
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-card shadow-sm">
                         <Icon className={`h-5 w-5 ${mod.iconColor}`} />
                       </div>
                       <CardTitle className="text-base">{mod.label}</CardTitle>

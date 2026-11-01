@@ -369,7 +369,7 @@ export default function LibraryCirculationPage() {
             <CardContent>
               <div className="space-y-3">
                 {(showAllOverdue ? (overdueBorrows as any[]) : (overdueBorrows as any[])?.slice(0, 3)).map((borrow) => (
-                  <div key={borrow._id} className="flex items-center justify-between p-3 bg-white rounded border">
+                  <div key={borrow._id} className="flex items-center justify-between p-3 bg-card rounded border">
                     <div>
                       <p className="font-medium">Book #{borrow.bookId.slice(-6)}</p>
                       <p className="text-sm text-red-600">

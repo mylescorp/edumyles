@@ -25,11 +25,11 @@ for k,v in S["light"].items(): c+=f"  --{k}: {m.get(k,v)};\n"
 for k,v in S["light"].items():
     actual={"primary":P["teal"]["700"],"primary-foreground":P["neutral"]["0"],"accent":S["light"]["accent"]}.get(k,v)
     c+=f"  --{k}-rgb: {rgb(actual)};\n"
-c+="  --platform-chrome: var(--navy-700);\n  --platform-chrome-rgb: "+rgb(P["navy"]["700"])+";\n}\n\n.dark {\n  color-scheme: dark;\n"
+c+="  --platform-chrome: var(--navy-700);\n  --platform-chrome-rgb: "+rgb(P["navy"]["700"])+";\n}\n\n.dark {\n  color-scheme: dark;\n  --tenant-primary-dark: "+S["dark"]["primary"]+";\n  --tenant-primary-dark-foreground: "+S["dark"]["primary-foreground"]+";\n  --platform-chrome: var(--navy-700);\n  --platform-chrome-rgb: "+rgb(P["navy"]["700"])+";\n"
 md={"primary":"var(--tenant-primary-dark)","primary-foreground":"var(--tenant-primary-dark-foreground)"}
 for k,v in S["dark"].items(): c+=f"  --{k}: {md.get(k,v)};\n"
 for k,v in S["dark"].items():
-    actual={"primary":"#5BB4AA","primary-foreground":"#10201E"}.get(k,v)
+    actual={"primary":S["dark"]["primary"],"primary-foreground":S["dark"]["primary-foreground"]}.get(k,v)
     c+=f"  --{k}-rgb: {rgb(actual)};\n"
 c+='}\n\n:root {\n  --font-sans: "Inter", system-ui, sans-serif;\n'
 for k,v in O["spacing"].items(): c+=f"  --spacing-{k}: {v}px;\n"

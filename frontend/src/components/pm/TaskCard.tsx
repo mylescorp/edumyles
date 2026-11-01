@@ -27,7 +27,7 @@ export function TaskCard({ task, onClick, draggable, onDragStart, onDragEnd }: T
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       onClick={onClick}
-      className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+      className="w-full rounded-2xl border border-slate-200 bg-card p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="flex items-start gap-3">
         <span
@@ -36,7 +36,7 @@ export function TaskCard({ task, onClick, draggable, onDragStart, onDragEnd }: T
         <div className="min-w-0 flex-1 space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-slate-950">{task.title}</p>
+              <p className="truncate text-sm font-semibold text-foreground">{task.title}</p>
               <p className="mt-1 line-clamp-2 text-xs text-slate-500">
                 {task.description || "No description added yet."}
               </p>

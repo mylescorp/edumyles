@@ -582,7 +582,7 @@ function TwoFactorModal({
 
                   {qrCode && (
                     <div className="flex justify-center">
-                      <div className="p-4 bg-white rounded-lg border">
+                      <div className="p-4 bg-card rounded-lg border">
                         <Image src={qrCode} alt="2FA QR Code" width={192} height={192} className="w-48 h-48" unoptimized />
                       </div>
                     </div>
@@ -902,7 +902,7 @@ export default function ProfilePage() {
                 <div className="relative">
                   <Avatar className="h-24 w-24 ring-4 ring-white ring-offset-0">
                     <AvatarImage src={avatarUrl} alt={firstName} />
-                    <AvatarFallback className="text-2xl bg-primary text-white">
+                    <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
                       {isUploadingAvatar ? (
                         <Loader2 className="h-8 w-8 animate-spin" />
                       ) : (

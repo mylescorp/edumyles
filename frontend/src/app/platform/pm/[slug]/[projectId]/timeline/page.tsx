@@ -75,17 +75,17 @@ export default function TimelinePage() {
 
         <Card className="overflow-hidden border-slate-200/80 bg-slate-50/70">
           <CardContent className="grid gap-4 p-6 md:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-2xl border border-slate-200 bg-card p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Timeline items</p>
-              <p className="mt-3 text-3xl font-semibold text-slate-950">{timelineTasks.length}</p>
+              <p className="mt-3 text-3xl font-semibold text-foreground">{timelineTasks.length}</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-2xl border border-slate-200 bg-card p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">First recorded</p>
-              <p className="mt-3 text-sm font-medium text-slate-950">
+              <p className="mt-3 text-sm font-medium text-foreground">
                 {timelineTasks[0]?.createdAt ? new Date(timelineTasks[0].createdAt).toLocaleDateString() : "No history yet"}
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-2xl border border-slate-200 bg-card p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Use case</p>
               <p className="mt-3 text-sm text-muted-foreground">Review delivery history, sequencing, and task completion cadence.</p>
             </div>

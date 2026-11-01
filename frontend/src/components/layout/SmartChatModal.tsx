@@ -131,7 +131,7 @@ export function SmartChatModal({ open, onClose, onSelectChat }: SmartChatModalPr
     >
       {/* Modal panel */}
       <div
-        className="relative w-full max-w-[800px] mx-4 rounded-2xl bg-white shadow-2xl overflow-hidden"
+        className="relative w-full max-w-[800px] mx-4 rounded-2xl bg-card shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search bar */}

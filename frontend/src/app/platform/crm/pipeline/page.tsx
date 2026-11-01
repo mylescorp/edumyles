@@ -190,18 +190,18 @@ export default function CRMPipelinePage() {
         </Card>
       ) : (
         <>
-          <Card className="overflow-hidden border-emerald-100 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.16),transparent_32%),linear-gradient(180deg,rgba(240,253,250,0.82),rgba(255,255,255,0.98))]">
+          <Card className="overflow-hidden border-emerald-100 surface-gradient">
             <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.2fr_0.8fr]">
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge className="border-0 bg-emerald-600/10 text-emerald-700">Drag & drop board</Badge>
-                  <Badge variant="outline" className="border-slate-300 bg-white/80">
+                  <Badge variant="outline" className="border-slate-300 bg-card/80">
                     <Sparkles className="mr-1.5 h-3.5 w-3.5" />
                     Live Convex pipeline
                   </Badge>
                 </div>
                 <div className="space-y-2">
-                  <h2 className="max-w-3xl text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
+                  <h2 className="max-w-3xl text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
                     Move schools through the funnel with less friction and more commercial clarity.
                   </h2>
                   <p className="max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
@@ -239,7 +239,7 @@ export default function CRMPipelinePage() {
                 return (
                   <div
                     key={bucket.stage.slug}
-                    className={`w-[320px] shrink-0 rounded-[28px] border bg-white shadow-sm transition ${
+                    className={`w-[320px] shrink-0 rounded-[28px] border bg-card shadow-sm transition ${
                       isActiveDrop ? "border-emerald-400 bg-emerald-50/50 shadow-emerald-100" : "border-slate-200"
                     }`}
                     onDragOver={(event) => {
@@ -262,10 +262,10 @@ export default function CRMPipelinePage() {
                       className="rounded-t-[28px] border-b px-5 py-4"
                       style={{
                         background: isToneWon
-                          ? "linear-gradient(135deg, rgba(22,163,74,0.12), rgba(255,255,255,0.95))"
+                          ? "linear-gradient(135deg, color-mix(in srgb, var(--success) 12%, var(--card)), var(--card))"
                           : isToneLost
-                            ? "linear-gradient(135deg, rgba(244,63,94,0.12), rgba(255,255,255,0.95))"
-                            : `linear-gradient(135deg, ${bucket.stage.color}18, rgba(255,255,255,0.96))`,
+                            ? "linear-gradient(135deg, color-mix(in srgb, var(--danger) 12%, var(--card)), var(--card))"
+                            : `linear-gradient(135deg, color-mix(in srgb, ${bucket.stage.color} 10%, var(--card)), var(--card))`,
                       }}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -278,7 +278,7 @@ export default function CRMPipelinePage() {
                             {bucket.stage.name}
                           </Badge>
                           <div>
-                            <p className="text-xl font-semibold text-slate-950">{formatKes(bucket.totalValueKes)}</p>
+                            <p className="text-xl font-semibold text-foreground">{formatKes(bucket.totalValueKes)}</p>
                             <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
                               {bucket.count} lead{bucket.count === 1 ? "" : "s"} · {bucket.stage.probabilityDefault}% close
                             </p>
@@ -308,7 +308,7 @@ export default function CRMPipelinePage() {
                               draggable={movable}
                               onDragStart={() => setDraggedLeadId(lead._id)}
                               onDragEnd={resetDnD}
-                              className={`group rounded-2xl border bg-white p-4 transition ${
+                              className={`group rounded-2xl border bg-card p-4 transition ${
                                 dragging
                                   ? "cursor-grabbing border-emerald-400 opacity-65 shadow-lg"
                                   : movable
@@ -318,7 +318,7 @@ export default function CRMPipelinePage() {
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                  <Link href={`/platform/crm/${lead._id}`} className="line-clamp-2 font-medium text-slate-950 hover:text-emerald-700">
+                                  <Link href={`/platform/crm/${lead._id}`} className="line-clamp-2 font-medium text-foreground hover:text-emerald-700">
                                     {lead.schoolName}
                                   </Link>
                                   <p className="mt-1 text-sm text-muted-foreground">{lead.contactName}</p>
@@ -398,9 +398,9 @@ export default function CRMPipelinePage() {
 
 function PipelineStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/70 bg-white/90 p-4">
+    <div className="rounded-2xl border border-white/70 bg-card/90 p-4">
       <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-      <p className="mt-3 text-xl font-semibold text-slate-950">{value}</p>
+      <p className="mt-3 text-xl font-semibold text-foreground">{value}</p>
     </div>
   );
 }

@@ -91,7 +91,7 @@ export default function ProposalTrackingPage() {
 
   if (!proposal) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(15,118,110,0.12),_transparent_45%),linear-gradient(180deg,#f8fafc_0%,#eefbf4_100%)] px-4 py-16">
+      <div className="min-h-screen page-gradient px-4 py-16">
         <div className="mx-auto max-w-3xl">
           <Card>
             <CardContent className="py-16">
@@ -108,18 +108,18 @@ export default function ProposalTrackingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(15,118,110,0.16),_transparent_42%),linear-gradient(180deg,#f8fafc_0%,#edf7f1_100%)] px-4 py-10">
+    <div className="min-h-screen page-gradient px-4 py-10">
       <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.35fr_0.65fr]">
         <div className="space-y-6">
-          <Card className="overflow-hidden border-emerald-100 bg-white/95 shadow-xl shadow-emerald-950/5">
+          <Card className="overflow-hidden border-emerald-100 bg-card/95 shadow-xl shadow-emerald-950/5">
             <CardContent className="space-y-6 p-8">
               <div className="flex flex-wrap items-center gap-3">
-                <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">EduMyles Proposal</Badge>
+                <Badge className="bg-primary text-primary-foreground hover:bg-primary/90">EduMyles Proposal</Badge>
                 <Badge variant="outline" className="capitalize">{proposal.status}</Badge>
               </div>
 
               <div className="space-y-3">
-                <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-slate-950">
+                <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-foreground">
                   Proposal for {proposal.lead?.schoolName ?? "your institution"}
                 </h1>
                 <p className="max-w-2xl text-base leading-7 text-slate-600">
@@ -130,13 +130,13 @@ export default function ProposalTrackingPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-3xl border border-emerald-100 bg-emerald-50/60 p-5">
                   <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">Primary Contact</p>
-                  <p className="mt-3 text-lg font-semibold text-slate-950">{proposal.lead?.contactName ?? "School contact"}</p>
+                  <p className="mt-3 text-lg font-semibold text-foreground">{proposal.lead?.contactName ?? "School contact"}</p>
                   <p className="mt-1 text-sm text-slate-600">{proposal.lead?.email ?? "No email captured"}</p>
                   <p className="text-sm text-slate-500">{proposal.lead?.phone ?? "No phone captured"}</p>
                 </div>
                 <div className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
                   <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Institution Snapshot</p>
-                  <p className="mt-3 text-lg font-semibold text-slate-950">
+                  <p className="mt-3 text-lg font-semibold text-foreground">
                     {proposal.lead?.studentCount ?? proposal.studentCount ?? "—"} students
                   </p>
                   <p className="mt-1 text-sm text-slate-600">
@@ -155,7 +155,7 @@ export default function ProposalTrackingPage() {
               {pricingRows.map((row) => (
                 <div key={row.label} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">{row.label}</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-950">{row.value}</p>
+                  <p className="mt-2 text-lg font-semibold text-foreground">{row.value}</p>
                 </div>
               ))}
             </CardContent>

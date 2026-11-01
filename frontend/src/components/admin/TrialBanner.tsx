@@ -34,10 +34,10 @@ export function TrialBanner() {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-rose-700" />
-              <p className="font-semibold text-rose-950">Your trial has ended</p>
+              <p className="font-semibold text-danger-muted-foreground">Your trial has ended</p>
               <Badge variant="destructive">Trial expired</Badge>
             </div>
-            <p className="text-sm text-rose-900/80">
+            <p className="text-sm text-danger-muted-foreground/80">
               Core SIS access remains available, but paid modules may be suspended until you choose a plan.
             </p>
           </div>
@@ -59,8 +59,8 @@ export function TrialBanner() {
       ? {
           card: "border-rose-200 bg-rose-50/90",
           icon: "text-rose-700",
-          text: "text-rose-950",
-          subtext: "text-rose-900/80",
+          text: "text-danger-muted-foreground",
+          subtext: "text-danger-muted-foreground/80",
           badge: "destructive" as const,
           label: urgency.daysLeft === 0 ? "Ends today" : `${urgency.daysLeft} day${urgency.daysLeft === 1 ? "" : "s"} left`,
         }
@@ -76,8 +76,8 @@ export function TrialBanner() {
         : {
             card: "border-sky-200 bg-sky-50/90",
             icon: "text-sky-700",
-            text: "text-sky-950",
-            subtext: "text-sky-900/80",
+            text: "text-info-muted-foreground",
+            subtext: "text-info-muted-foreground/80",
             badge: "outline" as const,
             label: `${urgency.daysLeft ?? "14"} days left`,
           };

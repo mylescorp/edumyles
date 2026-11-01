@@ -104,15 +104,17 @@ export function UsersAdminRail({
                 className={cn(
                   "group rounded-2xl border px-4 py-3 transition-all",
                   active
-                    ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
-                    : "border-border/70 bg-background/90 text-slate-700 hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-50/70 hover:shadow-sm"
+                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                    : "border-border/70 bg-background/90 text-foreground hover:-translate-y-0.5 hover:border-primary/40 hover:bg-accent hover:shadow-sm"
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div
                     className={cn(
                       "flex h-10 w-10 items-center justify-center rounded-2xl transition-colors",
-                      active ? "bg-white/15 text-white" : "bg-emerald-500/10 text-emerald-700"
+                      active
+                        ? "bg-primary-foreground/15 text-primary-foreground"
+                        : "bg-primary/10 text-primary"
                     )}
                   >
                     <Icon className="h-4 w-4" />

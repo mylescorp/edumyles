@@ -674,7 +674,7 @@ function NotificationsMenu({
         >
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-[var(--topnav-bg)] bg-red-500 text-[9px] font-bold text-white">
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-[var(--topnav-bg)] bg-destructive text-[9px] font-bold text-destructive-foreground">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
@@ -1895,7 +1895,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                       <Zap className="h-4 w-4 text-[var(--em-sage-muted)]" />
                       Notifications
                         {normalizedUnreadCount > 0 && (
-                          <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-red-500 text-white border-0 text-[10px] font-bold">
+                          <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-destructive text-destructive-foreground border-0 text-[10px] font-bold">
                             {normalizedUnreadCount > 9 ? "9+" : normalizedUnreadCount}
                           </Badge>
                         )}

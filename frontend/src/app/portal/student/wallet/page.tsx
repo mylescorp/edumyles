@@ -168,7 +168,7 @@ export default function StudentWalletPage() {
                     className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-white rounded-full">
+                      <div className="p-2 bg-card rounded-full">
                         {getTransactionIcon(transaction.type)}
                       </div>
                       <div>

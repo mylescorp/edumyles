@@ -167,7 +167,7 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
                 <ChevronDown className="h-3 w-3" />
               </button>
               {actionsOpen && (
-                <div className="absolute bottom-full right-0 mb-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50">
+                <div className="absolute bottom-full right-0 mb-1 w-36 bg-card border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50">
                   {["Remind me", "Star message", "Forward", "Copy link"].map(
                     (action) => (
                       <button

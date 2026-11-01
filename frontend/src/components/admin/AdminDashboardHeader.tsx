@@ -51,7 +51,7 @@ export function AdminDashboardHeader({
               variant="ghost"
               size="sm"
               onClick={() => handleViewChange("grid")}
-              className={cn("h-7 px-3", view === "grid" ? "bg-white shadow-sm" : "hover:bg-gray-200")}
+              className={cn("h-7 px-3", view === "grid" ? "bg-card shadow-sm" : "hover:bg-gray-200")}
             >
               <LayoutGrid className="h-3 w-3 mr-1" />
               Grid
@@ -60,7 +60,7 @@ export function AdminDashboardHeader({
               variant="ghost"
               size="sm"
               onClick={() => handleViewChange("list")}
-              className={cn("h-7 px-3", view === "list" ? "bg-white shadow-sm" : "hover:bg-gray-200")}
+              className={cn("h-7 px-3", view === "list" ? "bg-card shadow-sm" : "hover:bg-gray-200")}
             >
               <List className="h-3 w-3 mr-1" />
               List
@@ -101,7 +101,7 @@ export function AdminDashboardHeader({
           {showAddWidget && (
             <Button
               onClick={onAddWidget}
-              className="h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white"
+              className="h-8 px-3 bg-blue-600 hover:bg-blue-700 text-primary-foreground"
             >
               <Plus className="h-3 w-3 mr-1" />
               Add Widget

@@ -66,7 +66,7 @@ export function AdminTopNav({ onMobileMenuToggle, mobileMenuOpen = false }: Admi
   };
 
   return (
-    <header className="flex h-14 items-center justify-between border-b bg-white px-4 shadow-sm">
+    <header className="flex h-14 items-center justify-between border-b bg-card px-4 shadow-sm">
       {/* Left side — Hamburger (mobile) + Personal dropdown + Home + App icons */}
       <div className="flex items-center gap-2">
         {/* Mobile hamburger button — only visible on small screens */}

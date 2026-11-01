@@ -122,17 +122,17 @@ export default function PMBoardsPage() {
         </Card>
       ) : (
         <>
-          <Card className="overflow-hidden border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.08),transparent_34%),radial-gradient(circle_at_top_right,rgba(14,165,233,0.12),transparent_32%),linear-gradient(180deg,rgba(248,250,252,0.96),rgba(255,255,255,1))]">
+          <Card className="overflow-hidden border-slate-200/80 surface-gradient">
             <CardContent className="grid gap-6 p-6 xl:grid-cols-[1.15fr_0.85fr]">
               <div className="space-y-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge className="border-0 bg-platform-chrome text-white">Kanban Launch Surface</Badge>
-                  <Badge variant="outline" className="border-slate-300 bg-white/90 text-slate-700">
+                  <Badge variant="outline" className="border-slate-300 bg-card/90 text-slate-700">
                     Live PM data
                   </Badge>
                 </div>
                 <div className="space-y-3">
-                  <h2 className="max-w-3xl text-3xl font-semibold tracking-tight text-slate-950">
+                  <h2 className="max-w-3xl text-3xl font-semibold tracking-tight text-foreground">
                     Jump straight into delivery lanes, not admin detours.
                   </h2>
                   <p className="max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
@@ -141,14 +141,14 @@ export default function PMBoardsPage() {
                   </p>
                 </div>
                 {featuredProject && featuredWorkspace ? (
-                  <div className="rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-sm">
+                  <div className="rounded-[28px] border border-slate-200 bg-card/90 p-5 shadow-sm">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div className="space-y-2">
                         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
                           Featured board
                         </p>
                         <div>
-                          <h3 className="text-2xl font-semibold text-slate-950">{featuredProject.name}</h3>
+                          <h3 className="text-2xl font-semibold text-foreground">{featuredProject.name}</h3>
                           <p className="mt-1 text-sm text-muted-foreground">{featuredWorkspace.name}</p>
                         </div>
                         <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
@@ -197,7 +197,7 @@ export default function PMBoardsPage() {
                 <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Workspace boards</p>
-                    <h3 className="mt-1 text-2xl font-semibold text-slate-950">{group.workspace.name}</h3>
+                    <h3 className="mt-1 text-2xl font-semibold text-foreground">{group.workspace.name}</h3>
                   </div>
                   <Button asChild variant="outline" className="w-fit gap-2">
                     <Link href={`/platform/pm/${group.workspace.slug}`}>
@@ -213,15 +213,15 @@ export default function PMBoardsPage() {
                     return (
                       <Card
                         key={project._id}
-                        className="overflow-hidden border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.96))] shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+                        className="overflow-hidden border-slate-200/80 bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
                       >
                         <CardHeader className="space-y-3 pb-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="space-y-1">
-                              <CardTitle className="text-lg text-slate-950">{project.name}</CardTitle>
+                              <CardTitle className="text-lg text-foreground">{project.name}</CardTitle>
                               <p className="text-sm text-muted-foreground">{group.workspace.name}</p>
                             </div>
-                            <Badge variant="outline" className="border-slate-300 bg-white/90">
+                            <Badge variant="outline" className="border-slate-300 bg-card/90">
                               {project.status}
                             </Badge>
                           </div>
@@ -233,11 +233,11 @@ export default function PMBoardsPage() {
                           <div className="grid gap-3 sm:grid-cols-2">
                             <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">
                               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Progress</p>
-                              <p className="mt-2 text-xl font-semibold text-slate-950">{Math.round(project.progress ?? 0)}%</p>
+                              <p className="mt-2 text-xl font-semibold text-foreground">{Math.round(project.progress ?? 0)}%</p>
                             </div>
                             <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">
                               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Members</p>
-                              <p className="mt-2 text-xl font-semibold text-slate-950">{project.memberIds?.length ?? 0}</p>
+                              <p className="mt-2 text-xl font-semibold text-foreground">{project.memberIds?.length ?? 0}</p>
                             </div>
                           </div>
 
@@ -285,14 +285,14 @@ function StatCard({
   icon: typeof Columns3;
 }) {
   return (
-    <div className="rounded-[24px] border border-slate-200 bg-white/92 p-4 shadow-sm">
+    <div className="rounded-[24px] border border-slate-200 bg-card/92 p-4 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-platform-chrome text-white">
           <Icon className="h-5 w-5" />
         </div>
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-          <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
+          <p className="mt-2 text-2xl font-semibold text-foreground">{value}</p>
         </div>
       </div>
     </div>

@@ -403,7 +403,7 @@ export default function PMPage() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-medium text-slate-950">{task.title}</p>
+                      <p className="font-medium text-foreground">{task.title}</p>
                       <p className="mt-1 text-sm text-slate-500">{task.project?.name ?? "Project"}</p>
                     </div>
                     <Badge variant="secondary">
@@ -444,7 +444,7 @@ export default function PMPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-medium text-slate-950">{project.name}</p>
+                        <p className="font-medium text-foreground">{project.name}</p>
                         <p className="mt-1 line-clamp-2 text-sm text-slate-500">{project.description}</p>
                       </div>
                       <Badge variant="outline">{project.status}</Badge>
@@ -460,7 +460,7 @@ export default function PMPage() {
         </Card>
       </div>
 
-      <Card className="overflow-hidden border-slate-200/80 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.07),transparent_35%),linear-gradient(180deg,rgba(248,250,252,0.92),rgba(255,255,255,0.98))]">
+      <Card className="overflow-hidden border-slate-200/80 surface-gradient">
         <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <CardTitle>Kanban boards</CardTitle>
@@ -489,10 +489,10 @@ export default function PMPage() {
             activeProjects.map((project) => {
               const workspace = workspaceRows.find((row) => row._id === project.workspaceId);
               return (
-                <div key={project._id} className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                <div key={project._id} className="rounded-2xl border border-slate-200 bg-card/90 p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-semibold text-slate-950">{project.name}</p>
+                      <p className="font-semibold text-foreground">{project.name}</p>
                       <p className="mt-1 text-sm text-muted-foreground">{workspace?.name ?? "Workspace"}</p>
                     </div>
                     <Badge variant="outline">{project.status}</Badge>

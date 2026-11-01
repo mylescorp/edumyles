@@ -60,7 +60,7 @@ export function KanbanBoard({ statuses, tasks, onOpenTask, onMoveTask }: KanbanB
 
             <div className="space-y-3">
               {column.tasks.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-white/70 p-4 text-xs text-slate-500">
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-card/70 p-4 text-xs text-slate-500">
                   Drop a task here.
                 </div>
               ) : (
@@ -83,7 +83,7 @@ export function KanbanBoard({ statuses, tasks, onOpenTask, onMoveTask }: KanbanB
             </div>
 
             {dragTaskId && dropStatus === column.status ? (
-              <div className="mt-3 rounded-2xl border border-emerald-300 bg-white px-3 py-2 text-xs text-emerald-700">
+              <div className="mt-3 rounded-2xl border border-emerald-300 bg-card px-3 py-2 text-xs text-emerald-700">
                 Release to move into {column.status}.
               </div>
             ) : null}

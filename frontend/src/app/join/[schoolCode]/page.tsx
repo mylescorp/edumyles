@@ -121,15 +121,15 @@ export default function ParentJoinPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(15,61,46,0.14),_transparent_34%),linear-gradient(180deg,_#f5faf7_0%,_#edf5ef_100%)] px-4 py-10">
+    <div className="min-h-screen page-gradient px-4 py-10">
       <div className="mx-auto max-w-3xl">
-        <Card className="border-emerald-100 bg-white/95 shadow-xl">
+        <Card className="border-emerald-100 bg-card/95 shadow-xl">
           <CardHeader className="space-y-4">
             <Badge variant="outline" className="w-fit border-emerald-200 text-emerald-900">
               Parent Access
             </Badge>
             <div className="space-y-2">
-              <CardTitle className="text-3xl font-semibold text-slate-950">
+              <CardTitle className="text-3xl font-semibold text-foreground">
                 Join {schoolContext?.schoolName ?? "your school"} on EduMyles
               </CardTitle>
               <CardDescription className="max-w-2xl text-base text-slate-600">
@@ -178,13 +178,13 @@ export default function ParentJoinPage() {
                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-5">
                   <div className="flex flex-wrap items-center gap-3">
                     <ShieldCheck className="h-5 w-5 text-emerald-700" />
-                    <p className="text-sm font-medium text-emerald-950">
+                    <p className="text-sm font-medium text-success-muted-foreground">
                       We found {totalChildren} child record{totalChildren === 1 ? "" : "s"} linked to this contact.
                     </p>
                   </div>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     {lookup.matches.map((match: any) => (
-                      <div key={String(match.guardianId)} className="rounded-xl border border-emerald-200 bg-white p-4">
+                      <div key={String(match.guardianId)} className="rounded-xl border border-emerald-200 bg-card p-4">
                         <p className="text-sm font-semibold text-slate-900">{match.guardianName}</p>
                         <p className="mt-1 text-xs text-slate-500">{match.relationship}</p>
                         <div className="mt-3 space-y-2">
@@ -221,7 +221,7 @@ export default function ParentJoinPage() {
             ) : null}
 
             {requestResult ? (
-              <form onSubmit={handleVerifyOtp} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+              <form onSubmit={handleVerifyOtp} className="space-y-4 rounded-2xl border border-slate-200 bg-card p-5">
                 <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
                   {requestResult.deliveryChannel === "email" ? (
                     <Mail className="h-4 w-4 text-emerald-700" />
