@@ -1,0 +1,50 @@
+{
+  "entries": [
+    {
+      "title": "Refresh the What's new release timeline",
+      "description": "Browse published product updates in a dated timeline with category filters and shareable cards.",
+      "type": "improvement",
+      "panels": [
+        "admin",
+        "teacher",
+        "student",
+        "parent",
+        "alumni",
+        "partner",
+        "developer",
+        "affiliate",
+        "reseller",
+        "platform"
+      ],
+      "tags": []
+    },
+    {
+      "title": "Show merged product updates in the What's new timeline",
+      "description": "The timeline now includes dated, categorized updates for merged work, while keeping formal versioned release cards tied to published releases. Update visibility follows the affected panels, with unknown scope limited to Platform.",
+      "type": "feature",
+      "panels": [
+        "admin",
+        "teacher",
+        "student",
+        "parent",
+        "alumni",
+        "partner",
+        "developer",
+        "affiliate",
+        "reseller",
+        "platform"
+      ],
+      "tags": []
+    },
+    {
+      "title": "Clarify EduMyles platform invitations",
+      "description": "WorkOS organization invitations no longer create EduMyles platform access on their own, and unprovisioned platform accounts receive clear next steps instead of breaking the app shell.",
+      "type": "fix",
+      "panels": [
+        "admin",
+        "platform"
+      ],
+      "tags": []
+    }
+  ]
+}
