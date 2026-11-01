@@ -349,7 +349,7 @@ export default function PlatformSettingsPage() {
             <TabsTrigger
               key={tab.key}
               value={tab.key}
-              className="rounded-xl border border-transparent px-4 py-2 data-[state=active]:border-emerald-500/20 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+              className="rounded-xl border border-transparent px-4 py-2 data-[state=active]:border-primary/20 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
               {tab.label}
               {dirty[tab.key] ? (

@@ -400,7 +400,7 @@ export default function LandingEngagementsPage() {
                               className={[
                                 "max-w-[82%] rounded-xl px-3.5 py-2 text-sm leading-6 shadow-sm",
                                 item.sender === "agent"
-                                  ? "rounded-br-sm bg-emerald-700 text-white"
+                                  ? "rounded-br-sm bg-primary text-primary-foreground"
                                   : "rounded-bl-sm border bg-card text-foreground",
                               ].join(" ")}
                             >

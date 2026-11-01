@@ -114,7 +114,7 @@ export default function ProposalTrackingPage() {
           <Card className="overflow-hidden border-emerald-100 bg-card/95 shadow-xl shadow-emerald-950/5">
             <CardContent className="space-y-6 p-8">
               <div className="flex flex-wrap items-center gap-3">
-                <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">EduMyles Proposal</Badge>
+                <Badge className="bg-primary text-primary-foreground hover:bg-primary/90">EduMyles Proposal</Badge>
                 <Badge variant="outline" className="capitalize">{proposal.status}</Badge>
               </div>
 
