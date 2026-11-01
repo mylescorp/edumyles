@@ -1,7 +1,15 @@
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { requireTenantSession } from "../../helpers/tenantGuard";
-import { historyAudienceKey, isVisibleTo, legacyHistoryAudienceKey } from "./visibility";
-export { historyAudienceKey, isVisibleTo, legacyHistoryAudienceKey } from "./visibility";
+import {
+  historyAudienceKey,
+  isVisibleTo,
+  legacyHistoryAudienceKey,
+} from "./visibility";
+export {
+  historyAudienceKey,
+  isVisibleTo,
+  legacyHistoryAudienceKey,
+} from "./visibility";
 
 const PLATFORM_ROLES = [
   "master_admin",
@@ -31,10 +39,30 @@ export async function getFeedContext(ctx: any, sessionToken: string) {
     .query("platform_users")
     .withIndex("by_userId", (q: any) => q.eq("userId", platformUserId))
     .first();
-  const normalizedRole = session.role === "platform_admin" ? "super_admin" : session.role;
-  if (PLATFORM_ROLES.includes(normalizedRole) || session.tenantId === "PLATFORM" || platformUser) {
+  const normalizedRole =
+    session.role === "platform_admin" ? "super_admin" : session.role;
+  if (PLATFORM_ROLES.includes(normalizedRole) || platformUser) {
     const platform = await requirePlatformSession(ctx, { sessionToken });
-    return { ...platform, workspaceId: "PLATFORM", panel: "platform", canSeeAllPanels: true };
+    return {
+      ...platform,
+      workspaceId: "PLATFORM",
+      panel: "platform",
+      canSeeAllPanels: true,
+    };
+  }
+  // A WorkOS organization membership alone does not grant EduMyles platform access.
+  // Older callbacks could nevertheless create a PLATFORM session with a tenant role;
+  // keep shared shell queries safe for those sessions without exposing platform entries.
+  if (session.tenantId === "PLATFORM") {
+    return {
+      userId: session.userId,
+      email: session.email ?? "",
+      role: normalizedRole,
+      tenantId: "PLATFORM",
+      workspaceId: "PLATFORM",
+      panel: "unauthorized",
+      canSeeAllPanels: false,
+    };
   }
   const tenant = await requireTenantSession(ctx, { sessionToken });
   const panel =
@@ -50,11 +78,19 @@ export async function getFeedContext(ctx: any, sessionToken: string) {
         reseller: "reseller",
       } as Record<string, string>
     )[tenant.role] ?? "admin";
-  return { ...tenant, workspaceId: tenant.tenantId, panel, canSeeAllPanels: false };
+  return {
+    ...tenant,
+    workspaceId: tenant.tenantId,
+    panel,
+    canSeeAllPanels: false,
+  };
 }
 
 export async function visibleEntries(ctx: any, context: any) {
-  const entries = await ctx.db.query("changelogEntries").order("desc").collect();
+  const entries = await ctx.db
+    .query("changelogEntries")
+    .order("desc")
+    .collect();
   return entries
     .filter(
       (entry: any) =>
@@ -63,7 +99,7 @@ export async function visibleEntries(ctx: any, context: any) {
           (entry.status === "scheduled" &&
             !!entry.scheduledAt &&
             entry.scheduledAt <= Date.now())) &&
-        isVisibleTo(entry, context)
+        isVisibleTo(entry, context),
     )
     .sort((a: any, b: any) => b.date - a.date || b.createdAt - a.createdAt);
 }
@@ -72,7 +108,12 @@ export async function visibleHistoryPage(
   ctx: any,
   context: any,
   paginationOpts: any,
-  filters: { search?: string; type?: string; fromDate?: number; toDate?: number }
+  filters: {
+    search?: string;
+    type?: string;
+    fromDate?: number;
+    toDate?: number;
+  },
 ) {
   const search = filters.search?.trim();
   let historyQuery: any;
@@ -82,15 +123,24 @@ export async function visibleHistoryPage(
       .query("whatsNewGitHubHistory")
       .withSearchIndex("search_searchText", (q: any) => {
         const searchQuery = search.split(/\s+/).slice(0, 16).join(" ");
-        const searchFilter = q.search("searchText", searchQuery).eq("kind", "pull_request");
-        return filters.type ? searchFilter.eq("filterType", filters.type) : searchFilter;
+        const searchFilter = q
+          .search("searchText", searchQuery)
+          .eq("kind", "pull_request");
+        return filters.type
+          ? searchFilter.eq("filterType", filters.type)
+          : searchFilter;
       });
     if (filters.fromDate !== undefined || filters.toDate !== undefined) {
       historyQuery = historyQuery.filter((q: any) => {
         const mergedAt = q.field("mergedAt");
         const afterFrom =
-          filters.fromDate === undefined ? undefined : q.gte(mergedAt, filters.fromDate);
-        const beforeTo = filters.toDate === undefined ? undefined : q.lte(mergedAt, filters.toDate);
+          filters.fromDate === undefined
+            ? undefined
+            : q.gte(mergedAt, filters.fromDate);
+        const beforeTo =
+          filters.toDate === undefined
+            ? undefined
+            : q.lte(mergedAt, filters.toDate);
         if (afterFrom && beforeTo) return q.and(afterFrom, beforeTo);
         return afterFrom ?? beforeTo;
       });
@@ -100,22 +150,28 @@ export async function visibleHistoryPage(
       .query("whatsNewGitHubHistory")
       .withIndex("by_kind_filterType_mergedAt", (q: any) => {
         let range = q.eq("kind", "pull_request").eq("filterType", filters.type);
-        if (filters.fromDate !== undefined) range = range.gte("mergedAt", filters.fromDate);
-        if (filters.toDate !== undefined) range = range.lte("mergedAt", filters.toDate);
+        if (filters.fromDate !== undefined)
+          range = range.gte("mergedAt", filters.fromDate);
+        if (filters.toDate !== undefined)
+          range = range.lte("mergedAt", filters.toDate);
         return range;
       });
   } else {
-    historyQuery = ctx.db.query("whatsNewGitHubHistory").withIndex("by_kind_mergedAt", (q: any) => {
-      let range = q.eq("kind", "pull_request");
-      if (filters.fromDate !== undefined) range = range.gte("mergedAt", filters.fromDate);
-      if (filters.toDate !== undefined) range = range.lte("mergedAt", filters.toDate);
-      return range;
-    });
+    historyQuery = ctx.db
+      .query("whatsNewGitHubHistory")
+      .withIndex("by_kind_mergedAt", (q: any) => {
+        let range = q.eq("kind", "pull_request");
+        if (filters.fromDate !== undefined)
+          range = range.gte("mergedAt", filters.fromDate);
+        if (filters.toDate !== undefined)
+          range = range.lte("mergedAt", filters.toDate);
+        return range;
+      });
   }
 
-  const result = await (search ? historyQuery : historyQuery.order("desc")).paginate(
-    paginationOpts
-  );
+  const result = await (
+    search ? historyQuery : historyQuery.order("desc")
+  ).paginate(paginationOpts);
   return {
     ...result,
     page: result.page
@@ -124,7 +180,10 @@ export async function visibleHistoryPage(
           !!record.displayTitle &&
           !!record.displayDescription &&
           !!record.type &&
-          isVisibleTo({ panels: record.panels?.length ? record.panels : ["platform"] }, context)
+          isVisibleTo(
+            { panels: record.panels?.length ? record.panels : ["platform"] },
+            context,
+          ),
       )
       .map((record: any) => ({
         _id: record._id,
@@ -147,4 +206,20 @@ export async function historyVisibleCount(ctx: any, context: any) {
     .withIndex("by_key", (q: any) => q.eq("key", key))
     .unique();
   return stats?.count ?? 0;
+}
+
+export async function getUnreadCount(ctx: any, context: any) {
+  const entries = await visibleEntries(ctx, context);
+  const reads = await ctx.db
+    .query("whatsNewReads")
+    .withIndex("by_user_workspace", (q: any) =>
+      q.eq("userId", context.userId).eq("workspaceId", context.workspaceId),
+    )
+    .collect();
+  const readIds = new Set(reads.map((read: any) => String(read.entryId)));
+  return entries.reduce(
+    (count: number, entry: any) =>
+      count + (readIds.has(String(entry._id)) ? 0 : 1),
+    0,
+  );
 }

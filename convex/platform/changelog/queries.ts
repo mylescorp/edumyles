@@ -3,6 +3,7 @@ import { query } from "../../_generated/server";
 import { v } from "convex/values";
 import {
   getFeedContext,
+  getUnreadCount,
   historyAudienceKey,
   historyVisibleCount,
   isVisibleTo,
@@ -20,9 +21,14 @@ export const listChangelogs = query({
   },
   handler: async (ctx, args) => {
     await requirePlatformSession(ctx, args);
-    const entries = await ctx.db.query("changelogEntries").order("desc").collect();
+    const entries = await ctx.db
+      .query("changelogEntries")
+      .order("desc")
+      .collect();
 
-    const filtered = args.type ? entries.filter((e) => e.type === args.type) : entries;
+    const filtered = args.type
+      ? entries.filter((e) => e.type === args.type)
+      : entries;
 
     return filtered.slice(0, args.limit || 50);
   },
@@ -42,23 +48,18 @@ export const getWhatsNewUnreadCount = query({
   args: { sessionToken: v.string() },
   handler: async (ctx, args) => {
     const context = await getFeedContext(ctx, args.sessionToken);
-    const [entries, reads, historyRead] = await Promise.all([
-      visibleEntries(ctx, context),
-      ctx.db
-        .query("whatsNewReads")
-        .withIndex("by_user_workspace", (q) =>
-          q.eq("userId", context.userId).eq("workspaceId", context.workspaceId)
-        )
-        .collect(),
+    const [releaseUnreadCount, historyRead, totalHistory] = await Promise.all([
+      getUnreadCount(ctx, context),
       ctx.db
         .query("whatsNewHistoryReadSnapshots")
         .withIndex("by_user_workspace_audience", (q) =>
           q
             .eq("userId", context.userId)
             .eq("workspaceId", context.workspaceId)
-            .eq("audienceKey", historyAudienceKey(context))
+            .eq("audienceKey", historyAudienceKey(context)),
         )
         .unique(),
+      historyVisibleCount(ctx, context),
     ]);
     const scopedHistoryRead =
       historyRead ??
@@ -69,17 +70,13 @@ export const getWhatsNewUnreadCount = query({
               q
                 .eq("userId", context.userId)
                 .eq("workspaceId", context.workspaceId)
-                .eq("audienceKey", legacyHistoryAudienceKey(context))
+                .eq("audienceKey", legacyHistoryAudienceKey(context)),
             )
             .unique()
         : undefined);
-    const readIds = new Set(reads.map((read) => String(read.entryId)));
-    const totalHistory = await historyVisibleCount(ctx, context);
     return (
-      entries.reduce(
-        (count: number, entry: any) => count + (readIds.has(String(entry._id)) ? 0 : 1),
-        0
-      ) + Math.max(0, totalHistory - (scopedHistoryRead?.readThroughCount ?? 0))
+      releaseUnreadCount +
+      Math.max(0, totalHistory - (scopedHistoryRead?.readThroughCount ?? 0))
     );
   },
 });
@@ -113,7 +110,9 @@ export const getWhatsNewHistory = query({
     sessionToken: v.string(),
     paginationOpts: paginationOptsValidator,
     search: v.optional(v.string()),
-    type: v.optional(v.union(v.literal("feature"), v.literal("fix"), v.literal("improvement"))),
+    type: v.optional(
+      v.union(v.literal("feature"), v.literal("fix"), v.literal("improvement")),
+    ),
     fromDate: v.optional(v.number()),
     toDate: v.optional(v.number()),
   },
@@ -130,7 +129,10 @@ export const getWhatsNewHistoryEntry = query({
   },
   handler: async (ctx, args) => {
     const context = await getFeedContext(ctx, args.sessionToken);
-    const normalizedId = ctx.db.normalizeId("whatsNewGitHubHistory", args.entryId);
+    const normalizedId = ctx.db.normalizeId(
+      "whatsNewGitHubHistory",
+      args.entryId,
+    );
     if (!normalizedId) return null;
     const record = await ctx.db.get(normalizedId);
     if (
@@ -139,7 +141,10 @@ export const getWhatsNewHistoryEntry = query({
       !record.displayTitle ||
       !record.displayDescription ||
       !record.type ||
-      !isVisibleTo({ panels: record.panels?.length ? record.panels : ["platform"] }, context)
+      !isVisibleTo(
+        { panels: record.panels?.length ? record.panels : ["platform"] },
+        context,
+      )
     ) {
       return null;
     }

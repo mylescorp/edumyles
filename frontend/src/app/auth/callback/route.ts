@@ -633,6 +633,15 @@ export async function GET(req: NextRequest) {
       const role = normalizeRole(existing.role);
       const tenantId = existing.tenantId;
 
+      // Platform access must come from an explicit EduMyles platform role or invite.
+      // WorkOS organization membership is identity only and cannot provision app access.
+      if (tenantId === "PLATFORM" && !isPlatformRole(role)) {
+        console.warn(
+          `[auth/callback] ⛔ Platform account lacks an explicit EduMyles role: ${user.email}`
+        );
+        return authError(req, "platform_role_required");
+      }
+
       const sessionToken = crypto.randomBytes(32).toString("hex");
       const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
       await convex.mutation(api.sessions.createSession, {
