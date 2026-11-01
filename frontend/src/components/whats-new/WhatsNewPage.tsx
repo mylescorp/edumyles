@@ -101,6 +101,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const releasePathIndex = pathname.indexOf("/releases/");
   const routeBase =
     releasePathIndex >= 0 ? pathname.slice(0, releasePathIndex) : pathname.replace(/\/$/, "");
+  const activeVersion = version ? decodeURIComponent(version) : undefined;
   const { sessionToken } = useAuth();
   const { installedModules } = useInstalledModules();
   const [category, setCategory] = useState<(typeof FILTERS)[number]["id"]>("all");
@@ -111,14 +112,22 @@ export function WhatsNewPage({ version }: { version?: string }) {
   const [showFilters, setShowFilters] = useState(false);
   const openedScopeRef = useRef<string | null>(null);
   const lastScrolledHashRef = useRef<string | null>(null);
-  const historySearch = search.trim().toLowerCase();
-  const historyTypes =
+  const [linkedHistoryId] = useState<string | null>(() => {
+    if (typeof window === "undefined" || !window.location.hash.startsWith("#update-")) return null;
+    try {
+      return decodeURIComponent(window.location.hash.slice("#update-".length));
+    } catch {
+      return null;
+    }
+  });
+  const historySearch = search.trim().toLowerCase().split(/\s+/).slice(0, 16).join(" ");
+  const historyType =
     category === "feature"
-      ? ["feature"]
+      ? "feature"
       : category === "fix"
-        ? ["fix"]
+        ? "fix"
         : category === "improvement"
-          ? ["improvement", "breaking"]
+          ? "improvement"
           : undefined;
   const historyFromDate = releaseDateBoundary(fromDate);
   const historyToDate = releaseDateBoundary(toDate, true);
@@ -127,20 +136,31 @@ export function WhatsNewPage({ version }: { version?: string }) {
     { sessionToken: sessionToken ?? "" },
     !!sessionToken
   );
-  const { results: historyResults, status: historyStatus, loadMore: loadMoreHistory } =
-    usePaginatedQuery(
-      api.platform.changelog.queries.getWhatsNewHistory,
-      sessionToken
-        ? {
-            sessionToken,
-            ...(historySearch ? { search: historySearch } : {}),
-            ...(historyTypes ? { types: historyTypes } : {}),
-            ...(historyFromDate === undefined ? {} : { fromDate: historyFromDate }),
-            ...(historyToDate === undefined ? {} : { toDate: historyToDate }),
-          }
-        : "skip",
-      { initialNumItems: 50 }
-    );
+  const {
+    results: historyResults,
+    status: historyStatus,
+    loadMore: loadMoreHistory,
+  } = usePaginatedQuery(
+    api.platform.changelog.queries.getWhatsNewHistory,
+    sessionToken && !activeVersion
+      ? {
+          sessionToken,
+          ...(historySearch ? { search: historySearch } : {}),
+          ...(historyType ? { type: historyType } : {}),
+          ...(historyFromDate === undefined ? {} : { fromDate: historyFromDate }),
+          ...(historyToDate === undefined ? {} : { toDate: historyToDate }),
+        }
+      : "skip",
+    { initialNumItems: 50 }
+  );
+  const linkedHistoryEntry = useQuery(
+    api.platform.changelog.queries.getWhatsNewHistoryEntry,
+    {
+      sessionToken: sessionToken ?? "",
+      entryId: linkedHistoryId as any,
+    },
+    !!sessionToken && !!linkedHistoryId && !activeVersion
+  );
   const unreadCountResult = useQuery(
     api.platform.changelog.queries.getWhatsNewUnreadCount,
     { sessionToken: sessionToken ?? "" },
@@ -161,38 +181,30 @@ export function WhatsNewPage({ version }: { version?: string }) {
 
   const releaseEntries = (data?.entries ?? EMPTY_ENTRIES) as Entry[];
   const historyEntries = (historyResults ?? EMPTY_ENTRIES) as Entry[];
-  const entries = useMemo(
-    () => [...releaseEntries, ...historyEntries].sort((a, b) => b.date - a.date),
-    [historyEntries, releaseEntries]
-  );
-  const activeVersion = version ? decodeURIComponent(version) : undefined;
-  const filtersNeedAllHistory =
-    !activeVersion && (category !== "all" || !!search.trim() || !!fromDate || !!toDate);
-
-  useEffect(() => {
-    if (!data || historyStatus !== "CanLoadMore") return;
-    let linkedCardNeedsMore = false;
-    if (window.location.hash) {
-      try {
-        linkedCardNeedsMore = !document.getElementById(
-          decodeURIComponent(window.location.hash.slice(1))
-        );
-      } catch {
-        linkedCardNeedsMore = false;
-      }
+  const entries = useMemo(() => {
+    const byId = new Map<string, Entry>();
+    for (const entry of [...releaseEntries, ...historyEntries]) byId.set(entry._id, entry);
+    if (
+      linkedHistoryEntry &&
+      category === "all" &&
+      !search.trim() &&
+      !fromDate &&
+      !toDate &&
+      !personalized
+    ) {
+      byId.set(linkedHistoryEntry._id, linkedHistoryEntry as Entry);
     }
-    if (filtersNeedAllHistory || linkedCardNeedsMore) loadMoreHistory(50);
+    return [...byId.values()].sort((a, b) => b.date - a.date);
   }, [
     category,
-    data,
-    filtersNeedAllHistory,
     fromDate,
-    historyStatus,
-    loadMoreHistory,
+    historyEntries,
+    linkedHistoryEntry,
+    personalized,
+    releaseEntries,
     search,
     toDate,
   ]);
-
   useEffect(() => {
     if (!data || !window.location.hash) return;
     const hash = window.location.hash;
@@ -226,11 +238,11 @@ export function WhatsNewPage({ version }: { version?: string }) {
         const toBoundary = releaseDateBoundary(toDate, true);
         if (fromBoundary !== undefined && entry.date < fromBoundary) return false;
         if (toBoundary !== undefined && entry.date > toBoundary) return false;
-        const needle = search.trim().toLowerCase();
+        const needle = entry.isRelease ? search.trim().toLowerCase() : "";
         return (
           !needle ||
-          [entry.title, entry.description, entry.version, entry.module, ...entry.tags].some((value) =>
-            value?.toLowerCase().includes(needle)
+          [entry.title, entry.description, entry.version, entry.module, ...entry.tags].some(
+            (value) => value?.toLowerCase().includes(needle)
           )
         );
       }),
@@ -265,7 +277,7 @@ export function WhatsNewPage({ version }: { version?: string }) {
     window.open(url.toString(), "_blank", "noopener,noreferrer");
   }
 
-  if (!data || historyStatus === "LoadingFirstPage") {
+  if (!data) {
     return (
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:py-10">
         <div className="h-10 w-56 animate-pulse rounded bg-muted" />
@@ -405,18 +417,22 @@ export function WhatsNewPage({ version }: { version?: string }) {
                 <Sparkles className="h-6 w-6" />
               </span>
               <h2 className="mt-4 text-lg font-semibold text-foreground">
-                {historyStatus === "CanLoadMore" || historyStatus === "LoadingMore"
-                  ? "Searching updates…"
-                  : entries.length === 0
-                    ? "No updates published yet"
-                    : "No updates found"}
+                {historyStatus === "LoadingFirstPage" || historyStatus === "LoadingMore"
+                  ? "Loading updates…"
+                  : historyStatus === "CanLoadMore"
+                    ? "More updates are available"
+                    : entries.length === 0
+                      ? "No updates published yet"
+                      : "No updates found"}
               </h2>
               <p className="mt-1 max-w-md text-sm leading-6 text-muted-foreground">
-                {historyStatus === "CanLoadMore" || historyStatus === "LoadingMore"
-                  ? "Checking the full update timeline for matches."
-                  : entries.length === 0
-                    ? "When a release is published, its updates will appear here."
-                    : "Try a different search or filter to find a published update."}
+                {historyStatus === "LoadingFirstPage" || historyStatus === "LoadingMore"
+                  ? "Your timeline is updating while you search."
+                  : historyStatus === "CanLoadMore"
+                    ? "Load more updates to continue browsing this timeline."
+                    : entries.length === 0
+                      ? "When a release is published, its updates will appear here."
+                      : "Try a different search or filter to find a published update."}
               </p>
             </div>
           </Card>
@@ -433,7 +449,10 @@ export function WhatsNewPage({ version }: { version?: string }) {
                 </time>
                 <div className="relative flex justify-center">
                   {index < releases.length - 1 && (
-                    <span className="absolute bottom-[-1.25rem] top-0 w-px bg-border" aria-hidden="true" />
+                    <span
+                      className="absolute bottom-[-1.25rem] top-0 w-px bg-border"
+                      aria-hidden="true"
+                    />
                   )}
                   <span className="relative mt-5 h-3 w-3 rounded-full border-2 border-background bg-primary ring-1 ring-primary/30" />
                 </div>
@@ -520,19 +539,18 @@ export function WhatsNewPage({ version }: { version?: string }) {
             ))}
           </div>
         )}
-        {!filtersNeedAllHistory &&
-          (historyStatus === "CanLoadMore" || historyStatus === "LoadingMore") && (
-            <div className="mt-3 flex justify-center">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={historyStatus === "LoadingMore"}
-                onClick={() => loadMoreHistory(50)}
-              >
-                {historyStatus === "LoadingMore" ? "Loading updates…" : "Load more updates"}
-              </Button>
-            </div>
-          )}
+        {(historyStatus === "CanLoadMore" || historyStatus === "LoadingMore") && (
+          <div className="mt-3 flex justify-center">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={historyStatus === "LoadingMore"}
+              onClick={() => loadMoreHistory(50)}
+            >
+              {historyStatus === "LoadingMore" ? "Loading updates…" : "Load more updates"}
+            </Button>
+          </div>
+        )}
       </div>
     </main>
   );

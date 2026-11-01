@@ -1,7 +1,14 @@
 import { paginationOptsValidator } from "convex/server";
 import { query } from "../../_generated/server";
 import { v } from "convex/values";
-import { getFeedContext, historyVisibleCount, visibleEntries, visibleHistoryPage } from "./access";
+import {
+  getFeedContext,
+  historyAudienceKey,
+  historyVisibleCount,
+  isVisibleTo,
+  visibleEntries,
+  visibleHistoryPage,
+} from "./access";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 
 export const listChangelogs = query({
@@ -48,7 +55,7 @@ export const getWhatsNewUnreadCount = query({
           q
             .eq("userId", context.userId)
             .eq("workspaceId", context.workspaceId)
-            .eq("audienceKey", context.canSeeAllPanels ? "all" : context.panel)
+            .eq("audienceKey", historyAudienceKey(context))
         )
         .unique(),
     ]);
@@ -92,13 +99,47 @@ export const getWhatsNewHistory = query({
     sessionToken: v.string(),
     paginationOpts: paginationOptsValidator,
     search: v.optional(v.string()),
-    types: v.optional(v.array(v.string())),
+    type: v.optional(v.union(v.literal("feature"), v.literal("fix"), v.literal("improvement"))),
     fromDate: v.optional(v.number()),
     toDate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const context = await getFeedContext(ctx, args.sessionToken);
     return await visibleHistoryPage(ctx, context, args.paginationOpts, args);
+  },
+});
+
+export const getWhatsNewHistoryEntry = query({
+  args: {
+    sessionToken: v.string(),
+    entryId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const context = await getFeedContext(ctx, args.sessionToken);
+    const normalizedId = ctx.db.normalizeId("whatsNewGitHubHistory", args.entryId);
+    if (!normalizedId) return null;
+    const record = await ctx.db.get(normalizedId);
+    if (
+      !record ||
+      record.kind !== "pull_request" ||
+      !record.displayTitle ||
+      !record.displayDescription ||
+      !record.type ||
+      !isVisibleTo({ panels: record.panels?.length ? record.panels : ["platform"] }, context)
+    ) {
+      return null;
+    }
+    return {
+      _id: record._id,
+      groupKey: `history:${record._id}`,
+      isRelease: false,
+      version: "",
+      title: record.displayTitle,
+      description: record.displayDescription,
+      type: record.type,
+      tags: record.tags ?? [],
+      date: record.mergedAt,
+    };
   },
 });
 

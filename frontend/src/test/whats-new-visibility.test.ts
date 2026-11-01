@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isVisibleTo } from "../../../convex/platform/changelog/visibility";
+import { historyAudienceKey, isVisibleTo } from "../../../convex/platform/changelog/visibility";
 import {
   classifyType,
   displayDescription,
@@ -8,6 +8,12 @@ import {
 } from "../../../scripts/whats-new-github-history-utils.mjs";
 
 describe("What's new panel visibility", () => {
+  it("stores unread snapshots separately for each panel and all-panel access", () => {
+    expect(historyAudienceKey({ panel: "teacher", canSeeAllPanels: false })).toBe("teacher");
+    expect(historyAudienceKey({ panel: "admin", canSeeAllPanels: false })).toBe("admin");
+    expect(historyAudienceKey({ panel: "platform", canSeeAllPanels: true })).toBe("all");
+  });
+
   it("keeps panel releases out of other tenant panels", () => {
     const teacher = { panel: "teacher", workspaceId: "TENANT-1", canSeeAllPanels: false };
     expect(isVisibleTo({ panels: ["teacher"], workspaceIds: undefined }, teacher)).toBe(true);

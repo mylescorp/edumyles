@@ -2,7 +2,7 @@ import { internalMutation, mutation } from "../../_generated/server";
 import { v } from "convex/values";
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { logAction } from "../../helpers/auditLog";
-import { getFeedContext, historyVisibleCount, visibleEntries } from "./access";
+import { getFeedContext, historyAudienceKey, historyVisibleCount, visibleEntries } from "./access";
 
 const ALLOWED_PANELS = [
   "admin",
@@ -77,6 +77,20 @@ function accumulateHistoryCounterChanges(
   for (const key of afterSet) {
     if (!beforeSet.has(key)) changes.set(key, (changes.get(key) ?? 0) + 1);
   }
+}
+
+function searchableHistoryRecord(record: {
+  displayTitle?: string;
+  displayDescription?: string;
+  tags?: string[];
+  type?: "feature" | "fix" | "improvement" | "breaking";
+}) {
+  return {
+    searchText: [record.displayTitle, record.displayDescription, ...(record.tags ?? [])]
+      .filter((part): part is string => !!part?.trim())
+      .join(" "),
+    filterType: record.type === "breaking" ? "improvement" : record.type,
+  };
 }
 
 export const createChangelogEntry = mutation({
@@ -282,6 +296,10 @@ export const upsertGitHubHistoryInternal = internalMutation({
     let inserted = 0;
     let updated = 0;
     const counterChanges = new Map<string, number>();
+    const backfillMarker = await ctx.db
+      .query("whatsNewGitHubHistoryStats")
+      .withIndex("by_key", (q) => q.eq("key", "backfill-complete"))
+      .unique();
     for (const record of args.records) {
       if (
         !record.externalId ||
@@ -301,29 +319,44 @@ export const upsertGitHubHistoryInternal = internalMutation({
       ) {
         throw new Error("Merged updates need a safe title, category, and panel audience");
       }
+      const searchFields = searchableHistoryRecord(record);
+      const nextRecord = { ...record, ...searchFields };
       const existing = await ctx.db
         .query("whatsNewGitHubHistory")
         .withIndex("by_externalId", (q) => q.eq("externalId", record.externalId))
         .first();
       if (existing) {
         const previousContributions = historyContributionKeys(existing);
-        const nextContributions = historyContributionKeys(record);
+        const nextContributions = historyContributionKeys(nextRecord);
         accumulateHistoryCounterChanges(counterChanges, previousContributions, nextContributions);
         await ctx.db.patch(existing._id, {
-          ...record,
+          ...nextRecord,
           isHistorical: existing.isHistorical && record.isHistorical,
         });
         updated += 1;
       } else {
-        await ctx.db.insert("whatsNewGitHubHistory", { ...record, createdAt: now });
-        accumulateHistoryCounterChanges(counterChanges, [], historyContributionKeys(record));
+        await ctx.db.insert("whatsNewGitHubHistory", { ...nextRecord, createdAt: now });
+        accumulateHistoryCounterChanges(counterChanges, [], historyContributionKeys(nextRecord));
         inserted += 1;
       }
     }
     for (const [key, delta] of counterChanges) {
       await adjustHistoryCounter(ctx, key, delta);
     }
-    return { inserted, updated };
+    return { inserted, updated, needsBackfill: !backfillMarker };
+  },
+});
+
+export const markGitHubHistoryBackfillCompleteInternal = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const marker = await ctx.db
+      .query("whatsNewGitHubHistoryStats")
+      .withIndex("by_key", (q) => q.eq("key", "backfill-complete"))
+      .unique();
+    if (marker) await ctx.db.patch(marker._id, { count: 1 });
+    else await ctx.db.insert("whatsNewGitHubHistoryStats", { key: "backfill-complete", count: 1 });
+    return { complete: true };
   },
 });
 
@@ -517,7 +550,7 @@ export const markAllRead = mutation({
           q
             .eq("userId", context.userId)
             .eq("workspaceId", context.workspaceId)
-            .eq("audienceKey", context.canSeeAllPanels ? "all" : context.panel)
+            .eq("audienceKey", historyAudienceKey(context))
         )
         .unique();
       if (existingSnapshot) {
@@ -526,7 +559,7 @@ export const markAllRead = mutation({
         await ctx.db.insert("whatsNewHistoryReadSnapshots", {
           userId: context.userId,
           workspaceId: context.workspaceId,
-          audienceKey: context.canSeeAllPanels ? "all" : context.panel,
+          audienceKey: historyAudienceKey(context),
           readThroughCount,
           readAt: Date.now(),
         });

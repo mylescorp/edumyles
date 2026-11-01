@@ -1,7 +1,7 @@
 import { requirePlatformSession } from "../../helpers/platformGuard";
 import { requireTenantSession } from "../../helpers/tenantGuard";
-import { isVisibleTo } from "./visibility";
-export { isVisibleTo } from "./visibility";
+import { historyAudienceKey, isVisibleTo } from "./visibility";
+export { historyAudienceKey, isVisibleTo } from "./visibility";
 
 const PLATFORM_ROLES = [
   "master_admin",
@@ -72,13 +72,50 @@ export async function visibleHistoryPage(
   ctx: any,
   context: any,
   paginationOpts: any,
-  filters: { search?: string; types?: string[]; fromDate?: number; toDate?: number }
+  filters: { search?: string; type?: string; fromDate?: number; toDate?: number }
 ) {
-  const result = await ctx.db
-    .query("whatsNewGitHubHistory")
-    .withIndex("by_kind_mergedAt", (q: any) => q.eq("kind", "pull_request"))
-    .order("desc")
-    .paginate(paginationOpts);
+  const search = filters.search?.trim();
+  let historyQuery: any;
+
+  if (search) {
+    historyQuery = ctx.db
+      .query("whatsNewGitHubHistory")
+      .withSearchIndex("search_searchText", (q: any) => {
+        const searchQuery = search.split(/\s+/).slice(0, 16).join(" ");
+        const searchFilter = q.search("searchText", searchQuery).eq("kind", "pull_request");
+        return filters.type ? searchFilter.eq("filterType", filters.type) : searchFilter;
+      });
+    if (filters.fromDate !== undefined || filters.toDate !== undefined) {
+      historyQuery = historyQuery.filter((q: any) => {
+        const mergedAt = q.field("mergedAt");
+        const afterFrom =
+          filters.fromDate === undefined ? undefined : q.gte(mergedAt, filters.fromDate);
+        const beforeTo = filters.toDate === undefined ? undefined : q.lte(mergedAt, filters.toDate);
+        if (afterFrom && beforeTo) return q.and(afterFrom, beforeTo);
+        return afterFrom ?? beforeTo;
+      });
+    }
+  } else if (filters.type) {
+    historyQuery = ctx.db
+      .query("whatsNewGitHubHistory")
+      .withIndex("by_kind_filterType_mergedAt", (q: any) => {
+        let range = q.eq("kind", "pull_request").eq("filterType", filters.type);
+        if (filters.fromDate !== undefined) range = range.gte("mergedAt", filters.fromDate);
+        if (filters.toDate !== undefined) range = range.lte("mergedAt", filters.toDate);
+        return range;
+      });
+  } else {
+    historyQuery = ctx.db.query("whatsNewGitHubHistory").withIndex("by_kind_mergedAt", (q: any) => {
+      let range = q.eq("kind", "pull_request");
+      if (filters.fromDate !== undefined) range = range.gte("mergedAt", filters.fromDate);
+      if (filters.toDate !== undefined) range = range.lte("mergedAt", filters.toDate);
+      return range;
+    });
+  }
+
+  const result = await (search ? historyQuery : historyQuery.order("desc")).paginate(
+    paginationOpts
+  );
   return {
     ...result,
     page: result.page
@@ -87,13 +124,6 @@ export async function visibleHistoryPage(
           !!record.displayTitle &&
           !!record.displayDescription &&
           !!record.type &&
-          (!filters.types?.length || filters.types.includes(record.type)) &&
-          (filters.fromDate === undefined || record.mergedAt >= filters.fromDate) &&
-          (filters.toDate === undefined || record.mergedAt <= filters.toDate) &&
-          (!filters.search ||
-            [record.displayTitle, record.displayDescription, ...(record.tags ?? [])].some((value) =>
-              value?.toLowerCase().includes(filters.search!.toLowerCase())
-            )) &&
           isVisibleTo({ panels: record.panels?.length ? record.panels : ["platform"] }, context)
       )
       .map((record: any) => ({

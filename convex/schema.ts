@@ -3957,11 +3957,11 @@ export default defineSchema({
     count: v.number(),
   }).index("by_key", ["key"]),
 
-  // One read snapshot per signed-in user and workspace replaces per-PR read rows.
+  // Read snapshots are scoped to the signed-in user, workspace, and visible audience.
   whatsNewHistoryReadSnapshots: defineTable({
     userId: v.string(),
     workspaceId: v.string(),
-    audienceKey: v.string(),
+    audienceKey: v.optional(v.string()),
     readThroughCount: v.number(),
     readAt: v.number(),
   }).index("by_user_workspace_audience", ["userId", "workspaceId", "audienceKey"]),
@@ -3977,6 +3977,10 @@ export default defineSchema({
     commitSha: v.optional(v.string()),
     displayTitle: v.optional(v.string()),
     displayDescription: v.optional(v.string()),
+    searchText: v.optional(v.string()),
+    filterType: v.optional(
+      v.union(v.literal("feature"), v.literal("fix"), v.literal("improvement"))
+    ),
     type: v.optional(
       v.union(
         v.literal("feature"),
@@ -3994,6 +3998,11 @@ export default defineSchema({
     .index("by_externalId", ["externalId"])
     .index("by_mergedAt", ["mergedAt"])
     .index("by_kind_mergedAt", ["kind", "mergedAt"])
+    .index("by_kind_filterType_mergedAt", ["kind", "filterType", "mergedAt"])
+    .searchIndex("search_searchText", {
+      searchField: "searchText",
+      filterFields: ["kind", "filterType"],
+    })
     .index("by_isHistorical_createdAt", ["isHistorical", "createdAt"]),
 
   whatsNewAudit: defineTable({

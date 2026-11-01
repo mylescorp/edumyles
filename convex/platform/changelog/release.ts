@@ -49,6 +49,7 @@ export const publishReleaseManifest: any = action({
 export const syncGitHubHistory: any = action({
   args: {
     releaseSecret: v.string(),
+    backfillComplete: v.optional(v.boolean()),
     records: v.array(
       v.object({
         externalId: v.string(),
@@ -80,9 +81,16 @@ export const syncGitHubHistory: any = action({
     const configuredSecret = process.env.WHATS_NEW_RELEASE_SECRET;
     if (!configuredSecret || args.releaseSecret !== configuredSecret)
       throw new Error("UNAUTHORIZED: GitHub history credentials are invalid");
-    return await ctx.runMutation(
+    const result = await ctx.runMutation(
       (internal as any).platform.changelog.mutations.upsertGitHubHistoryInternal,
       { records: args.records }
     );
+    if (args.backfillComplete) {
+      await ctx.runMutation(
+        (internal as any).platform.changelog.mutations.markGitHubHistoryBackfillCompleteInternal,
+        {}
+      );
+    }
+    return result;
   },
 });

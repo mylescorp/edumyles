@@ -10,3 +10,7 @@ export function isVisibleTo(
     context.canSeeAllPanels
   );
 }
+
+export function historyAudienceKey(context: { canSeeAllPanels: boolean; panel: string }) {
+  return context.canSeeAllPanels ? "all" : context.panel;
+}

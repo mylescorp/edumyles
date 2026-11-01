@@ -114,8 +114,7 @@ function makeCommitRecord(commit, mergedAt, pullRequestNumber, isHistorical) {
   };
 }
 
-let records = [];
-if (eventName === "workflow_dispatch") {
+async function loadCompleteHistory() {
   const allPullRequests = await getAllPages(`${apiRoot}/pulls?state=closed`);
   const mergedPullRequests = allPullRequests.filter((pullRequest) => pullRequest.merged_at);
   const pullRequestCommits = new Map();
@@ -141,8 +140,8 @@ if (eventName === "workflow_dispatch") {
   });
   await Promise.all(workers);
 
-  records = mergedPullRequestRecords;
-  records.push(...mergedCommitRecords.values());
+  const historyRecords = mergedPullRequestRecords;
+  historyRecords.push(...mergedCommitRecords.values());
   const repositoryInfo = await github(apiRoot);
   const branchCommits = await getAllPages(
     `${apiRoot}/commits?sha=${encodeURIComponent(repositoryInfo.default_branch)}`
@@ -150,7 +149,7 @@ if (eventName === "workflow_dispatch") {
   for (const commit of branchCommits) {
     if (mergedCommitRecords.has(commit.sha)) continue;
     const pullRequestNumber = pullRequestCommits.get(commit.sha);
-    records.push(
+    historyRecords.push(
       makeCommitRecord(
         commit,
         Date.parse(commit.commit?.committer?.date ?? commit.commit?.author?.date ?? ""),
@@ -162,6 +161,12 @@ if (eventName === "workflow_dispatch") {
   console.log(
     `Prepared ${mergedPullRequests.length} merged pull requests and ${branchCommits.length} default-branch commits.`
   );
+  return historyRecords;
+}
+
+let records = [];
+if (eventName === "workflow_dispatch") {
+  records = await loadCompleteHistory();
 } else if (eventName === "pull_request_target") {
   const pullRequest = event.pull_request;
   if (!pullRequest?.merged_at) {
@@ -191,30 +196,53 @@ if (eventName === "workflow_dispatch") {
   throw new Error(`Unsupported GitHub history event: ${eventName}`);
 }
 
-const uniqueRecords = [...new Map(records.map((record) => [record.externalId, record])).values()];
-let inserted = 0;
-let updated = 0;
-for (let offset = 0; offset < uniqueRecords.length; offset += 15) {
-  const args = JSON.stringify({
-    releaseSecret,
-    records: uniqueRecords.slice(offset, offset + 15),
-  });
-  try {
-    const result = execFileSync(
-      "npx",
-      ["convex", "run", "platform/changelog/release:syncGitHubHistory", args],
-      {
-        encoding: "utf8",
-        env: { ...process.env, CONVEX_DEPLOY_KEY: deployKey ?? "" },
-        stdio: ["ignore", "pipe", "pipe"],
-      }
-    );
-    const counts = JSON.parse(result);
-    inserted += counts.inserted ?? 0;
-    updated += counts.updated ?? 0;
-  } catch (error) {
-    const stderr = error?.stderr?.toString?.().replaceAll(releaseSecret, "[REDACTED]");
-    throw new Error(stderr || "Convex rejected the GitHub history batch.");
+async function syncBatches(inputRecords, completeBackfill = false) {
+  const uniqueRecords = [
+    ...new Map(inputRecords.map((record) => [record.externalId, record])).values(),
+  ];
+  const batchCount = Math.max(1, Math.ceil(uniqueRecords.length / 15));
+  let inserted = 0;
+  let updated = 0;
+  let needsBackfill = false;
+  for (let batchIndex = 0; batchIndex < batchCount; batchIndex += 1) {
+    const args = JSON.stringify({
+      releaseSecret,
+      records: uniqueRecords.slice(batchIndex * 15, (batchIndex + 1) * 15),
+      ...(completeBackfill && batchIndex === batchCount - 1 ? { backfillComplete: true } : {}),
+    });
+    try {
+      const result = execFileSync(
+        "npx",
+        ["convex", "run", "platform/changelog/release:syncGitHubHistory", args],
+        {
+          encoding: "utf8",
+          env: { ...process.env, CONVEX_DEPLOY_KEY: deployKey ?? "" },
+          stdio: ["ignore", "pipe", "pipe"],
+        }
+      );
+      const counts = JSON.parse(result);
+      inserted += counts.inserted ?? 0;
+      updated += counts.updated ?? 0;
+      needsBackfill ||= counts.needsBackfill === true;
+    } catch (error) {
+      const stderr = error?.stderr?.toString?.().replaceAll(releaseSecret, "[REDACTED]");
+      throw new Error(stderr || "Convex rejected the GitHub history batch.");
+    }
   }
+  return { inserted, updated, needsBackfill };
 }
-console.log(`GitHub history sync complete: ${inserted} inserted, ${updated} updated.`);
+
+let totals = await syncBatches(records, eventName === "workflow_dispatch");
+if (eventName !== "workflow_dispatch" && totals.needsBackfill) {
+  console.log(
+    "No complete repository history is indexed yet; running the one-time history backfill."
+  );
+  const backfillTotals = await syncBatches(await loadCompleteHistory(), true);
+  totals = {
+    inserted: totals.inserted + backfillTotals.inserted,
+    updated: totals.updated + backfillTotals.updated,
+  };
+}
+console.log(
+  `GitHub history sync complete: ${totals.inserted} inserted, ${totals.updated} updated.`
+);
