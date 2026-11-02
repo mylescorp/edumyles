@@ -13,6 +13,19 @@ export default {
       Literal(node) {
         if (typeof node.value !== "string" || !literalColor.test(node.value)) return;
         const ancestors = context.sourceCode.getAncestors(node);
+        if (
+          ancestors.some((ancestor) => {
+            const test = ancestor.type === "ConditionalExpression" ? ancestor.test : undefined;
+            return (
+              test?.range &&
+              node.range &&
+              node.range[0] >= test.range[0] &&
+              node.range[1] <= test.range[1]
+            );
+          })
+        ) {
+          return;
+        }
         const styleAttribute = ancestors.find(
           (ancestor) =>
             ancestor.type === "JSXAttribute" &&
