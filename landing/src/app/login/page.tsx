@@ -3,10 +3,10 @@ import Link from "next/link";
 import {
   ArrowRight,
   CalendarDays,
-  ChartNoAxesColumnIncreasing,
+  BarChart3,
   GraduationCap,
   Shield,
-  UsersRound,
+  Users,
   WalletCards,
 } from "lucide-react";
 import Logo from "@/components/shared/Logo";
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
 const capabilities = [
   { label: "Student & class management", icon: GraduationCap },
   { label: "Fees, invoices & eWallet", icon: WalletCards },
-  { label: "HR, staff & payroll", icon: UsersRound },
+  { label: "HR, staff & payroll", icon: Users },
   { label: "Timetable & attendance", icon: CalendarDays },
-  { label: "Reports & analytics", icon: ChartNoAxesColumnIncreasing },
+  { label: "Reports & analytics", icon: BarChart3 },
   { label: "Role-based access control", icon: Shield },
 ];
 
