@@ -24,7 +24,7 @@ export default function MpesaFeeCollectionGuide() {
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, color-mix(in srgb, var(--deep) 80%, var(--primary)) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
@@ -32,7 +32,7 @@ export default function MpesaFeeCollectionGuide() {
           <div
             style={{
               backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+                            radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--ondeephi) 10%, transparent) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
             }}
@@ -44,7 +44,7 @@ export default function MpesaFeeCollectionGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
+              style={{ background: "var(--tint)", color: "var(--link)" }}
             >
               ← Back to Blog
             </Link>
@@ -53,33 +53,33 @@ export default function MpesaFeeCollectionGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ink)" }}
             >
               How to Set Up M-Pesa Fee Collection{" "}
-              <span style={{ color: "var(--accent-foreground)" }}>for Your School</span>
+              <span style={{ color: "var(--pri)" }}>for Your School</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <CreditCard className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <CreditCard className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   Finance
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <Clock className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   6 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   February 2026
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--mut)" }}>
               A step-by-step guide to integrating M-Pesa Daraja into your EduMyles fee structure and
               going fully cashless. Transform your school&apos;s fee collection process in under 30
               minutes.
@@ -110,7 +110,7 @@ export default function MpesaFeeCollectionGuide() {
               className="p-6 rounded-2xl mb-8"
               style={{
                 background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
@@ -173,7 +173,7 @@ export default function MpesaFeeCollectionGuide() {
                 >
                   <div
                     className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: "rgba(26,122,74,0.1)" }}
+                    style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                   >
                     <item.icon className="w-6 h-6" style={{ color: "var(--primary)" }} />
                   </div>
@@ -318,7 +318,7 @@ export default function MpesaFeeCollectionGuide() {
               className="p-8 rounded-2xl"
               style={{
                 background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-                color: "#ffffff",
+                color: "var(--ondeephi)",
               }}
             >
               <div className="grid md:grid-cols-2 gap-8">
@@ -337,7 +337,7 @@ export default function MpesaFeeCollectionGuide() {
                       <li key={item} className="flex items-center gap-2">
                         <AlertCircle
                           className="w-4 h-4 flex-shrink-0"
-                          style={{ color: "#ef4444" }}
+                          style={{ color: "var(--danger)" }}
                         />
                         <span className="font-jakarta text-sm">{item}</span>
                       </li>

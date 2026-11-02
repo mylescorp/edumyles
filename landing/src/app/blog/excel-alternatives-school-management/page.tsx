@@ -23,7 +23,7 @@ export default function ExcelAlternativesGuide() {
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, color-mix(in srgb, var(--deep) 80%, var(--primary)) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
@@ -31,7 +31,7 @@ export default function ExcelAlternativesGuide() {
           <div
             style={{
               backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+                            radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--ondeephi) 10%, transparent) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
             }}
@@ -43,7 +43,7 @@ export default function ExcelAlternativesGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
+              style={{ background: "var(--tint)", color: "var(--link)" }}
             >
               ← Back to Blog
             </Link>
@@ -52,32 +52,32 @@ export default function ExcelAlternativesGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ink)" }}
             >
-              5 Signs Your School Has <span style={{ color: "var(--accent-foreground)" }}>Outgrown Excel</span>
+              5 Signs Your School Has <span style={{ color: "var(--pri)" }}>Outgrown Excel</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <BarChart2 className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <BarChart2 className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   School Management
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <Clock className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   5 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   January 2026
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--mut)" }}>
               From attendance confusion to fee arrears chaos, these are the warning signs every
               school administrator should watch for. Know when it&apos;s time to move beyond Excel.
             </p>
@@ -106,7 +106,7 @@ export default function ExcelAlternativesGuide() {
               className="p-6 rounded-2xl mb-8"
               style={{
                 background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
@@ -123,7 +123,7 @@ export default function ExcelAlternativesGuide() {
                   "Parent complaints about delayed information",
                 ].map((cost) => (
                   <li key={cost} className="flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#ef4444" }} />
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: "var(--danger)" }} />
                     <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                       {cost}
                     </span>
@@ -227,10 +227,10 @@ export default function ExcelAlternativesGuide() {
                     <span
                       className={`font-jakarta text-sm px-2 py-1 rounded ${
                         warning.impact === "Critical"
-                          ? "bg-red-100 text-red-700"
+                          ? "bg-danger-muted text-danger-muted-foreground"
                           : warning.impact === "High"
-                            ? "bg-orange-100 text-orange-700"
-                            : "bg-yellow-100 text-yellow-700"
+                            ? "bg-warning-muted text-warning-muted-foreground"
+                            : "bg-success-muted text-success-muted-foreground"
                       }`}
                     >
                       {warning.impact} Impact
@@ -257,14 +257,14 @@ export default function ExcelAlternativesGuide() {
                         <li key={symptom} className="flex items-center gap-2 text-sm">
                           <AlertCircle
                             className="w-4 h-4 flex-shrink-0"
-                            style={{ color: "#ef4444" }}
+                            style={{ color: "var(--danger)" }}
                           />
                           <span style={{ color: "var(--muted-foreground)" }}>{symptom}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
-                  <div className="p-3 rounded-lg" style={{ background: "rgba(26,122,74,0.1)" }}>
+                  <div className="p-3 rounded-lg" style={{ background: "rgb(var(--primary-rgb) / 10%)" }}>
                     <span className="font-semibold text-sm" style={{ color: "var(--primary)" }}>
                       Solution:{" "}
                     </span>
@@ -306,7 +306,7 @@ export default function ExcelAlternativesGuide() {
                       </span>
                       <span
                         className="font-jakarta font-bold text-base"
-                        style={{ color: "#ef4444" }}
+                        style={{ color: "var(--danger)" }}
                       >
                         {item.cost}
                       </span>
@@ -318,7 +318,7 @@ export default function ExcelAlternativesGuide() {
                     <span className="font-jakarta font-bold text-lg" style={{ color: "var(--foreground)" }}>
                       Total Monthly Cost
                     </span>
-                    <span className="font-jakarta font-bold text-xl" style={{ color: "#ef4444" }}>
+                    <span className="font-jakarta font-bold text-xl" style={{ color: "var(--danger)" }}>
                       KES 200,000
                     </span>
                   </div>
@@ -472,7 +472,7 @@ export default function ExcelAlternativesGuide() {
               className="p-8 rounded-2xl"
               style={{
                 background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-                color: "#ffffff",
+                color: "var(--ondeephi)",
               }}
             >
               <div className="grid md:grid-cols-3 gap-6 text-center">
@@ -618,7 +618,7 @@ export default function ExcelAlternativesGuide() {
                 ))}
               </div>
               <div className="mt-6 p-4 rounded-lg" style={{ background: "rgb(var(--primary-rgb) / 15%)" }}>
-                <p className="font-jakarta font-semibold text-center" style={{ color: "#9A5D00" }}>
+                <p className="font-jakarta font-semibold text-center" style={{ color: "var(--warning-muted-foreground)" }}>
                   If you answered &quot;yes&quot; to 3 or more questions, it&apos;s time to move
                   beyond Excel.
                 </p>

@@ -24,7 +24,7 @@ export default function DemoModal({ open, onClose }: DemoModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] bg-[color-mix(in_srgb,var(--deep)_80%,transparent)] backdrop-blur-sm flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-label="Product demo video"
@@ -34,19 +34,19 @@ export default function DemoModal({ open, onClose }: DemoModalProps) {
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-card/10 hover:bg-card/20 text-white transition-colors"
+          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-card/10 hover:bg-card/20 text-[var(--ondeephi)] transition-colors"
           aria-label="Close demo video"
         >
           <X size={20} />
         </button>
         <div className="aspect-video bg-navy-dark flex items-center justify-center">
-          <div className="text-center text-white/50 p-8">
+          <div className="text-center text-[var(--ondeep)] p-8">
             <div className="text-6xl mb-4">🎬</div>
-            <p className="font-jakarta font-semibold text-xl text-white mb-2">EduMyles Product Demo</p>
+            <p className="font-jakarta font-semibold text-xl text-[var(--ondeephi)] mb-2">EduMyles Product Demo</p>
             <p className="font-inter text-sm">Full demo video coming soon. Book a live personalised demo instead.</p>
             <a
               href="/book-demo"
-              className="inline-block mt-6 bg-gold hover:bg-gold-dark text-white font-inter font-semibold px-6 py-3 rounded-full transition-colors"
+              className="inline-block mt-6 bg-gold hover:bg-gold-dark text-gold-foreground font-inter font-semibold px-6 py-3 rounded-full transition-colors"
             >
               Book Live Demo
             </a>

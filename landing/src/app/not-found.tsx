@@ -56,7 +56,7 @@ export default function NotFound() {
           aria-label="EduMyles home"
         >
           <div
-            className="w-12 h-12 flex items-center justify-center rounded-[14px] font-display font-bold text-2xl"
+            className="w-12 h-12 flex items-center justify-center rounded-lg font-display font-bold text-2xl"
             style={{
               background: "linear-gradient(135deg,var(--primary),var(--primary))",
               border: "2px solid var(--primary)",
@@ -65,11 +65,11 @@ export default function NotFound() {
           >
             E
           </div>
-          <span className="font-display font-bold text-[20px] text-white">EduMyles</span>
+          <span className="font-display font-bold text-[20px] text-foreground">EduMyles</span>
         </Link>
 
         <h1
-          className="font-display font-bold text-white mb-4"
+          className="font-display font-bold text-foreground mb-4"
           style={{ fontSize: "clamp(2rem,5vw,3rem)" }}
         >
           Page not found
@@ -96,24 +96,24 @@ export default function NotFound() {
               href={href}
               className="flex items-center gap-3 rounded-xl px-4 py-3.5 no-underline transition-all duration-200 group"
               style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "var(--tint)",
+                border: "1px solid var(--border)",
               }}
             >
               <div
-                className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
+                className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
                 style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
               >
                 <Icon className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
               </div>
-              <span className="font-jakarta font-medium text-[13px] text-white">{label}</span>
+              <span className="font-jakarta font-medium text-[13px] text-foreground">{label}</span>
             </Link>
           ))}
         </div>
 
         <Link
           href="/"
-          className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-8 py-4 rounded-[50px] no-underline"
+          className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-8 py-4 rounded-full no-underline"
           style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
         >
           ← Back to Home

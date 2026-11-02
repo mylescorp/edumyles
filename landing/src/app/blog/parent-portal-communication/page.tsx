@@ -26,7 +26,7 @@ export default function ParentPortalGuide() {
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, color-mix(in srgb, var(--deep) 80%, var(--primary)) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
@@ -34,7 +34,7 @@ export default function ParentPortalGuide() {
           <div
             style={{
               backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+                            radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--ondeephi) 10%, transparent) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
             }}
@@ -46,7 +46,7 @@ export default function ParentPortalGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
+              style={{ background: "var(--tint)", color: "var(--link)" }}
             >
               ← Back to Blog
             </Link>
@@ -55,32 +55,32 @@ export default function ParentPortalGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ink)" }}
             >
-              Parent Portal Reduces SMS Costs <span style={{ color: "var(--accent-foreground)" }}>by 60%</span>
+              Parent Portal Reduces SMS Costs <span style={{ color: "var(--pri)" }}>by 60%</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <Users className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   Parent Engagement
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <Clock className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   4 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   January 2026
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--mut)" }}>
               Schools using the parent portal see fewer WhatsApp enquiries, faster fee payments, and
               more engaged parents. Discover the communication revolution in Kenyan schools.
             </p>
@@ -109,7 +109,7 @@ export default function ParentPortalGuide() {
               className="p-6 rounded-2xl mb-8"
               style={{
                 background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
@@ -179,7 +179,7 @@ export default function ParentPortalGuide() {
 
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#ef4444" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--danger)" }}>
                   Before Parent Portal
                 </h3>
                 <div className="space-y-4">
@@ -212,22 +212,22 @@ export default function ParentPortalGuide() {
                     <div
                       key={problem.title}
                       className="flex gap-4 p-4 rounded-xl"
-                      style={{ background: "#FEE2E2", border: "1px solid #fecaca" }}
+                      style={{ background: "var(--danger-muted)", border: "1px solid var(--danger)" }}
                     >
                       <div
                         className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                        style={{ background: "#ef4444" }}
+                        style={{ background: "var(--danger)" }}
                       >
-                        <problem.icon className="w-5 h-5" style={{ color: "#ffffff" }} />
+                        <problem.icon className="w-5 h-5" style={{ color: "var(--ondeephi)" }} />
                       </div>
                       <div>
                         <h4
                           className="font-jakarta font-semibold text-base mb-1"
-                          style={{ color: "#991b1b" }}
+                          style={{ color: "var(--danger-muted-foreground)" }}
                         >
                           {problem.title}
                         </h4>
-                        <p className="font-jakarta text-sm" style={{ color: "#7f1d1d" }}>
+                        <p className="font-jakarta text-sm" style={{ color: "var(--danger-muted-foreground)" }}>
                           {problem.description}
                         </p>
                       </div>
@@ -270,22 +270,22 @@ export default function ParentPortalGuide() {
                     <div
                       key={solution.title}
                       className="flex gap-4 p-4 rounded-xl"
-                      style={{ background: "#D1FAE5", border: "1px solid #a7f3d0" }}
+                      style={{ background: "var(--success-muted)", border: "1px solid var(--success)" }}
                     >
                       <div
                         className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                         style={{ background: "var(--primary)" }}
                       >
-                        <solution.icon className="w-5 h-5" style={{ color: "#ffffff" }} />
+                        <solution.icon className="w-5 h-5" style={{ color: "var(--ondeephi)" }} />
                       </div>
                       <div>
                         <h4
                           className="font-jakarta font-semibold text-base mb-1"
-                          style={{ color: "#064e3b" }}
+                          style={{ color: "var(--success-muted-foreground)" }}
                         >
                           {solution.title}
                         </h4>
-                        <p className="font-jakarta text-sm" style={{ color: "#065f46" }}>
+                        <p className="font-jakarta text-sm" style={{ color: "var(--success-muted-foreground)" }}>
                           {solution.description}
                         </p>
                       </div>
@@ -364,7 +364,7 @@ export default function ParentPortalGuide() {
                     </span>
                     <span
                       className="text-xs px-2 py-1 rounded-full"
-                      style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                     >
                       {feature.adoption} adoption
                     </span>
@@ -383,9 +383,9 @@ export default function ParentPortalGuide() {
             <div className="space-y-6">
               <div
                 className="p-6 rounded-2xl"
-                style={{ background: "#FEE2E2", border: "1px solid #fecaca" }}
+                style={{ background: "var(--danger-muted)", border: "1px solid var(--danger)" }}
               >
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#991b1b" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--danger-muted-foreground)" }}>
                   Monthly Communication Costs (Before Parent Portal)
                 </h3>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -399,23 +399,23 @@ export default function ParentPortalGuide() {
                     <div
                       key={item.item}
                       className="flex justify-between items-center p-3 rounded-lg"
-                      style={{ background: "#fef2f2", border: "1px solid #fecaca" }}
+                      style={{ background: "var(--danger-muted)", border: "1px solid var(--danger)" }}
                     >
-                      <span className="font-jakarta text-sm" style={{ color: "#7f1d1d" }}>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--danger-muted-foreground)" }}>
                         {item.item}
                       </span>
-                      <span className="font-jakarta font-bold" style={{ color: "#991b1b" }}>
+                      <span className="font-jakarta font-bold" style={{ color: "var(--danger-muted-foreground)" }}>
                         {item.cost}
                       </span>
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-4 border-t" style={{ borderColor: "#fecaca" }}>
+                <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--danger)" }}>
                   <div className="flex justify-between items-center">
-                    <span className="font-jakarta font-bold text-lg" style={{ color: "#991b1b" }}>
+                    <span className="font-jakarta font-bold text-lg" style={{ color: "var(--danger-muted-foreground)" }}>
                       Total Monthly Cost
                     </span>
-                    <span className="font-jakarta font-bold text-xl" style={{ color: "#991b1b" }}>
+                    <span className="font-jakarta font-bold text-xl" style={{ color: "var(--danger-muted-foreground)" }}>
                       KES 160,000
                     </span>
                   </div>
@@ -424,9 +424,9 @@ export default function ParentPortalGuide() {
 
               <div
                 className="p-6 rounded-2xl"
-                style={{ background: "#D1FAE5", border: "1px solid #a7f3d0" }}
+                style={{ background: "var(--success-muted)", border: "1px solid var(--success)" }}
               >
-                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "#064e3b" }}>
+                <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--success-muted-foreground)" }}>
                   Monthly Communication Costs (With Parent Portal)
                 </h3>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -440,28 +440,28 @@ export default function ParentPortalGuide() {
                     <div
                       key={item.item}
                       className="flex justify-between items-center p-3 rounded-lg"
-                      style={{ background: "#f0fdf4", border: "1px solid #a7f3d0" }}
+                      style={{ background: "var(--success-muted)", border: "1px solid var(--success)" }}
                     >
-                      <span className="font-jakarta text-sm" style={{ color: "#065f46" }}>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--success-muted-foreground)" }}>
                         {item.item}
                       </span>
-                      <span className="font-jakarta font-bold" style={{ color: "#064e3b" }}>
+                      <span className="font-jakarta font-bold" style={{ color: "var(--success-muted-foreground)" }}>
                         {item.cost}
                       </span>
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-4 border-t" style={{ borderColor: "#a7f3d0" }}>
+                <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--success)" }}>
                   <div className="flex justify-between items-center">
-                    <span className="font-jakarta font-bold text-lg" style={{ color: "#064e3b" }}>
+                    <span className="font-jakarta font-bold text-lg" style={{ color: "var(--success-muted-foreground)" }}>
                       Total Monthly Cost
                     </span>
-                    <span className="font-jakarta font-bold text-xl" style={{ color: "#064e3b" }}>
+                    <span className="font-jakarta font-bold text-xl" style={{ color: "var(--success-muted-foreground)" }}>
                       KES 38,000
                     </span>
                   </div>
                   <div className="mt-2">
-                    <span className="font-jakarta font-bold text-sm" style={{ color: "#065f46" }}>
+                    <span className="font-jakarta font-bold text-sm" style={{ color: "var(--success-muted-foreground)" }}>
                       Monthly Savings: KES 122,000 (76% reduction)
                     </span>
                   </div>
@@ -533,7 +533,7 @@ export default function ParentPortalGuide() {
                     </span>
                     <span
                       className="text-xs px-2 py-1 rounded-full"
-                      style={{ background: "#D1FAE5", color: "#065f46" }}
+                      style={{ background: "var(--success-muted)", color: "var(--success-muted-foreground)" }}
                     >
                       {phase.success}
                     </span>
@@ -607,7 +607,7 @@ export default function ParentPortalGuide() {
                     <div className="text-right">
                       <span
                         className="text-xs px-2 py-1 rounded-full"
-                        style={{ background: "#D1FAE5", color: "#065f46" }}
+                        style={{ background: "var(--success-muted)", color: "var(--success-muted-foreground)" }}
                       >
                         Success Story
                       </span>
@@ -615,7 +615,7 @@ export default function ParentPortalGuide() {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#ef4444" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--danger)" }}>
                         Challenge:
                       </span>
                       <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
@@ -699,7 +699,7 @@ export default function ParentPortalGuide() {
                   </p>
                   <div
                     className="text-xs p-2 rounded"
-                    style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                    style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                   >
                     💡 {practice.tip}
                   </div>

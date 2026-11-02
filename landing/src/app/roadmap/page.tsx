@@ -33,13 +33,13 @@ interface Column {
 }
 
 const tagStyles: Record<TagType, { bg: string; color: string }> = {
-  Feature: { bg: "#dcfce7", color: "#166534" },
-  AI: { bg: "#f3e8ff", color: "#7c2d8e" },
-  Enhancement: { bg: "#dbeafe", color: "#1e40af" },
-  Compliance: { bg: "#fef3c7", color: "#92400e" },
-  Platform: { bg: "#fef9c3", color: "#854d0e" },
-  Accessibility: { bg: "#ccfbf1", color: "#065f46" },
-  Reliability: { bg: "#f1f5f9", color: "#475569" },
+  Feature: { bg: "var(--success-muted)", color: "var(--success-muted-foreground)" },
+  AI: { bg: "var(--info-muted)", color: "var(--info-muted-foreground)" },
+  Enhancement: { bg: "var(--info-muted)", color: "var(--info-muted-foreground)" },
+  Compliance: { bg: "var(--warning-muted)", color: "var(--warning-muted-foreground)" },
+  Platform: { bg: "var(--warning-muted)", color: "var(--warning-muted-foreground)" },
+  Accessibility: { bg: "var(--success-muted)", color: "var(--success-muted-foreground)" },
+  Reliability: { bg: "var(--tint)", color: "var(--mut)" },
 };
 
 const columns: Column[] = [
@@ -48,7 +48,7 @@ const columns: Column[] = [
     emoji: "✅",
     Icon: CheckCircle2,
     headerBg: "var(--primary)",
-    headerText: "#ffffff",
+    headerText: "var(--primary-foreground)",
     items: [
       {
         title: "Multi-Campus Support",
@@ -82,8 +82,8 @@ const columns: Column[] = [
     label: "In Progress",
     emoji: "🔄",
     Icon: Clock,
-    headerBg: "#1e40af",
-    headerText: "#ffffff",
+    headerBg: "var(--info)",
+    headerText: "var(--info-foreground)",
     items: [
       {
         title: "AI Timetabling Assistant",
@@ -117,8 +117,8 @@ const columns: Column[] = [
     label: "Planned",
     emoji: "🔮",
     Icon: Star,
-    headerBg: "var(--accent-foreground)",
-    headerText: "var(--foreground)",
+    headerBg: "var(--warning)",
+    headerText: "var(--warning-foreground)",
     items: [
       {
         title: "AI Report Writing Assistant",
@@ -169,9 +169,9 @@ export default function RoadmapPage() {
             backgroundSize: "50px 50px",
           }}
         />
-        <div className="relative max-w-[1200px] mx-auto w-full text-center">
+        <div className="relative max-w-website mx-auto w-full text-center">
           <div
-            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
+            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-full"
             style={{
               background: "rgb(var(--primary-rgb) / 12%)",
               border: "1px solid var(--accent-foreground)",
@@ -199,9 +199,9 @@ export default function RoadmapPage() {
             <span
               className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full"
               style={{
-                background: "rgba(255,255,255,0.07)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "#E8E8E8",
+                background: "var(--tint)",
+                border: "1px solid var(--border)",
+                color: "var(--link)",
               }}
             >
               Last updated: March 2026
@@ -212,13 +212,13 @@ export default function RoadmapPage() {
 
       {/* ── Roadmap Kanban ────────────────────────────────── */}
       <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {columns.map(({ label, emoji, Icon, headerBg, headerText, items }) => (
               <div
                 key={label}
                 className="rounded-2xl overflow-hidden"
-                style={{ border: "1px solid #e4ede8" }}
+                style={{ border: "1px solid var(--border)" }}
               >
                 {/* Column header */}
                 <div className="px-5 py-4 flex items-center gap-3" style={{ background: headerBg }}>
@@ -232,7 +232,7 @@ export default function RoadmapPage() {
                   <span
                     className="ml-auto font-jakarta font-semibold text-[12px] px-2 py-0.5 rounded-full"
                     style={{
-                      background: "rgba(255,255,255,0.15)",
+                      background: "color-mix(in srgb, var(--ondeephi) 15%, transparent)",
                       color: headerText,
                     }}
                   >
@@ -241,7 +241,7 @@ export default function RoadmapPage() {
                 </div>
 
                 {/* Items */}
-                <div className="p-3 space-y-2.5" style={{ background: "#f9fcfa" }}>
+                <div className="p-3 space-y-2.5" style={{ background: "var(--card)" }}>
                   {items.map((item) => {
                     const ts = tagStyles[item.tag];
                     return (
@@ -271,7 +271,7 @@ export default function RoadmapPage() {
                         </div>
                         <p
                           className="font-jakarta"
-                          style={{ fontSize: "12.5px", color: "#6b7280", lineHeight: 1.6 }}
+                          style={{ fontSize: "12.5px", color: "var(--mut)", lineHeight: 1.6 }}
                         >
                           {item.description}
                         </p>
@@ -296,7 +296,7 @@ export default function RoadmapPage() {
           </h2>
           <p
             className="font-jakarta font-light mb-8 mx-auto"
-            style={{ fontSize: "17px", color: "#4a7a5a", maxWidth: "540px", lineHeight: 1.8 }}
+            style={{ fontSize: "17px", color: "var(--deepbd2)", maxWidth: "540px", lineHeight: 1.8 }}
           >
             Our roadmap is shaped by what schools need. Vote on upcoming features or tell us what to
             build next.

@@ -139,10 +139,10 @@ export default function AboutPage() {
             backgroundSize: "50px 50px",
           }}
         />
-        <div className="relative max-w-[1200px] mx-auto w-full">
+        <div className="relative max-w-website mx-auto w-full">
           <div className="max-w-[700px]">
             <div
-              className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
+              className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-full"
               style={{
                 background: "rgb(var(--primary-rgb) / 12%)",
                 border: "1px solid var(--accent-foreground)",
@@ -174,7 +174,7 @@ export default function AboutPage() {
 
       {/* ── Stats ────────────────────────────────────────── */}
       <section className="py-14 px-4" style={{ background: "var(--background)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
             {stats.map((s) => (
               <div
@@ -202,12 +202,12 @@ export default function AboutPage() {
 
       {/* ── Mission ───────────────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "var(--card)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <div
-                className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-5 px-4 py-2 rounded-[50px]"
-                style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+                className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-5 px-4 py-2 rounded-full"
+                style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
               >
                 Our Mission
               </div>
@@ -247,7 +247,7 @@ export default function AboutPage() {
               className="rounded-2xl p-8"
               style={{
                 background: "var(--primary)",
-                boxShadow: "0 20px 60px rgba(6,26,18,0.25)",
+                boxShadow: "var(--shadow-xl)",
               }}
             >
               <blockquote
@@ -280,25 +280,25 @@ export default function AboutPage() {
       </section>
 
       {/* ── Our Journey ───────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--platform-chrome)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--deep)" }}>
         <div className="max-w-[860px] mx-auto">
           <div className="text-center mb-12">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
               style={{
                 background: "rgb(var(--primary-rgb) / 12%)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                color: "#B9CBD6",
+                color: "var(--ondeep)",
               }}
             >
               Our Journey
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--ondeephi)" }}
             >
               From a WhatsApp group{" "}
-              <em className="italic" style={{ color: "#B9CBD6" }}>
+              <em className="italic" style={{ color: "var(--ondeep)" }}>
                 to students across multiple campuses.
               </em>
             </h2>
@@ -325,19 +325,19 @@ export default function AboutPage() {
                 <div className="pb-8">
                   <div
                     className="font-jakarta font-bold text-[12px] mb-1"
-                    style={{ color: "#B9CBD6" }}
+                    style={{ color: "var(--ondeep)" }}
                   >
                     {m.year}
                   </div>
                   <h3
                     className="font-display font-bold text-[18px] mb-2"
-                    style={{ color: "#ffffff" }}
+                    style={{ color: "var(--ondeephi)" }}
                   >
                     {m.title}
                   </h3>
                   <p
                     className="font-jakarta text-[14px] leading-[1.7]"
-                    style={{ color: "#D5E1DE" }}
+                    style={{ color: "var(--ondeep)" }}
                   >
                     {m.desc}
                   </p>
@@ -350,11 +350,11 @@ export default function AboutPage() {
 
       {/* ── Values ────────────────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "var(--background)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-12">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
+              style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               What We Believe
             </div>
@@ -375,8 +375,8 @@ export default function AboutPage() {
                 className="rounded-2xl p-6 flex flex-col items-center text-center"
                 style={{
                   background: "var(--card)",
-                  border: "1px solid rgba(38,166,91,0.15)",
-                  boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                  border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 <div
@@ -405,7 +405,7 @@ export default function AboutPage() {
                       style={{
                         background: "rgb(var(--primary-rgb) / 10%)",
                         border: "1px solid rgb(var(--primary-rgb) / 25%)",
-                        color: "#9A5D00",
+                        color: "var(--warning-muted-foreground)",
                       }}
                     >
                       {kw}
@@ -420,7 +420,7 @@ export default function AboutPage() {
 
       {/* ── Team ──────────────────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "var(--card)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-12">
             <h2
               className="font-display font-bold leading-[1.2]"
@@ -493,35 +493,35 @@ export default function AboutPage() {
       </section>
 
       {/* ── CTA ───────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--deep)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--ondeephi)" }}
           >
             Join the schools{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--ondeephi)" }}>
               already running better.
             </em>
           </h2>
-          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)", opacity: 0.84 }}>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--ondeep)", opacity: 0.84 }}>
             Start your free 30-day trial or talk to our team. No pressure, no obligation.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
+              style={{ background: "var(--gold)", color: "var(--gold-foreground)" }}
             >
               Start Free Trial →
             </a>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-full no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid var(--deepbd2)",
+                color: "var(--ondeephi)",
               }}
             >
               Talk to Us

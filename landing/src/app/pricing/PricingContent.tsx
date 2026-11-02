@@ -65,8 +65,8 @@ const comparisonRows = [
 ];
 
 function Cell({ val }: { val: boolean | string }) {
-  if (val === true) return <span style={{ color: "#26A65B", fontSize: 18 }}>✓</span>;
-  if (val === false) return <span style={{ color: "#ccc" }}>—</span>;
+  if (val === true) return <span style={{ color: "var(--success)", fontSize: 18 }}>✓</span>;
+  if (val === false) return <span style={{ color: "var(--border)" }}>—</span>;
   return <span style={{ color: "var(--accent-foreground)", fontSize: 13, fontWeight: 600 }}>{val}</span>;
 }
 
@@ -78,7 +78,7 @@ export default function PricingContent() {
     <>
       {/* ── Pricing Cards ─────────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "var(--background)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           {/* Billing toggle */}
           <div className="flex items-center justify-center gap-4 mb-12">
             <span
@@ -91,7 +91,7 @@ export default function PricingContent() {
               type="button"
               onClick={() => setAnnual(!annual)}
               className="relative w-12 h-6 rounded-full transition-colors duration-300"
-              style={{ background: annual ? "var(--primary)" : "rgba(6,26,18,0.2)" }}
+              style={{ background: annual ? "var(--primary)" : "var(--muted)" }}
               aria-label="Toggle annual billing"
             >
               <div
@@ -105,7 +105,7 @@ export default function PricingContent() {
             >
               Annual{" "}
               <span
-                className="text-[11px] font-bold px-2 py-0.5 rounded-[20px] ml-1"
+                className="text-[11px] font-bold px-2 py-0.5 rounded-2xl ml-1"
                 style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
               >
                 Save 20%
@@ -122,15 +122,15 @@ export default function PricingContent() {
                   background: plan.featured ? "var(--deep)" : "var(--card)",
                   border: plan.featured ? "1px solid var(--deep)" : "1px solid var(--border)",
                   padding: "2rem",
-                  boxShadow: plan.featured ? "none" : "0 4px 20px rgba(6,26,18,0.06)",
+                  boxShadow: plan.featured ? "none" : "var(--shadow-md)",
                   transform: "none",
                 }}
               >
                 {plan.highlight && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span
-                      className="font-jakarta font-bold text-[12px] px-4 py-1.5 rounded-[20px] whitespace-nowrap"
-                      style={{ background: "var(--handoff-gold)", color: "#171717" }}
+                      className="font-jakarta font-bold text-[12px] px-4 py-1.5 rounded-2xl whitespace-nowrap"
+                      style={{ background: "var(--gold)", color: "var(--gold-foreground)" }}
                     >
                       <Star
                         className="w-3 h-3 inline mr-1 -mt-0.5"
@@ -144,7 +144,7 @@ export default function PricingContent() {
 
                 <h3
                   className="font-display font-bold text-[24px] mb-1"
-                  style={{ color: plan.featured ? "#ffffff" : "var(--foreground)" }}
+                  style={{ color: plan.featured ? "var(--ondeephi)" : "var(--foreground)" }}
                 >
                   {plan.name}
                 </h3>
@@ -156,7 +156,7 @@ export default function PricingContent() {
                   {plan.monthlyPriceKes === null ? (
                     <div
                       className="font-display font-bold text-[40px]"
-                      style={{ color: plan.featured ? "#ffffff" : "var(--foreground)" }}
+                      style={{ color: plan.featured ? "var(--ondeephi)" : "var(--foreground)" }}
                     >
                       Custom
                     </div>
@@ -164,7 +164,7 @@ export default function PricingContent() {
                     <>
                       <div
                         className="font-display font-bold text-[38px]"
-                        style={{ color: plan.featured ? "#ffffff" : "var(--foreground)" }}
+                        style={{ color: plan.featured ? "var(--ondeephi)" : "var(--foreground)" }}
                       >
                         {formatPublicKes(
                           annual ? plan.annualMonthlyPriceKes! : plan.monthlyPriceKes
@@ -192,13 +192,13 @@ export default function PricingContent() {
                     <li key={f} className="flex items-start gap-2">
                       <span
                         className="font-bold text-[14px] flex-shrink-0 mt-0.5"
-                        style={{ color: "#26A65B" }}
+                        style={{ color: "var(--success)" }}
                       >
                         ✓
                       </span>
                       <span
                         className="font-jakarta text-[14px]"
-                        style={{ color: plan.featured ? "#ffffff" : "var(--foreground)", opacity: 1 }}
+                        style={{ color: plan.featured ? "var(--ondeephi)" : "var(--foreground)", opacity: 1 }}
                       >
                         {f}
                       </span>
@@ -208,10 +208,10 @@ export default function PricingContent() {
 
                 <a
                   href={plan.href}
-                  className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-[50px] no-underline transition-all duration-200"
+                  className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-full no-underline transition-all duration-200"
                   style={
                     plan.featured
-                      ? { background: "var(--handoff-gold)", color: "#171717" }
+                      ? { background: "var(--gold)", color: "var(--gold-foreground)" }
                       : { background: "var(--primary)", color: "var(--primary-foreground)" }
                   }
                 >
@@ -229,7 +229,7 @@ export default function PricingContent() {
 
       {/* ── Comparison Table ──────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "var(--card)" }} id="compare">
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-10">
             <h2
               className="font-display font-bold leading-[1.2]"
@@ -244,10 +244,10 @@ export default function PricingContent() {
           <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid var(--border)" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ background: "var(--platform-chrome)" }}>
+                <tr style={{ background: "var(--deep)" }}>
                   <th
                     className="font-jakarta font-bold text-[14px] text-left py-4 px-5"
-                    style={{ color: "#ffffff", width: "40%" }}
+                    style={{ color: "var(--ondeephi)", width: "40%" }}
                   >
                     Feature
                   </th>
@@ -255,7 +255,7 @@ export default function PricingContent() {
                     <th
                       key={p}
                       className="font-jakarta font-bold text-[14px] text-center py-4 px-5"
-                      style={{ color: p === "Professional" ? "#B9CBD6" : "#ffffff" }}
+                      style={{ color: p === "Professional" ? "var(--ondeep)" : "var(--ondeephi)" }}
                     >
                       {p}
                     </th>
@@ -353,35 +353,35 @@ export default function PricingContent() {
       </section>
 
       {/* ── Final CTA ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--deep)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--ondeephi)" }}
           >
             Ready to get started?{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--ondeephi)" }}>
               It&apos;s free for 30 days.
             </em>
           </h2>
-          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)", opacity: 0.82 }}>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--ondeep)", opacity: 0.82 }}>
             No credit card required. No setup fees. Full access from day one.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
+              style={{ background: "var(--gold)", color: "var(--gold-foreground)" }}
             >
               Start Free Trial →
             </a>
             <Link
               href="/contact?subject=pricing"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-full no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid var(--deepbd2)",
+                color: "var(--ondeephi)",
               }}
             >
               Talk to Sales

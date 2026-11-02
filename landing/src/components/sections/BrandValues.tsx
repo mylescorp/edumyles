@@ -39,15 +39,15 @@ export default function BrandValues() {
       aria-label="Our mission, vision, and values"
       style={{ background: "var(--background)" }}
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-website mx-auto">
         {/* Section badge */}
         <div className="text-center mb-4">
           <div
-            className="inline-block font-jakarta font-semibold text-[13px] px-5 py-2 rounded-[50px]"
+            className="inline-block font-jakarta font-semibold text-[13px] px-5 py-2 rounded-full"
             style={{
               background: "rgb(var(--primary-rgb) / 12%)",
               border: "1px solid rgb(var(--primary-rgb) / 40%)",
-              color: "#9A5D00",
+              color: "var(--warning-muted-foreground)",
             }}
           >
             Who We Are
@@ -71,13 +71,13 @@ export default function BrandValues() {
             className="rounded-2xl p-8"
             style={{
               background: "var(--card)",
-              border: "1px solid rgba(38,166,91,0.15)",
-              boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
+              border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+              boxShadow: "var(--shadow-md)",
             }}
           >
             <div
-              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-[50px] uppercase tracking-wider"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-full uppercase tracking-wider"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
             >
               Our Mission
             </div>
@@ -90,13 +90,13 @@ export default function BrandValues() {
             className="rounded-2xl p-8"
             style={{
               background: "var(--card)",
-              border: "1px solid rgba(38,166,91,0.15)",
-              boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
+              border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+              boxShadow: "var(--shadow-md)",
             }}
           >
             <div
-              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-[50px] uppercase tracking-wider"
-              style={{ background: "rgba(15,76,42,0.08)", color: "var(--primary)" }}
+              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-full uppercase tracking-wider"
+              style={{ background: "rgb(var(--primary-rgb) / 8%)", color: "var(--primary)" }}
             >
               Our Vision
             </div>
@@ -129,8 +129,8 @@ export default function BrandValues() {
               className="rounded-2xl p-6 text-center flex flex-col items-center"
               style={{
                 background: "var(--card)",
-                border: "1px solid rgba(38,166,91,0.15)",
-                boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+                boxShadow: "var(--shadow-md)",
               }}
             >
               <div
@@ -156,7 +156,7 @@ export default function BrandValues() {
                     style={{
                       background: "rgb(var(--primary-rgb) / 10%)",
                       border: "1px solid rgb(var(--primary-rgb) / 25%)",
-                      color: "#9A5D00",
+                      color: "var(--warning-muted-foreground)",
                     }}
                   >
                     {kw}
@@ -172,7 +172,7 @@ export default function BrandValues() {
           className="rounded-2xl p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start"
           style={{
             background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-            boxShadow: "0 20px 60px rgba(6,26,18,0.2)",
+            boxShadow: "var(--shadow-xl)",
           }}
         >
           <div className="flex-shrink-0">
@@ -185,18 +185,18 @@ export default function BrandValues() {
           </div>
           <div>
             <div
-              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-[50px] uppercase tracking-wider"
+              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-full uppercase tracking-wider"
               style={{
                 background: "rgb(var(--primary-rgb) / 15%)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                color: "#B9CBD6",
+                color: "var(--ondeep)",
               }}
             >
               Founding Story
             </div>
             <blockquote
               className="font-display italic text-[19px] leading-[1.65] mb-5"
-              style={{ color: "#ffffff" }}
+              style={{ color: "var(--ondeephi)" }}
             >
               &ldquo;I watched a principal manage a 1,200-student school on WhatsApp groups and
               paper registers. It was brilliant improvisation — but it was costing teachers hours
@@ -204,10 +204,10 @@ export default function BrandValues() {
               time back.&rdquo;
             </blockquote>
             <div>
-              <div className="font-jakarta font-bold text-[15px]" style={{ color: "#B9CBD6" }}>
+              <div className="font-jakarta font-bold text-[15px]" style={{ color: "var(--ondeep)" }}>
                 Jonathan Myles
               </div>
-              <div className="font-jakarta text-[13px]" style={{ color: "#D5E1DE" }}>
+              <div className="font-jakarta text-[13px]" style={{ color: "var(--ondeep)" }}>
                 CEO &amp; Founder — EduMyles · Founded in Nairobi, Kenya
               </div>
             </div>

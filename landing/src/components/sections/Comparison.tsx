@@ -71,7 +71,7 @@ export default function Comparison() {
       aria-label="EduMyles vs alternatives comparison"
       style={{ background: "var(--background)" }}
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-website mx-auto">
         <div className="text-center mb-10">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
@@ -79,7 +79,7 @@ export default function Comparison() {
           >
             Why EduMyles?
           </h2>
-          <p className="text-base text-gray-500 max-w-xl mx-auto">
+          <p className="text-base text-muted-foreground max-w-xl mx-auto">
             Compare what running a school looks like before and after.
           </p>
         </div>
@@ -87,13 +87,13 @@ export default function Comparison() {
         <div className="overflow-x-auto rounded-2xl shadow-sm">
           <table className="w-full min-w-[640px] bg-card text-sm">
             <thead>
-              <tr style={{ background: "var(--platform-chrome)" }}>
-                <th className="text-left px-5 py-4 text-white font-semibold w-[200px]">Feature</th>
-                <th className="text-left px-5 py-4 text-white font-semibold">
+              <tr style={{ background: "var(--deep)" }}>
+                <th className="text-left px-5 py-4 text-[var(--ondeephi)] font-semibold w-[200px]">Feature</th>
+                <th className="text-left px-5 py-4 text-[var(--ondeephi)] font-semibold">
                   ❌ Manual (Excel/WhatsApp)
                 </th>
-                <th className="text-left px-5 py-4 text-white font-semibold">⚠️ Generic SaaS</th>
-                <th className="text-left px-5 py-4 text-white font-semibold">✅ EduMyles</th>
+                <th className="text-left px-5 py-4 text-[var(--ondeephi)] font-semibold">⚠️ Generic SaaS</th>
+                <th className="text-left px-5 py-4 text-[var(--ondeephi)] font-semibold">✅ EduMyles</th>
               </tr>
             </thead>
             <tbody>

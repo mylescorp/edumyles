@@ -16,7 +16,7 @@ export default function MobileTeaser() {
       aria-label="Mobile-first experience"
       style={{ background: "var(--card)" }}
     >
-      <div className="max-w-[1200px] mx-auto grid md:grid-cols-2 gap-12 items-center">
+      <div className="max-w-website mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* LEFT — Text */}
         <div>
           <span
@@ -59,9 +59,9 @@ export default function MobileTeaser() {
             <span
               className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full"
               style={{
-                background: "rgba(255,255,255,0.08)",
-                color: "var(--muted-foreground)",
-                border: "1px solid rgba(255,255,255,0.12)",
+                background: "var(--tint)",
+                color: "var(--link)",
+                border: "1px solid var(--border)",
               }}
             >
               📱 Native iOS &amp; Android app — Coming Q4 2026
@@ -92,17 +92,17 @@ export default function MobileTeaser() {
               style={{
                 width: "192px",
                 height: "384px",
-                borderRadius: "2.5rem",
+                borderRadius: "var(--radius-band)",
                 border: "4px solid var(--accent-foreground)",
                 background: "var(--primary)",
-                boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
+                boxShadow: "var(--shadow-xl)",
               }}
             >
               {/* Inner screen */}
               <div
                 style={{
                   margin: "8px",
-                  borderRadius: "2rem",
+                  borderRadius: "var(--radius-panel)",
                   background: "var(--card)",
                   overflow: "hidden",
                   height: "calc(100% - 16px)",
@@ -123,7 +123,7 @@ export default function MobileTeaser() {
                     style={{
                       width: "48px",
                       height: "6px",
-                      borderRadius: "3px",
+                      borderRadius: "var(--radius-xs)",
                       background: "var(--card)",
                     }}
                   />
@@ -166,7 +166,7 @@ export default function MobileTeaser() {
                   <div
                     style={{
                       background: "var(--background)",
-                      borderRadius: "8px",
+                      borderRadius: "var(--radius-md)",
                       padding: "8px",
                       border: "1px solid var(--border)",
                     }}
@@ -191,7 +191,7 @@ export default function MobileTeaser() {
                       style={{
                         marginTop: "5px",
                         height: "4px",
-                        borderRadius: "2px",
+                        borderRadius: "var(--radius-xs)",
                         background: "var(--border)",
                         overflow: "hidden",
                       }}
@@ -200,7 +200,7 @@ export default function MobileTeaser() {
                         style={{
                           width: "94%",
                           height: "100%",
-                          borderRadius: "2px",
+                          borderRadius: "var(--radius-xs)",
                           background: "var(--primary)",
                         }}
                       />
@@ -210,7 +210,7 @@ export default function MobileTeaser() {
                   {/* Fee alerts card */}
                   <div
                     style={{
-                      borderRadius: "8px",
+                      borderRadius: "var(--radius-md)",
                       padding: "8px",
                       border: "1px solid var(--warning)",
                       background: "var(--warning-muted)",
@@ -232,7 +232,7 @@ export default function MobileTeaser() {
                   <div
                     style={{
                       background: "var(--background)",
-                      borderRadius: "8px",
+                      borderRadius: "var(--radius-md)",
                       padding: "8px",
                       border: "1px solid var(--border)",
                       display: "flex",
@@ -245,7 +245,7 @@ export default function MobileTeaser() {
                       <p style={{ fontSize: "8px", fontWeight: 700, color: "var(--foreground)" }}>
                         2 new messages
                       </p>
-                      <p style={{ fontSize: "7px", color: "#64748b" }}>from parents</p>
+                      <p style={{ fontSize: "7px", color: "var(--mut)" }}>from parents</p>
                     </div>
                   </div>
                 </div>
@@ -266,7 +266,7 @@ export default function MobileTeaser() {
                       style={{
                         width: "14px",
                         height: "14px",
-                        color: i === 0 ? "var(--primary)" : "#94a3b8",
+                        color: i === 0 ? "var(--primary)" : "var(--mut)",
                       }}
                       strokeWidth={1.5}
                     />

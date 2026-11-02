@@ -16,7 +16,7 @@ export default function Pricing() {
       aria-label="Pricing plans"
       style={{ background: "var(--background)" }}
     >
-      <div className="relative max-w-[1200px] mx-auto">
+      <div className="relative max-w-website mx-auto">
         <div className="text-center mb-12">
           <div className="section-eyebrow justify-center mb-2">Pricing</div>
           <h2
@@ -59,7 +59,7 @@ export default function Pricing() {
               className={`font-inter text-sm font-medium ${annual ? "text-foreground" : "text-mid-grey"}`}
             >
               Annual{" "}
-              <span className="bg-gold/10 text-gold px-1.5 py-0.5 rounded text-xs font-semibold ml-1">
+              <span className="bg-gold/10 text-[var(--link)] px-1.5 py-0.5 rounded text-xs font-semibold ml-1">
                 Save 20%
               </span>
             </span>
@@ -82,7 +82,7 @@ export default function Pricing() {
             >
               {plan.featured && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-gold text-white font-inter font-semibold text-xs px-4 py-1.5 rounded-lg shadow-md whitespace-nowrap">
+                  <span className="bg-gold text-gold-foreground font-inter font-semibold text-xs px-4 py-1.5 rounded-lg shadow-md whitespace-nowrap">
                     ⭐ Most Popular
                   </span>
                 </div>
@@ -189,14 +189,14 @@ export default function Pricing() {
           <div className="flex justify-center gap-4 mt-4">
             <Link
               href="/contact?subject=pricing"
-              className="font-inter text-sm text-gold hover:underline"
+              className="font-inter text-sm text-[var(--link)] hover:underline"
             >
               Request custom pricing →
             </Link>
             <span className="text-light-grey">·</span>
             <Link
               href="/contact"
-              className="font-inter text-sm text-mid-grey hover:text-gold transition-colors"
+              className="font-inter text-sm text-mid-grey hover:text-[var(--prih)] transition-colors"
             >
               Talk to Sales
             </Link>

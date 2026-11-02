@@ -48,7 +48,7 @@ export default function HowItWorks() {
       aria-label="How it works"
       style={{ background: "var(--card)" }}
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-website mx-auto">
         {/* Heading */}
         <h2
           className="font-display font-bold leading-[1.2] mb-12"

@@ -68,7 +68,7 @@ export default function Modules() {
       aria-label="Platform modules"
       style={{ background: "var(--background)" }}
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-website mx-auto">
         {/* Eyebrow */}
         <div className="section-eyebrow mb-2">The Platform</div>
 
@@ -91,14 +91,14 @@ export default function Modules() {
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
-              className="fade-in bg-card rounded-[12px] p-8 text-center transition-all duration-300 cursor-default"
+              className="fade-in bg-card rounded-lg p-8 text-center transition-all duration-300 cursor-default"
               style={{
                 border: "1px solid var(--border)",
                 transitionDelay: `${i * 0.08}s`,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-8px)";
-                e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.1)";
+                e.currentTarget.style.boxShadow = "var(--shadow-lg)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
@@ -107,12 +107,12 @@ export default function Modules() {
             >
               {/* Icon */}
               <div
-                className="w-[70px] h-[70px] rounded-[12px] flex items-center justify-center mx-auto mb-4"
+                className="w-[70px] h-[70px] rounded-lg flex items-center justify-center mx-auto mb-4"
                 style={{
-                  background: "linear-gradient(135deg, #26A65B, var(--primary))",
+                  background: "linear-gradient(135deg, var(--success), var(--primary))",
                 }}
               >
-                <mod.icon className="w-7 h-7" strokeWidth={1.5} style={{ color: "#ffffff" }} />
+                <mod.icon className="w-7 h-7" strokeWidth={1.5} style={{ color: "var(--ondeephi)" }} />
               </div>
 
               {/* Title */}
@@ -135,7 +135,7 @@ export default function Modules() {
                 href="/features"
                 className="text-[14px] font-semibold no-underline transition-colors duration-300"
                 style={{ color: "var(--primary)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--success)")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
               >
                 Learn more →
@@ -150,7 +150,7 @@ export default function Modules() {
             href="/features"
             className="text-[16px] font-bold no-underline transition-colors duration-300"
             style={{ color: "var(--primary)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--success)")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
           >
             View all 13 modules →

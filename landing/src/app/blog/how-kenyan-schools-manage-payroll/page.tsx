@@ -24,7 +24,7 @@ export default function KenyanSchoolsPayrollGuide() {
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, color-mix(in srgb, var(--deep) 80%, var(--primary)) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
@@ -32,7 +32,7 @@ export default function KenyanSchoolsPayrollGuide() {
           <div
             style={{
               backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+                            radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--ondeephi) 10%, transparent) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
             }}
@@ -44,7 +44,7 @@ export default function KenyanSchoolsPayrollGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
+              style={{ background: "var(--tint)", color: "var(--link)" }}
             >
               ← Back to Blog
             </Link>
@@ -52,31 +52,31 @@ export default function KenyanSchoolsPayrollGuide() {
 
           <div className="max-w-[800px]">
             <div className="mb-6">
-              <span className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] px-5 py-2 rounded-[50px]">
+              <span className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] px-5 py-2 rounded-full">
                 <Users className="w-4 h-4" />
                 School Management
               </span>
             </div>
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ink)" }}
             >
-              How Kenyan Schools <span style={{ color: "var(--accent-foreground)" }}>Manage Payroll</span>
+              How Kenyan Schools <span style={{ color: "var(--pri)" }}>Manage Payroll</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   EduMyles Team
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   March 2026
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   7 min read
                 </span>
               </div>
@@ -84,7 +84,7 @@ export default function KenyanSchoolsPayrollGuide() {
 
             <p
               className="font-jakarta text-xl leading-[1.7] font-light"
-              style={{ color: "var(--muted-foreground)" }}
+              style={{ color: "var(--mut)" }}
             >
               Discover how Kenyan schools are revolutionizing payroll management with automated
               systems, ensuring KRA compliance while boosting staff satisfaction.
@@ -115,7 +115,7 @@ export default function KenyanSchoolsPayrollGuide() {
               className="p-6 rounded-2xl mb-8"
               style={{
                 background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
@@ -134,8 +134,8 @@ export default function KenyanSchoolsPayrollGuide() {
                     key={stat.number}
                     className="text-center p-4 rounded-xl"
                     style={{
-                      background: "rgba(255,255,255,0.8)",
-                      border: "1px solid rgba(26,122,74,0.1)",
+                      background: "var(--card)",
+                      border: "1px solid rgb(var(--primary-rgb) / 10%)",
                     }}
                   >
                     <div
@@ -181,10 +181,10 @@ export default function KenyanSchoolsPayrollGuide() {
                     <div
                       key={issue}
                       className="flex items-center gap-3 p-3 rounded-lg"
-                      style={{ background: "#FEF2F2", border: "1px solid #fecaca" }}
+                      style={{ background: "var(--danger-muted)", border: "1px solid var(--danger)" }}
                     >
-                      <span className="text-red-500 text-lg">✕</span>
-                      <span className="font-jakarta text-sm" style={{ color: "#991b1b" }}>
+                      <span className="text-danger text-lg">✕</span>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--danger-muted-foreground)" }}>
                         {issue}
                       </span>
                     </div>
@@ -208,13 +208,13 @@ export default function KenyanSchoolsPayrollGuide() {
                     <div
                       key={feature}
                       className="flex items-center gap-3 p-3 rounded-lg"
-                      style={{ background: "#F0FDF4", border: "1px solid #bbf7d0" }}
+                      style={{ background: "var(--success-muted)", border: "1px solid var(--success)" }}
                     >
                       <CheckCircle2
                         className="w-5 h-5 flex-shrink-0"
-                        style={{ color: "#16a34a" }}
+                        style={{ color: "var(--success)" }}
                       />
-                      <span className="font-jakarta text-sm" style={{ color: "#15803d" }}>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--success)" }}>
                         {feature}
                       </span>
                     </div>
@@ -282,7 +282,7 @@ export default function KenyanSchoolsPayrollGuide() {
                   <div className="flex items-center gap-3 mb-3">
                     <div
                       className="w-10 h-10 rounded-lg flex items-center justify-center"
-                      style={{ background: "rgba(26,122,74,0.1)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                     >
                       <feature.icon className="w-5 h-5" style={{ color: "var(--primary)" }} />
                     </div>
@@ -399,7 +399,7 @@ export default function KenyanSchoolsPayrollGuide() {
                         <span
                           key={deliverable}
                           className="text-xs px-2 py-1 rounded"
-                          style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                          style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                         >
                           {deliverable}
                         </span>
@@ -470,7 +470,7 @@ export default function KenyanSchoolsPayrollGuide() {
                     <div className="text-right">
                       <span
                         className="text-xs px-2 py-1 rounded-full"
-                        style={{ background: "#D1FAE5", color: "#065f46" }}
+                        style={{ background: "var(--success-muted)", color: "var(--success-muted-foreground)" }}
                       >
                         Success Story
                       </span>
@@ -478,7 +478,7 @@ export default function KenyanSchoolsPayrollGuide() {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#ef4444" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--danger)" }}>
                         Challenge:
                       </span>
                       <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>

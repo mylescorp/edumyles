@@ -68,9 +68,9 @@ export default function CookiesPage() {
                 href={`#${s.id}`}
                 className="font-jakarta font-medium text-[12px] px-4 py-2 rounded-full no-underline transition-colors duration-200"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "var(--muted-foreground)",
+                  background: "var(--tint)",
+                  border: "1px solid var(--border)",
+                  color: "var(--link)",
                 }}
               >
                 {s.label}
@@ -99,8 +99,8 @@ export default function CookiesPage() {
         <section id="what" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Cookie className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -173,14 +173,14 @@ export default function CookiesPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 2 — Cookies We Use */}
         <section id="table" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Settings className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -231,7 +231,7 @@ export default function CookiesPage() {
                     duration: "Session",
                     type: "Essential",
                     typeColor: "var(--primary)",
-                    typeBg: "rgba(26,122,74,0.1)",
+                    typeBg: "rgb(var(--primary-rgb) / 10%)",
                   },
                   {
                     name: "em_auth_token",
@@ -240,7 +240,7 @@ export default function CookiesPage() {
                     duration: "7 days",
                     type: "Essential",
                     typeColor: "var(--primary)",
-                    typeBg: "rgba(26,122,74,0.1)",
+                    typeBg: "rgb(var(--primary-rgb) / 10%)",
                   },
                   {
                     name: "em_pref",
@@ -248,8 +248,8 @@ export default function CookiesPage() {
                       "Saves your UI preferences such as sidebar state, theme selection, and dashboard layout.",
                     duration: "1 year",
                     type: "Preference",
-                    typeColor: "#1565C0",
-                    typeBg: "rgba(21,101,192,0.1)",
+                    typeColor: "var(--info)",
+                    typeBg: "rgb(var(--primary-rgb) / 10%)",
                   },
                   {
                     name: "em_consent",
@@ -258,7 +258,7 @@ export default function CookiesPage() {
                     duration: "1 year",
                     type: "Essential",
                     typeColor: "var(--primary)",
-                    typeBg: "rgba(26,122,74,0.1)",
+                    typeBg: "rgb(var(--primary-rgb) / 10%)",
                   },
                   {
                     name: "_analytics",
@@ -266,7 +266,7 @@ export default function CookiesPage() {
                       "Anonymous, aggregated usage analytics. No personal data is collected. Used to understand which features are most used.",
                     duration: "30 days",
                     type: "Analytics",
-                    typeColor: "#7A4A00",
+                    typeColor: "var(--warning-muted-foreground)",
                     typeBg: "rgb(var(--primary-rgb) / 10%)",
                   },
                   {
@@ -275,7 +275,7 @@ export default function CookiesPage() {
                       "Google Analytics aggregate traffic statistics. IP addresses are anonymised. No personal data is associated with this cookie.",
                     duration: "2 years",
                     type: "Analytics",
-                    typeColor: "#7A4A00",
+                    typeColor: "var(--warning-muted-foreground)",
                     typeBg: "rgb(var(--primary-rgb) / 10%)",
                   },
                 ].map(({ name, purpose, duration, type, typeColor, typeBg }, i) => (
@@ -315,14 +315,14 @@ export default function CookiesPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 3 — Essential vs Optional */}
         <section id="essential" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Shield className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -338,7 +338,7 @@ export default function CookiesPage() {
               <div className="flex items-center gap-2 mb-3">
                 <span
                   className="font-jakarta font-bold text-[11px] px-2.5 py-1 rounded-full"
-                  style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                  style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                 >
                   Essential
                 </span>
@@ -374,7 +374,7 @@ export default function CookiesPage() {
               <div className="flex items-center gap-2 mb-3">
                 <span
                   className="font-jakarta font-bold text-[11px] px-2.5 py-1 rounded-full"
-                  style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#7A4A00" }}
+                  style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
                 >
                   Analytics
                 </span>
@@ -408,14 +408,14 @@ export default function CookiesPage() {
           </p>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 4 — Third-Party */}
         <section id="third" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <BarChart2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -430,8 +430,8 @@ export default function CookiesPage() {
             >
               <div className="flex items-start gap-4">
                 <div
-                  className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(26,122,74,0.08)", border: "1px solid var(--border)" }}
+                  className="w-9 h-9 rounded-md flex items-center justify-center flex-shrink-0"
+                  style={{ background: "rgb(var(--primary-rgb) / 8%)", border: "1px solid var(--border)" }}
                 >
                   <BarChart2 className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
                 </div>
@@ -460,8 +460,8 @@ export default function CookiesPage() {
             >
               <div className="flex items-start gap-4">
                 <div
-                  className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(26,122,74,0.08)", border: "1px solid var(--border)" }}
+                  className="w-9 h-9 rounded-md flex items-center justify-center flex-shrink-0"
+                  style={{ background: "rgb(var(--primary-rgb) / 8%)", border: "1px solid var(--border)" }}
                 >
                   <BarChart2 className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
                 </div>
@@ -505,14 +505,14 @@ export default function CookiesPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 5 — Managing Preferences */}
         <section id="manage" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Settings className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -592,8 +592,8 @@ export default function CookiesPage() {
                     key={b.browser}
                     className="px-5 py-3"
                     style={{
-                      borderTop: i >= 2 || i === 1 ? "1px solid #f0f7f3" : "none",
-                      borderLeft: i % 2 === 1 ? "1px solid #f0f7f3" : "none",
+                      borderTop: i >= 2 || i === 1 ? "1px solid var(--border)" : "none",
+                      borderLeft: i % 2 === 1 ? "1px solid var(--border)" : "none",
                     }}
                   >
                     <p
@@ -694,7 +694,7 @@ export default function CookiesPage() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
+            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-full no-underline"
             style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
           >
             Contact Us

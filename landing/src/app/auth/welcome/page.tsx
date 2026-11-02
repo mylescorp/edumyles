@@ -72,8 +72,8 @@ export default async function WelcomePage() {
   const displayName = firstName || email.split("@")[0] || "there";
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="max-w-lg w-full bg-card rounded-2xl shadow-sm border border-gray-100 p-8 text-center space-y-6">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="max-w-lg w-full bg-card rounded-2xl shadow-sm border border-border p-8 text-center space-y-6">
 
         {/* Logo */}
         <div className="flex flex-col items-center gap-2">
@@ -82,42 +82,42 @@ export default async function WelcomePage() {
 
         {/* Success icon */}
         <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-            <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-16 h-16 rounded-full bg-success-muted flex items-center justify-center">
+            <svg className="w-8 h-8 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
         </div>
 
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-foreground">
             Welcome, {displayName}!
           </h1>
-          <p className="text-gray-500 text-sm">
+          <p className="text-muted-foreground text-sm">
             Signed in as{" "}
-            <span className="font-medium text-gray-700">{getRoleLabel(role)}</span>
+            <span className="font-medium text-foreground">{getRoleLabel(role)}</span>
           </p>
           {email && (
-            <p className="text-xs text-gray-400">{email}</p>
+            <p className="text-xs text-muted-foreground">{email}</p>
           )}
         </div>
 
         {/* Same-domain: admin dashboard not yet available on this host */}
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-left space-y-2">
-          <p className="text-sm font-medium text-amber-800">
+        <div className="bg-warning-muted border border-warning rounded-lg p-4 text-left space-y-2">
+          <p className="text-sm font-medium text-warning-muted-foreground">
             ✅ Authentication successful
           </p>
-          <p className="text-sm text-amber-700">
+          <p className="text-sm text-warning-muted-foreground">
             Your account is ready. To access the admin dashboard, the
             <strong> frontend app URL</strong> needs to be configured.
           </p>
-          <p className="text-xs text-amber-600 mt-1">
+          <p className="text-xs text-warning-muted-foreground mt-1">
             In your hosting project settings, set{" "}
-            <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">
+            <code className="bg-warning-muted px-1 py-0.5 rounded font-mono">
               NEXT_PUBLIC_APP_URL
             </code>{" "}
             to the URL of the deployed frontend app (e.g.{" "}
-            <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">
+            <code className="bg-warning-muted px-1 py-0.5 rounded font-mono">
               https://app.edumyles.com
             </code>
             ), then redeploy.
@@ -127,14 +127,14 @@ export default async function WelcomePage() {
         <div className="flex gap-3 justify-center">
           <Link
             href="/"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Back to home
           </Link>
-          <span className="text-gray-300">·</span>
+          <span className="text-muted-foreground">·</span>
           <Link
             href="/auth/logout"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Sign out
           </Link>

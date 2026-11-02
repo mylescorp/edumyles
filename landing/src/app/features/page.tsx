@@ -29,6 +29,7 @@ import {
   Headphones,
   CheckCircle2,
 } from "lucide-react";
+import BoardSpotlight from "@/components/sections/BoardSpotlight";
 
 export const metadata: Metadata = {
   title: "Features — EduMyles School Management System",
@@ -71,7 +72,7 @@ const modules: {
   {
     abbr: "SIS",
     color: "var(--primary)",
-    iconBg: "rgba(26,122,74,0.10)",
+    iconBg: "var(--accent)",
     icon: Users,
     name: "Student Information System",
     desc: "Complete student profiles, class allocation, streams, and full academic history in one place.",
@@ -87,7 +88,7 @@ const modules: {
   {
     abbr: "ADM",
     color: "var(--accent-foreground)",
-    iconBg: "rgb(var(--primary-rgb) / 10%)",
+    iconBg: "var(--accent)",
     icon: UserPlus,
     name: "Admissions",
     desc: "Digital applications, enrollment workflows, waitlists, and automated communication — paperless from day one.",
@@ -102,8 +103,8 @@ const modules: {
   },
   {
     abbr: "FIN",
-    color: "#26A65B",
-    iconBg: "rgba(38,166,91,0.10)",
+    color: "var(--success)",
+    iconBg: "var(--accent)",
     icon: Banknote,
     name: "Finance & Fees",
     desc: "Fee structures, invoicing, M-Pesa collection, receipts, and full financial reporting. No more Excel chaos.",
@@ -119,7 +120,7 @@ const modules: {
   {
     abbr: "TTB",
     color: "var(--muted-foreground)",
-    iconBg: "rgba(107,158,131,0.10)",
+    iconBg: "var(--accent)",
     icon: CalendarClock,
     name: "Timetable & Scheduling",
     desc: "Automated timetable generation, substitution management, room bookings, and conflict detection.",
@@ -134,8 +135,8 @@ const modules: {
   },
   {
     abbr: "ACA",
-    color: "#1565C0",
-    iconBg: "rgba(21,101,192,0.10)",
+    color: "var(--info)",
+    iconBg: "var(--accent)",
     icon: BookOpen,
     name: "Academics & Gradebook",
     desc: "Assessments, grading, report cards, and curriculum tracking. Supports CBC, 8-4-4, UNEB, and more.",
@@ -151,7 +152,7 @@ const modules: {
   {
     abbr: "HR",
     color: "var(--primary)",
-    iconBg: "rgba(15,76,42,0.10)",
+    iconBg: "var(--accent)",
     icon: Briefcase,
     name: "HR & Payroll",
     desc: "Staff records, attendance, leave management, payroll processing, and statutory compliance (KRA, NHIF, NSSF).",
@@ -166,8 +167,8 @@ const modules: {
   },
   {
     abbr: "LIB",
-    color: "#9A5D00",
-    iconBg: "rgba(154,93,0,0.10)",
+    color: "var(--warning-muted-foreground)",
+    iconBg: "var(--accent)",
     icon: BookMarked,
     name: "Library",
     desc: "Book cataloguing, borrowing, returns, fines, overdue notices, and digital resource management.",
@@ -183,7 +184,7 @@ const modules: {
   {
     abbr: "TRN",
     color: "var(--primary)",
-    iconBg: "rgba(26,122,74,0.10)",
+    iconBg: "var(--accent)",
     icon: Bus,
     name: "Transport",
     desc: "Route planning, vehicle tracking, driver assignment, and real-time parent notifications for safe journeys.",
@@ -198,8 +199,8 @@ const modules: {
   },
   {
     abbr: "COM",
-    color: "#26A65B",
-    iconBg: "rgba(38,166,91,0.10)",
+    color: "var(--success)",
+    iconBg: "var(--accent)",
     icon: MessageSquare,
     name: "Communications",
     desc: "SMS, email, and in-app messaging to parents, staff, and students. Bulk announcements in seconds.",
@@ -215,7 +216,7 @@ const modules: {
   {
     abbr: "WAL",
     color: "var(--muted-foreground)",
-    iconBg: "rgba(107,158,131,0.10)",
+    iconBg: "var(--accent)",
     icon: Wallet,
     name: "eWallet",
     desc: "Digital wallet for cashless transactions within the school ecosystem. Parents top up, students spend.",
@@ -230,8 +231,8 @@ const modules: {
   },
   {
     abbr: "SHP",
-    color: "#1565C0",
-    iconBg: "rgba(21,101,192,0.10)",
+    color: "var(--info)",
+    iconBg: "var(--accent)",
     icon: ShoppingBag,
     name: "School Shop",
     desc: "Online storefront for uniforms, books, and school supplies with full inventory management.",
@@ -247,7 +248,7 @@ const modules: {
   {
     abbr: "USR",
     color: "var(--primary)",
-    iconBg: "rgba(15,76,42,0.10)",
+    iconBg: "var(--accent)",
     icon: ShieldCheck,
     name: "User Management",
     desc: "Invite users, assign roles, and control access across every portal and campus from one dashboard.",
@@ -263,7 +264,7 @@ const modules: {
   {
     abbr: "TKT",
     color: "var(--accent-foreground)",
-    iconBg: "rgb(var(--primary-rgb) / 10%)",
+    iconBg: "var(--accent)",
     icon: Headphones,
     name: "Support Tickets",
     desc: "Track school support requests from staff, parents, and students with clear ownership and resolution history.",
@@ -277,6 +278,9 @@ const modules: {
     ],
   },
 ];
+
+const tokenTint = (token: string, opacity: number) =>
+  `color-mix(in srgb, ${token} ${opacity}%, transparent)`;
 
 type IntegrationEntry =
   | { name: string; region: string; logo: string; desc: string; isEmoji: true }
@@ -394,9 +398,9 @@ export default function FeaturesPage() {
             backgroundSize: "50px 50px",
           }}
         />
-        <div className="relative max-w-[1200px] mx-auto w-full text-center">
+        <div className="relative max-w-website mx-auto w-full text-center">
           <div
-            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
+            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-full"
             style={{
               background: "rgb(var(--primary-rgb) / 12%)",
               border: "1px solid var(--accent-foreground)",
@@ -407,7 +411,7 @@ export default function FeaturesPage() {
           </div>
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)", maxWidth: "860px", marginInline: "auto" }}
           >
             Everything your school needs.{" "}
             <em className="italic" style={{ color: "var(--accent-foreground)" }}>
@@ -425,18 +429,18 @@ export default function FeaturesPage() {
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[8px] no-underline transition-colors duration-200"
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-md no-underline transition-colors duration-200"
               style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
             >
               Start Free Trial →
             </a>
             <Link
               href="/book-demo"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[8px] no-underline transition-all duration-200"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-md no-underline transition-all duration-200"
               style={{
-                background: "transparent",
-                border: "2px solid rgba(255,255,255,0.4)",
-                color: "#ffffff",
+                background: "var(--tint)",
+                border: "2px solid var(--border)",
+                color: "var(--link)",
               }}
             >
               Book a Demo
@@ -447,11 +451,11 @@ export default function FeaturesPage() {
 
       {/* ── Platform Highlights ───────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "var(--background)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-12">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
+              style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               Built on a unified platform
             </div>
@@ -472,14 +476,14 @@ export default function FeaturesPage() {
                 className="rounded-2xl p-7 flex flex-col gap-4 group transition-all duration-300 hover:-translate-y-1"
                 style={{
                   background: "var(--card)",
-                  border: "1px solid rgba(38,166,91,0.15)",
-                  boxShadow: "0 2px 12px rgba(6,26,18,0.06)",
+                  border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 {/* Icon circle */}
                 <div
-                  className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0 transition-colors duration-300"
-                  style={{ background: "rgba(26,122,74,0.08)" }}
+                  className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300"
+                  style={{ background: "rgb(var(--primary-rgb) / 8%)" }}
                 >
                   <h.icon className="w-6 h-6" strokeWidth={1.75} style={{ color: "var(--primary)" }} />
                 </div>
@@ -503,13 +507,23 @@ export default function FeaturesPage() {
         </div>
       </section>
 
+      <BoardSpotlight
+        eyebrow="One school, one view"
+        title="One dashboard for the whole school."
+        description="Bring the everyday picture of your school into one place, so your team can see what needs attention and act with context."
+        points={["Student and class information", "Fees and attendance at a glance", "Updates shared across school roles"]}
+        href="/book-demo"
+        linkLabel="See the platform"
+        kind="dashboard"
+      />
+
       {/* ── All 13 Modules ────────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "var(--card)" }} id="modules">
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-14">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
             >
               All 13 Modules
             </div>
@@ -538,7 +552,7 @@ export default function FeaturesPage() {
                 className="rounded-2xl p-7 flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                 style={{
                   border: "1px solid var(--border)",
-                  boxShadow: "0 2px 16px rgba(6,26,18,0.05)",
+                  boxShadow: "var(--shadow-md)",
                   background: "var(--card)",
                 }}
               >
@@ -546,18 +560,21 @@ export default function FeaturesPage() {
                 <div className="flex items-center justify-between">
                   {/* Large icon */}
                   <div
-                    className="w-14 h-14 rounded-[16px] flex items-center justify-center flex-shrink-0"
-                    style={{ background: mod.iconBg, border: `1.5px solid ${mod.color}22` }}
+                    className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: mod.iconBg,
+                      border: `1.5px solid ${tokenTint(mod.color, 13)}`,
+                    }}
                   >
                     <mod.icon className="w-7 h-7" strokeWidth={1.75} style={{ color: mod.color }} />
                   </div>
                   {/* Abbr chip */}
                   <span
-                    className="font-mono font-bold text-[11px] px-3 py-1 rounded-[6px] tracking-widest"
+                    className="font-mono font-bold text-[11px] px-3 py-1 rounded-sm tracking-widest"
                     style={{
-                      background: `${mod.color}18`,
+                      background: tokenTint(mod.color, 10),
                       color: mod.color,
-                      border: `1px solid ${mod.color}30`,
+                      border: `1px solid ${tokenTint(mod.color, 19)}`,
                     }}
                   >
                     {mod.abbr}
@@ -581,7 +598,7 @@ export default function FeaturesPage() {
                 </div>
 
                 {/* Divider */}
-                <div style={{ borderTop: "1px solid #f0f0f0" }} />
+                <div style={{ borderTop: "1px solid var(--border)" }} />
 
                 {/* Feature list */}
                 <ul className="flex flex-col gap-2 mt-auto">
@@ -608,10 +625,10 @@ export default function FeaturesPage() {
 
       {/* ── Smart Automation / Deeply Integrated ──────────── */}
       <section className="py-20 px-4" style={{ background: "var(--card)" }} id="automation">
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-14">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
               style={{
                 background: "rgb(var(--primary-rgb) / 12%)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",
@@ -643,14 +660,14 @@ export default function FeaturesPage() {
                 key={a.title}
                 className="rounded-2xl p-7 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
+                  background: "var(--tint)",
                   border: "1px solid rgb(var(--primary-rgb) / 18%)",
                   backdropFilter: "blur(4px)",
                 }}
               >
                 {/* Icon badge */}
                 <div
-                  className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0"
+                  className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{
                     background: "rgb(var(--primary-rgb) / 12%)",
                     border: "1px solid rgb(var(--primary-rgb) / 25%)",
@@ -680,11 +697,11 @@ export default function FeaturesPage() {
 
       {/* ── Integrations ──────────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "var(--background)" }} id="integrations">
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-14">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
+              style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               Integrations
             </div>
@@ -712,17 +729,17 @@ export default function FeaturesPage() {
                 className="rounded-2xl p-5 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                 style={{
                   background: "var(--card)",
-                  border: "1px solid rgba(38,166,91,0.15)",
-                  boxShadow: "0 2px 10px rgba(6,26,18,0.05)",
+                  border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 <div className="flex items-center gap-3">
                   {/* Icon badge */}
                   <div
-                    className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+                    className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
                     style={{
-                      background: "rgba(26,122,74,0.08)",
-                      border: "1px solid rgba(26,122,74,0.15)",
+                      background: "rgb(var(--primary-rgb) / 8%)",
+                      border: "1px solid rgb(var(--primary-rgb) / 15%)",
                     }}
                   >
                     {int.isEmoji ? (
@@ -760,35 +777,35 @@ export default function FeaturesPage() {
       </section>
 
       {/* ── Final CTA ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--deep)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--ondeephi)" }}
           >
             Ready to see it{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--ondeephi)" }}>
               in action?
             </em>
           </h2>
-          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)", opacity: 0.84 }}>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--ondeep)", opacity: 0.84 }}>
             Start your free 30-day trial or book a personalised demo with our school-tech experts.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[8px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-md no-underline"
+              style={{ background: "var(--gold)", color: "var(--gold-foreground)" }}
             >
               Start Free Trial →
             </a>
             <Link
               href="/book-demo"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[8px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-md no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid var(--deepbd2)",
+                color: "var(--ondeephi)",
               }}
             >
               Book a Demo

@@ -300,7 +300,7 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
       <p
         key={block.text}
         className="font-jakarta text-[16px] leading-[1.9] font-light"
-        style={{ color: "var(--muted-foreground)" }}
+        style={{ color: "var(--ondeep)" }}
       >
         {block.text}
       </p>
@@ -322,7 +322,7 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
       <p
         key={block.text}
         className="font-jakarta text-[15px] leading-[1.9]"
-        style={{ color: "var(--muted-foreground)" }}
+        style={{ color: "var(--ondeep)" }}
       >
         {block.text}
       </p>
@@ -337,7 +337,7 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
       >
         <p
           className="font-jakarta font-semibold text-[14px] leading-[1.8]"
-          style={{ color: "var(--muted-foreground)" }}
+          style={{ color: "var(--ondeep)" }}
         >
           {block.text}
         </p>
@@ -352,7 +352,7 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
           <li
             key={idx}
             className="flex items-start gap-3 font-jakarta text-[14.5px] leading-[1.8]"
-            style={{ color: "var(--muted-foreground)", listStyle: "none" }}
+            style={{ color: "var(--ondeep)", listStyle: "none" }}
           >
             <span
               className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
@@ -387,7 +387,7 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
             <p className="font-jakarta font-bold text-[14px] mb-2" style={{ color: "var(--foreground)" }}>
               {item.q}
             </p>
-            <p className="font-jakarta text-[13.5px] leading-[1.8]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-[13.5px] leading-[1.8]" style={{ color: "var(--ondeep)" }}>
               {item.a}
             </p>
           </div>
@@ -423,7 +423,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <Link
             href="/blog"
             className="inline-flex items-center gap-2 font-jakarta text-[13px] mb-6 no-underline transition-colors duration-200"
-            style={{ color: "var(--muted-foreground)" }}
+            style={{ color: "var(--mut)" }}
           >
             <ArrowLeft className="w-4 h-4" strokeWidth={2} />
             Back to Blog
@@ -434,7 +434,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               style={{
                 background: "rgb(var(--primary-rgb) / 12%)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                color: "var(--accent-foreground)",
+                color: "var(--link)",
               }}
             >
               <Tag className="w-3 h-3" strokeWidth={2} />
@@ -450,14 +450,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <div className="flex flex-wrap gap-5">
             <span
               className="inline-flex items-center gap-2 font-jakarta text-[13px]"
-              style={{ color: "var(--muted-foreground)" }}
+              style={{ color: "var(--mut)" }}
             >
               <Calendar className="w-3.5 h-3.5" strokeWidth={1.5} />
               {post.date}
             </span>
             <span
               className="inline-flex items-center gap-2 font-jakarta text-[13px]"
-              style={{ color: "var(--muted-foreground)" }}
+              style={{ color: "var(--mut)" }}
             >
               <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
               {post.readTime}
@@ -524,18 +524,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-7 py-3.5 rounded-[50px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-7 py-3.5 rounded-full no-underline"
               style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
             >
               Start Free Trial →
             </Link>
             <Link
               href="/book-demo"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-[50px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-full no-underline"
               style={{
-                background: "transparent",
-                border: "2px solid rgba(255,255,255,0.3)",
-                color: "#ffffff",
+                background: "var(--tint)",
+                border: "2px solid var(--border)",
+                color: "var(--link)",
               }}
             >
               Book a Demo

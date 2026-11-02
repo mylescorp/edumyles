@@ -20,11 +20,11 @@ export default function Integrations() {
   return (
     <section
       id="integrations"
-      className="py-10 px-4 sm:px-8 bg-card border-t border-b border-gray-100"
+      className="py-10 px-4 sm:px-8 bg-card border-t border-b border-border"
       aria-label="Integrations"
     >
-      <div className="max-w-[1200px] mx-auto text-center">
-        <p className="text-sm font-medium text-gray-500 mb-6 tracking-wide uppercase">
+      <div className="max-w-website mx-auto text-center">
+        <p className="text-sm font-medium text-muted-foreground mb-6 tracking-wide uppercase">
           Integrates with tools schools already use
         </p>
 
@@ -32,7 +32,7 @@ export default function Integrations() {
           {badges.map((badge) => (
             <div
               key={badge.name}
-              className="flex items-center gap-2 bg-card border border-gray-200 rounded-full px-4 py-2 shadow-sm"
+              className="flex items-center gap-2 bg-card border border-border rounded-full px-4 py-2 shadow-sm"
             >
               {badge.isEmoji ? (
                 <span className="text-lg leading-none">{badge.icon}</span>
@@ -40,12 +40,12 @@ export default function Integrations() {
                 <badge.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
               )}
               <span className="text-sm font-semibold text-foreground">{badge.name}</span>
-              <span className="text-xs text-gray-400">{badge.subtitle}</span>
+              <span className="text-xs text-muted-foreground">{badge.subtitle}</span>
             </div>
           ))}
         </div>
 
-        <p className="mt-6 text-sm text-gray-500">
+        <p className="mt-6 text-sm text-muted-foreground">
           and 12 more integrations — all included, no extra fees
         </p>
       </div>

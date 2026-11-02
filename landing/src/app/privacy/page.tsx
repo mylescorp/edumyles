@@ -55,10 +55,7 @@ export default function PrivacyPage() {
             className="font-display font-bold leading-tight mb-4"
             style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--foreground)" }}
           >
-            Your data,{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
-              protected.
-            </em>
+            Privacy Policy.
           </h1>
           <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--muted-foreground)" }}>
             Last updated: March 2026 · Effective: 1 January 2025
@@ -71,9 +68,9 @@ export default function PrivacyPage() {
                 href={`#${s.id}`}
                 className="font-jakarta font-medium text-[12px] px-4 py-2 rounded-full no-underline transition-colors duration-200"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "var(--muted-foreground)",
+                  background: "var(--tint)",
+                  border: "1px solid var(--border)",
+                  color: "var(--link)",
                 }}
               >
                 {s.label}
@@ -104,8 +101,8 @@ export default function PrivacyPage() {
         <section id="collection" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Database className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -198,14 +195,14 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 2 — How We Use It */}
         <section id="usage" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Eye className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -249,14 +246,14 @@ export default function PrivacyPage() {
           </ul>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 3 — Data Sharing */}
         <section id="sharing" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <FileText className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -312,14 +309,14 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 4 — Your Rights */}
         <section id="rights" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <UserCheck className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -383,14 +380,14 @@ export default function PrivacyPage() {
           </p>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 5 — Retention */}
         <section id="retention" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <FileText className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -458,14 +455,14 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 6 — Security */}
         <section id="security" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Lock className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -505,14 +502,14 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 7 — Kenya DPA */}
         <section id="dpa" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Shield className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -550,14 +547,14 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 8 — Contact */}
         <section id="contact" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Mail className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -621,7 +618,7 @@ export default function PrivacyPage() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
+            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-full no-underline"
             style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
           >
             Contact Us

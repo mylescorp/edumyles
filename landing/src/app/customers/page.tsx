@@ -120,9 +120,9 @@ export default function CustomersPage() {
             backgroundSize: "50px 50px",
           }}
         />
-        <div className="relative max-w-[1200px] mx-auto w-full text-center">
+        <div className="relative max-w-website mx-auto w-full text-center">
           <div
-            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
+            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-full"
             style={{
               background: "rgb(var(--primary-rgb) / 12%)",
               border: "1px solid var(--accent-foreground)",
@@ -153,9 +153,9 @@ export default function CustomersPage() {
                 key={pill}
                 className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#E8E8E8",
+                  background: "var(--tint)",
+                  border: "1px solid var(--border)",
+                  color: "var(--link)",
                 }}
               >
                 {pill}
@@ -168,13 +168,13 @@ export default function CustomersPage() {
       {/* ── Stats Bar ─────────────────────────────────────── */}
       <section
         style={{
-          background: "rgba(26,122,74,0.06)",
-          borderTop: "1px solid rgba(26,122,74,0.12)",
-          borderBottom: "1px solid rgba(26,122,74,0.12)",
+          background: "rgb(var(--primary-rgb) / 6%)",
+          borderTop: "1px solid rgb(var(--primary-rgb) / 12%)",
+          borderBottom: "1px solid rgb(var(--primary-rgb) / 12%)",
           padding: "3rem 2rem",
         }}
       >
-        <div className="max-w-[1200px] mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="max-w-website mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
               <div
@@ -196,7 +196,7 @@ export default function CustomersPage() {
 
       {/* ── Customer Wall ─────────────────────────────────── */}
       <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <h2
             className="font-display font-bold text-center mb-8"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
@@ -211,8 +211,8 @@ export default function CustomersPage() {
                 key={c.label}
                 className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full cursor-default"
                 style={{
-                  background: "rgba(6,26,18,0.04)",
-                  border: "1px solid rgba(6,26,18,0.1)",
+                  background: "var(--tint)",
+                  border: "1px solid var(--border)",
                   color: "var(--foreground)",
                 }}
               >
@@ -259,7 +259,7 @@ export default function CustomersPage() {
 
       {/* ── Testimonials ──────────────────────────────────── */}
       <section style={{ background: "var(--background)", padding: "5rem 2rem" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <h2
             className="font-display font-bold text-center mb-12"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
@@ -288,7 +288,7 @@ export default function CustomersPage() {
                   className="font-display font-bold leading-none mb-3"
                   style={{
                     fontSize: "4rem",
-                    color: t.featured ? "rgb(var(--primary-rgb) / 40%)" : "rgba(26,122,74,0.2)",
+                    color: t.featured ? "rgb(var(--primary-rgb) / 40%)" : "rgb(var(--primary-rgb) / 20%)",
                     lineHeight: 0.8,
                   }}
                 >
@@ -298,7 +298,7 @@ export default function CustomersPage() {
                   className="font-display italic flex-1 mb-5"
                   style={{
                     fontSize: "18px",
-                    color: t.featured ? "#E8E8E8" : "#2d4a38",
+                    color: t.featured ? "var(--ondeephi)" : "var(--link)",
                     lineHeight: 1.7,
                   }}
                 >
@@ -318,13 +318,13 @@ export default function CustomersPage() {
                   <div>
                     <div
                       className="font-jakarta font-semibold"
-                      style={{ fontSize: "13px", color: t.featured ? "#ffffff" : "var(--foreground)" }}
+                      style={{ fontSize: "13px", color: t.featured ? "var(--ondeephi)" : "var(--foreground)" }}
                     >
                       {t.name}
                     </div>
                     <div
                       className="font-jakarta"
-                      style={{ fontSize: "12px", color: t.featured ? "#90CAF9" : "var(--muted-foreground)" }}
+                      style={{ fontSize: "12px", color: t.featured ? "var(--deepem)" : "var(--muted-foreground)" }}
                     >
                       {t.role}
                     </div>
@@ -338,7 +338,7 @@ export default function CustomersPage() {
 
       {/* ── School Types ──────────────────────────────────── */}
       <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <h2
             className="font-display font-bold text-center mb-12"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
@@ -350,11 +350,11 @@ export default function CustomersPage() {
               <div
                 key={type}
                 className="rounded-2xl p-6"
-                style={{ background: "#F8FDF9", border: "1px solid var(--border)" }}
+                style={{ background: "var(--card)", border: "1px solid var(--border)" }}
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: "rgba(15,76,42,0.1)" }}
+                  style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                 >
                   <Icon size={22} style={{ color: "var(--primary)" }} />
                 </div>
@@ -375,7 +375,7 @@ export default function CustomersPage() {
                     <li
                       key={f}
                       className="font-jakarta flex items-center gap-2"
-                      style={{ fontSize: "13px", color: "#4a7a5a" }}
+                      style={{ fontSize: "13px", color: "var(--deepbd2)" }}
                     >
                       <span
                         className="w-1.5 h-1.5 rounded-full shrink-0"

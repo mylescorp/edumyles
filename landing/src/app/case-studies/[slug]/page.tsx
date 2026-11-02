@@ -335,18 +335,18 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-7 py-3.5 rounded-[50px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-7 py-3.5 rounded-full no-underline"
               style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
             >
               Start Free Trial →
             </Link>
             <Link
               href="/book-demo"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-[50px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-full no-underline"
               style={{
-                background: "transparent",
-                border: "2px solid rgba(255,255,255,0.3)",
-                color: "#ffffff",
+                background: "var(--tint)",
+                border: "2px solid var(--border)",
+                color: "var(--link)",
               }}
             >
               Book a Demo

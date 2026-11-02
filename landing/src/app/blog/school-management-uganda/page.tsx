@@ -15,7 +15,7 @@ export default function UgandaSchoolManagement() {
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, color-mix(in srgb, var(--deep) 80%, var(--primary)) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
@@ -23,7 +23,7 @@ export default function UgandaSchoolManagement() {
           <div
             style={{
               backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+                            radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--ondeephi) 10%, transparent) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
             }}
@@ -35,7 +35,7 @@ export default function UgandaSchoolManagement() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
+              style={{ background: "var(--tint)", color: "var(--link)" }}
             >
               ← Back to Blog
             </Link>
@@ -44,31 +44,31 @@ export default function UgandaSchoolManagement() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ink)" }}
             >
-              School Management in <span style={{ color: "var(--accent-foreground)" }}>Uganda</span>
+              School Management in <span style={{ color: "var(--pri)" }}>Uganda</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <Globe className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   Regional
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   6 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   December 2025
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--mut)" }}>
               UNEB vs CBC, Airtel Money vs M-Pesa, Ugandan MoES requirements — here&apos;s what we
               adapted for Ugandan schools. Complete guide for the Ugandan education system.
             </p>
@@ -97,7 +97,7 @@ export default function UgandaSchoolManagement() {
               className="p-6 rounded-2xl mb-8"
               style={{
                 background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
@@ -182,30 +182,30 @@ export default function UgandaSchoolManagement() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div
                       className="p-3 rounded-lg"
-                      style={{ background: "#FEE2E2", border: "1px solid #fecaca" }}
+                      style={{ background: "var(--danger-muted)", border: "1px solid var(--danger)" }}
                     >
-                      <div className="text-xs font-semibold mb-1" style={{ color: "#991b1b" }}>
+                      <div className="text-xs font-semibold mb-1" style={{ color: "var(--danger-muted-foreground)" }}>
                         Kenya
                       </div>
-                      <div className="text-sm" style={{ color: "#7f1d1d" }}>
+                      <div className="text-sm" style={{ color: "var(--danger-muted-foreground)" }}>
                         {difference.kenya}
                       </div>
                     </div>
                     <div
                       className="p-3 rounded-lg"
-                      style={{ background: "#D1FAE5", border: "1px solid #a7f3d0" }}
+                      style={{ background: "var(--success-muted)", border: "1px solid var(--success)" }}
                     >
-                      <div className="text-xs font-semibold mb-1" style={{ color: "#064e3b" }}>
+                      <div className="text-xs font-semibold mb-1" style={{ color: "var(--success-muted-foreground)" }}>
                         Uganda
                       </div>
-                      <div className="text-sm" style={{ color: "#065f46" }}>
+                      <div className="text-sm" style={{ color: "var(--success-muted-foreground)" }}>
                         {difference.uganda}
                       </div>
                     </div>
                   </div>
                   <div
                     className="text-sm mt-2 p-2 rounded"
-                    style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+                    style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
                   >
                     Impact: {difference.impact}
                   </div>
@@ -283,7 +283,7 @@ export default function UgandaSchoolManagement() {
                         <span
                           key={subject}
                           className="text-xs px-2 py-1 rounded"
-                          style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                          style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                         >
                           {subject}
                         </span>
@@ -356,7 +356,7 @@ export default function UgandaSchoolManagement() {
                         </h4>
                         <span
                           className="text-xs px-2 py-1 rounded-full"
-                          style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                          style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                         >
                           {provider.market}
                         </span>
@@ -395,7 +395,7 @@ export default function UgandaSchoolManagement() {
                     <div
                       key={feature}
                       className="flex items-center gap-3 p-3 rounded-lg"
-                      style={{ background: "rgba(26,122,74,0.1)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                     >
                       <CreditCard className="w-5 h-5 flex-shrink-0" style={{ color: "var(--primary)" }} />
                       <span className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
@@ -477,7 +477,7 @@ export default function UgandaSchoolManagement() {
                       <span
                         key={feature}
                         className="text-xs px-2 py-1 rounded"
-                        style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                        style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                       >
                         {feature}
                       </span>
@@ -542,7 +542,7 @@ export default function UgandaSchoolManagement() {
                     <div className="text-right">
                       <span
                         className="text-xs px-2 py-1 rounded-full"
-                        style={{ background: "#D1FAE5", color: "#065f46" }}
+                        style={{ background: "var(--success-muted)", color: "var(--success-muted-foreground)" }}
                       >
                         Success Story
                       </span>
@@ -550,7 +550,7 @@ export default function UgandaSchoolManagement() {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#ef4444" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--danger)" }}>
                         Challenge:
                       </span>
                       <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>

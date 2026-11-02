@@ -142,7 +142,7 @@ export default function Navbar() {
         role="banner"
         className="sticky top-0 bg-background border-b border-border z-[1000] px-4 sm:px-8 transition-colors duration-200"
       >
-        <div className="max-w-[1200px] mx-auto flex justify-between items-center gap-8 h-[70px]">
+        <div className="max-w-website mx-auto flex justify-between items-center gap-8 h-[70px]">
           {/* Logo */}
           <Logo size="md" />
 
@@ -185,7 +185,7 @@ export default function Navbar() {
 
               {solutionsOpen && (
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-gray-100 dark:border-white/10 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-border shadow-sm dark:shadow-none z-50 p-4 grid grid-cols-1 gap-2"
                   style={{ minWidth: "380px" }}
                 >
                   <div className="col-span-1 grid grid-cols-1 gap-2">
@@ -194,11 +194,11 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setSolutionsOpen(false)}
-                        className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-muted group"
+                        className="flex items-start gap-3 p-3 rounded-dropdown no-underline transition-all duration-150 hover:bg-muted group"
                       >
                         <div
-                          className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
-                          style={{ background: "rgba(26,122,74,0.08)" }}
+                          className="w-10 h-10 rounded-md flex items-center justify-center flex-shrink-0 transition-colors duration-150"
+                          style={{ background: "rgb(var(--primary-rgb) / 8%)" }}
                         >
                           <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
                         </div>
@@ -246,7 +246,7 @@ export default function Navbar() {
 
               {partnersOpen && (
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-gray-100 dark:border-white/10 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-border shadow-sm dark:shadow-none z-50 p-4 grid grid-cols-1 gap-2"
                   style={{ minWidth: "380px" }}
                 >
                   <div className="col-span-1 grid grid-cols-1 gap-2">
@@ -255,10 +255,10 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setPartnersOpen(false)}
-                        className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-muted group"
+                        className="flex items-start gap-3 p-3 rounded-dropdown no-underline transition-all duration-150 hover:bg-muted group"
                       >
                         <div
-                          className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
+                          className="w-10 h-10 rounded-md flex items-center justify-center flex-shrink-0 transition-colors duration-150"
                           style={{ background: "rgb(var(--primary-rgb) / 8%)" }}
                         >
                           <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
@@ -303,7 +303,7 @@ export default function Navbar() {
             <ThemeToggle />
             <Link
               href={demoCtaHref}
-              className="font-jakarta font-bold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
+              className="font-jakarta font-bold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-md transition-all duration-200 inline-flex items-center"
               style={{
                 background: "var(--primary)",
                 color: "var(--primary-foreground)",
@@ -323,7 +323,7 @@ export default function Navbar() {
             </Link>
             <Link
               href={waitlistCtaHref}
-              className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
+              className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-md transition-all duration-200 inline-flex items-center"
               style={{
                 background: "var(--primary)",
                 color: "var(--primary-foreground)",
@@ -397,13 +397,13 @@ export default function Navbar() {
           <Link
             href="/features"
             onClick={() => setMobileOpen(false)}
-            className="block py-3 text-foreground no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-accent-foreground"
+            className="block py-3 text-foreground no-underline font-medium text-lg transition-colors border-b border-border hover:text-accent-foreground"
           >
             Features
           </Link>
 
           {/* Solutions section — expanded list (no dropdown) */}
-          <div className="border-b border-gray-100">
+          <div className="border-b border-border">
             <span className="block py-3 text-foreground font-medium text-lg">
               Solutions
             </span>
@@ -417,14 +417,14 @@ export default function Navbar() {
                 >
                   <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
                   <span className="font-medium">{item.label}</span>
-                  <span className="text-xs text-gray-400 ml-1">— {item.subtitle}</span>
+                  <span className="text-xs text-muted-foreground ml-1">— {item.subtitle}</span>
                 </Link>
               ))}
             </div>
           </div>
 
           {/* Partners section - expanded list (no dropdown) */}
-          <div className="border-b border-gray-100">
+          <div className="border-b border-border">
             <span className="block py-3 text-foreground font-medium text-lg">
               Partners
             </span>
@@ -438,7 +438,7 @@ export default function Navbar() {
                 >
                   <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
                   <span className="font-medium">{item.label}</span>
-                  <span className="text-xs text-gray-400 ml-1">- {item.subtitle}</span>
+                  <span className="text-xs text-muted-foreground ml-1">- {item.subtitle}</span>
                 </Link>
               ))}
             </div>
@@ -452,7 +452,7 @@ export default function Navbar() {
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="block py-3 text-foreground no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-accent-foreground"
+                className="block py-3 text-foreground no-underline font-medium text-lg transition-colors border-b border-border hover:text-accent-foreground"
               >
                 {link.label}
               </Link>
@@ -463,7 +463,7 @@ export default function Navbar() {
             <Link
               href={demoCtaHref}
               onClick={() => setMobileOpen(false)}
-              className="font-jakarta font-bold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
+              className="font-jakarta font-bold text-[15px] no-underline text-center py-3.5 px-6 rounded-md transition-all duration-200"
               style={{ background: "var(--accent-foreground)", color: "var(--foreground)", border: "1.5px solid var(--accent-foreground)" }}
             >
               Book a Demo
@@ -471,7 +471,7 @@ export default function Navbar() {
             <Link
               href={waitlistCtaHref}
               onClick={() => setMobileOpen(false)}
-              className="font-jakarta font-semibold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
+              className="font-jakarta font-semibold text-[15px] no-underline text-center py-3.5 px-6 rounded-md transition-all duration-200"
               style={{ background: "var(--primary)", color: "var(--primary-foreground)", border: "1.5px solid var(--primary)" }}
             >
                 Join Waitlist
@@ -479,18 +479,18 @@ export default function Navbar() {
           </div>
 
           {/* Footer-style quick links */}
-          <div className="flex justify-center gap-6 mt-6 pt-4 border-t border-gray-100">
+          <div className="flex justify-center gap-6 mt-6 pt-4 border-t border-border">
             <Link
               href="/case-studies"
               onClick={() => setMobileOpen(false)}
-              className="text-sm text-gray-500 no-underline hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground no-underline hover:text-foreground transition-colors"
             >
               Case Studies
             </Link>
             <Link
               href="/reseller"
               onClick={() => setMobileOpen(false)}
-              className="text-sm text-gray-500 no-underline hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground no-underline hover:text-foreground transition-colors"
             >
               Reseller Programme
             </Link>

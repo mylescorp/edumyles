@@ -55,7 +55,7 @@ export default function Benefits() {
 
   return (
     <section id="benefits" className="px-4 sm:px-8 py-16 bg-card" aria-label="Benefits by role">
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-website mx-auto">
         {/* Eyebrow */}
         <div className="section-eyebrow mb-2">Built for Everyone</div>
 
@@ -78,7 +78,7 @@ export default function Benefits() {
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
-              className="fade-in rounded-[12px] p-8"
+              className="fade-in rounded-lg p-8"
               style={{
                 background: "var(--background)",
                 border: "1px solid var(--border)",
@@ -95,7 +95,7 @@ export default function Benefits() {
                     className="text-[14px] leading-relaxed mb-3 pl-6 relative"
                     style={{ color: "var(--foreground)" }}
                   >
-                    <span className="absolute left-0 font-bold" style={{ color: "#26A65B" }}>
+                    <span className="absolute left-0 font-bold" style={{ color: "var(--success)" }}>
                       ✓
                     </span>
                     {item}
@@ -106,7 +106,7 @@ export default function Benefits() {
                 href="#demo"
                 className="inline-block mt-4 text-[14px] font-semibold no-underline transition-colors duration-300"
                 style={{ color: "var(--primary)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--success)")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
               >
                 See how it works →

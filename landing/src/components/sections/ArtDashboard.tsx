@@ -21,7 +21,7 @@ export default function ArtDashboard() {
           <div className="handoff-metrics">
             {[["Fees collected", "70%"], ["Attendance", "55%"], ["Results ready", "40%"]].map(([label, width], index) => (
               <div className="handoff-metric" key={label}>
-                <small>{label}</small><i style={{ width, background: ["#276b61", "#7cc8ba", "#e8a317"][index] }} />
+                <small>{label}</small><i style={{ width, background: ["var(--pri)", "var(--deepacc)", "var(--gold)"][index] }} />
               </div>
             ))}
           </div>

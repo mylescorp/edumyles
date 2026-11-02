@@ -78,7 +78,7 @@ export default function CookieBanner() {
           style={{
             background: "transparent",
             color: "var(--muted-foreground)",
-            border: "1px solid rgba(168,230,195,0.3)"
+            border: "1px solid color-mix(in srgb, var(--deepacc) 30%, transparent)"
           }}
         >
           Decline

@@ -26,56 +26,62 @@ export default function FinalCTA() {
       id="demo"
       className="px-4 sm:px-8 py-16 text-center"
       aria-label="Final call to action"
-      style={{ background: "var(--primary)" }}
+      style={{ background: "var(--deep)" }}
     >
       <div ref={ref} className="fade-in max-w-[800px] mx-auto">
         <h2
           className="font-display font-bold leading-[1.2] mb-3"
-          style={{ fontSize: "clamp(1.75rem, 3vw, 2.625rem)", color: "var(--primary-foreground)" }}
+          style={{ fontSize: "clamp(1.75rem, 3vw, 2.625rem)", color: "var(--ondeephi)" }}
         >
           Ready to{" "}
-          <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+          <em className="italic" style={{ color: "var(--ondeephi)" }}>
             Transform
           </em>{" "}
           Your School?
         </h2>
 
-        <p className="text-[18px] mb-8 leading-relaxed" style={{ color: "var(--primary-foreground)", opacity: 0.82 }}>
+        <p className="text-[18px] mb-8 leading-relaxed" style={{ color: "var(--ondeep)", opacity: 0.82 }}>
           Join schools already running on EduMyles. Setup is free. Support is local.
         </p>
 
         <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center mb-4">
           <a
             href="/waitlist"
-            className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-colors duration-300 no-underline"
-            style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "var(--card)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "var(--primary-foreground)")}
+            className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-md transition-colors duration-300 no-underline"
+            style={{ background: "var(--gold)", color: "var(--gold-foreground)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--prih)";
+              e.currentTarget.style.color = "var(--onpri)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "var(--gold)";
+              e.currentTarget.style.color = "var(--gold-foreground)";
+            }}
           >
             Join the School Waitlist →
           </a>
           <a
             href="#pricing"
-            className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-[8px] transition-all duration-300 no-underline"
+            className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-md transition-all duration-300 no-underline"
             style={{
               background: "transparent",
-              color: "var(--primary-foreground)",
-              border: "1.5px solid rgb(var(--primary-foreground-rgb) / 30%)",
+              color: "var(--ondeephi)",
+              border: "1.5px solid var(--deepbd2)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "var(--primary)";
-              e.currentTarget.style.color = "var(--primary-foreground)";
+              e.currentTarget.style.borderColor = "var(--deepbd2)";
+              e.currentTarget.style.color = "var(--ondeephi)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgb(var(--primary-foreground-rgb) / 30%)";
-              e.currentTarget.style.color = "var(--primary-foreground)";
+              e.currentTarget.style.borderColor = "var(--deepbd2)";
+              e.currentTarget.style.color = "var(--ondeephi)";
             }}
           >
             See Pricing
           </a>
         </div>
 
-        <p className="text-[13px]" style={{ color: "var(--primary-foreground)", opacity: 0.82 }}>
+        <p className="text-[13px]" style={{ color: "var(--ondeep)", opacity: 0.82 }}>
           No commitment required · Free onboarding included · Cancel anytime
         </p>
       </div>

@@ -16,7 +16,7 @@ function AffiliateApplicationSuccessContent() {
       <div className="max-w-2xl w-full">
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10 text-white" />
+            <CheckCircle2 className="w-10 h-10 text-[var(--ondeephi)]" />
           </div>
           <h1 className="font-display text-4xl font-bold text-foreground mb-4">
             Application Submitted!
@@ -132,13 +132,13 @@ function AffiliateApplicationSuccessContent() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/"
-              className="inline-flex items-center justify-center rounded-[999px] border border-primary bg-primary px-8 py-3 font-jakarta text-[15px] font-bold text-primary-foreground transition-all duration-200 hover:border-primary hover:bg-primary"
+              className="inline-flex items-center justify-center rounded-full border border-primary bg-primary px-8 py-3 font-jakarta text-[15px] font-bold text-primary-foreground transition-all duration-200 hover:border-primary hover:bg-primary"
             >
               Back to Home
             </Link>
             <a
               href={affiliatePortalHref}
-              className="inline-flex items-center justify-center rounded-[999px] border border-primary bg-card px-8 py-3 font-jakarta text-[15px] font-bold text-primary transition-all duration-200 hover:border-primary hover:bg-primary hover:text-primary-foreground"
+              className="inline-flex items-center justify-center rounded-full border border-primary bg-card px-8 py-3 font-jakarta text-[15px] font-bold text-primary transition-all duration-200 hover:border-primary hover:bg-primary hover:text-primary-foreground"
             >
               Affiliate Portal
             </a>

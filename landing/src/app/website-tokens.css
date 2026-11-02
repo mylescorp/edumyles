@@ -1,0 +1,50 @@
+/* EduMyles design tokens v1.1 — generated 2026-11-02 */
+:root{
+  /* Light theme (marketing website, brand green) */
+  --bg: #F1F6F4;
+  --card: #FFFFFF;
+  --ink: #10201C;
+  --mut: #4B5C57;
+  --pri: #276B61;
+  --prih: #1E5A50;
+  --onpri: #FFFFFF;
+  --tint: #E3EFEC;
+  --deep: #0F2A24;
+  --gold: #E8A317;
+  --em: #2F4F63;
+  --fbd: #7C8B86;
+  --link: #1E5A50;
+  --ondeep:#C4D9D3; --ondeephi:#E6F4F0; --deepacc:#9ED8CC; --deepem:#BFE3F5; --deepbd:#9DBDB5; --deepbd2:#4B7A70;
+  --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-2xl:20px; --radius-card:24px; --radius-panel:32px; --radius-band:40px; --radius-full:9999px;
+  --font-sans: Inter, system-ui, sans-serif;
+  --container: 1200px; --sidebar: 256px; --sidebar-collapsed: 72px; --header: 64px;
+  --shadow-xs:0 1px 2px rgb(0 0 0 / 4%); --shadow-sm:0 1px 3px rgb(0 0 0 / 7%); --shadow-md:0 4px 12px rgb(0 0 0 / 8%); --shadow-lg:0 12px 28px rgb(0 0 0 / 12%); --shadow-xl:0 20px 40px rgb(0 0 0 / 16%);
+  --motion-instant:100ms; --motion-fast:150ms; --motion-normal:200ms; --motion-slow:300ms;
+}
+/* Dark theme — exact values from the platform shell (Platform admin: dark) */
+html[data-theme=dark], .dark {
+  --bg: #0B111C;
+  --card: #172235;
+  --ink: #F8FAFC;
+  --mut: #A3B1C2;
+  --pri: #6FA2F3;
+  --prih: #6FA2F3;
+  --onpri: #082A56;
+  --tint: #243247;
+  --accent: #263D5D;
+  --afg: #BFDBFE;
+  --deep: #1A395B;
+  --gold: #C79639;
+  --em: #BFDBFE;
+  --fbd: #6B7C93;
+  --border: #2B3A4F;
+  --link: #6FA2F3;
+  --ondeep: #DCE5F0;
+  --ondeephi: #F8FAFC;
+  --success:#4ADE80; --success-fg:#052E16; --success-muted:#12301F; --success-muted-fg:#86EFAC;
+  --warning:#FBBF24; --warning-fg:#422006; --warning-muted:#3A2A0A; --warning-muted-fg:#FCD34D;
+  --danger:#F87171; --danger-fg:#450A0A; --danger-muted:#3B1414; --danger-muted-fg:#FCA5A5;
+  --info:#38BDF8; --info-fg:#082F49; --info-muted:#0C2D44; --info-muted-fg:#7DD3FC;
+  --secondary:#243247; --secondary-fg:#E2E8F0; --popover:#172235; --popover-fg:#F8FAFC; --ring:#6FA2F3;
+  --ondeep:#DCE5F0; --ondeephi:#F8FAFC; --deepacc:#BFDBFE; --deepem:#BFDBFE; --deepbd:#6B7C93; --deepbd2:#6B7C93;
+}

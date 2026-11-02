@@ -67,10 +67,7 @@ export default function TermsPage() {
             className="font-display font-bold leading-tight mb-4"
             style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--foreground)" }}
           >
-            Fair, transparent{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
-              terms.
-            </em>
+            Terms of Service.
           </h1>
           <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--muted-foreground)" }}>
             Last updated: March 2026 · Effective: 1 January 2025
@@ -83,9 +80,9 @@ export default function TermsPage() {
                 href={`#${s.id}`}
                 className="font-jakarta font-medium text-[12px] px-4 py-2 rounded-full no-underline transition-colors duration-200"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "var(--muted-foreground)",
+                  background: "var(--tint)",
+                  border: "1px solid var(--border)",
+                  color: "var(--link)",
                 }}
               >
                 {s.label}
@@ -114,8 +111,8 @@ export default function TermsPage() {
         <section id="acceptance" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <CheckCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -154,14 +151,14 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 2 — Services */}
         <section id="services" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -225,14 +222,14 @@ export default function TermsPage() {
           </p>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 3 — Accounts */}
         <section id="accounts" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -306,14 +303,14 @@ export default function TermsPage() {
           </ul>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 4 — Billing */}
         <section id="billing" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <CreditCard className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -418,14 +415,14 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 5 — Data Ownership */}
         <section id="data" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Database className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -483,14 +480,14 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 6 — Intellectual Property */}
         <section id="ip" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Code2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -541,7 +538,7 @@ export default function TermsPage() {
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-2"
-                style={{ color: "#7A4A00" }}
+                style={{ color: "var(--warning-muted-foreground)" }}
               >
                 Restrictions
               </h3>
@@ -582,14 +579,14 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 7 — Termination */}
         <section id="termination" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <XCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -623,7 +620,7 @@ export default function TermsPage() {
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-3"
-                style={{ color: "#7A4A00" }}
+                style={{ color: "var(--warning-muted-foreground)" }}
               >
                 Immediate termination by EduMyles
               </h3>
@@ -664,14 +661,14 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 8 — Governing Law */}
         <section id="law" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Scale className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -738,7 +735,7 @@ export default function TermsPage() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
+            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-full no-underline"
             style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
           >
             Contact Us

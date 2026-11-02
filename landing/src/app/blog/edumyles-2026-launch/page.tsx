@@ -28,7 +28,7 @@ export default function EduMyles2026Launch() {
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, color-mix(in srgb, var(--deep) 80%, var(--primary)) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
@@ -36,7 +36,7 @@ export default function EduMyles2026Launch() {
           <div
             style={{
               backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+                            radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--ondeephi) 10%, transparent) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
             }}
@@ -48,7 +48,7 @@ export default function EduMyles2026Launch() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
+              style={{ background: "var(--tint)", color: "var(--link)" }}
             >
               ← Back to Blog
             </Link>
@@ -56,31 +56,31 @@ export default function EduMyles2026Launch() {
 
           <div className="max-w-[800px]">
             <div className="mb-6">
-              <span className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] px-5 py-2 rounded-[50px]">
+              <span className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] px-5 py-2 rounded-full">
                 <Rocket className="w-4 h-4" />
                 Product Update
               </span>
             </div>
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ink)" }}
             >
-              Introducing the <span style={{ color: "var(--accent-foreground)" }}>All-New EduMyles 2026</span>
+              Introducing the <span style={{ color: "var(--pri)" }}>All-New EduMyles 2026</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   EduMyles Team
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   March 2026
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   8 min read
                 </span>
               </div>
@@ -88,7 +88,7 @@ export default function EduMyles2026Launch() {
 
             <p
               className="font-jakarta text-xl leading-[1.7] font-light"
-              style={{ color: "var(--muted-foreground)" }}
+              style={{ color: "var(--mut)" }}
             >
               We rebuilt EduMyles from the ground up with a real-time architecture, 11 deeply
               integrated modules, and a brand new interface. Here&apos;s everything that&apos;s new.
@@ -119,7 +119,7 @@ export default function EduMyles2026Launch() {
               className="p-6 rounded-2xl mb-8"
               style={{
                 background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
@@ -150,8 +150,8 @@ export default function EduMyles2026Launch() {
                     key={stat.number}
                     className="text-center p-4 rounded-xl"
                     style={{
-                      background: "rgba(255,255,255,0.8)",
-                      border: "1px solid rgba(26,122,74,0.1)",
+                      background: "var(--card)",
+                      border: "1px solid rgb(var(--primary-rgb) / 10%)",
                     }}
                   >
                     <div
@@ -197,10 +197,10 @@ export default function EduMyles2026Launch() {
                     <div
                       key={item}
                       className="flex items-center gap-3 p-3 rounded-lg"
-                      style={{ background: "#FEF2F2", border: "1px solid #fecaca" }}
+                      style={{ background: "var(--danger-muted)", border: "1px solid var(--danger)" }}
                     >
-                      <span className="text-red-500 text-lg">✕</span>
-                      <span className="font-jakarta text-sm" style={{ color: "#991b1b" }}>
+                      <span className="text-danger text-lg">✕</span>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--danger-muted-foreground)" }}>
                         {item}
                       </span>
                     </div>
@@ -223,13 +223,13 @@ export default function EduMyles2026Launch() {
                     <div
                       key={item}
                       className="flex items-center gap-3 p-3 rounded-lg"
-                      style={{ background: "#F0FDF4", border: "1px solid #bbf7d0" }}
+                      style={{ background: "var(--success-muted)", border: "1px solid var(--success)" }}
                     >
                       <CheckCircle2
                         className="w-5 h-5 flex-shrink-0"
-                        style={{ color: "#16a34a" }}
+                        style={{ color: "var(--success)" }}
                       />
-                      <span className="font-jakarta text-sm" style={{ color: "#15803d" }}>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--success)" }}>
                         {item}
                       </span>
                     </div>
@@ -377,7 +377,7 @@ export default function EduMyles2026Launch() {
                   <div className="flex items-center gap-3 mb-3">
                     <div
                       className="w-10 h-10 rounded-lg flex items-center justify-center"
-                      style={{ background: "rgba(26,122,74,0.1)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                     >
                       <module.icon className="w-5 h-5" style={{ color: "var(--primary)" }} />
                     </div>
@@ -480,7 +480,7 @@ export default function EduMyles2026Launch() {
                       <span
                         key={permission}
                         className="text-xs px-2 py-1 rounded"
-                        style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                        style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                       >
                         {permission}
                       </span>
@@ -528,7 +528,7 @@ export default function EduMyles2026Launch() {
                     <div
                       key={item.feature}
                       className="flex gap-3 p-3 rounded-lg"
-                      style={{ background: "rgba(26,122,74,0.1)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                     >
                       <Zap className="w-5 h-5 flex-shrink-0" style={{ color: "var(--primary)" }} />
                       <div>
@@ -663,7 +663,7 @@ export default function EduMyles2026Launch() {
                     <div
                       key={improvement}
                       className="flex items-center gap-2 p-2 rounded"
-                      style={{ background: "rgba(26,122,74,0.1)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                     >
                       <CheckCircle2
                         className="w-4 h-4 flex-shrink-0"
@@ -766,7 +766,7 @@ export default function EduMyles2026Launch() {
                         <span
                           key={deliverable}
                           className="text-xs px-2 py-1 rounded"
-                          style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                          style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                         >
                           {deliverable}
                         </span>
@@ -803,7 +803,7 @@ export default function EduMyles2026Launch() {
                     <div
                       key={benefit}
                       className="flex items-center gap-2 p-2 rounded"
-                      style={{ background: "rgba(26,122,74,0.1)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                     >
                       <CheckCircle2
                         className="w-4 h-4 flex-shrink-0"
@@ -824,8 +824,8 @@ export default function EduMyles2026Launch() {
                 <div
                   className="p-6 rounded-2xl text-center"
                   style={{
-                    background: "linear-gradient(135deg, var(--accent-foreground) 0%, #F59E0B 100%)",
-                    color: "#ffffff",
+                    background: "linear-gradient(135deg, var(--accent-foreground) 0%, var(--warning) 100%)",
+                    color: "var(--ondeephi)",
                   }}
                 >
                   <div className="font-jakarta font-bold text-3xl mb-2">20</div>
@@ -836,18 +836,18 @@ export default function EduMyles2026Launch() {
                 </div>
                 <div
                   className="mt-4 p-4 rounded-lg"
-                  style={{ background: "#FEF3C7", border: "1px solid #FDE68A" }}
+                  style={{ background: "var(--warning-muted)", border: "1px solid var(--warning)" }}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-4 h-4" style={{ color: "#D97706" }} />
+                    <Clock className="w-4 h-4" style={{ color: "var(--warning)" }} />
                     <span
                       className="font-jakarta font-semibold text-sm"
-                      style={{ color: "#92400E" }}
+                      style={{ color: "var(--warning-muted-foreground)" }}
                     >
                       Application Deadline: March 31, 2026
                     </span>
                   </div>
-                  <p className="font-jakarta text-xs" style={{ color: "#78350F" }}>
+                  <p className="font-jakarta text-xs" style={{ color: "var(--warning-muted-foreground)" }}>
                     Don&apos;t miss this opportunity to be among the first schools in Africa to
                     experience the future of education management.
                   </p>
