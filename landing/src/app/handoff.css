@@ -203,12 +203,21 @@ nav[role="banner"] a[href^="/waitlist?"] {
 }
 
 footer[role="contentinfo"] {
+  /* Map the footer's component-level semantic variables onto the handoff
+     palette so its interactive elements work on the deep surface in either theme. */
+  --foreground: var(--ondeephi);
+  --muted-foreground: var(--ondeep);
+  --muted: color-mix(in srgb, var(--ondeephi) 8%, var(--deep));
+  --border: color-mix(in srgb, var(--ondeep) 28%, transparent);
+  --accent-foreground: var(--deepacc);
+  --primary: var(--handoff-gold);
+  --primary-foreground: var(--deep);
   position: relative;
   width: calc(100% - 48px);
   max-width: 1200px;
   margin: 96px auto 24px;
   overflow: hidden;
-  color: #fff;
+  color: var(--ondeephi);
   background: var(--deep) !important;
   border-radius: 40px;
 }
@@ -246,11 +255,11 @@ footer[role="contentinfo"] span {
 }
 
 footer[role="contentinfo"] a:not(.footer-social-link):hover {
-  color: #fff !important;
+  color: var(--ondeephi) !important;
 }
 
 footer[role="contentinfo"] > div:last-child {
-  border-color: rgb(255 255 255 / 16%) !important;
+  border-color: var(--border) !important;
 }
 
 footer[role="contentinfo"] > div:last-child > div > p {
@@ -904,6 +913,13 @@ html.dark #hero::after {
 .board-payment-card { display: grid; justify-items: center; gap: 9px; margin: 10px auto 0; padding: 30px 16px; max-width: 320px; border-radius: 20px; background: var(--bg); color: var(--ink); }
 .board-payment-mark { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 14px; background: #2ca365; color: white; font-weight: 800; }
 .board-payment-card strong { font-size: 30px; }.board-payment-card span,.board-payment-card i { color: var(--mut); font-size: 12px; font-style: normal; }
+.board-timetable { margin-top: 12px; overflow: hidden; border: 1px solid var(--border); border-radius: 15px; background: var(--card); }
+.board-timetable-head, .board-timetable-row { display: grid; grid-template-columns: 62px minmax(90px, 1fr) minmax(120px, 1.1fr); align-items: center; gap: 10px; padding: 13px 15px; border-bottom: 1px solid var(--border); color: var(--mut); font-size: 11px; }
+.board-timetable-head { display: flex; justify-content: space-between; background: var(--tint); color: var(--link); font-size: 10px; letter-spacing: .06em; }
+.board-timetable-row:last-child { border-bottom: 0; }.board-timetable-row small { color: var(--mut); }.board-timetable-row strong { color: var(--ink); font-size: 12px; }.board-timetable-row span { color: var(--mut); }
+.board-igcse { display: grid; gap: 1px; margin-top: 12px; overflow: hidden; border: 1px solid var(--border); border-radius: 15px; background: var(--border); font-size: 11px; }
+.board-igcse > div { display: grid; grid-template-columns: 1.2fr 1fr .7fr; align-items: center; gap: 10px; min-height: 45px; padding: 10px 14px; background: var(--card); color: var(--mut); }
+.board-igcse > div:first-child { background: var(--tint); color: var(--link); font-size: 9px; letter-spacing: .05em; }.board-igcse strong { color: var(--pri); font-size: 14px; }
 @media (max-width: 720px) { .board-spotlight-inner { grid-template-columns: 1fr; gap: 28px; direction: ltr; } .board-spotlight { padding: 56px 20px !important; } }
 
 .solution-board-page { color: var(--ink); }
@@ -926,6 +942,7 @@ html.dark #hero::after {
 .solution-board-question p { margin: 0; padding: 0 22px 22px; color: var(--mut); }
 .solution-board-cta { margin: 24px auto 0; max-width: 1200px; padding: 70px 24px; border-radius: 36px; background: var(--deep); text-align: center; color: white; }
 .solution-board-cta h2 { margin: 10px 0; color: white; font-size: clamp(30px, 4vw, 44px); line-height: 1.1; }
+.solution-board-cta .board-eyebrow, .solutions-board-cta .board-eyebrow { color: var(--deepacc); }
 .solution-board-cta p { margin: 0; color: var(--ondeep); font-size: 17px; }
 @media (max-width: 640px) { .solution-board-page .page-hero { padding: 64px 20px 52px; } .solution-board-card, .solution-board-module, .solution-board-step { padding: 22px; } .solution-board-cta { margin-inline: 16px; border-radius: 28px; } }
 
@@ -933,6 +950,7 @@ html.dark #hero::after {
 .solutions-board-page .page-hero h1 { max-width: 860px; margin: 10px auto 0; }
 .solutions-board-cards { padding-top: 28px !important; }
 .solutions-board-card { display: flex; gap: 22px; padding: 28px; border: 1px solid var(--border); border-radius: 24px; background: var(--card); color: var(--ink); box-shadow: 0 8px 28px rgb(15 42 36 / 5%); transition: transform .2s ease, box-shadow .2s ease; }
+.solutions-board-card h2 { overflow-wrap: anywhere; }
 .solutions-board-card:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgb(15 42 36 / 10%); }
 .solutions-board-card > span { display: grid; width: 52px; height: 52px; flex: 0 0 52px; place-items: center; border-radius: 17px; background: var(--tint); color: var(--pri); }
 .solutions-board-card h2, .solutions-board-modules h2, .solutions-board-cta h2 { margin: 0; color: var(--ink); font-size: clamp(24px, 2.8vw, 34px); line-height: 1.2; }

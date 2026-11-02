@@ -8,7 +8,7 @@ type BoardSpotlightProps = {
   points: string[];
   href: string;
   linkLabel: string;
-  kind: "gradebook" | "payments" | "dashboard";
+  kind: "gradebook" | "payments" | "dashboard" | "secondary" | "international";
 };
 
 function Illustration({ kind }: { kind: BoardSpotlightProps["kind"] }) {
@@ -20,6 +20,30 @@ function Illustration({ kind }: { kind: BoardSpotlightProps["kind"] }) {
           <aside><b>EM</b>{["Overview", "Students", "Academics", "Finance", "Messages"].map((item) => <i key={item}>{item}</i>)}</aside>
           <div className="board-dashboard-main"><strong>School dashboard</strong><div className="board-kpis"><i /><i /><i /></div><div className="board-chart"><i /><i /><i /><i /><i /><i /></div><div className="board-lines"><i /><i /><i /></div></div>
         </div>
+      </div>
+    );
+  }
+
+  if (kind === "secondary") {
+    const periods = [
+      ["08:00", "Mathematics", "Room 2", "Mr. Otieno"],
+      ["09:00", "Biology", "Lab 1", "Ms. Wanjiku"],
+      ["10:00", "English", "Room 4", "Mr. Kibet"],
+      ["11:00", "Chemistry", "Lab 2", "Dr. Njeri"],
+    ];
+    return (
+      <div className="board-illustration board-secondary" aria-label="Illustration of a school timetable" role="img">
+        <div className="board-window"><span /><span /><span /><b>School timetable</b></div>
+        <div className="board-timetable"><div className="board-timetable-head"><b>MONDAY</b><b>FORM 3</b></div>{periods.map(([time, subject, room, teacher]) => <div className="board-timetable-row" key={time}><small>{time}</small><strong>{subject}</strong><span>{room} · {teacher}</span></div>)}</div>
+      </div>
+    );
+  }
+
+  if (kind === "international") {
+    return (
+      <div className="board-illustration board-international" aria-label="Illustration of IGCSE predicted grades" role="img">
+        <div className="board-window"><span /><span /><span /><b>IGCSE gradebook</b></div>
+        <div className="board-igcse"><div><b>SUBJECT</b><b>ASSESSMENT</b><b>PREDICTED</b></div>{[["Mathematics", "81 / 100", "A*"], ["English", "76 / 100", "A"], ["Biology", "69 / 100", "B"], ["Chemistry", "74 / 100", "A"]].map(([subject, score, grade]) => <div key={subject}><span>{subject}</span><span>{score}</span><strong>{grade}</strong></div>)}</div>
       </div>
     );
   }

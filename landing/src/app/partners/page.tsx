@@ -27,7 +27,7 @@ export default function PartnersPage() {
         <p className="subtext mx-auto mt-5 max-w-[680px]">Choose the partner path that fits the work you do with schools.</p>
       </section>
       <section className="content-section solutions-board-cards">
-        <div className="mx-auto grid max-w-[1120px] gap-5 md:grid-cols-3">{paths.map(({ icon: Icon, title, description, href }) => <Link key={title} href={href} className="solutions-board-card"><span><Icon size={24} /></span><div><h2>{title}</h2><p>{description}</p><b>Explore this path <ArrowRight size={16} /></b></div></Link>)}</div>
+        <div className="mx-auto grid max-w-[1120px] gap-5 md:grid-cols-2 lg:grid-cols-3">{paths.map(({ icon: Icon, title, description, href }) => <Link key={title} href={href} className="solutions-board-card"><span><Icon size={24} /></span><div><h2>{title}</h2><p>{description}</p><b>Explore this path <ArrowRight size={16} /></b></div></Link>)}</div>
       </section>
       <section className="content-section solution-board-steps">
         <div className="mx-auto max-w-[1120px]"><div className="mb-9 text-center"><span className="board-eyebrow">Getting started</span><h2>From application to launch.</h2></div><div className="grid gap-5 md:grid-cols-3">{[["Choose a path", "Select the partner program that fits your work."], ["Share your plan", "Tell us about your audience, product or school support services."], ["Plan the next steps", "Our team will follow up to discuss fit and a practical launch path."]].map(([title, text], i) => <article className="solution-board-step" key={title}><span>{i + 1}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div></div>

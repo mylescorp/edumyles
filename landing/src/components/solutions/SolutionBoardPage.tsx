@@ -119,7 +119,7 @@ export default function SolutionBoardPage({ kind }: { kind: SolutionBoardConfig[
           })}</div>
         </div>
       </section>
-      <BoardSpotlight eyebrow={page.eyebrow} title={page.focusTitle} description={page.focusIntro} points={page.focusPoints} href="/book-demo" linkLabel="See how it works" kind={kind === "groups" ? "dashboard" : "gradebook"} />
+      <BoardSpotlight eyebrow={page.eyebrow} title={page.focusTitle} description={page.focusIntro} points={page.focusPoints} href="/book-demo" linkLabel="See how it works" kind={kind === "primary" ? "gradebook" : kind === "groups" ? "dashboard" : kind} />
       <section className="content-section solution-board-modules">
         <div className="mx-auto max-w-[1120px]"><div className="mb-9 text-center"><span className="board-eyebrow">What you get</span><h2>The modules schools like yours use most.</h2></div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{page.modules.map((module) => <article className="solution-board-module" key={module.code}><span>{module.code}</span><h3>{module.name}</h3><p>{module.description}</p></article>)}</div>
