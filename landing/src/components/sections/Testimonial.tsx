@@ -5,27 +5,27 @@ import { useEffect, useRef, useState } from "react";
 const testimonials = [
   {
     quote:
-      "EduMyles transformed how we run our school. Fee collection is up 40%, and I now spend 3 hours instead of 3 days on term reports. I wish we'd found it sooner.",
-    name: "Mary K.",
-    role: "Principal",
+      "Our M-Pesa integration alone saved our bursar six hours every week. Parents now pay instantly and get receipts automatically, and we have stopped chasing late balances.",
+    name: "[Name]",
+    role: "Bursar",
+    school: "[School name]",
+    initials: "—",
+  },
+  {
+    quote:
+      "The demo was incredibly helpful. They understood our challenges immediately and showed us exactly how EduMyles would solve them.",
+    name: "Grace Njeri",
+    role: "Finance Officer",
     school: "Nairobi Green Academy",
-    initials: "MK",
-  },
-  {
-    quote:
-      "The M-Pesa integration alone saved our bursar 8 hours every week. Parents now pay instantly and get receipts automatically. No more chasing fee balances.",
-    name: "David O.",
-    role: "School Bursar",
-    school: "St. Francis High School, Kisumu",
-    initials: "DO",
-  },
-  {
-    quote:
-      "We went from paper registers and WhatsApp groups to a fully digital school in under two weeks. The onboarding team was with us every step of the way.",
-    name: "Grace N.",
-    role: "Head Teacher",
-    school: "Brookside Preparatory, Nairobi",
     initials: "GN",
+  },
+  {
+    quote:
+      "[Customer quote about report cards or parent communication]",
+    name: "[Name]",
+    role: "[Role]",
+    school: "[School name]",
+    initials: "—",
   },
 ];
 

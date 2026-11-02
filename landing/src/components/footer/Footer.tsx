@@ -29,19 +29,19 @@ const PRODUCT_LINKS = [
 // Solutions column
 
 const SOLUTIONS_LINKS = [
-  { label: "Primary Schools", href: "/solutions/primary-schools" },
-  { label: "Secondary Schools", href: "/solutions/secondary-schools" },
-  { label: "International Schools", href: "/solutions/international-schools" },
-  { label: "School Groups", href: "/solutions/school-groups" },
+  { label: "Primary Schools", href: "/solutions/primary" },
+  { label: "Secondary Schools", href: "/solutions/secondary" },
+  { label: "International Schools", href: "/solutions/international" },
+  { label: "School Groups", href: "/solutions/groups" },
   { label: "Case Studies", href: "/case-studies" },
 ];
 
 // Partners column
 
 const PARTNERS_LINKS = [
-  { label: "Developers", href: "/developers" },
-  { label: "Affiliates", href: "/affiliate" },
-  { label: "Resellers", href: "/reseller" },
+  { label: "Developers", href: "/partners/developers" },
+  { label: "Affiliates", href: "/partners/affiliates" },
+  { label: "Resellers", href: "/partners/resellers" },
   { label: "Partner Program", href: "/partners" },
 ];
 
@@ -630,29 +630,15 @@ export default function Footer() {
         <div className="max-w-[1200px] mx-auto px-6 lg:px-16 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           {/* Copyright */}
           <p className="font-jakarta text-[11.5px] order-2 sm:order-1" style={{ color: "var(--muted-foreground)" }}>
-            &copy; 2026{" "}
-            <Link
-              href="/about"
-              className="transition-colors duration-200"
-              style={{ color: "var(--muted-foreground)", textDecoration: "none" }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = "var(--accent-foreground)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = "var(--muted-foreground)";
-              }}
-            >
-              MylesCorp Technologies Ltd
-            </Link>{" "}
-            · All rights reserved.
+            Powered by MylesCorp Technologies · &copy; 2026 EduMyles
           </p>
 
           {/* Legal links */}
           <div className="font-jakarta text-[11.5px] flex flex-wrap justify-center gap-5 order-1 sm:order-2">
             {[
-              { label: "Privacy Policy", href: "/privacy" },
-              { label: "Terms of Service", href: "/terms" },
-              { label: "Cookie Policy", href: "/cookies" },
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms", href: "/terms" },
+              { label: "Cookie", href: "/cookies" },
               { label: "Contact", href: "/contact" },
             ].map(({ label, href }) => (
               <Link

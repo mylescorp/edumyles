@@ -1,0 +1,973 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&display=swap");
+
+/* Public marketing site palette and geometry from the 2026 website handoff. */
+:root {
+  color-scheme: light;
+  --bg: #f1f6f4;
+  --card: #ffffff;
+  --ink: #10201c;
+  --mut: #4b5c57;
+  --pri: #276b61;
+  --prih: #1e5a50;
+  --onpri: #ffffff;
+  --tint: #e3efec;
+  --deep: #0f2a24;
+  --gold: #e8a317;
+  --em: #2f4f63;
+  --fbd: #7c8b86;
+  --link: #1e5a50;
+  --ondeep: #c4d9d3;
+  --ondeephi: #e6f4f0;
+  --deepacc: #9ed8cc;
+  --deepem: #bfe3f5;
+  --deepbd: #9dbdb5;
+  --deepbd2: #4b7a70;
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --card-foreground: var(--ink);
+  --popover: var(--card);
+  --popover-foreground: var(--ink);
+  --primary: var(--pri);
+  --primary-foreground: var(--onpri);
+  --secondary: var(--tint);
+  --secondary-foreground: var(--ink);
+  --muted: var(--tint);
+  --muted-foreground: var(--mut);
+  --accent: var(--tint);
+  --accent-foreground: var(--link);
+  --border: #dde6e3;
+  --input: var(--fbd);
+  --ring: var(--pri);
+  --background-rgb: 241 246 244;
+  --foreground-rgb: 16 32 28;
+  --card-rgb: 255 255 255;
+  --primary-rgb: 39 107 97;
+  --primary-foreground-rgb: 255 255 255;
+  --border-rgb: 221 230 227;
+  --radius: 24px;
+  --radius-card: 24px;
+  --radius-panel: 32px;
+  --radius-band: 40px;
+  --platform-chrome: var(--deep);
+}
+
+html[data-theme="dark"],
+html.dark {
+  color-scheme: dark;
+  --bg: #0b111c;
+  --card: #172235;
+  --ink: #f8fafc;
+  --mut: #a3b1c2;
+  --pri: #6fa2f3;
+  --prih: #6fa2f3;
+  --onpri: #082a56;
+  --tint: #243247;
+  --accent: #263d5d;
+  --afg: #bfdbfe;
+  --deep: #1a395b;
+  --gold: #c79639;
+  --em: #bfdbfe;
+  --fbd: #6b7c93;
+  --link: #6fa2f3;
+  --ondeep: #dce5f0;
+  --ondeephi: #f8fafc;
+  --deepacc: #bfdbfe;
+  --deepem: #bfdbfe;
+  --deepbd: #6b7c93;
+  --deepbd2: #6b7c93;
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --card-foreground: var(--ink);
+  --popover: var(--card);
+  --popover-foreground: var(--ink);
+  --primary: var(--pri);
+  --primary-foreground: var(--onpri);
+  --secondary: #243247;
+  --secondary-foreground: #e2e8f0;
+  --muted: #243247;
+  --muted-foreground: var(--mut);
+  --accent: #263d5d;
+  --accent-foreground: #bfdbfe;
+  --border: #2b3a4f;
+  --input: #6b7c93;
+  --ring: var(--pri);
+  --background-rgb: 11 17 28;
+  --foreground-rgb: 248 250 252;
+  --card-rgb: 23 34 53;
+  --primary-rgb: 111 162 243;
+  --primary-foreground-rgb: 8 42 86;
+  --border-rgb: 43 58 79;
+  --platform-chrome: var(--deep);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+main h1,
+main h2,
+main h3,
+main p,
+main a,
+main button,
+main input,
+main select,
+main textarea {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+html[data-theme] main h1:not(.handoff-home-copy h1) {
+  letter-spacing: -0.035em;
+}
+
+html[data-theme] main h2 {
+  letter-spacing: -0.025em;
+}
+
+html[data-theme] main .rounded-xl,
+html[data-theme] main .rounded-2xl,
+html[data-theme] main .rounded-\[20px\],
+html[data-theme] main .rounded-\[22px\],
+html[data-theme] main .rounded-\[24px\] {
+  border-radius: 24px !important;
+}
+
+html[data-theme] main .rounded-3xl,
+html[data-theme] main .rounded-\[32px\] {
+  border-radius: 32px !important;
+}
+
+html[data-theme] main button:not(.rounded-full) {
+  border-radius: 999px;
+}
+
+html[data-theme] main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-theme] main select,
+html[data-theme] main textarea {
+  border-radius: 14px;
+}
+
+body {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.55;
+}
+
+:focus-visible {
+  outline: 2px solid var(--bg);
+  box-shadow: 0 0 0 4px var(--pri);
+  outline-offset: 2px;
+}
+
+/* Shared floating navigation, rounded panels and deep footer. */
+nav[role="banner"] {
+  position: sticky;
+  top: 12px;
+  width: min(calc(100% - 32px), 1200px);
+  margin: 12px auto 0;
+  border: 1px solid var(--border) !important;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 94%, transparent) !important;
+  box-shadow: 0 8px 30px rgb(15 42 36 / 8%);
+  backdrop-filter: blur(16px);
+}
+
+html[data-theme="dark"] nav[role="banner"],
+html.dark nav[role="banner"] {
+  box-shadow: none;
+}
+
+nav[role="banner"] > div {
+  max-width: 1200px;
+  height: 72px;
+  padding: 0 20px;
+  gap: 18px;
+}
+
+nav[role="banner"] img {
+  width: 132px;
+}
+
+nav[role="banner"] .hidden.lg\:flex {
+  gap: clamp(8px, 1.05vw, 16px);
+}
+
+nav[role="banner"] a[href="/book-demo"],
+nav[role="banner"] a[href^="/book-demo?"],
+nav[role="banner"] a[href="/waitlist"],
+nav[role="banner"] a[href^="/waitlist?"] {
+  min-height: 44px;
+  border-radius: 999px !important;
+  padding-inline: 16px !important;
+}
+
+footer[role="contentinfo"] {
+  position: relative;
+  width: calc(100% - 48px);
+  max-width: 1200px;
+  margin: 96px auto 24px;
+  overflow: hidden;
+  color: #fff;
+  background: var(--deep) !important;
+  border-radius: 40px;
+}
+
+footer[role="contentinfo"]::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  bottom: 30px;
+  width: 310px;
+  aspect-ratio: 1;
+  opacity: 0.055;
+  pointer-events: none;
+  background: url("/brand/edumyles-mark-white.png") center / contain no-repeat;
+}
+
+footer[role="contentinfo"] > div:first-child {
+  display: none;
+}
+
+footer[role="contentinfo"] > div:nth-child(2) {
+  max-width: 1248px;
+  padding: 56px 24px 40px;
+}
+
+footer[role="contentinfo"] h4 {
+  color: var(--deepacc) !important;
+}
+
+footer[role="contentinfo"] p,
+footer[role="contentinfo"] a,
+footer[role="contentinfo"] span {
+  color: var(--ondeep);
+}
+
+footer[role="contentinfo"] a:hover {
+  color: #fff;
+}
+
+footer[role="contentinfo"] > div:last-child {
+  border-color: rgb(255 255 255 / 16%) !important;
+}
+
+footer[role="contentinfo"] > div:last-child > div > p {
+  flex: 1;
+  margin: 0;
+  text-align: center;
+}
+
+footer[role="contentinfo"] > div:last-child > div > div:last-child {
+  display: none;
+}
+
+.page-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 76px 24px 64px;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+html[data-theme] .page-hero {
+  padding: 76px 24px 64px;
+  background: var(--bg) !important;
+  background-image: none !important;
+  border: 0 !important;
+}
+
+html[data-theme] .page-hero h1 {
+  font-size: clamp(38px, 5.4vw, 62px);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+
+html[data-theme] .page-hero .subtext {
+  color: var(--mut) !important;
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+html[data-theme] .content-section {
+  padding: 72px 24px;
+  background: transparent;
+}
+
+html[data-theme] .content-section.alt {
+  background: var(--tint);
+  border-radius: 32px;
+}
+
+.handoff-problem-section {
+  margin-top: 110px;
+  padding: 0 24px;
+  background: transparent;
+}
+
+.handoff-problem-band {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding: 64px 48px;
+  border-radius: 32px;
+  background: var(--deep);
+  color: #fff;
+}
+
+.handoff-problem-band h2,
+.handoff-problem-band h3 {
+  color: #fff !important;
+}
+
+.handoff-problem-band h2 em {
+  color: var(--deepem) !important;
+}
+
+.handoff-problem-band > div > div:first-child > div:last-child {
+  color: var(--deepacc) !important;
+}
+
+.handoff-problem-card {
+  padding: 28px;
+  border-radius: 24px !important;
+  background: rgb(255 255 255 / 7%);
+  box-shadow: none;
+}
+
+.handoff-problem-card p {
+  color: var(--ondeep) !important;
+}
+
+.page-hero::after,
+#hero::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 2%;
+  width: min(42vw, 520px);
+  aspect-ratio: 1;
+  opacity: 0.055;
+  pointer-events: none;
+  background: url("/brand/edumyles-mark-light.png") center / contain no-repeat;
+}
+
+html[data-theme="dark"] .page-hero::after,
+html.dark .page-hero::after,
+html[data-theme="dark"] #hero::after,
+html.dark #hero::after {
+  background-image: url("/brand/edumyles-mark-dark.png");
+}
+
+#hero {
+  border-radius: 0;
+}
+
+.handoff-home-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 64px 24px 0;
+  background: var(--bg);
+}
+
+.handoff-pricing-hero {
+  position: relative;
+  min-height: 0 !important;
+  overflow: hidden;
+  padding: 64px 24px 48px !important;
+  border: 0 !important;
+  text-align: center;
+}
+
+.handoff-pricing-hero > div {
+  z-index: 1;
+}
+
+.handoff-pricing-hero h1 {
+  font-size: clamp(38px, 5.4vw, 62px) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.035em;
+}
+
+.handoff-pricing-hero::after {
+  top: -34px;
+  right: 4%;
+  width: min(40vw, 500px);
+  opacity: 0.07;
+}
+
+.handoff-home-hero-inner,
+.handoff-home-stats,
+.handoff-home-integrations {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 1200px);
+  margin-inline: auto;
+}
+
+.handoff-home-hero-inner {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+}
+
+.handoff-home-copy {
+  flex: 1 1 460px;
+  max-width: 600px;
+}
+
+.handoff-home-chip {
+  display: inline-flex;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--link);
+  box-shadow: var(--shadow-xs);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.handoff-home-copy h1 {
+  margin: 22px 0 0;
+  color: var(--ink);
+  font-size: clamp(38px, 5.4vw, 62px);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.handoff-home-copy h1 em {
+  color: var(--em);
+  font-style: italic;
+}
+
+.handoff-home-copy p {
+  max-width: 570px;
+  margin: 22px 0 0;
+  color: var(--mut);
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+.handoff-home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.handoff-primary-button,
+.handoff-secondary-button {
+  display: inline-flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 26px;
+  border: 1px solid var(--fbd);
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.handoff-primary-button {
+  border-color: var(--pri);
+  background: var(--pri);
+  color: var(--onpri) !important;
+}
+
+.handoff-secondary-button {
+  background: var(--card);
+  color: var(--ink) !important;
+}
+
+.handoff-home-art {
+  position: relative;
+  flex: 1 1 420px;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 24px;
+}
+
+.handoff-dashboard {
+  width: min(100%, 560px);
+  aspect-ratio: 640 / 420;
+  overflow: hidden;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgb(16 42 86 / 18%);
+  color: #171717;
+  font: 11px Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.handoff-browser-bar {
+  display: flex;
+  height: 8.57%;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  background: #eaf2ef;
+}
+
+.handoff-browser-bar i {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border-radius: 50%;
+  background: #cbdad5;
+}
+
+.handoff-browser-bar span {
+  margin: 0 auto;
+  padding: 3px 40px;
+  border-radius: 999px;
+  background: #fff;
+  color: #666;
+  font-size: 10px;
+}
+
+.handoff-dashboard-body {
+  display: flex;
+  height: 91.43%;
+}
+
+.handoff-sidebar {
+  flex: 0 0 22%;
+  padding: 14px 12px;
+  background: #fff;
+}
+
+.handoff-school,
+.handoff-menu-item {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.handoff-school {
+  margin-bottom: 12px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.handoff-school b {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #276b61;
+  color: white;
+}
+
+.handoff-menu-item {
+  padding: 7px 8px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.handoff-menu-item i {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  background: #c7d8d3;
+}
+
+.handoff-menu-item.selected {
+  border-radius: 8px;
+  background: #e3efec;
+  color: #164a42;
+  font-weight: 600;
+}
+
+.handoff-menu-item.selected i {
+  background: #276b61;
+}
+
+.handoff-dashboard-content {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #f1f6f4;
+}
+
+.handoff-dashboard-heading,
+.handoff-metrics,
+.handoff-dashboard-panels {
+  display: flex;
+  gap: 10px;
+}
+
+.handoff-dashboard-heading {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.handoff-dashboard-heading strong {
+  font-size: 15px;
+}
+
+.handoff-dashboard-heading span,
+.handoff-payments span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e3f4ea;
+  color: #14532d;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.handoff-metric,
+.handoff-chart,
+.handoff-payments {
+  min-width: 0;
+  flex: 1;
+  padding: 12px;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 1px 2px rgb(16 42 86 / 8%);
+}
+
+.handoff-metric small {
+  color: #666;
+}
+
+.handoff-metric > i {
+  display: block;
+  height: 16px;
+  margin-top: 8px;
+  border-radius: 6px;
+}
+
+.handoff-dashboard-panels {
+  min-height: 0;
+  flex: 1;
+}
+
+.handoff-chart {
+  display: flex;
+  flex: 1.3;
+  flex-direction: column;
+}
+
+.handoff-chart > div {
+  display: flex;
+  flex: 1;
+  align-items: end;
+  gap: 5%;
+  margin-top: 10px;
+}
+
+.handoff-chart i {
+  flex: 1;
+  border-radius: 5px 5px 0 0;
+  background: #7cc8ba;
+}
+
+.handoff-chart i:nth-child(odd) {
+  background: #cfe5e0;
+}
+
+.handoff-payments {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.handoff-payments strong {
+  margin-bottom: 3px;
+}
+
+.handoff-payments span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.handoff-payments span:nth-child(3) {
+  background: #fff1d6;
+  color: #7a3e00;
+}
+
+.handoff-payments span i {
+  width: 42px;
+  height: 8px;
+  border-radius: 4px;
+  background: #d5e3df;
+}
+
+.handoff-payment-note {
+  position: absolute;
+  bottom: 4px;
+  left: -8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: var(--shadow-md);
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.handoff-payment-note > span {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--tint);
+  color: var(--pri);
+  font-weight: 800;
+}
+
+.handoff-payment-note small {
+  display: block;
+  margin-top: 2px;
+  color: var(--mut);
+  font-size: 12px;
+}
+
+.handoff-home-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 40px;
+}
+
+.handoff-home-stats > div {
+  display: flex;
+  min-height: 82px;
+  flex-direction: column;
+  justify-content: center;
+  padding: 14px 20px;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
+.handoff-home-stats strong {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.handoff-home-stats span {
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.handoff-home-integrations {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding-bottom: 4px;
+}
+
+.handoff-home-integrations span {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.page-hero h1 {
+  font-size: clamp(38px, 5.4vw, 62px);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+
+.page-hero .subtext {
+  color: var(--mut) !important;
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+.content-section {
+  padding: 72px 24px;
+  background: transparent;
+}
+
+.content-section.alt {
+  background: var(--tint);
+  border-radius: 32px;
+}
+
+.section-header h2,
+.final-cta-card h2 {
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.eyebrow {
+  color: var(--link);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+
+.btn,
+button.btn,
+a.btn {
+  min-height: 50px;
+  border-radius: 999px;
+}
+
+.card,
+.pricing-card,
+.feature-card,
+.solution-card,
+.team-card {
+  border-radius: 24px;
+}
+
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .pricing-card,
+html[data-theme="dark"] .feature-card,
+html.dark .card,
+html.dark .pricing-card,
+html.dark .feature-card {
+  border: 1px solid #2b3a4f;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] .page-hero,
+html.dark .page-hero {
+  background: transparent !important;
+}
+
+@media (max-width: 1023px) {
+  nav[role="banner"] {
+    border-radius: 28px;
+  }
+}
+
+@media (max-width: 640px) {
+  nav[role="banner"] {
+    top: 8px;
+    width: calc(100% - 20px);
+    margin-top: 8px;
+  }
+
+  nav[role="banner"] > div {
+    height: 62px;
+    padding: 0 10px;
+  }
+
+  .page-hero {
+    padding: 52px 16px 40px;
+  }
+
+  html[data-theme] .page-hero {
+    padding: 52px 16px 40px;
+  }
+
+  html[data-theme] .content-section {
+    padding: 48px 16px;
+  }
+
+  .handoff-problem-section {
+    margin-top: 64px;
+    padding: 0 16px;
+  }
+
+  .handoff-problem-band {
+    padding: 36px 20px;
+    border-radius: 28px;
+  }
+
+  .handoff-home-hero {
+    padding: 44px 16px 0;
+  }
+
+  .handoff-home-hero-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 32px;
+  }
+
+  .handoff-home-copy,
+  .handoff-home-art {
+    flex-basis: auto;
+  }
+
+  .handoff-home-copy h1 {
+    font-size: clamp(38px, 10vw, 48px);
+  }
+
+  .handoff-home-copy p {
+    font-size: 17px;
+  }
+
+  .handoff-payment-note {
+    left: 0;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .handoff-home-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 28px;
+  }
+
+  .handoff-home-stats > div {
+    min-height: 72px;
+    padding: 12px;
+  }
+
+  .handoff-home-stats strong {
+    font-size: 20px;
+  }
+
+  .handoff-home-integrations {
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .handoff-home-integrations span {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .content-section {
+    padding: 48px 16px;
+  }
+
+  footer[role="contentinfo"] {
+    width: calc(100% - 20px);
+    margin: 64px auto 10px;
+    border-radius: 28px;
+  }
+
+  footer[role="contentinfo"] > div:nth-child(2) {
+    padding: 40px 20px 28px;
+  }
+
+  footer[role="contentinfo"]::after {
+    right: -45px;
+    bottom: 50px;
+    width: 210px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

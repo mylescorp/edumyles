@@ -10,7 +10,7 @@ function subscribe(callback: () => void) {
 }
 
 function getSnapshot() {
-  return document.documentElement.classList.contains("dark");
+  return document.documentElement.dataset.theme === "dark";
 }
 
 function getServerSnapshot() {
@@ -23,8 +23,9 @@ export default function ThemeToggle() {
   const toggle = () => {
     const isDark = !getSnapshot();
     document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.dataset.theme = isDark ? "dark" : "light";
     try {
-      localStorage.setItem("em-theme", isDark ? "dark" : "light");
+      localStorage.setItem("em-site-theme", isDark ? "dark" : "light");
     } catch {
       // Theme switching still works when browser storage is unavailable.
     }

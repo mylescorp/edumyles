@@ -12,21 +12,11 @@ export default function PricingPage() {
     <div style={{ color: "var(--foreground)" }}>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
-        className="relative flex items-center overflow-hidden"
+        className="handoff-pricing-hero page-hero"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
-          padding: "6rem 2rem 5rem",
-          minHeight: "360px",
+          background: "var(--bg)",
         }}
       >
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
-            backgroundSize: "50px 50px",
-          }}
-        />
         <div className="relative max-w-[1200px] mx-auto w-full text-center">
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
