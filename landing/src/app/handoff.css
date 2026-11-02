@@ -263,8 +263,8 @@ footer[role="contentinfo"] > div:last-child > div > div:last-child {
 }
 
 .page-hero,
-main section:first-of-type:has(h1):not(#hero),
-main > section:first-child:has(h1):not(#hero),
+main section:first-of-type:has(h1):not(#hero):not(.login-story),
+main > section:first-child:has(h1):not(#hero):not(.login-story),
 main > div > section:first-child:has(h1):not(#hero) {
   position: relative;
   isolation: isolate;
@@ -277,8 +277,8 @@ main > div > section:first-child:has(h1):not(#hero) {
 }
 
 html[data-theme] .page-hero,
-html[data-theme] main section:first-of-type:has(h1):not(#hero),
-html[data-theme] main > section:first-child:has(h1):not(#hero),
+html[data-theme] main section:first-of-type:has(h1):not(#hero):not(.login-story),
+html[data-theme] main > section:first-child:has(h1):not(#hero):not(.login-story),
 html[data-theme] main > div > section:first-child:has(h1):not(#hero) {
   padding: 76px 24px 64px;
   background: var(--bg) !important;
@@ -287,8 +287,8 @@ html[data-theme] main > div > section:first-child:has(h1):not(#hero) {
 }
 
 html[data-theme] .page-hero h1,
-html[data-theme] main section:first-of-type:has(h1):not(#hero) h1,
-html[data-theme] main > section:first-child:has(h1):not(#hero) h1,
+html[data-theme] main section:first-of-type:has(h1):not(#hero):not(.login-story) h1,
+html[data-theme] main > section:first-child:has(h1):not(#hero):not(.login-story) h1,
 html[data-theme] main > div > section:first-child:has(h1):not(#hero) h1 {
   color: var(--ink) !important;
   font-size: clamp(38px, 5.4vw, 62px);
@@ -298,8 +298,8 @@ html[data-theme] main > div > section:first-child:has(h1):not(#hero) h1 {
 }
 
 html[data-theme] .page-hero .subtext,
-html[data-theme] main section:first-of-type:has(h1):not(#hero) p,
-html[data-theme] main > section:first-child:has(h1):not(#hero) p,
+html[data-theme] main section:first-of-type:has(h1):not(#hero):not(.login-story) p,
+html[data-theme] main > section:first-child:has(h1):not(#hero):not(.login-story) p,
 html[data-theme] main > div > section:first-child:has(h1):not(#hero) p {
   color: var(--mut) !important;
   font-size: 19px !important;
@@ -307,8 +307,8 @@ html[data-theme] main > div > section:first-child:has(h1):not(#hero) p {
 }
 
 .page-hero::after,
-main section:first-of-type:has(h1):not(#hero)::after,
-main > section:first-child:has(h1):not(#hero)::after,
+main section:first-of-type:has(h1):not(#hero):not(.login-story)::after,
+main > section:first-child:has(h1):not(#hero):not(.login-story)::after,
 main > div > section:first-child:has(h1):not(#hero)::after {
   content: "";
   position: absolute;
@@ -323,16 +323,30 @@ main > div > section:first-child:has(h1):not(#hero)::after {
 }
 
 html[data-theme="dark"] .page-hero::after,
-html[data-theme="dark"] main section:first-of-type:has(h1):not(#hero)::after,
-html[data-theme="dark"] main > section:first-child:has(h1):not(#hero)::after,
+html[data-theme="dark"] main section:first-of-type:has(h1):not(#hero):not(.login-story)::after,
+html[data-theme="dark"] main > section:first-child:has(h1):not(#hero):not(.login-story)::after,
 html[data-theme="dark"] main > div > section:first-child:has(h1):not(#hero)::after {
   background-image: url("/brand/edumyles-mark-dark.png");
 }
 
-main section:first-of-type:has(h1):not(#hero) .absolute,
-main > section:first-child:has(h1):not(#hero) > .absolute,
+main section:first-of-type:has(h1):not(#hero):not(.login-story) .absolute,
+main > section:first-child:has(h1):not(#hero):not(.login-story) > .absolute,
 main > div > section:first-child:has(h1):not(#hero) > .absolute {
   display: none;
+}
+
+main section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background:transparent"],
+main section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background: transparent"] {
+  border: 1px solid var(--border) !important;
+  border-radius: 999px !important;
+  background: var(--card) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 4px 14px rgb(15 42 36 / 6%);
+}
+
+main section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background:var(--primary)"],
+main section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background: var(--primary)"] {
+  border-radius: 999px !important;
 }
 
 html[data-theme] .content-section {
