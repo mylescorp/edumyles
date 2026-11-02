@@ -234,7 +234,12 @@ export default function BookDemoContent() {
               {demoBenefits.map((item) => (
                 <div
                   key={item.label}
-                  className="inline-flex items-center gap-2 rounded-[10px] border border-border bg-card px-4 py-3 font-jakarta text-[13px] font-semibold text-foreground"
+                  className="inline-flex items-center gap-2 rounded-[10px] border px-4 py-3 font-jakarta text-[13px] font-semibold"
+                  style={{
+                    backgroundColor: "var(--card)",
+                    borderColor: "var(--border)",
+                    color: "var(--foreground)",
+                  }}
                 >
                   <item.icon className="h-4 w-4 text-[var(--accent-foreground)]" />
                   {item.label}

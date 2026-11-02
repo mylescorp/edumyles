@@ -279,6 +279,9 @@ const modules: {
   },
 ];
 
+const tokenTint = (token: string, opacity: number) =>
+  `color-mix(in srgb, ${token} ${opacity}%, transparent)`;
+
 type IntegrationEntry =
   | { name: string; region: string; logo: string; desc: string; isEmoji: true }
   | { name: string; region: string; logo: LucideIcon; desc: string; isEmoji: false };
@@ -560,7 +563,7 @@ export default function FeaturesPage() {
                     className="w-14 h-14 rounded-[16px] flex items-center justify-center flex-shrink-0"
                     style={{
                       background: mod.iconBg,
-                      border: `1.5px solid color-mix(in srgb, ${mod.color} 13%, transparent)`,
+                      border: `1.5px solid ${tokenTint(mod.color, 13)}`,
                     }}
                   >
                     <mod.icon className="w-7 h-7" strokeWidth={1.75} style={{ color: mod.color }} />
@@ -569,9 +572,9 @@ export default function FeaturesPage() {
                   <span
                     className="font-mono font-bold text-[11px] px-3 py-1 rounded-[6px] tracking-widest"
                     style={{
-                      background: `color-mix(in srgb, ${mod.color} 10%, transparent)`,
+                      background: tokenTint(mod.color, 10),
                       color: mod.color,
-                      border: `1px solid color-mix(in srgb, ${mod.color} 19%, transparent)`,
+                      border: `1px solid ${tokenTint(mod.color, 19)}`,
                     }}
                   >
                     {mod.abbr}
