@@ -344,9 +344,9 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
               href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-full no-underline"
               style={{
-                background: "transparent",
-                border: "2px solid color-mix(in srgb, var(--ondeephi) 30%, transparent)",
-                color: "var(--ondeephi)",
+                background: "var(--tint)",
+                border: "2px solid var(--border)",
+                color: "var(--link)",
               }}
             >
               Book a Demo

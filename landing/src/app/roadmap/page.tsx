@@ -199,9 +199,9 @@ export default function RoadmapPage() {
             <span
               className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full"
               style={{
-                background: "color-mix(in srgb, var(--ondeephi) 7%, transparent)",
-                border: "1px solid color-mix(in srgb, var(--ondeephi) 15%, transparent)",
-                color: "var(--ondeephi)",
+                background: "var(--tint)",
+                border: "1px solid var(--border)",
+                color: "var(--link)",
               }}
             >
               Last updated: March 2026

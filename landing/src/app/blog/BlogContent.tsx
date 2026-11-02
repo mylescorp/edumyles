@@ -213,7 +213,7 @@ export default function BlogContent() {
               <div
                 className="hidden md:flex w-[200px] h-[200px] flex-shrink-0 rounded-2xl items-center justify-center"
                 style={{
-                  background: "color-mix(in srgb, var(--ondeephi) 4%, transparent)",
+                  background: "var(--tint)",
                   border: "1px solid rgb(var(--primary-rgb) / 20%)",
                 }}
               >

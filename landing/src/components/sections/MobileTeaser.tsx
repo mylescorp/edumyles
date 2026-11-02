@@ -59,9 +59,9 @@ export default function MobileTeaser() {
             <span
               className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full"
               style={{
-                background: "color-mix(in srgb, var(--ondeephi) 8%, transparent)",
-                color: "var(--muted-foreground)",
-                border: "1px solid color-mix(in srgb, var(--ondeephi) 12%, transparent)",
+                background: "var(--tint)",
+                color: "var(--link)",
+                border: "1px solid var(--border)",
               }}
             >
               📱 Native iOS &amp; Android app — Coming Q4 2026

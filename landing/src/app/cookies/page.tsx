@@ -68,9 +68,9 @@ export default function CookiesPage() {
                 href={`#${s.id}`}
                 className="font-jakarta font-medium text-[12px] px-4 py-2 rounded-full no-underline transition-colors duration-200"
                 style={{
-                  background: "color-mix(in srgb, var(--ondeephi) 7%, transparent)",
-                  border: "1px solid color-mix(in srgb, var(--ondeephi) 12%, transparent)",
-                  color: "var(--muted-foreground)",
+                  background: "var(--tint)",
+                  border: "1px solid var(--border)",
+                  color: "var(--link)",
                 }}
               >
                 {s.label}

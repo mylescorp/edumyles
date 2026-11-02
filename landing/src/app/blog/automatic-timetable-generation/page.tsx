@@ -24,7 +24,7 @@ export default function TimetableGenerationGuide() {
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, color-mix(in srgb, var(--deep) 80%, var(--primary)) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
@@ -44,7 +44,7 @@ export default function TimetableGenerationGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "color-mix(in srgb, var(--ondeephi) 10%, transparent)", color: "var(--muted-foreground)" }}
+              style={{ background: "color-mix(in srgb, var(--ondeephi) 10%, transparent)", color: "var(--ondeephi)" }}
             >
               ← Back to Blog
             </Link>
@@ -55,30 +55,30 @@ export default function TimetableGenerationGuide() {
               className="font-display font-bold leading-tight mb-6"
               style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
             >
-              Automatic Timetable Generation <span style={{ color: "var(--accent-foreground)" }}>Saves 2 Days</span>
+              Automatic Timetable Generation <span style={{ color: "var(--deepacc)" }}>Saves 2 Days</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <CalendarDays className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <CalendarDays className="w-5 h-5" style={{ color: "var(--deepacc)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
                   Operations
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <Clock className="w-5 h-5" style={{ color: "var(--deepacc)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
                   7 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
                   December 2025
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--ondeep)" }}>
               The algorithm behind EduMyles timetable engine — and why it saves school coordinators
               2 full days every term. Discover the science of conflict-free scheduling.
             </p>

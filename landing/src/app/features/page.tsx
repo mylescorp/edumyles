@@ -438,9 +438,9 @@ export default function FeaturesPage() {
               href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-md no-underline transition-all duration-200"
               style={{
-                background: "transparent",
-                border: "2px solid color-mix(in srgb, var(--ondeephi) 40%, transparent)",
-                color: "var(--ondeephi)",
+                background: "var(--tint)",
+                border: "2px solid var(--border)",
+                color: "var(--link)",
               }}
             >
               Book a Demo
@@ -660,7 +660,7 @@ export default function FeaturesPage() {
                 key={a.title}
                 className="rounded-2xl p-7 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1"
                 style={{
-                  background: "color-mix(in srgb, var(--ondeephi) 4%, transparent)",
+                  background: "var(--tint)",
                   border: "1px solid rgb(var(--primary-rgb) / 18%)",
                   backdropFilter: "blur(4px)",
                 }}

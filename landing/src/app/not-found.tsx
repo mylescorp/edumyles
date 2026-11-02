@@ -96,8 +96,8 @@ export default function NotFound() {
               href={href}
               className="flex items-center gap-3 rounded-xl px-4 py-3.5 no-underline transition-all duration-200 group"
               style={{
-                background: "color-mix(in srgb, var(--ondeephi) 4%, transparent)",
-                border: "1px solid color-mix(in srgb, var(--ondeephi) 8%, transparent)",
+                background: "var(--tint)",
+                border: "1px solid var(--border)",
               }}
             >
               <div

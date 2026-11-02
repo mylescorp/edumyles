@@ -28,7 +28,7 @@ export default function EduMyles2026Launch() {
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--platform-chrome) 0%, color-mix(in srgb, var(--deep) 80%, var(--primary)) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
@@ -48,7 +48,7 @@ export default function EduMyles2026Launch() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "color-mix(in srgb, var(--ondeephi) 10%, transparent)", color: "var(--muted-foreground)" }}
+              style={{ background: "color-mix(in srgb, var(--ondeephi) 10%, transparent)", color: "var(--ondeephi)" }}
             >
               ← Back to Blog
             </Link>
@@ -65,22 +65,22 @@ export default function EduMyles2026Launch() {
               className="font-display font-bold leading-tight mb-6"
               style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
             >
-              Introducing the <span style={{ color: "var(--accent-foreground)" }}>All-New EduMyles 2026</span>
+              Introducing the <span style={{ color: "var(--deepacc)" }}>All-New EduMyles 2026</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
                   EduMyles Team
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
                   March 2026
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
                   8 min read
                 </span>
               </div>
@@ -88,7 +88,7 @@ export default function EduMyles2026Launch() {
 
             <p
               className="font-jakarta text-xl leading-[1.7] font-light"
-              style={{ color: "var(--muted-foreground)" }}
+              style={{ color: "var(--ondeep)" }}
             >
               We rebuilt EduMyles from the ground up with a real-time architecture, 11 deeply
               integrated modules, and a brand new interface. Here&apos;s everything that&apos;s new.
