@@ -222,7 +222,7 @@ function AffiliateApplicationContent() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-[24px] border border-[color-mix(in srgb, var(--deepacc) 16%, transparent)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
+                className="rounded-[24px] border border-[color-mix(in_srgb,var(--deepacc)_16%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
               >
                 <item.icon className="h-6 w-6 text-[var(--accent-foreground)]" />
                 <h2 className="mt-3 font-jakarta text-[15px] font-bold text-[var(--ondeephi)]">{item.title}</h2>
@@ -233,7 +233,7 @@ function AffiliateApplicationContent() {
             ))}
           </div>
 
-          <div className="mt-12 rounded-[28px] border border-[color-mix(in srgb, var(--deepacc) 14%, transparent)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
+          <div className="mt-12 rounded-[28px] border border-[color-mix(in_srgb,var(--deepacc)_14%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
             <h2 className="font-display text-[28px] font-bold text-[var(--ondeephi)]">Affiliate Benefits</h2>
             <div className="mt-6 space-y-3">
               {AFFILIATE_BENEFITS.map((benefit) => (
