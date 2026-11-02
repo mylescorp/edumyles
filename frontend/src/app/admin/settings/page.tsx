@@ -23,7 +23,8 @@ import {
   Shield,
   Database,
   Users,
-  Activity
+  Activity,
+  Palette,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -112,6 +113,12 @@ export default function SchoolSettingsPage() {
                     <Button variant="outline" size="sm" className="gap-2">
                         <Database className="h-4 w-4" />
                         Billing
+                    </Button>
+                </Link>
+                <Link href="/admin/settings/branding">
+                    <Button variant="outline" size="sm" className="gap-2">
+                        <Palette className="h-4 w-4" />
+                        Branding
                     </Button>
                 </Link>
                 <Link href="/admin/settings/modules">
@@ -283,6 +290,12 @@ export default function SchoolSettingsPage() {
                             <Button variant="outline" className="w-full justify-start gap-2">
                                 <Users className="h-4 w-4" />
                                 Manage Users
+                            </Button>
+                        </Link>
+                        <Link href="/admin/settings/branding">
+                            <Button variant="outline" className="w-full justify-start gap-2">
+                                <Palette className="h-4 w-4" />
+                                School Branding
                             </Button>
                         </Link>
                         <Link href="/admin/security">

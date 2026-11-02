@@ -64,6 +64,17 @@ export default defineSchema({
     .index("by_actor", ["actorId", "timestamp"])
     .index("by_entity", ["entityType", "entityId", "timestamp"]),
 
+  tenantThemes: defineTable({
+    tenantId: v.string(),
+    version: v.number(),
+    inputs: v.any(),
+    compiledCss: v.string(),
+    engineVersion: v.string(),
+    updatedAt: v.number(),
+    updatedBy: v.string(),
+  })
+    .index("by_tenantId_and_version", ["tenantId", "version"]),
+
   tenants: defineTable({
       tenantId: v.string(),
       name: v.string(),
