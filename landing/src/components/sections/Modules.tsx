@@ -98,7 +98,7 @@ export default function Modules() {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-8px)";
-                e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.1)";
+                e.currentTarget.style.boxShadow = "var(--shadow-lg)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";

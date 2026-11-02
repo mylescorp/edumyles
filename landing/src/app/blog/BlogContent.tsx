@@ -213,7 +213,7 @@ export default function BlogContent() {
               <div
                 className="hidden md:flex w-[200px] h-[200px] flex-shrink-0 rounded-2xl items-center justify-center"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
+                  background: "color-mix(in srgb, var(--ondeephi) 4%, transparent)",
                   border: "1px solid rgb(var(--primary-rgb) / 20%)",
                 }}
               >
@@ -352,8 +352,8 @@ export default function BlogContent() {
               placeholder="Your school email address"
               className="flex-1 font-jakarta text-[15px] px-5 py-3.5 rounded-full outline-none"
               style={{
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.2)",
+                background: "color-mix(in srgb, var(--ondeephi) 8%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--ondeephi) 20%, transparent)",
                 color: "var(--ondeephi)",
               }}
             />
@@ -390,7 +390,7 @@ export default function BlogContent() {
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
-              style={{ background: "var(--gold)", color: "#171717" }}
+              style={{ background: "var(--gold)", color: "var(--ink)" }}
             >
               Start Free Trial →
             </a>

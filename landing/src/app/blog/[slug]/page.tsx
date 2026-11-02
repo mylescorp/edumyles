@@ -534,7 +534,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-full no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgba(255,255,255,0.3)",
+                border: "2px solid color-mix(in srgb, var(--ondeephi) 30%, transparent)",
                 color: "var(--ondeephi)",
               }}
             >

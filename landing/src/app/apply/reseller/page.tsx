@@ -213,7 +213,7 @@ export default function ResellerApplicationPage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-card border border-[color-mix(in_srgb,var(--deepacc)_16%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
+                className="rounded-card border border-[color-mix(in_srgb,var(--deepacc)_16%,transparent)] bg-[color-mix(in_srgb,var(--onpri)_4%,transparent)] p-6 backdrop-blur-sm"
               >
                 <item.icon className="h-6 w-6 text-[var(--accent-foreground)]" />
                 <h2 className="mt-3 font-jakarta text-[15px] font-bold text-[var(--ondeephi)]">{item.title}</h2>
@@ -224,7 +224,7 @@ export default function ResellerApplicationPage() {
             ))}
           </div>
 
-          <div className="mt-12 rounded-panel border border-[color-mix(in_srgb,var(--deepacc)_14%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
+          <div className="mt-12 rounded-panel border border-[color-mix(in_srgb,var(--deepacc)_14%,transparent)] bg-[color-mix(in_srgb,var(--onpri)_4%,transparent)] p-6 shadow-xl xl:p-8">
             <h2 className="font-display text-[28px] font-bold text-[var(--ondeephi)]">Reseller Tiers</h2>
             <div className="mt-6 space-y-4">
               {[

@@ -183,7 +183,7 @@ export default function TeamPage() {
                   style={{ height: "160px", background: "var(--deep)" }}
                   aria-hidden="true"
                 >
-                  <span className="grid h-16 w-16 place-items-center rounded-full text-xl font-bold text-[var(--ondeephi)]" style={{ background: "rgba(255,255,255,.12)" }}>
+                  <span className="grid h-16 w-16 place-items-center rounded-full text-xl font-bold text-[var(--ondeephi)]" style={{ background: "color-mix(in srgb, var(--ondeephi) 12%, transparent)" }}>
                     {founder.name.split(" ").map((part) => part[0]).join("")}
                   </span>
                 </div>
@@ -216,7 +216,7 @@ export default function TeamPage() {
                       style={{ color: "var(--primary)" }}
                     >
                       <span
-                        className="w-6 h-6 rounded-sm flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
+                        className="w-6 h-6 rounded-sm flex items-center justify-center text-[var(--ondeephi)] text-[11px] font-bold flex-shrink-0"
                         style={{ background: "#0A66C2" }}
                       >
                         in
@@ -323,7 +323,7 @@ export default function TeamPage() {
                       style={{ color: "var(--primary)" }}
                     >
                       <span
-                        className="w-6 h-6 rounded-sm flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
+                        className="w-6 h-6 rounded-sm flex items-center justify-center text-[var(--ondeephi)] text-[11px] font-bold flex-shrink-0"
                         style={{ background: "#0A66C2" }}
                       >
                         in
@@ -405,7 +405,7 @@ export default function TeamPage() {
             <a
               href="/book-demo"
               className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
-              style={{ background: "var(--gold)", color: "#171717" }}
+              style={{ background: "var(--gold)", color: "var(--ink)" }}
             >
               Book a Demo →
             </a>

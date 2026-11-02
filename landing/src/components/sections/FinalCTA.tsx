@@ -48,14 +48,14 @@ export default function FinalCTA() {
           <a
             href="/waitlist"
             className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-md transition-colors duration-300 no-underline"
-            style={{ background: "var(--gold)", color: "#171717" }}
+            style={{ background: "var(--gold)", color: "var(--ink)" }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "var(--prih)";
               e.currentTarget.style.color = "var(--onpri)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "var(--gold)";
-              e.currentTarget.style.color = "#171717";
+              e.currentTarget.style.color = "var(--ink)";
             }}
           >
             Join the School Waitlist →

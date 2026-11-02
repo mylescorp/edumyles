@@ -111,8 +111,8 @@ export default function CaseStudiesPage() {
                   key={pill}
                   className="inline-flex items-center font-jakarta font-medium text-[13px] px-4 py-2 rounded-full"
                   style={{
-                    background: "rgba(255,255,255,0.07)",
-                    border: "1px solid rgba(255,255,255,0.15)",
+                    background: "color-mix(in srgb, var(--ondeephi) 7%, transparent)",
+                    border: "1px solid color-mix(in srgb, var(--ondeephi) 15%, transparent)",
                     color: "var(--ondeephi)",
                   }}
                 >

@@ -192,7 +192,7 @@ export default function ContactPage() {
                   background: opt.primary ? "var(--primary)" : "var(--card)",
                   border: opt.primary ? "2px solid var(--primary)" : "1px solid var(--border)",
                   boxShadow: opt.primary
-                    ? "0 16px 48px rgb(0 0 0 / 25%)"
+                    ? "var(--shadow-xl)"
                     : "var(--shadow-md)",
                 }}
               >
@@ -472,7 +472,7 @@ export default function ContactPage() {
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
-              style={{ background: "var(--gold)", color: "#171717" }}
+              style={{ background: "var(--gold)", color: "var(--ink)" }}
             >
               Start Free Trial →
             </a>

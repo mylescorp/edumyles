@@ -1233,7 +1233,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--ondeephi);
     font-size: 1.25rem;
   }
   .resource-meta {
@@ -1244,7 +1244,7 @@
   }
   .webinar-card {
     background: linear-gradient(135deg, var(--deep) 0%, var(--deepbd2) 100%);
-    color: white;
+    color: var(--ondeephi);
     border-radius: var(--radius-xl);
     padding: 1.5rem;
   }
@@ -1257,7 +1257,7 @@
   }
   .guide-card:hover {
     border-color: var(--em);
-    box-shadow: 0 4px 20px rgb(var(--gold-rgb) / 0.1);
+    box-shadow: var(--shadow-md);
   }
 
   /* ── Solutions page ────────────────────────────────────────── */
@@ -1750,7 +1750,7 @@ html.dark .form-group input:focus,
 html.dark .form-group textarea:focus,
 html.dark .form-group select:focus {
   border-color: var(--border);
-  box-shadow: 0 0 0 3px rgb(var(--ring-rgb) / 20%);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 20%, transparent);
 }
 
 /* Founder */

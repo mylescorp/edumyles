@@ -59,7 +59,7 @@ const categories: Category[] = [
     title: "Communication",
     Icon: MessageSquare,
     color: "var(--info-muted-foreground)",
-    tintBg: "rgb(var(--info-rgb) / 8%)",
+    tintBg: "color-mix(in srgb, var(--info) 8%, transparent)",
     integrations: [
       {
         name: "SMS Gateway",
@@ -82,7 +82,7 @@ const categories: Category[] = [
     title: "Government & Compliance",
     Icon: FileText,
     color: "var(--warning-muted-foreground)",
-    tintBg: "rgb(var(--warning-rgb) / 8%)",
+    tintBg: "color-mix(in srgb, var(--warning) 8%, transparent)",
     integrations: [
       {
         name: "NEMIS",
@@ -101,7 +101,7 @@ const categories: Category[] = [
     title: "Productivity",
     Icon: BookOpen,
     color: "var(--info-muted-foreground)",
-    tintBg: "rgb(var(--info-rgb) / 8%)",
+    tintBg: "color-mix(in srgb, var(--info) 8%, transparent)",
     integrations: [
       {
         name: "Google Classroom",
@@ -208,8 +208,8 @@ export default function IntegrationsPage() {
                 key={pill}
                 className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  background: "color-mix(in srgb, var(--ondeephi) 7%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--ondeephi) 15%, transparent)",
                   color: "var(--ondeephi)",
                 }}
               >

@@ -22,6 +22,23 @@ html[data-theme="light"] {
   --muted-foreground: var(--mut);
   --accent: var(--tint);
   --accent-foreground: var(--link);
+  /* Status utilities use only the v1.1 light palette values. */
+  --success: var(--pri);
+  --success-foreground: var(--onpri);
+  --success-muted: var(--tint);
+  --success-muted-foreground: var(--link);
+  --warning: var(--gold);
+  --warning-foreground: var(--ink);
+  --warning-muted: var(--tint);
+  --warning-muted-foreground: var(--ink);
+  --danger: var(--deep);
+  --danger-foreground: var(--ondeephi);
+  --danger-muted: var(--tint);
+  --danger-muted-foreground: var(--deep);
+  --info: var(--em);
+  --info-foreground: var(--ondeephi);
+  --info-muted: var(--tint);
+  --info-muted-foreground: var(--em);
   --border: var(--fbd);
   --input: var(--fbd);
   --ring: var(--pri);
@@ -51,6 +68,15 @@ html.dark:root {
   --muted: var(--tint);
   --muted-foreground: var(--mut);
   --accent-foreground: var(--afg);
+  /* v1.1 names the dark status foregrounds with -fg; expose Tailwind aliases. */
+  --success-foreground: var(--success-fg);
+  --success-muted-foreground: var(--success-muted-fg);
+  --warning-foreground: var(--warning-fg);
+  --warning-muted-foreground: var(--warning-muted-fg);
+  --danger-foreground: var(--danger-fg);
+  --danger-muted-foreground: var(--danger-muted-fg);
+  --info-foreground: var(--info-fg);
+  --info-muted-foreground: var(--info-muted-fg);
   --input: var(--fbd);
   --ring: var(--pri);
   --background-rgb: 11 17 28;
@@ -322,7 +348,7 @@ html[data-theme] .content-section.alt {
 .handoff-problem-card {
   padding: 28px;
   border-radius: var(--radius-card) !important;
-  background: rgb(255 255 255 / 7%);
+  background: color-mix(in srgb, var(--ondeephi) 7%, transparent);
   box-shadow: none;
 }
 
@@ -866,7 +892,7 @@ html.dark #hero::after {
 .solution-board-module > span { display: inline-flex; margin-bottom: 16px; padding: 5px 10px; border-radius: var(--radius-full); background: var(--tint); color: var(--link); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
 .solution-board-steps > div > .grid { align-items: stretch; }
 .solution-board-step { display: flex; gap: 16px; align-items: flex-start; }
-.solution-board-step > span { display: grid; width: 36px; height: 36px; flex: 0 0 36px; place-items: center; border-radius: 50%; background: var(--gold); color: #171717; font-weight: 800; }
+.solution-board-step > span { display: grid; width: 36px; height: 36px; flex: 0 0 36px; place-items: center; border-radius: 50%; background: var(--gold); color: var(--ink); font-weight: 800; }
 .solution-board-question { border: 1px solid var(--border); border-radius: var(--radius-2xl); background: var(--card); color: var(--ink); }
 .solution-board-question summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 22px; cursor: pointer; font-weight: 650; list-style: none; }
 .solution-board-question summary::-webkit-details-marker { display: none; }

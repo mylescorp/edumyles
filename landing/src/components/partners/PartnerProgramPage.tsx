@@ -152,7 +152,7 @@ function ButtonLink({
       ? { background: "var(--primary)", color: "var(--primary-foreground)", border: "1px solid var(--accent-foreground)" }
       : variant === "dark"
         ? { background: "var(--deep)", color: "var(--ondeephi)", border: "1px solid var(--border)" }
-        : { background: "rgba(255,255,255,0.06)", color: "var(--ondeephi)", border: "1px solid rgba(255,255,255,0.24)" };
+        : { background: "color-mix(in srgb, var(--ondeephi) 6%, transparent)", color: "var(--ondeephi)", border: "1px solid color-mix(in srgb, var(--ondeephi) 24%, transparent)" };
 
   return (
     <Link
@@ -268,7 +268,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
             </div>
             <div className="mt-10 grid max-w-[680px] grid-cols-2 gap-3 sm:grid-cols-4">
               {config.proof.map((item) => (
-                <div key={item.label} className="rounded-md border p-4" style={{ borderColor: "color-mix(in srgb, var(--deepacc) 18%, transparent)", background: "rgba(255,255,255,0.04)" }}>
+                <div key={item.label} className="rounded-md border p-4" style={{ borderColor: "color-mix(in srgb, var(--deepacc) 18%, transparent)", background: "color-mix(in srgb, var(--ondeephi) 4%, transparent)" }}>
                   <p className="font-display text-[24px] font-bold" style={{ color: "var(--ondeephi)" }}>
                     {item.value}
                   </p>
@@ -369,7 +369,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             {config.steps.map((step, index) => (
-              <div key={step.title} className="rounded-md border p-6" style={{ background: "rgba(255,255,255,0.04)", borderColor: "color-mix(in srgb, var(--deepacc) 16%, transparent)" }}>
+              <div key={step.title} className="rounded-md border p-6" style={{ background: "color-mix(in srgb, var(--ondeephi) 4%, transparent)", borderColor: "color-mix(in srgb, var(--deepacc) 16%, transparent)" }}>
                 <span className="font-display text-[28px] font-bold" style={{ color: "var(--ondeep)" }}>
                   0{index + 1}
                 </span>

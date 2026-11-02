@@ -127,8 +127,8 @@ export default function SecurityPage() {
                   key={badge.label}
                   className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] px-4 py-2 rounded-full"
                   style={{
-                    background: "rgba(255,255,255,0.07)",
-                    border: "1px solid rgba(255,255,255,0.2)",
+                    background: "color-mix(in srgb, var(--ondeephi) 7%, transparent)",
+                    border: "1px solid color-mix(in srgb, var(--ondeephi) 20%, transparent)",
                     color: "var(--ondeephi)",
                   }}
                 >

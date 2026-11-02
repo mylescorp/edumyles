@@ -34,7 +34,7 @@ export default function ParentPortalGuide() {
           <div
             style={{
               backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+                            radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--ondeephi) 10%, transparent) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
             }}
@@ -46,7 +46,7 @@ export default function ParentPortalGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
+              style={{ background: "color-mix(in srgb, var(--ondeephi) 10%, transparent)", color: "var(--muted-foreground)" }}
             >
               ← Back to Blog
             </Link>

@@ -175,7 +175,7 @@ function ScrollToTop() {
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLButtonElement;
         el.style.background = "var(--gold)";
-        el.style.color = "#171717";
+        el.style.color = "var(--ink)";
       }}
       onMouseLeave={(e) => {
         const el = e.currentTarget as HTMLButtonElement;
@@ -286,7 +286,7 @@ function NewsletterStrip() {
                 className="group font-jakarta font-bold text-[13px] px-5 py-[11px] rounded-md flex items-center gap-2 flex-shrink-0 transition-all duration-200"
                 style={{
                   background: loading ? "var(--gold)" : "var(--gold)",
-                  color: "#171717",
+                  color: "var(--ink)",
                   border: "none",
                   cursor: loading ? "wait" : "pointer",
                   minWidth: "100px",
