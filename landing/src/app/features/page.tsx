@@ -558,7 +558,10 @@ export default function FeaturesPage() {
                   {/* Large icon */}
                   <div
                     className="w-14 h-14 rounded-[16px] flex items-center justify-center flex-shrink-0"
-                    style={{ background: mod.iconBg, border: `1.5px solid ${mod.color}22` }}
+                    style={{
+                      background: mod.iconBg,
+                      border: `1.5px solid color-mix(in srgb, ${mod.color} 13%, transparent)`,
+                    }}
                   >
                     <mod.icon className="w-7 h-7" strokeWidth={1.75} style={{ color: mod.color }} />
                   </div>
@@ -566,9 +569,9 @@ export default function FeaturesPage() {
                   <span
                     className="font-mono font-bold text-[11px] px-3 py-1 rounded-[6px] tracking-widest"
                     style={{
-                      background: `${mod.color}18`,
+                      background: `color-mix(in srgb, ${mod.color} 10%, transparent)`,
                       color: mod.color,
-                      border: `1px solid ${mod.color}30`,
+                      border: `1px solid color-mix(in srgb, ${mod.color} 19%, transparent)`,
                     }}
                   >
                     {mod.abbr}
