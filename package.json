@@ -52,7 +52,7 @@
     "calcom:smoke": "node scripts/calcom-smoke-check.mjs",
     "build:tokens": "npm run build:tokens --workspace=@edumyles/design-tokens",
     "check:contrast": "npm run check:contrast --workspace=@edumyles/design-tokens",
-    "lint:styles": "stylelint \"frontend/src/**/*.css\" \"landing/src/**/*.css\""
+    "lint:styles": "node scripts/check-no-literal-colors.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
@@ -60,7 +60,6 @@
     "autoprefixer": "^10.4.27",
     "jsdom": "^26.1.0",
     "prettier": "^3.2.5",
-    "stylelint": "^16.16.0",
     "turbo": "^2.0.0",
     "typescript": "^5.4.0",
     "vitest": "^4.1.2"
