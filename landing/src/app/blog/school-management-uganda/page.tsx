@@ -35,7 +35,7 @@ export default function UgandaSchoolManagement() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "color-mix(in srgb, var(--ondeephi) 10%, transparent)", color: "var(--ondeephi)" }}
+              style={{ background: "var(--tint)", color: "var(--link)" }}
             >
               ← Back to Blog
             </Link>
@@ -44,31 +44,31 @@ export default function UgandaSchoolManagement() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ink)" }}
             >
-              School Management in <span style={{ color: "var(--deepacc)" }}>Uganda</span>
+              School Management in <span style={{ color: "var(--pri)" }}>Uganda</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5" style={{ color: "var(--deepacc)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <Globe className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   Regional
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   6 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   December 2025
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--ondeep)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--mut)" }}>
               UNEB vs CBC, Airtel Money vs M-Pesa, Ugandan MoES requirements — here&apos;s what we
               adapted for Ugandan schools. Complete guide for the Ugandan education system.
             </p>

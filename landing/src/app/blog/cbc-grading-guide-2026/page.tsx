@@ -44,7 +44,7 @@ export default function CBCGradingGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "color-mix(in srgb, var(--ondeephi) 10%, transparent)", color: "var(--ondeephi)" }}
+              style={{ background: "var(--tint)", color: "var(--link)" }}
             >
               ← Back to Blog
             </Link>
@@ -53,31 +53,31 @@ export default function CBCGradingGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ink)" }}
             >
-              CBC Gradebook in EduMyles: <span style={{ color: "var(--deepacc)" }}>Complete Guide</span>
+              CBC Gradebook in EduMyles: <span style={{ color: "var(--pri)" }}>Complete Guide</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" style={{ color: "var(--deepacc)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <BookOpen className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   CBC
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   9 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   February 2026
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--ondeep)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--mut)" }}>
               Everything you need to know about setting up competency-based assessment, learning
               areas, and strand reports. Master CBC implementation with EduMyles.
             </p>

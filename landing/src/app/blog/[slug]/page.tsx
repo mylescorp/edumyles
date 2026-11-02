@@ -423,7 +423,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <Link
             href="/blog"
             className="inline-flex items-center gap-2 font-jakarta text-[13px] mb-6 no-underline transition-colors duration-200"
-            style={{ color: "var(--ondeep)" }}
+            style={{ color: "var(--mut)" }}
           >
             <ArrowLeft className="w-4 h-4" strokeWidth={2} />
             Back to Blog
@@ -434,7 +434,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               style={{
                 background: "rgb(var(--primary-rgb) / 12%)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                color: "var(--deepacc)",
+                color: "var(--link)",
               }}
             >
               <Tag className="w-3 h-3" strokeWidth={2} />
@@ -450,14 +450,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <div className="flex flex-wrap gap-5">
             <span
               className="inline-flex items-center gap-2 font-jakarta text-[13px]"
-              style={{ color: "var(--ondeep)" }}
+              style={{ color: "var(--mut)" }}
             >
               <Calendar className="w-3.5 h-3.5" strokeWidth={1.5} />
               {post.date}
             </span>
             <span
               className="inline-flex items-center gap-2 font-jakarta text-[13px]"
-              style={{ color: "var(--ondeep)" }}
+              style={{ color: "var(--mut)" }}
             >
               <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
               {post.readTime}

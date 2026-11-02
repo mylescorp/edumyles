@@ -43,7 +43,7 @@ export default function ExcelAlternativesGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "color-mix(in srgb, var(--ondeephi) 10%, transparent)", color: "var(--ondeephi)" }}
+              style={{ background: "var(--tint)", color: "var(--link)" }}
             >
               ← Back to Blog
             </Link>
@@ -52,32 +52,32 @@ export default function ExcelAlternativesGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ink)" }}
             >
-              5 Signs Your School Has <span style={{ color: "var(--deepacc)" }}>Outgrown Excel</span>
+              5 Signs Your School Has <span style={{ color: "var(--pri)" }}>Outgrown Excel</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <BarChart2 className="w-5 h-5" style={{ color: "var(--deepacc)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <BarChart2 className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   School Management
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" style={{ color: "var(--deepacc)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <Clock className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   5 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   January 2026
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--ondeep)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--mut)" }}>
               From attendance confusion to fee arrears chaos, these are the warning signs every
               school administrator should watch for. Know when it&apos;s time to move beyond Excel.
             </p>

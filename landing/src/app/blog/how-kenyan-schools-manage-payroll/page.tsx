@@ -44,7 +44,7 @@ export default function KenyanSchoolsPayrollGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "color-mix(in srgb, var(--ondeephi) 10%, transparent)", color: "var(--ondeephi)" }}
+              style={{ background: "var(--tint)", color: "var(--link)" }}
             >
               ← Back to Blog
             </Link>
@@ -59,24 +59,24 @@ export default function KenyanSchoolsPayrollGuide() {
             </div>
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ink)" }}
             >
-              How Kenyan Schools <span style={{ color: "var(--deepacc)" }}>Manage Payroll</span>
+              How Kenyan Schools <span style={{ color: "var(--pri)" }}>Manage Payroll</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   EduMyles Team
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   March 2026
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   7 min read
                 </span>
               </div>
@@ -84,7 +84,7 @@ export default function KenyanSchoolsPayrollGuide() {
 
             <p
               className="font-jakarta text-xl leading-[1.7] font-light"
-              style={{ color: "var(--ondeep)" }}
+              style={{ color: "var(--mut)" }}
             >
               Discover how Kenyan schools are revolutionizing payroll management with automated
               systems, ensuring KRA compliance while boosting staff satisfaction.

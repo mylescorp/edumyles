@@ -46,7 +46,7 @@ export default function ParentPortalGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "color-mix(in srgb, var(--ondeephi) 10%, transparent)", color: "var(--ondeephi)" }}
+              style={{ background: "var(--tint)", color: "var(--link)" }}
             >
               ← Back to Blog
             </Link>
@@ -55,32 +55,32 @@ export default function ParentPortalGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ink)" }}
             >
-              Parent Portal Reduces SMS Costs <span style={{ color: "var(--deepacc)" }}>by 60%</span>
+              Parent Portal Reduces SMS Costs <span style={{ color: "var(--pri)" }}>by 60%</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5" style={{ color: "var(--deepacc)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <Users className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   Parent Engagement
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" style={{ color: "var(--deepacc)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <Clock className="w-5 h-5" style={{ color: "var(--pri)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   4 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--ondeep)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--mut)" }}>
                   January 2026
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--ondeep)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--mut)" }}>
               Schools using the parent portal see fewer WhatsApp enquiries, faster fee payments, and
               more engaged parents. Discover the communication revolution in Kenyan schools.
             </p>
