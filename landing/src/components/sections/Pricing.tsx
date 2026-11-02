@@ -82,7 +82,7 @@ export default function Pricing() {
             >
               {plan.featured && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-gold text-[var(--ink)] font-inter font-semibold text-xs px-4 py-1.5 rounded-lg shadow-md whitespace-nowrap">
+                  <span className="bg-gold text-gold-foreground font-inter font-semibold text-xs px-4 py-1.5 rounded-lg shadow-md whitespace-nowrap">
                     ⭐ Most Popular
                   </span>
                 </div>

@@ -286,7 +286,7 @@ function NewsletterStrip() {
                 className="group font-jakarta font-bold text-[13px] px-5 py-[11px] rounded-md flex items-center gap-2 flex-shrink-0 transition-all duration-200"
                 style={{
                   background: loading ? "var(--gold)" : "var(--gold)",
-                  color: "var(--ink)",
+                  color: "var(--gold-foreground)",
                   border: "none",
                   cursor: loading ? "wait" : "pointer",
                   minWidth: "100px",

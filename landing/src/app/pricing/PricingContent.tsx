@@ -130,7 +130,7 @@ export default function PricingContent() {
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span
                       className="font-jakarta font-bold text-[12px] px-4 py-1.5 rounded-2xl whitespace-nowrap"
-                      style={{ background: "var(--gold)", color: "var(--ink)" }}
+                      style={{ background: "var(--gold)", color: "var(--gold-foreground)" }}
                     >
                       <Star
                         className="w-3 h-3 inline mr-1 -mt-0.5"
@@ -211,7 +211,7 @@ export default function PricingContent() {
                   className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-full no-underline transition-all duration-200"
                   style={
                     plan.featured
-                      ? { background: "var(--gold)", color: "var(--ink)" }
+                      ? { background: "var(--gold)", color: "var(--gold-foreground)" }
                       : { background: "var(--primary)", color: "var(--primary-foreground)" }
                   }
                 >
@@ -371,7 +371,7 @@ export default function PricingContent() {
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
-              style={{ background: "var(--gold)", color: "var(--ink)" }}
+              style={{ background: "var(--gold)", color: "var(--gold-foreground)" }}
             >
               Start Free Trial →
             </a>

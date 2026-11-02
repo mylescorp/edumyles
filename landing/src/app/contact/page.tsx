@@ -472,7 +472,7 @@ export default function ContactPage() {
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
-              style={{ background: "var(--gold)", color: "var(--ink)" }}
+              style={{ background: "var(--gold)", color: "var(--gold-foreground)" }}
             >
               Start Free Trial →
             </a>

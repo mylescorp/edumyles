@@ -73,6 +73,7 @@ module.exports = {
         mint: "var(--success-muted-foreground)",
         gold: {
           DEFAULT: "var(--gold)",
+          foreground: "var(--gold-foreground)",
           light: "var(--gold)",
           deep: "var(--gold)",
           pale: "var(--tint)",

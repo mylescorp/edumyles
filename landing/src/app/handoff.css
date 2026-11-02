@@ -5,6 +5,8 @@
 html[data-theme="light"] {
   color-scheme: light;
   --handoff-gold: var(--gold);
+  /* Foreground for gold surfaces, derived from the supplied v1.1 palette. */
+  --gold-foreground: var(--ink);
   --radius-xs: var(--radius-sm);
   --radius-dropdown: var(--radius-lg);
   --gold-rgb: 232 163 23;
@@ -54,6 +56,7 @@ html[data-theme="light"] {
 html[data-theme="dark"]:root,
 html.dark:root {
   color-scheme: dark;
+  --gold-foreground: var(--onpri);
   --gold-rgb: 199 150 57;
   --platform-chrome-rgb: 26 57 91;
   --background: var(--bg);
