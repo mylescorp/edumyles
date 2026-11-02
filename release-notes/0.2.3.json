@@ -1,0 +1,15 @@
+{
+  "sourceId": "pull-request:553",
+  "sourceCommit": "d4fdb6ec9a1c7612c52b8dc184ca0b089d6471d9",
+  "entries": [
+    {
+      "title": "Refresh the public EduMyles website to match the current brand handoff.",
+      "description": "The landing experience now uses the supplied brand assets, responsive navigation and footer, consistent light and dark themes, updated home and pricing sections, and the short solution and partner routes.",
+      "type": "improvement",
+      "panels": [
+        "platform"
+      ],
+      "tags": []
+    }
+  ]
+}
