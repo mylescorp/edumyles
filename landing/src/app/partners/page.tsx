@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 const paths = [
   { icon: Code2, title: "Developers", description: "Build useful integrations and school workflows with EduMyles.", href: "/developers" },
-  { icon: HandCoins, title: "Affiliates", description: "Introduce schools to EduMyles through the networks that trust you.", href: "/affiliates" },
+  { icon: HandCoins, title: "Affiliates", description: "Introduce schools to EduMyles through the networks that trust you.", href: "/affiliate" },
   { icon: Store, title: "Resellers", description: "Sell and support EduMyles with local school relationships.", href: "/resellers" },
 ];
 const questions = [
