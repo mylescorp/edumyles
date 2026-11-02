@@ -54,7 +54,7 @@ export default function Features() {
           <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "var(--primary)" }} />
           <div
             className="text-[10px] font-bold tracking-[2.5px] uppercase"
-            style={{ color: "#B9CBD6" }}
+            style={{ color: "var(--ondeep)" }}
           >
             The Problem
           </div>
@@ -63,10 +63,10 @@ export default function Features() {
         {/* Heading */}
         <h2
           className="font-display font-bold leading-[1.2] mb-12"
-          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#ffffff" }}
+          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--ondeephi)" }}
         >
           Schools are drowning in paperwork.{" "}
-          <em className="italic" style={{ color: "#B9CBD6" }}>
+          <em className="italic" style={{ color: "var(--ondeep)" }}>
             EduMyles fixes that.
           </em>
         </h2>
@@ -93,13 +93,13 @@ export default function Features() {
                 e.currentTarget.style.borderColor = "rgb(var(--primary-rgb) / 20%)";
               }}
             >
-              <div className="mb-4" style={{ color: "#B9CBD6" }}>
+              <div className="mb-4" style={{ color: "var(--ondeep)" }}>
                 <problem.icon className="w-6 h-6" strokeWidth={1.5} />
               </div>
-              <h3 className="font-display font-bold text-[20px] mb-3" style={{ color: "#ffffff" }}>
+              <h3 className="font-display font-bold text-[20px] mb-3" style={{ color: "var(--ondeephi)" }}>
                 {problem.title}
               </h3>
-              <p className="text-[14px] leading-[1.6]" style={{ color: "#C4D4D0" }}>
+              <p className="text-[14px] leading-[1.6]" style={{ color: "var(--ondeep)" }}>
                 {problem.description}
               </p>
             </div>

@@ -52,7 +52,7 @@ export default function ExcelAlternativesGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
             >
               5 Signs Your School Has <span style={{ color: "var(--accent-foreground)" }}>Outgrown Excel</span>
             </h1>
@@ -123,7 +123,7 @@ export default function ExcelAlternativesGuide() {
                   "Parent complaints about delayed information",
                 ].map((cost) => (
                   <li key={cost} className="flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#ef4444" }} />
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: "var(--danger)" }} />
                     <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
                       {cost}
                     </span>
@@ -257,7 +257,7 @@ export default function ExcelAlternativesGuide() {
                         <li key={symptom} className="flex items-center gap-2 text-sm">
                           <AlertCircle
                             className="w-4 h-4 flex-shrink-0"
-                            style={{ color: "#ef4444" }}
+                            style={{ color: "var(--danger)" }}
                           />
                           <span style={{ color: "var(--muted-foreground)" }}>{symptom}</span>
                         </li>
@@ -306,7 +306,7 @@ export default function ExcelAlternativesGuide() {
                       </span>
                       <span
                         className="font-jakarta font-bold text-base"
-                        style={{ color: "#ef4444" }}
+                        style={{ color: "var(--danger)" }}
                       >
                         {item.cost}
                       </span>
@@ -318,7 +318,7 @@ export default function ExcelAlternativesGuide() {
                     <span className="font-jakarta font-bold text-lg" style={{ color: "var(--foreground)" }}>
                       Total Monthly Cost
                     </span>
-                    <span className="font-jakarta font-bold text-xl" style={{ color: "#ef4444" }}>
+                    <span className="font-jakarta font-bold text-xl" style={{ color: "var(--danger)" }}>
                       KES 200,000
                     </span>
                   </div>
@@ -472,7 +472,7 @@ export default function ExcelAlternativesGuide() {
               className="p-8 rounded-2xl"
               style={{
                 background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-                color: "#ffffff",
+                color: "var(--ondeephi)",
               }}
             >
               <div className="grid md:grid-cols-3 gap-6 text-center">
@@ -618,7 +618,7 @@ export default function ExcelAlternativesGuide() {
                 ))}
               </div>
               <div className="mt-6 p-4 rounded-lg" style={{ background: "rgb(var(--primary-rgb) / 15%)" }}>
-                <p className="font-jakarta font-semibold text-center" style={{ color: "#9A5D00" }}>
+                <p className="font-jakarta font-semibold text-center" style={{ color: "var(--warning-muted-foreground)" }}>
                   If you answered &quot;yes&quot; to 3 or more questions, it&apos;s time to move
                   beyond Excel.
                 </p>

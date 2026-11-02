@@ -113,7 +113,7 @@ export default function CaseStudiesPage() {
                   style={{
                     background: "rgba(255,255,255,0.07)",
                     border: "1px solid rgba(255,255,255,0.15)",
-                    color: "#E8E8E8",
+                    color: "var(--ondeephi)",
                   }}
                 >
                   {pill}
@@ -141,7 +141,7 @@ export default function CaseStudiesPage() {
                 <div className="p-7 flex flex-col flex-1">
                   <span
                     className="font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-full self-start"
-                    style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+                    style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
                   >
                     {cs.tag}
                   </span>

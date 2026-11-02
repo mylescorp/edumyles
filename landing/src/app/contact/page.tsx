@@ -218,7 +218,7 @@ export default function ContactPage() {
                       className="flex items-start gap-2 font-jakarta text-[13px]"
                       style={{ color: opt.primary ? "var(--primary-foreground)" : "var(--foreground)" }}
                     >
-                      <span style={{ color: "#26A65B", fontWeight: 700, flexShrink: 0 }}>✓</span>{" "}
+                      <span style={{ color: "var(--success)", fontWeight: 700, flexShrink: 0 }}>✓</span>{" "}
                       {b}
                     </li>
                   ))}
@@ -319,7 +319,7 @@ export default function ContactPage() {
                       >
                         {c.value}
                       </div>
-                      <div className="font-jakarta text-[13px]" style={{ color: "#8a8a8a" }}>
+                      <div className="font-jakarta text-[13px]" style={{ color: "var(--mut)" }}>
                         {c.desc}
                       </div>
                     </div>

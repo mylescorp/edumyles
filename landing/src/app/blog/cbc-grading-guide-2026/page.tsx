@@ -53,7 +53,7 @@ export default function CBCGradingGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
             >
               CBC Gradebook in EduMyles: <span style={{ color: "var(--accent-foreground)" }}>Complete Guide</span>
             </h1>
@@ -499,7 +499,7 @@ export default function CBCGradingGuide() {
               className="p-8 rounded-2xl"
               style={{
                 background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-                color: "#ffffff",
+                color: "var(--ondeephi)",
               }}
             >
               <div className="grid md:grid-cols-2 gap-8">
@@ -589,7 +589,7 @@ export default function CBCGradingGuide() {
                   </h3>
                   <div className="space-y-3">
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#ef4444" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--danger)" }}>
                         Challenge:
                       </span>
                       <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>

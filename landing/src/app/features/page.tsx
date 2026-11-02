@@ -103,7 +103,7 @@ const modules: {
   },
   {
     abbr: "FIN",
-    color: "#26A65B",
+    color: "var(--success)",
     iconBg: "rgba(38,166,91,0.10)",
     icon: Banknote,
     name: "Finance & Fees",
@@ -135,7 +135,7 @@ const modules: {
   },
   {
     abbr: "ACA",
-    color: "#1565C0",
+    color: "var(--info)",
     iconBg: "rgba(21,101,192,0.10)",
     icon: BookOpen,
     name: "Academics & Gradebook",
@@ -167,7 +167,7 @@ const modules: {
   },
   {
     abbr: "LIB",
-    color: "#9A5D00",
+    color: "var(--warning-muted-foreground)",
     iconBg: "rgba(154,93,0,0.10)",
     icon: BookMarked,
     name: "Library",
@@ -199,7 +199,7 @@ const modules: {
   },
   {
     abbr: "COM",
-    color: "#26A65B",
+    color: "var(--success)",
     iconBg: "rgba(38,166,91,0.10)",
     icon: MessageSquare,
     name: "Communications",
@@ -231,7 +231,7 @@ const modules: {
   },
   {
     abbr: "SHP",
-    color: "#1565C0",
+    color: "var(--info)",
     iconBg: "rgba(21,101,192,0.10)",
     icon: ShoppingBag,
     name: "School Shop",
@@ -437,7 +437,7 @@ export default function FeaturesPage() {
               style={{
                 background: "transparent",
                 border: "2px solid rgba(255,255,255,0.4)",
-                color: "#ffffff",
+                color: "var(--ondeephi)",
               }}
             >
               Book a Demo
@@ -520,7 +520,7 @@ export default function FeaturesPage() {
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
             >
               All 13 Modules
             </div>
@@ -592,7 +592,7 @@ export default function FeaturesPage() {
                 </div>
 
                 {/* Divider */}
-                <div style={{ borderTop: "1px solid #f0f0f0" }} />
+                <div style={{ borderTop: "1px solid var(--border)" }} />
 
                 {/* Feature list */}
                 <ul className="flex flex-col gap-2 mt-auto">

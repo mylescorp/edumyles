@@ -231,7 +231,7 @@ export default function BlogContent() {
             {activeCategory === "All" ? "Latest articles" : activeCategory}
           </h2>
           {visiblePosts.length === 0 ? (
-            <p className="font-jakarta text-[15px] text-center py-12" style={{ color: "#8a8a8a" }}>
+            <p className="font-jakarta text-[15px] text-center py-12" style={{ color: "var(--mut)" }}>
               No articles in this category yet. Check back soon.
             </p>
           ) : (
@@ -273,7 +273,7 @@ export default function BlogContent() {
                     <div className="flex items-center justify-between">
                       <span
                         className="font-jakarta font-semibold text-[11px] px-3 py-1.5 rounded-[20px]"
-                        style={{ background: "rgb(var(--primary-rgb) / 15%)", color: "#9A5D00" }}
+                        style={{ background: "rgb(var(--primary-rgb) / 15%)", color: "var(--warning-muted-foreground)" }}
                       >
                         {post.category}
                       </span>
@@ -295,13 +295,13 @@ export default function BlogContent() {
                     </p>
                     <div
                       className="flex items-center justify-between pt-2 border-t"
-                      style={{ borderColor: "#f0f0f0" }}
+                      style={{ borderColor: "var(--border)" }}
                     >
                       <div className="flex items-center gap-2">
                         <span className="font-jakarta text-xs" style={{ color: "var(--muted-foreground)" }}>
                           {post.author}
                         </span>
-                        <span style={{ color: "#d0d0d0" }}>·</span>
+                        <span style={{ color: "var(--border)" }}>·</span>
                         <span className="font-jakarta text-xs" style={{ color: "var(--muted-foreground)" }}>
                           {post.date}
                         </span>
@@ -322,18 +322,18 @@ export default function BlogContent() {
       </section>
 
       {/* ── Newsletter ────────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--platform-chrome)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--deep)" }}>
         <div className="max-w-[660px] mx-auto text-center">
           <div className="flex justify-center mb-4">
-            <Mail className="w-10 h-10" strokeWidth={1.5} style={{ color: "#B9CBD6" }} />
+            <Mail className="w-10 h-10" strokeWidth={1.5} style={{ color: "var(--ondeep)" }} />
           </div>
           <h2
             className="font-display font-bold leading-[1.2] mb-3"
-            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--ondeephi)" }}
           >
             Stay in the loop
           </h2>
-          <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "#D5E1DE" }}>
+          <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "var(--ondeep)" }}>
             Monthly insights on school management, product updates, and education technology in
             Africa. No spam.
           </p>
@@ -354,7 +354,7 @@ export default function BlogContent() {
               style={{
                 background: "rgba(255,255,255,0.08)",
                 border: "1px solid rgba(255,255,255,0.2)",
-                color: "#ffffff",
+                color: "var(--ondeephi)",
               }}
             />
             <button
@@ -365,7 +365,7 @@ export default function BlogContent() {
               Subscribe →
             </button>
           </form>
-          <p className="font-jakarta text-[12px] mt-3" style={{ color: "#D5E1DE" }}>
+          <p className="font-jakarta text-[12px] mt-3" style={{ color: "var(--ondeep)" }}>
             Join 200+ school administrators. Unsubscribe anytime.
           </p>
         </div>

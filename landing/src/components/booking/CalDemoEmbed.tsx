@@ -229,7 +229,7 @@ export default function CalDemoEmbed({
       </div>
 
       {status === "error" ? (
-        <div className="mx-4 mb-4 flex gap-3 rounded-xl border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 font-jakarta text-sm text-[#9A1F2B]">
+        <div className="mx-4 mb-4 flex gap-3 rounded-xl border border-[var(--danger)] bg-[var(--danger-muted)] px-4 py-3 font-jakarta text-sm text-[var(--danger-muted-foreground)]">
           <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           The embedded calendar could not load. Please call or email our team and we will schedule
           the walkthrough manually.
@@ -243,7 +243,7 @@ export default function CalDemoEmbed({
       ) : null}
 
       {status !== "error" ? (
-      <div className="relative border-t border-[#edf4ef] bg-card">
+      <div className="relative border-t border-[var(--border)] bg-card">
         {status === "loading" ? (
           <div className="absolute inset-x-0 top-0 z-10 flex min-h-[320px] items-center justify-center bg-card/85 px-6 text-center backdrop-blur-sm">
             <div>

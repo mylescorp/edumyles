@@ -200,7 +200,7 @@ function ContactLauncherPanel({
     resultId,
     visitorToken
   );
-  const activeThread = realtimeThread ?? fallbackThread ?? thread;
+  const activeThread = (realtimeThread as ChatThread | undefined) ?? fallbackThread ?? thread;
 
   useEffect(() => {
     try {
@@ -323,8 +323,8 @@ function ContactLauncherPanel({
         aria-hidden={!isOpen}
       >
         <div
-          className="border-b border-border px-5 py-4 text-white"
-          style={{ background: "var(--platform-chrome)" }}
+          className="border-b border-border px-5 py-4 text-[var(--ondeephi)]"
+          style={{ background: "var(--deep)" }}
         >
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -340,7 +340,7 @@ function ContactLauncherPanel({
                   <p className="text-sm font-semibold">
                     {mode === "whatsapp" ? "WhatsApp EduMyles" : "EduMyles live chat"}
                   </p>
-                  <p className="text-xs text-white/55">
+                  <p className="text-xs text-[var(--ondeep)]/80">
                     {mode === "whatsapp"
                       ? "Send a complete prefilled message."
                       : hasActiveChat
@@ -353,13 +353,13 @@ function ContactLauncherPanel({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md p-1 text-white/70 hover:bg-card/10 hover:text-white"
+              className="rounded-md p-1 text-[var(--ondeep)] hover:bg-card/10 hover:text-[var(--ondeephi)]"
               aria-label="Close contact form"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 bg-card/[0.06] px-3 py-2 text-xs text-white/70">
+          <div className="mt-4 flex items-center gap-2 rounded-lg border border-[var(--deepbd)] bg-card/[0.06] px-3 py-2 text-xs text-[var(--ondeep)]">
             <ShieldCheck className="h-4 w-4 text-emerald-300" />
             Your contact details are used only so our team can respond accurately.
           </div>
@@ -412,7 +412,7 @@ function ContactLauncherPanel({
                       className={[
                         "max-w-[82%] rounded-xl px-3.5 py-2 text-sm leading-6 shadow-sm",
                         item.sender === "visitor"
-                          ? "rounded-br-sm bg-emerald-700 text-white"
+                          ? "rounded-br-sm bg-primary text-primary-foreground"
                           : "rounded-bl-sm border border-border bg-card text-card-foreground",
                       ].join(" ")}
                     >
@@ -450,7 +450,7 @@ function ContactLauncherPanel({
                 <button
                   type="submit"
                   disabled={!reply.trim()}
-                  className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-700 text-white transition hover:bg-emerald-800 disabled:bg-muted disabled:text-muted-foreground"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-primary-foreground transition hover:bg-[var(--prih)] disabled:bg-muted disabled:text-muted-foreground"
                   aria-label="Send chat reply"
                 >
                   <Send className="h-4 w-4" />

@@ -109,10 +109,10 @@ export default function Modules() {
               <div
                 className="w-[70px] h-[70px] rounded-[12px] flex items-center justify-center mx-auto mb-4"
                 style={{
-                  background: "linear-gradient(135deg, #26A65B, var(--primary))",
+                  background: "linear-gradient(135deg, var(--success), var(--primary))",
                 }}
               >
-                <mod.icon className="w-7 h-7" strokeWidth={1.5} style={{ color: "#ffffff" }} />
+                <mod.icon className="w-7 h-7" strokeWidth={1.5} style={{ color: "var(--ondeephi)" }} />
               </div>
 
               {/* Title */}
@@ -135,7 +135,7 @@ export default function Modules() {
                 href="/features"
                 className="text-[14px] font-semibold no-underline transition-colors duration-300"
                 style={{ color: "var(--primary)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--success)")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
               >
                 Learn more →
@@ -150,7 +150,7 @@ export default function Modules() {
             href="/features"
             className="text-[16px] font-bold no-underline transition-colors duration-300"
             style={{ color: "var(--primary)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--success)")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
           >
             View all 13 modules →

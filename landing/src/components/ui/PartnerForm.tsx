@@ -138,7 +138,7 @@ export default function PartnerForm() {
             value={fields.country}
             onChange={handleChange}
             className={inputClass}
-            style={{ color: fields.country ? "var(--foreground)" : "#9ca3af" }}
+            style={{ color: fields.country ? "var(--foreground)" : "var(--mut)" }}
           >
             <option value="">Select country…</option>
             <option value="Kenya">Kenya</option>
@@ -160,7 +160,7 @@ export default function PartnerForm() {
             value={fields.partnerType}
             onChange={handleChange}
             className={inputClass}
-            style={{ color: fields.partnerType ? "var(--foreground)" : "#9ca3af" }}
+            style={{ color: fields.partnerType ? "var(--foreground)" : "var(--mut)" }}
           >
             <option value="">Select type…</option>
             <option value="Referral Partner">Referral Partner</option>

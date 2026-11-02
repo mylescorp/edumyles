@@ -53,7 +53,7 @@ const expectationItems = [
 
 function InfoRow({ icon: Icon, title, body }: { icon: LucideIcon; title: string; body: string }) {
   return (
-    <div className="flex gap-4 rounded-[10px] border border-[#dceee4] bg-card p-4 shadow-sm">
+    <div className="flex gap-4 rounded-[10px] border border-[var(--border)] bg-card p-4 shadow-sm">
       <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-[8px] bg-[var(--accent-foreground)]">
         <Icon className="h-5 w-5 text-foreground" />
       </div>
@@ -214,7 +214,7 @@ export default function BookDemoContent() {
           <div>
             <Link
               href="/"
-              className="mb-8 inline-flex items-center gap-2 font-jakarta text-[13px] font-semibold text-[#A8E6C3] no-underline transition-colors hover:text-white"
+              className="mb-8 inline-flex items-center gap-2 font-jakarta text-[13px] font-semibold text-[var(--deepacc)] no-underline transition-colors hover:text-[var(--primary-foreground)]"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
@@ -223,10 +223,10 @@ export default function BookDemoContent() {
               <Sparkles className="h-4 w-4" />
               Live product demo
             </div>
-            <h1 className="max-w-[760px] font-display text-[2.35rem] font-bold leading-[1.05] text-white sm:text-[3.6rem] lg:text-[4.2rem]">
+            <h1 className="max-w-[760px] font-display text-[2.35rem] font-bold leading-[1.05] text-[var(--primary-foreground)] sm:text-[3.6rem] lg:text-[4.2rem]">
               Book a school-ready EduMyles walkthrough
             </h1>
-            <p className="mt-6 max-w-[680px] font-jakarta text-[17px] leading-8 text-[#A8E6C3]">
+            <p className="mt-6 max-w-[680px] font-jakarta text-[17px] leading-8 text-[var(--deepacc)]">
               Tell us about your school, then choose an available time after the request is safely
               stored. The calendar confirmation syncs back into the same record.
             </p>
@@ -234,7 +234,7 @@ export default function BookDemoContent() {
               {demoBenefits.map((item) => (
                 <div
                   key={item.label}
-                  className="inline-flex items-center gap-2 rounded-[10px] border border-white/10 bg-card/5 px-4 py-3 font-jakarta text-[13px] font-semibold text-white"
+                  className="inline-flex items-center gap-2 rounded-[10px] border border-[color-mix(in_srgb,var(--onpri)_10%,transparent)] bg-[color-mix(in_srgb,var(--onpri)_6%,transparent)] px-4 py-3 font-jakarta text-[13px] font-semibold text-[var(--primary-foreground)]"
                 >
                   <item.icon className="h-4 w-4 text-[var(--accent-foreground)]" />
                   {item.label}
@@ -243,9 +243,9 @@ export default function BookDemoContent() {
             </div>
           </div>
 
-          <div className="rounded-[16px] border border-white/10 bg-card/[0.06] p-5 shadow-2xl backdrop-blur">
+          <div className="rounded-[16px] border border-[color-mix(in_srgb,var(--onpri)_10%,transparent)] bg-[color-mix(in_srgb,var(--onpri)_6%,transparent)] p-5 shadow-2xl backdrop-blur">
             <div className="rounded-[12px] bg-card p-5">
-              <div className="flex items-center justify-between gap-4 border-b border-[#edf4ef] pb-4">
+              <div className="flex items-center justify-between gap-4 border-b border-[var(--border)] pb-4">
                 <div>
                   <p className="font-jakarta text-[12px] font-bold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
                     Scheduling
@@ -265,7 +265,7 @@ export default function BookDemoContent() {
                       <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-muted font-jakarta text-[13px] font-bold text-primary">
                         {index + 1}
                       </div>
-                      <div className="h-px flex-1 bg-[#edf4ef]" />
+                      <div className="h-px flex-1 bg-[var(--border)]" />
                       <span className="w-[170px] font-jakarta text-[13px] font-semibold text-foreground">
                         {step}
                       </span>
@@ -310,8 +310,8 @@ export default function BookDemoContent() {
                     />
                   </div>
                 ) : (
-                  <div className="mt-6 rounded-[12px] border border-[#F5D48A] bg-[#FFF8E8] p-5">
-                    <p className="font-jakarta text-[14px] leading-7 text-[#8C5A00]">
+                  <div className="mt-6 rounded-[12px] border border-[var(--warning)] bg-[var(--warning-muted)] p-5">
+                    <p className="font-jakarta text-[14px] leading-7 text-[var(--warning-muted-foreground)]">
                       Live calendar scheduling is paused for this request because the backend used
                       the manual fallback path. Sales has the request details and will follow up
                       directly.
@@ -337,7 +337,7 @@ export default function BookDemoContent() {
               </div>
             ) : (
               <div className="rounded-[14px] border border-[var(--border)] bg-card p-5 shadow-sm sm:p-6">
-                <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#edf4ef] pb-5">
+                <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-5">
                   <div>
                     <p className="font-jakarta text-[12px] font-bold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
                       Step 1 of 2
@@ -603,7 +603,7 @@ export default function BookDemoContent() {
                   </label>
 
                   {error ? (
-                    <div className="rounded-[10px] border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 font-jakarta text-sm text-[#9A1F2B]">
+                    <div className="rounded-[10px] border border-[var(--danger)] bg-[var(--danger-muted)] px-4 py-3 font-jakarta text-sm text-[var(--danger-muted-foreground)]">
                       {error}
                     </div>
                   ) : null}
@@ -642,7 +642,7 @@ export default function BookDemoContent() {
                   <Star key={star} className="h-5 w-5 text-[var(--accent-foreground)]" fill="var(--accent-foreground)" />
                 ))}
               </div>
-              <p className="font-display text-[18px] italic leading-8 text-white">
+              <p className="font-display text-[18px] italic leading-8 text-[var(--primary-foreground)]">
                 &ldquo;The demo was incredibly helpful. They understood our challenges immediately
                 and showed us exactly how EduMyles would solve them.&rdquo;
               </p>

@@ -35,7 +35,7 @@ export default async function AuthErrorPage({
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
           <Link
             href="/auth/login/api"
-            className="inline-flex items-center justify-center rounded-md bg-green-700 text-white px-6 py-2.5 text-sm font-medium hover:bg-green-800 transition-colors"
+            className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-6 py-2.5 text-sm font-medium hover:bg-[var(--prih)] transition-colors"
           >
             Try again
           </Link>

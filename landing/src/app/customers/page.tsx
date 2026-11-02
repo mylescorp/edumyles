@@ -155,7 +155,7 @@ export default function CustomersPage() {
                 style={{
                   background: "rgba(255,255,255,0.07)",
                   border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#E8E8E8",
+                  color: "var(--ondeephi)",
                 }}
               >
                 {pill}
@@ -298,7 +298,7 @@ export default function CustomersPage() {
                   className="font-display italic flex-1 mb-5"
                   style={{
                     fontSize: "18px",
-                    color: t.featured ? "#E8E8E8" : "#2d4a38",
+                    color: t.featured ? "var(--ondeephi)" : "var(--link)",
                     lineHeight: 1.7,
                   }}
                 >
@@ -318,13 +318,13 @@ export default function CustomersPage() {
                   <div>
                     <div
                       className="font-jakarta font-semibold"
-                      style={{ fontSize: "13px", color: t.featured ? "#ffffff" : "var(--foreground)" }}
+                      style={{ fontSize: "13px", color: t.featured ? "var(--ondeephi)" : "var(--foreground)" }}
                     >
                       {t.name}
                     </div>
                     <div
                       className="font-jakarta"
-                      style={{ fontSize: "12px", color: t.featured ? "#90CAF9" : "var(--muted-foreground)" }}
+                      style={{ fontSize: "12px", color: t.featured ? "var(--deepem)" : "var(--muted-foreground)" }}
                     >
                       {t.role}
                     </div>
@@ -350,7 +350,7 @@ export default function CustomersPage() {
               <div
                 key={type}
                 className="rounded-2xl p-6"
-                style={{ background: "#F8FDF9", border: "1px solid var(--border)" }}
+                style={{ background: "var(--card)", border: "1px solid var(--border)" }}
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
@@ -375,7 +375,7 @@ export default function CustomersPage() {
                     <li
                       key={f}
                       className="font-jakarta flex items-center gap-2"
-                      style={{ fontSize: "13px", color: "#4a7a5a" }}
+                      style={{ fontSize: "13px", color: "var(--deepbd2)" }}
                     >
                       <span
                         className="w-1.5 h-1.5 rounded-full shrink-0"

@@ -47,7 +47,7 @@ export default function BrandValues() {
             style={{
               background: "rgb(var(--primary-rgb) / 12%)",
               border: "1px solid rgb(var(--primary-rgb) / 40%)",
-              color: "#9A5D00",
+              color: "var(--warning-muted-foreground)",
             }}
           >
             Who We Are
@@ -77,7 +77,7 @@ export default function BrandValues() {
           >
             <div
               className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-[50px] uppercase tracking-wider"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
             >
               Our Mission
             </div>
@@ -156,7 +156,7 @@ export default function BrandValues() {
                     style={{
                       background: "rgb(var(--primary-rgb) / 10%)",
                       border: "1px solid rgb(var(--primary-rgb) / 25%)",
-                      color: "#9A5D00",
+                      color: "var(--warning-muted-foreground)",
                     }}
                   >
                     {kw}
@@ -189,14 +189,14 @@ export default function BrandValues() {
               style={{
                 background: "rgb(var(--primary-rgb) / 15%)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                color: "#B9CBD6",
+                color: "var(--ondeep)",
               }}
             >
               Founding Story
             </div>
             <blockquote
               className="font-display italic text-[19px] leading-[1.65] mb-5"
-              style={{ color: "#ffffff" }}
+              style={{ color: "var(--ondeephi)" }}
             >
               &ldquo;I watched a principal manage a 1,200-student school on WhatsApp groups and
               paper registers. It was brilliant improvisation — but it was costing teachers hours
@@ -204,10 +204,10 @@ export default function BrandValues() {
               time back.&rdquo;
             </blockquote>
             <div>
-              <div className="font-jakarta font-bold text-[15px]" style={{ color: "#B9CBD6" }}>
+              <div className="font-jakarta font-bold text-[15px]" style={{ color: "var(--ondeep)" }}>
                 Jonathan Myles
               </div>
-              <div className="font-jakarta text-[13px]" style={{ color: "#D5E1DE" }}>
+              <div className="font-jakarta text-[13px]" style={{ color: "var(--ondeep)" }}>
                 CEO &amp; Founder — EduMyles · Founded in Nairobi, Kenya
               </div>
             </div>

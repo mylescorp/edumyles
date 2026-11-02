@@ -1,27 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&display=swap");
 
-/* Public marketing site palette and geometry from the 2026 website handoff. */
+/* Semantic component aliases bridge the v1.1 marketing tokens to shared UI primitives. */
 :root {
   color-scheme: light;
-  --bg: #f1f6f4;
-  --card: #ffffff;
-  --ink: #10201c;
-  --mut: #4b5c57;
-  --pri: #276b61;
-  --prih: #1e5a50;
-  --onpri: #ffffff;
-  --tint: #e3efec;
-  --deep: #0f2a24;
-  --handoff-gold: #e8a317;
-  --em: #2f4f63;
-  --fbd: #7c8b86;
-  --link: #1e5a50;
-  --ondeep: #c4d9d3;
-  --ondeephi: #e6f4f0;
-  --deepacc: #9ed8cc;
-  --deepem: #bfe3f5;
-  --deepbd: #9dbdb5;
-  --deepbd2: #4b7a70;
+  --handoff-gold: var(--gold);
+  --gold-rgb: 232 163 23;
+  --platform-chrome-rgb: 15 42 36;
   --background: var(--bg);
   --foreground: var(--ink);
   --card-foreground: var(--ink);
@@ -35,46 +19,23 @@
   --muted-foreground: var(--mut);
   --accent: var(--tint);
   --accent-foreground: var(--link);
-  --border: #dde6e3;
-  --input: var(--fbd);
+  --border: #e5e5e5;
+  --input: #8a8a8a;
   --ring: var(--pri);
   --background-rgb: 241 246 244;
   --foreground-rgb: 16 32 28;
   --card-rgb: 255 255 255;
   --primary-rgb: 39 107 97;
   --primary-foreground-rgb: 255 255 255;
-  --border-rgb: 221 230 227;
-  --radius: 24px;
-  --radius-card: 24px;
-  --radius-panel: 32px;
-  --radius-band: 40px;
+  --border-rgb: 229 229 229;
   --platform-chrome: var(--deep);
 }
 
 html[data-theme="dark"],
 html.dark {
   color-scheme: dark;
-  --bg: #0b111c;
-  --card: #172235;
-  --ink: #f8fafc;
-  --mut: #a3b1c2;
-  --pri: #6fa2f3;
-  --prih: #6fa2f3;
-  --onpri: #082a56;
-  --tint: #243247;
-  --accent: #263d5d;
-  --afg: #bfdbfe;
-  --deep: #1a395b;
-  --handoff-gold: #c79639;
-  --em: #bfdbfe;
-  --fbd: #6b7c93;
-  --link: #6fa2f3;
-  --ondeep: #dce5f0;
-  --ondeephi: #f8fafc;
-  --deepacc: #bfdbfe;
-  --deepem: #bfdbfe;
-  --deepbd: #6b7c93;
-  --deepbd2: #6b7c93;
+  --gold-rgb: 199 150 57;
+  --platform-chrome-rgb: 26 57 91;
   --background: var(--bg);
   --foreground: var(--ink);
   --card-foreground: var(--ink);
@@ -82,14 +43,12 @@ html.dark {
   --popover-foreground: var(--ink);
   --primary: var(--pri);
   --primary-foreground: var(--onpri);
-  --secondary: #243247;
-  --secondary-foreground: #e2e8f0;
-  --muted: #243247;
+  --secondary: var(--tint);
+  --secondary-foreground: var(--secondary-fg);
+  --muted: var(--tint);
   --muted-foreground: var(--mut);
-  --accent: #263d5d;
-  --accent-foreground: #bfdbfe;
-  --border: #2b3a4f;
-  --input: #6b7c93;
+  --accent-foreground: var(--afg);
+  --input: var(--fbd);
   --ring: var(--pri);
   --background-rgb: 11 17 28;
   --foreground-rgb: 248 250 252;
@@ -354,12 +313,12 @@ html[data-theme] .content-section.alt {
   padding: 64px 48px;
   border-radius: 32px;
   background: var(--deep);
-  color: #fff;
+  color: var(--ondeephi);
 }
 
 .handoff-problem-band h2,
 .handoff-problem-band h3 {
-  color: #fff !important;
+  color: var(--ondeephi) !important;
 }
 
 .handoff-problem-band h2 em {
@@ -537,9 +496,9 @@ html.dark #hero::after {
   aspect-ratio: 640 / 420;
   overflow: hidden;
   border-radius: 22px;
-  background: #fff;
-  box-shadow: 0 24px 60px rgb(16 42 86 / 18%);
-  color: #171717;
+  background: var(--card);
+  box-shadow: var(--shadow-xl);
+  color: var(--ink);
   font: 11px Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -549,7 +508,7 @@ html.dark #hero::after {
   align-items: center;
   gap: 6px;
   padding: 0 14px;
-  background: #eaf2ef;
+  background: var(--tint);
 }
 
 .handoff-browser-bar i {
@@ -557,15 +516,15 @@ html.dark #hero::after {
   height: 10px;
   flex: 0 0 10px;
   border-radius: 50%;
-  background: #cbdad5;
+  background: var(--fbd);
 }
 
 .handoff-browser-bar span {
   margin: 0 auto;
   padding: 3px 40px;
   border-radius: 999px;
-  background: #fff;
-  color: #666;
+  background: var(--card);
+  color: var(--mut);
   font-size: 10px;
 }
 
@@ -577,7 +536,7 @@ html.dark #hero::after {
 .handoff-sidebar {
   flex: 0 0 22%;
   padding: 14px 12px;
-  background: #fff;
+  background: var(--card);
 }
 
 .handoff-school,
@@ -601,13 +560,13 @@ html.dark #hero::after {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  background: #276b61;
-  color: white;
+  background: var(--pri);
+  color: var(--onpri);
 }
 
 .handoff-menu-item {
   padding: 7px 8px;
-  color: #666;
+  color: var(--mut);
   white-space: nowrap;
 }
 
@@ -615,18 +574,18 @@ html.dark #hero::after {
   width: 12px;
   height: 12px;
   border-radius: 4px;
-  background: #c7d8d3;
+  background: var(--fbd);
 }
 
 .handoff-menu-item.selected {
   border-radius: 8px;
-  background: #e3efec;
-  color: #164a42;
+  background: var(--tint);
+  color: var(--link);
   font-weight: 600;
 }
 
 .handoff-menu-item.selected i {
-  background: #276b61;
+  background: var(--pri);
 }
 
 .handoff-dashboard-content {
@@ -636,7 +595,7 @@ html.dark #hero::after {
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  background: #f1f6f4;
+  background: var(--bg);
 }
 
 .handoff-dashboard-heading,
@@ -659,8 +618,8 @@ html.dark #hero::after {
 .handoff-payments span {
   padding: 4px 10px;
   border-radius: 999px;
-  background: #e3f4ea;
-  color: #14532d;
+  background: var(--success-muted);
+  color: var(--success-muted-foreground);
   font-size: 10px;
   font-weight: 600;
 }
@@ -672,12 +631,12 @@ html.dark #hero::after {
   flex: 1;
   padding: 12px;
   border-radius: 14px;
-  background: white;
+  background: var(--card);
   box-shadow: 0 1px 2px rgb(16 42 86 / 8%);
 }
 
 .handoff-metric small {
-  color: #666;
+  color: var(--mut);
 }
 
 .handoff-metric > i {
@@ -709,11 +668,11 @@ html.dark #hero::after {
 .handoff-chart i {
   flex: 1;
   border-radius: 5px 5px 0 0;
-  background: #7cc8ba;
+  background: var(--pri);
 }
 
 .handoff-chart i:nth-child(odd) {
-  background: #cfe5e0;
+  background: var(--tint);
 }
 
 .handoff-payments {
@@ -733,15 +692,15 @@ html.dark #hero::after {
 }
 
 .handoff-payments span:nth-child(3) {
-  background: #fff1d6;
-  color: #7a3e00;
+  background: var(--warning-muted);
+  color: var(--warning-muted-foreground);
 }
 
 .handoff-payments span i {
   width: 42px;
   height: 8px;
   border-radius: 4px;
-  background: #d5e3df;
+  background: var(--border);
 }
 
 .handoff-payment-note {
@@ -888,7 +847,7 @@ html.dark #hero::after {
 .board-table > div { display: grid; grid-template-columns: 1.2fr 1fr .9fr; align-items: center; gap: 8px; min-height: 42px; padding: 8px 12px; background: var(--card); color: var(--mut); }
 .board-table b { color: var(--ink); }.board-table i { height: 7px; border-radius: 999px; background: var(--pri); }
 .board-payment-card { display: grid; justify-items: center; gap: 9px; margin: 10px auto 0; padding: 30px 16px; max-width: 320px; border-radius: 20px; background: var(--bg); color: var(--ink); }
-.board-payment-mark { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 14px; background: #2ca365; color: white; font-weight: 800; }
+.board-payment-mark { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 14px; background: var(--success); color: var(--onpri); font-weight: 800; }
 .board-payment-card strong { font-size: 30px; }.board-payment-card span,.board-payment-card i { color: var(--mut); font-size: 12px; font-style: normal; }
 .board-timetable { margin-top: 12px; overflow: hidden; border: 1px solid var(--border); border-radius: 15px; background: var(--card); }
 .board-timetable-head, .board-timetable-row { display: grid; grid-template-columns: 62px minmax(90px, 1fr) minmax(120px, 1.1fr); align-items: center; gap: 10px; padding: 13px 15px; border-bottom: 1px solid var(--border); color: var(--mut); font-size: 11px; }
@@ -917,14 +876,14 @@ html.dark #hero::after {
 .solution-board-module > span { display: inline-flex; margin-bottom: 16px; padding: 5px 10px; border-radius: 999px; background: var(--tint); color: var(--link); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
 .solution-board-steps > div > .grid { align-items: stretch; }
 .solution-board-step { display: flex; gap: 16px; align-items: flex-start; }
-.solution-board-step > span { display: grid; width: 36px; height: 36px; flex: 0 0 36px; place-items: center; border-radius: 50%; background: var(--handoff-gold); color: #1a1405; font-weight: 800; }
+.solution-board-step > span { display: grid; width: 36px; height: 36px; flex: 0 0 36px; place-items: center; border-radius: 50%; background: var(--gold); color: #171717; font-weight: 800; }
 .solution-board-question { border: 1px solid var(--border); border-radius: 18px; background: var(--card); color: var(--ink); }
 .solution-board-question summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 22px; cursor: pointer; font-weight: 650; list-style: none; }
 .solution-board-question summary::-webkit-details-marker { display: none; }
 .solution-board-question summary span { color: var(--pri); font-size: 22px; }
 .solution-board-question p { margin: 0; padding: 0 22px 22px; color: var(--mut); }
-.solution-board-cta { margin: 24px auto 0; max-width: 1200px; padding: 70px 24px; border-radius: 36px; background: var(--deep); text-align: center; color: white; }
-.solution-board-cta h2 { margin: 10px 0; color: white; font-size: clamp(30px, 4vw, 44px); line-height: 1.1; }
+.solution-board-cta { margin: 24px auto 0; max-width: 1200px; padding: 70px 24px; border-radius: 36px; background: var(--deep); text-align: center; color: var(--ondeephi); }
+.solution-board-cta h2 { margin: 10px 0; color: var(--ondeephi); font-size: clamp(30px, 4vw, 44px); line-height: 1.1; }
 .solution-board-cta .board-eyebrow, .solutions-board-cta .board-eyebrow { color: var(--deepacc); }
 .solution-board-cta p { margin: 0; color: var(--ondeep); font-size: 17px; }
 @media (max-width: 640px) { .solution-board-page .page-hero { padding: 64px 20px 52px; } .solution-board-card, .solution-board-module, .solution-board-step { padding: 22px; } .solution-board-cta { margin-inline: 16px; border-radius: 28px; } }
@@ -942,8 +901,8 @@ html.dark #hero::after {
 .solutions-board-modules h2 { margin-top: 10px; text-align: center; }
 .solutions-board-module { display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; }
 .solutions-board-module > span { color: var(--pri); }
-.solutions-board-cta { max-width: 1200px; margin: 20px auto 0; padding: 70px 24px; border-radius: 36px; background: var(--deep); color: white; text-align: center; }
-.solutions-board-cta h2 { max-width: 720px; margin: 10px auto; color: white; }
+.solutions-board-cta { max-width: 1200px; margin: 20px auto 0; padding: 70px 24px; border-radius: 36px; background: var(--deep); color: var(--ondeephi); text-align: center; }
+.solutions-board-cta h2 { max-width: 720px; margin: 10px auto; color: var(--ondeephi); }
 .solutions-board-cta p { margin: 0; color: var(--ondeep); }
 @media (max-width: 640px) { .solutions-board-card { padding: 22px; } .solutions-board-cta { margin-inline: 16px; padding: 56px 20px; border-radius: 28px; } }
 
@@ -980,8 +939,27 @@ html[data-theme="dark"] .pricing-card,
 html[data-theme="dark"] .feature-card,
 html.dark .card,
 html.dark .pricing-card,
-html.dark .feature-card {
-  border: 1px solid #2b3a4f;
+html.dark .feature-card,
+html[data-theme="dark"] .solution-board-card,
+html[data-theme="dark"] .solution-board-module,
+html[data-theme="dark"] .solution-board-step,
+html[data-theme="dark"] .solution-board-question,
+html[data-theme="dark"] .solutions-board-card,
+html[data-theme="dark"] .solutions-board-module,
+html[data-theme="dark"] .faq-item,
+html.dark .solution-board-card,
+html.dark .solution-board-module,
+html.dark .solution-board-step,
+html.dark .solution-board-question,
+html.dark .solutions-board-card,
+html.dark .solutions-board-module,
+html.dark .faq-item {
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+html[data-theme="dark"] .solutions-board-card:hover,
+html.dark .solutions-board-card:hover {
   box-shadow: none;
 }
 

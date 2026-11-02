@@ -97,21 +97,21 @@ const tagConfig: Record<
     icon: Star,
     label: "Improved",
     bg: "rgb(var(--primary-rgb) / 10%)",
-    color: "#9A5D00",
+    color: "var(--warning-muted-foreground)",
     border: "rgb(var(--primary-rgb) / 25%)",
   },
   fixed: {
     icon: Bug,
     label: "Fixed",
     bg: "rgba(59,130,246,0.1)",
-    color: "#1e40af",
+    color: "var(--info-muted-foreground)",
     border: "rgba(59,130,246,0.25)",
   },
   security: {
     icon: ShieldCheck,
     label: "Security",
     bg: "rgba(139,92,246,0.1)",
-    color: "#6b21a8",
+    color: "var(--info-muted-foreground)",
     border: "rgba(139,92,246,0.25)",
   },
 };
@@ -170,7 +170,7 @@ export default function ChangelogPage() {
                 style={{
                   background: "rgba(255,255,255,0.07)",
                   border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#E8E8E8",
+                  color: "var(--ondeephi)",
                 }}
               >
                 <Rocket className="w-3.5 h-3.5" strokeWidth={1.5} /> Latest release: v2.4.0
@@ -180,7 +180,7 @@ export default function ChangelogPage() {
                 style={{
                   background: "rgba(255,255,255,0.07)",
                   border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#E8E8E8",
+                  color: "var(--ondeephi)",
                 }}
               >
                 <CalendarDays className="w-3.5 h-3.5" strokeWidth={1.5} /> Last updated: March 2026
@@ -238,7 +238,7 @@ export default function ChangelogPage() {
                   </div>
                   <div
                     className="rounded-2xl p-6"
-                    style={{ background: "#fafafa", border: "1px solid #f0f0f0" }}
+                    style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                   >
                     <ul className="flex flex-col gap-3">
                       {release.changes.map((change, ci) => {
@@ -258,7 +258,7 @@ export default function ChangelogPage() {
                             </span>
                             <span
                               className="font-jakarta text-[14px] leading-[1.7]"
-                              style={{ color: "#3a3a3a" }}
+                              style={{ color: "var(--ink)" }}
                             >
                               {change.text}
                             </span>

@@ -44,7 +44,7 @@ export default function UgandaSchoolManagement() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
             >
               School Management in <span style={{ color: "var(--accent-foreground)" }}>Uganda</span>
             </h1>
@@ -182,30 +182,30 @@ export default function UgandaSchoolManagement() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div
                       className="p-3 rounded-lg"
-                      style={{ background: "#FEE2E2", border: "1px solid #fecaca" }}
+                      style={{ background: "var(--danger-muted)", border: "1px solid var(--danger)" }}
                     >
-                      <div className="text-xs font-semibold mb-1" style={{ color: "#991b1b" }}>
+                      <div className="text-xs font-semibold mb-1" style={{ color: "var(--danger-muted-foreground)" }}>
                         Kenya
                       </div>
-                      <div className="text-sm" style={{ color: "#7f1d1d" }}>
+                      <div className="text-sm" style={{ color: "var(--danger-muted-foreground)" }}>
                         {difference.kenya}
                       </div>
                     </div>
                     <div
                       className="p-3 rounded-lg"
-                      style={{ background: "#D1FAE5", border: "1px solid #a7f3d0" }}
+                      style={{ background: "var(--success-muted)", border: "1px solid var(--success)" }}
                     >
-                      <div className="text-xs font-semibold mb-1" style={{ color: "#064e3b" }}>
+                      <div className="text-xs font-semibold mb-1" style={{ color: "var(--success-muted-foreground)" }}>
                         Uganda
                       </div>
-                      <div className="text-sm" style={{ color: "#065f46" }}>
+                      <div className="text-sm" style={{ color: "var(--success-muted-foreground)" }}>
                         {difference.uganda}
                       </div>
                     </div>
                   </div>
                   <div
                     className="text-sm mt-2 p-2 rounded"
-                    style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+                    style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
                   >
                     Impact: {difference.impact}
                   </div>
@@ -542,7 +542,7 @@ export default function UgandaSchoolManagement() {
                     <div className="text-right">
                       <span
                         className="text-xs px-2 py-1 rounded-full"
-                        style={{ background: "#D1FAE5", color: "#065f46" }}
+                        style={{ background: "var(--success-muted)", color: "var(--success-muted-foreground)" }}
                       >
                         Success Story
                       </span>
@@ -550,7 +550,7 @@ export default function UgandaSchoolManagement() {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#ef4444" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--danger)" }}>
                         Challenge:
                       </span>
                       <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>

@@ -245,7 +245,7 @@ export default function MobileTeaser() {
                       <p style={{ fontSize: "8px", fontWeight: 700, color: "var(--foreground)" }}>
                         2 new messages
                       </p>
-                      <p style={{ fontSize: "7px", color: "#64748b" }}>from parents</p>
+                      <p style={{ fontSize: "7px", color: "var(--mut)" }}>from parents</p>
                     </div>
                   </div>
                 </div>
@@ -266,7 +266,7 @@ export default function MobileTeaser() {
                       style={{
                         width: "14px",
                         height: "14px",
-                        color: i === 0 ? "var(--primary)" : "#94a3b8",
+                        color: i === 0 ? "var(--primary)" : "var(--mut)",
                       }}
                       strokeWidth={1.5}
                     />

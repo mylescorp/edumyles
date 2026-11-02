@@ -57,7 +57,7 @@ function UptimeBar() {
             width: "18px",
             height: "18px",
             borderRadius: "3px",
-            background: color === "green" ? "#26A65B" : "#d1d5db",
+            background: color === "green" ? "var(--success)" : "var(--border)",
             flexShrink: 0,
           }}
         />
@@ -115,7 +115,7 @@ export default function StatusPage() {
             style={{
               background: "rgba(38,166,91,0.15)",
               border: "1px solid rgba(38,166,91,0.4)",
-              color: "#6EE7A0",
+              color: "var(--success-muted-foreground)",
             }}
           >
             <span
@@ -123,7 +123,7 @@ export default function StatusPage() {
                 width: "10px",
                 height: "10px",
                 borderRadius: "50%",
-                background: "#26A65B",
+                background: "var(--success)",
                 display: "inline-block",
                 boxShadow: "0 0 0 3px rgba(38,166,91,0.3)",
               }}
@@ -153,7 +153,7 @@ export default function StatusPage() {
                 key={svc.name}
                 className="flex items-center justify-between px-6 py-4"
                 style={{
-                  borderBottom: i < services.length - 1 ? "1px solid #f0f8f3" : "none",
+                  borderBottom: i < services.length - 1 ? "1px solid var(--border)" : "none",
                   background: i % 2 === 0 ? "var(--card)" : "var(--background)",
                 }}
               >
@@ -171,7 +171,7 @@ export default function StatusPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="font-jakarta text-[13px]" style={{ color: "#9ca3af" }}>
+                  <span className="font-jakarta text-[13px]" style={{ color: "var(--mut)" }}>
                     {svc.ms}
                   </span>
                   <span
@@ -187,7 +187,7 @@ export default function StatusPage() {
                         width: "6px",
                         height: "6px",
                         borderRadius: "50%",
-                        background: "#26A65B",
+                        background: "var(--success)",
                         display: "inline-block",
                       }}
                     />
@@ -229,7 +229,7 @@ export default function StatusPage() {
                   />
                   <span
                     className="font-jakarta font-medium text-[13px]"
-                    style={{ color: "#3a3a3a" }}
+                    style={{ color: "var(--ink)" }}
                   >
                     {svc.name}
                   </span>
@@ -245,7 +245,7 @@ export default function StatusPage() {
                   width: "12px",
                   height: "12px",
                   borderRadius: "2px",
-                  background: "#26A65B",
+                  background: "var(--success)",
                 }}
               />
               <span className="font-jakarta text-[12px]" style={{ color: "var(--muted-foreground)" }}>
@@ -258,7 +258,7 @@ export default function StatusPage() {
                   width: "12px",
                   height: "12px",
                   borderRadius: "2px",
-                  background: "#d1d5db",
+                  background: "var(--border)",
                 }}
               />
               <span className="font-jakarta text-[12px]" style={{ color: "var(--muted-foreground)" }}>
@@ -281,7 +281,7 @@ export default function StatusPage() {
           >
             <CheckCircle2
               className="w-4 h-4 inline mr-1"
-              style={{ color: "#26A65B" }}
+              style={{ color: "var(--success)" }}
               strokeWidth={1.5}
             />
             <span className="font-jakarta font-medium text-[14px]" style={{ color: "var(--primary)" }}>
@@ -293,13 +293,13 @@ export default function StatusPage() {
               <div
                 key={inc.title}
                 className="rounded-2xl p-6"
-                style={{ background: "#fafafa", border: "1px solid #f0f0f0" }}
+                style={{ background: "var(--card)", border: "1px solid var(--border)" }}
               >
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div>
                     <div
                       className="font-jakarta font-bold text-[13px] mb-1"
-                      style={{ color: "#9ca3af" }}
+                      style={{ color: "var(--mut)" }}
                     >
                       {inc.date}
                     </div>

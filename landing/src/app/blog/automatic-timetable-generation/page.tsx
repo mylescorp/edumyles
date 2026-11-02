@@ -53,7 +53,7 @@ export default function TimetableGenerationGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
             >
               Automatic Timetable Generation <span style={{ color: "var(--accent-foreground)" }}>Saves 2 Days</span>
             </h1>
@@ -179,13 +179,13 @@ export default function TimetableGenerationGuide() {
                     style={{
                       background:
                         problem.complexity === "Very High"
-                          ? "#ef4444"
+                          ? "var(--danger)"
                           : problem.complexity === "High"
-                            ? "#f97316"
-                            : "#eab308",
+                            ? "var(--warning)"
+                            : "var(--warning)",
                     }}
                   >
-                    <AlertCircle className="w-6 h-6" style={{ color: "#ffffff" }} />
+                    <AlertCircle className="w-6 h-6" style={{ color: "var(--ondeephi)" }} />
                   </div>
                   <div>
                     <h3
@@ -202,16 +202,16 @@ export default function TimetableGenerationGuide() {
                       style={{
                         background:
                           problem.complexity === "Very High"
-                            ? "#fef2f2"
+                            ? "var(--danger-muted)"
                             : problem.complexity === "High"
-                              ? "#fff7ed"
-                              : "#fefce8",
+                              ? "var(--warning-muted)"
+                              : "var(--warning-muted)",
                         color:
                           problem.complexity === "Very High"
-                            ? "#991b1b"
+                            ? "var(--danger-muted-foreground)"
                             : problem.complexity === "High"
-                              ? "#9a3412"
-                              : "#854d0e",
+                              ? "var(--warning-muted-foreground)"
+                              : "var(--warning-muted-foreground)",
                       }}
                     >
                       Complexity: {problem.complexity}
@@ -281,7 +281,7 @@ export default function TimetableGenerationGuide() {
                     </span>
                     <span
                       className="text-xs px-2 py-1 rounded-full"
-                      style={{ background: "#D1FAE5", color: "#065f46" }}
+                      style={{ background: "var(--success-muted)", color: "var(--success-muted-foreground)" }}
                     >
                       {step.time}
                     </span>
@@ -464,7 +464,7 @@ export default function TimetableGenerationGuide() {
               className="p-6 rounded-2xl"
               style={{
                 background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-                color: "#ffffff",
+                color: "var(--ondeephi)",
               }}
             >
               <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--accent-foreground)" }}>
@@ -576,7 +576,7 @@ export default function TimetableGenerationGuide() {
                     </span>
                     <span
                       className="text-xs px-2 py-1 rounded-full"
-                      style={{ background: "#D1FAE5", color: "#065f46" }}
+                      style={{ background: "var(--success-muted)", color: "var(--success-muted-foreground)" }}
                     >
                       {phase.duration}
                     </span>
@@ -651,7 +651,7 @@ export default function TimetableGenerationGuide() {
                     <div className="text-right">
                       <span
                         className="text-xs px-2 py-1 rounded-full"
-                        style={{ background: "#D1FAE5", color: "#065f46" }}
+                        style={{ background: "var(--success-muted)", color: "var(--success-muted-foreground)" }}
                       >
                         Success Story
                       </span>
@@ -659,7 +659,7 @@ export default function TimetableGenerationGuide() {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#ef4444" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--danger)" }}>
                         Challenge:
                       </span>
                       <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>

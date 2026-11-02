@@ -185,7 +185,7 @@ export default function Navbar() {
 
               {solutionsOpen && (
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-gray-100 dark:border-white/10 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-border shadow-sm dark:shadow-none z-50 p-4 grid grid-cols-1 gap-2"
                   style={{ minWidth: "380px" }}
                 >
                   <div className="col-span-1 grid grid-cols-1 gap-2">
@@ -246,7 +246,7 @@ export default function Navbar() {
 
               {partnersOpen && (
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-gray-100 dark:border-white/10 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-border shadow-sm dark:shadow-none z-50 p-4 grid grid-cols-1 gap-2"
                   style={{ minWidth: "380px" }}
                 >
                   <div className="col-span-1 grid grid-cols-1 gap-2">
@@ -397,13 +397,13 @@ export default function Navbar() {
           <Link
             href="/features"
             onClick={() => setMobileOpen(false)}
-            className="block py-3 text-foreground no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-accent-foreground"
+            className="block py-3 text-foreground no-underline font-medium text-lg transition-colors border-b border-border hover:text-accent-foreground"
           >
             Features
           </Link>
 
           {/* Solutions section — expanded list (no dropdown) */}
-          <div className="border-b border-gray-100">
+          <div className="border-b border-border">
             <span className="block py-3 text-foreground font-medium text-lg">
               Solutions
             </span>
@@ -417,14 +417,14 @@ export default function Navbar() {
                 >
                   <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
                   <span className="font-medium">{item.label}</span>
-                  <span className="text-xs text-gray-400 ml-1">— {item.subtitle}</span>
+                  <span className="text-xs text-muted-foreground ml-1">— {item.subtitle}</span>
                 </Link>
               ))}
             </div>
           </div>
 
           {/* Partners section - expanded list (no dropdown) */}
-          <div className="border-b border-gray-100">
+          <div className="border-b border-border">
             <span className="block py-3 text-foreground font-medium text-lg">
               Partners
             </span>
@@ -438,7 +438,7 @@ export default function Navbar() {
                 >
                   <item.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
                   <span className="font-medium">{item.label}</span>
-                  <span className="text-xs text-gray-400 ml-1">- {item.subtitle}</span>
+                  <span className="text-xs text-muted-foreground ml-1">- {item.subtitle}</span>
                 </Link>
               ))}
             </div>
@@ -452,7 +452,7 @@ export default function Navbar() {
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="block py-3 text-foreground no-underline font-medium text-lg transition-colors border-b border-gray-100 hover:text-accent-foreground"
+                className="block py-3 text-foreground no-underline font-medium text-lg transition-colors border-b border-border hover:text-accent-foreground"
               >
                 {link.label}
               </Link>
@@ -479,18 +479,18 @@ export default function Navbar() {
           </div>
 
           {/* Footer-style quick links */}
-          <div className="flex justify-center gap-6 mt-6 pt-4 border-t border-gray-100">
+          <div className="flex justify-center gap-6 mt-6 pt-4 border-t border-border">
             <Link
               href="/case-studies"
               onClick={() => setMobileOpen(false)}
-              className="text-sm text-gray-500 no-underline hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground no-underline hover:text-foreground transition-colors"
             >
               Case Studies
             </Link>
             <Link
               href="/reseller"
               onClick={() => setMobileOpen(false)}
-              className="text-sm text-gray-500 no-underline hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground no-underline hover:text-foreground transition-colors"
             >
               Reseller Programme
             </Link>

@@ -535,7 +535,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               style={{
                 background: "transparent",
                 border: "2px solid rgba(255,255,255,0.3)",
-                color: "#ffffff",
+                color: "var(--ondeephi)",
               }}
             >
               Book a Demo

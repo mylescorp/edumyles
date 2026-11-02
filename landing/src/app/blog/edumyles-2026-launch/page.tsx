@@ -63,7 +63,7 @@ export default function EduMyles2026Launch() {
             </div>
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
             >
               Introducing the <span style={{ color: "var(--accent-foreground)" }}>All-New EduMyles 2026</span>
             </h1>
@@ -197,10 +197,10 @@ export default function EduMyles2026Launch() {
                     <div
                       key={item}
                       className="flex items-center gap-3 p-3 rounded-lg"
-                      style={{ background: "#FEF2F2", border: "1px solid #fecaca" }}
+                      style={{ background: "var(--danger-muted)", border: "1px solid var(--danger)" }}
                     >
                       <span className="text-red-500 text-lg">✕</span>
-                      <span className="font-jakarta text-sm" style={{ color: "#991b1b" }}>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--danger-muted-foreground)" }}>
                         {item}
                       </span>
                     </div>
@@ -223,13 +223,13 @@ export default function EduMyles2026Launch() {
                     <div
                       key={item}
                       className="flex items-center gap-3 p-3 rounded-lg"
-                      style={{ background: "#F0FDF4", border: "1px solid #bbf7d0" }}
+                      style={{ background: "var(--success-muted)", border: "1px solid var(--success)" }}
                     >
                       <CheckCircle2
                         className="w-5 h-5 flex-shrink-0"
-                        style={{ color: "#16a34a" }}
+                        style={{ color: "var(--success)" }}
                       />
-                      <span className="font-jakarta text-sm" style={{ color: "#15803d" }}>
+                      <span className="font-jakarta text-sm" style={{ color: "var(--success)" }}>
                         {item}
                       </span>
                     </div>
@@ -824,8 +824,8 @@ export default function EduMyles2026Launch() {
                 <div
                   className="p-6 rounded-2xl text-center"
                   style={{
-                    background: "linear-gradient(135deg, var(--accent-foreground) 0%, #F59E0B 100%)",
-                    color: "#ffffff",
+                    background: "linear-gradient(135deg, var(--accent-foreground) 0%, var(--warning) 100%)",
+                    color: "var(--ondeephi)",
                   }}
                 >
                   <div className="font-jakarta font-bold text-3xl mb-2">20</div>
@@ -836,18 +836,18 @@ export default function EduMyles2026Launch() {
                 </div>
                 <div
                   className="mt-4 p-4 rounded-lg"
-                  style={{ background: "#FEF3C7", border: "1px solid #FDE68A" }}
+                  style={{ background: "var(--warning-muted)", border: "1px solid var(--warning)" }}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-4 h-4" style={{ color: "#D97706" }} />
+                    <Clock className="w-4 h-4" style={{ color: "var(--warning)" }} />
                     <span
                       className="font-jakarta font-semibold text-sm"
-                      style={{ color: "#92400E" }}
+                      style={{ color: "var(--warning-muted-foreground)" }}
                     >
                       Application Deadline: March 31, 2026
                     </span>
                   </div>
-                  <p className="font-jakarta text-xs" style={{ color: "#78350F" }}>
+                  <p className="font-jakarta text-xs" style={{ color: "var(--warning-muted-foreground)" }}>
                     Don&apos;t miss this opportunity to be among the first schools in Africa to
                     experience the future of education management.
                   </p>

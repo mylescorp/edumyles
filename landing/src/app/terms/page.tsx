@@ -151,7 +151,7 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 2 — Services */}
         <section id="services" className="scroll-mt-20">
@@ -222,7 +222,7 @@ export default function TermsPage() {
           </p>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 3 — Accounts */}
         <section id="accounts" className="scroll-mt-20">
@@ -303,7 +303,7 @@ export default function TermsPage() {
           </ul>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 4 — Billing */}
         <section id="billing" className="scroll-mt-20">
@@ -415,7 +415,7 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 5 — Data Ownership */}
         <section id="data" className="scroll-mt-20">
@@ -480,7 +480,7 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 6 — Intellectual Property */}
         <section id="ip" className="scroll-mt-20">
@@ -538,7 +538,7 @@ export default function TermsPage() {
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-2"
-                style={{ color: "#7A4A00" }}
+                style={{ color: "var(--warning-muted-foreground)" }}
               >
                 Restrictions
               </h3>
@@ -579,7 +579,7 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 7 — Termination */}
         <section id="termination" className="scroll-mt-20">
@@ -620,7 +620,7 @@ export default function TermsPage() {
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-3"
-                style={{ color: "#7A4A00" }}
+                style={{ color: "var(--warning-muted-foreground)" }}
               >
                 Immediate termination by EduMyles
               </h3>
@@ -661,7 +661,7 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 8 — Governing Law */}
         <section id="law" className="scroll-mt-20">

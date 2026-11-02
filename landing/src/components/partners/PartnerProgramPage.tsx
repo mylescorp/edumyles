@@ -119,7 +119,7 @@ function SectionHeader({
         className="mb-4 inline-flex items-center gap-2 rounded-[8px] px-3 py-2 font-jakarta text-[11px] font-bold uppercase tracking-[0.16em]"
         style={{
           background: "rgb(var(--primary-rgb) / 12%)",
-          color: isDark ? "#B9CBD6" : "var(--accent-foreground)",
+          color: isDark ? "var(--ondeep)" : "var(--accent-foreground)",
         }}
       >
         <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--primary)" }} />
@@ -127,11 +127,11 @@ function SectionHeader({
       </div>
       <h2
         className="font-display font-bold leading-[1.12]"
-        style={{ color: isDark ? "#ffffff" : "var(--foreground)", fontSize: "clamp(1.9rem,3.8vw,3.15rem)" }}
+        style={{ color: isDark ? "var(--ondeephi)" : "var(--foreground)", fontSize: "clamp(1.9rem,3.8vw,3.15rem)" }}
       >
         {title}
       </h2>
-      <p className="mt-4 font-jakarta text-[16px] leading-8" style={{ color: isDark ? "#C4D4D0" : "var(--muted-foreground)" }}>
+      <p className="mt-4 font-jakarta text-[16px] leading-8" style={{ color: isDark ? "var(--ondeep)" : "var(--muted-foreground)" }}>
         {body}
       </p>
     </div>
@@ -151,8 +151,8 @@ function ButtonLink({
     variant === "primary"
       ? { background: "var(--primary)", color: "var(--primary-foreground)", border: "1px solid var(--accent-foreground)" }
       : variant === "dark"
-        ? { background: "var(--platform-chrome)", color: "#ffffff", border: "1px solid var(--border)" }
-        : { background: "rgba(255,255,255,0.06)", color: "#ffffff", border: "1px solid rgba(255,255,255,0.24)" };
+        ? { background: "var(--deep)", color: "var(--ondeephi)", border: "1px solid var(--border)" }
+        : { background: "rgba(255,255,255,0.06)", color: "var(--ondeephi)", border: "1px solid rgba(255,255,255,0.24)" };
 
   return (
     <Link
@@ -220,7 +220,7 @@ function ProgramDashboard({ config }: { config: PartnerProgramConfig }) {
                 {row}
               </span>
             </div>
-            <span className="h-2 w-16 rounded-full" style={{ background: index === 0 ? "var(--primary)" : "#A8E6C3" }} />
+            <span className="h-2 w-16 rounded-full" style={{ background: index === 0 ? "var(--primary)" : "var(--deepacc)" }} />
           </div>
         ))}
       </div>
@@ -233,7 +233,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
     <main style={{ color: "var(--foreground)", background: "var(--card)" }}>
       <section
         className="relative overflow-hidden px-4 py-20 sm:px-8 lg:py-24"
-        style={{ background: "var(--platform-chrome)", borderTop: "3px solid var(--primary)" }}
+        style={{ background: "var(--deep)", borderTop: "3px solid var(--primary)" }}
       >
         <div
           className="absolute inset-0 opacity-80"
@@ -246,18 +246,18 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
           <div>
             <div
               className="mb-6 inline-flex items-center gap-2 rounded-[8px] border px-4 py-2 font-jakarta text-[12px] font-bold uppercase tracking-[0.18em]"
-              style={{ borderColor: "rgb(var(--primary-rgb) / 42%)", color: "#B9CBD6", background: "rgb(var(--primary-rgb) / 10%)" }}
+              style={{ borderColor: "rgb(var(--primary-rgb) / 42%)", color: "var(--ondeep)", background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Sparkles className="h-4 w-4" />
               {config.eyebrow}
             </div>
             <h1
               className="font-display font-bold leading-[0.98]"
-              style={{ color: "#ffffff", fontSize: "clamp(2.35rem,5.2vw,3.875rem)" }}
+              style={{ color: "var(--ondeephi)", fontSize: "clamp(2.35rem,5.2vw,3.875rem)" }}
             >
-              {config.title} <span style={{ color: "#B9CBD6" }}>{config.accent}</span>
+              {config.title} <span style={{ color: "var(--ondeep)" }}>{config.accent}</span>
             </h1>
-            <p className="mt-7 max-w-[680px] font-jakarta text-[18px] leading-8" style={{ color: "#C4D4D0" }}>
+            <p className="mt-7 max-w-[680px] font-jakarta text-[18px] leading-8" style={{ color: "var(--ondeep)" }}>
               {config.intro}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -269,10 +269,10 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
             <div className="mt-10 grid max-w-[680px] grid-cols-2 gap-3 sm:grid-cols-4">
               {config.proof.map((item) => (
                 <div key={item.label} className="rounded-[8px] border p-4" style={{ borderColor: "rgba(168,230,195,0.18)", background: "rgba(255,255,255,0.04)" }}>
-                  <p className="font-display text-[24px] font-bold" style={{ color: "#ffffff" }}>
+                  <p className="font-display text-[24px] font-bold" style={{ color: "var(--ondeephi)" }}>
                     {item.value}
                   </p>
-                  <p className="mt-1 font-jakarta text-[12px] leading-5" style={{ color: "#C4D4D0" }}>
+                  <p className="mt-1 font-jakarta text-[12px] leading-5" style={{ color: "var(--ondeep)" }}>
                     {item.label}
                   </p>
                 </div>
@@ -362,7 +362,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
         </div>
       </section>
 
-      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--platform-chrome)" }}>
+      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--deep)" }}>
         <div className="mx-auto grid max-w-[1200px] gap-12 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
             <SectionHeader label="Launch Plan" title={config.processTitle} body={config.processIntro} tone="dark" />
@@ -370,13 +370,13 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
           <div className="grid gap-4 md:grid-cols-2">
             {config.steps.map((step, index) => (
               <div key={step.title} className="rounded-[8px] border p-6" style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(168,230,195,0.16)" }}>
-                <span className="font-display text-[28px] font-bold" style={{ color: "#B9CBD6" }}>
+                <span className="font-display text-[28px] font-bold" style={{ color: "var(--ondeep)" }}>
                   0{index + 1}
                 </span>
-                <h3 className="mt-3 font-display text-[21px] font-bold" style={{ color: "#ffffff" }}>
+                <h3 className="mt-3 font-display text-[21px] font-bold" style={{ color: "var(--ondeephi)" }}>
                   {step.title}
                 </h3>
-                <p className="mt-3 font-jakarta text-[14px] leading-7" style={{ color: "#C4D4D0" }}>
+                <p className="mt-3 font-jakarta text-[14px] leading-7" style={{ color: "var(--ondeep)" }}>
                   {step.body}
                 </p>
               </div>
@@ -427,12 +427,12 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
         </div>
       </section>
 
-      <section className="px-4 pb-20 sm:px-8" style={{ background: "var(--platform-chrome)" }}>
-        <div className="mx-auto max-w-[1200px] rounded-[8px] p-8 text-center sm:p-12" style={{ background: "var(--platform-chrome)" }}>
-          <h2 className="font-display font-bold leading-tight" style={{ color: "#ffffff", fontSize: "clamp(2rem,4vw,3.25rem)" }}>
+      <section className="px-4 pb-20 sm:px-8" style={{ background: "var(--deep)" }}>
+        <div className="mx-auto max-w-[1200px] rounded-[8px] p-8 text-center sm:p-12" style={{ background: "var(--deep)" }}>
+          <h2 className="font-display font-bold leading-tight" style={{ color: "var(--ondeephi)", fontSize: "clamp(2rem,4vw,3.25rem)" }}>
             {config.finalTitle}
           </h2>
-          <p className="mx-auto mt-4 max-w-[680px] font-jakarta text-[16px] leading-8" style={{ color: "#C4D4D0" }}>
+          <p className="mx-auto mt-4 max-w-[680px] font-jakarta text-[16px] leading-8" style={{ color: "var(--ondeep)" }}>
             {config.finalBody}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">

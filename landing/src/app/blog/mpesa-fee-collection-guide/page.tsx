@@ -53,7 +53,7 @@ export default function MpesaFeeCollectionGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--ondeephi)" }}
             >
               How to Set Up M-Pesa Fee Collection{" "}
               <span style={{ color: "var(--accent-foreground)" }}>for Your School</span>
@@ -318,7 +318,7 @@ export default function MpesaFeeCollectionGuide() {
               className="p-8 rounded-2xl"
               style={{
                 background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-                color: "#ffffff",
+                color: "var(--ondeephi)",
               }}
             >
               <div className="grid md:grid-cols-2 gap-8">
@@ -337,7 +337,7 @@ export default function MpesaFeeCollectionGuide() {
                       <li key={item} className="flex items-center gap-2">
                         <AlertCircle
                           className="w-4 h-4 flex-shrink-0"
-                          style={{ color: "#ef4444" }}
+                          style={{ color: "var(--danger)" }}
                         />
                         <span className="font-jakarta text-sm">{item}</span>
                       </li>

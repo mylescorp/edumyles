@@ -195,7 +195,7 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 2 — How We Use It */}
         <section id="usage" className="scroll-mt-20">
@@ -246,7 +246,7 @@ export default function PrivacyPage() {
           </ul>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 3 — Data Sharing */}
         <section id="sharing" className="scroll-mt-20">
@@ -309,7 +309,7 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 4 — Your Rights */}
         <section id="rights" className="scroll-mt-20">
@@ -380,7 +380,7 @@ export default function PrivacyPage() {
           </p>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 5 — Retention */}
         <section id="retention" className="scroll-mt-20">
@@ -455,7 +455,7 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 6 — Security */}
         <section id="security" className="scroll-mt-20">
@@ -502,7 +502,7 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 7 — Kenya DPA */}
         <section id="dpa" className="scroll-mt-20">
@@ -547,7 +547,7 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--border)" }} />
 
         {/* 8 — Contact */}
         <section id="contact" className="scroll-mt-20">

@@ -155,7 +155,7 @@ function AffiliateApplicationContent() {
       <main className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
           <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-8 h-8 text-white" />
+            <CheckCircle2 className="w-8 h-8 text-[var(--ondeephi)]" />
           </div>
           <h1 className="font-display text-3xl font-bold text-foreground mb-4">
             Application Submitted!
@@ -174,12 +174,12 @@ function AffiliateApplicationContent() {
     <main className="no-handoff-hero min-h-screen bg-background">
       <div className="grid min-h-screen xl:grid-cols-[minmax(0,1.7fr)_minmax(540px,0.95fr)]">
         {/* Left Panel - Information */}
-        <section className="flex h-full flex-col bg-[linear-gradient(180deg,#072015_0%,#0A2A1C_55%,#0C301F_100%)] px-8 py-10 text-white sm:px-12 lg:px-16 xl:px-16 xl:py-14">
+        <section className="flex h-full flex-col bg-[var(--deep)] px-8 py-10 text-[var(--ondeephi)] sm:px-12 lg:px-16 xl:px-16 xl:py-14">
           <div className="mb-10 flex items-center justify-between gap-4">
             <Logo size="md" />
             <Link
               href="/"
-              className="font-jakarta text-sm font-semibold text-[#A8E6C3] no-underline transition-colors hover:text-[var(--accent-foreground)]"
+              className="font-jakarta text-sm font-semibold text-[var(--deepacc)] no-underline transition-colors hover:text-[var(--accent-foreground)]"
             >
               Back to site
             </Link>
@@ -190,12 +190,12 @@ function AffiliateApplicationContent() {
               <Share2 className="h-4 w-4" />
               Affiliate Program
             </div>
-            <h1 className="font-display text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-white">
+            <h1 className="font-display text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-[var(--ondeephi)]">
               Earn by Sharing
               <br />
               EduMyles
             </h1>
-            <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[#A8E6C3]">
+            <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[var(--deepacc)]">
               Join our affiliate program and earn 10% commission by referring schools to EduMyles.
               No sales experience required - just share your referral link and earn when schools
               subscribe.
@@ -225,8 +225,8 @@ function AffiliateApplicationContent() {
                 className="rounded-[24px] border border-[rgba(168,230,195,0.16)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
               >
                 <item.icon className="h-6 w-6 text-[var(--accent-foreground)]" />
-                <h2 className="mt-3 font-jakarta text-[15px] font-bold text-white">{item.title}</h2>
-                <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#A8E6C3]">
+                <h2 className="mt-3 font-jakarta text-[15px] font-bold text-[var(--ondeephi)]">{item.title}</h2>
+                <p className="mt-2 font-jakarta text-[13px] leading-6 text-[var(--deepacc)]">
                   {item.body}
                 </p>
               </div>
@@ -234,12 +234,12 @@ function AffiliateApplicationContent() {
           </div>
 
           <div className="mt-12 rounded-[28px] border border-[rgba(168,230,195,0.14)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
-            <h2 className="font-display text-[28px] font-bold text-white">Affiliate Benefits</h2>
+            <h2 className="font-display text-[28px] font-bold text-[var(--ondeephi)]">Affiliate Benefits</h2>
             <div className="mt-6 space-y-3">
               {AFFILIATE_BENEFITS.map((benefit) => (
                 <div key={benefit} className="flex items-start gap-3">
                   <CheckCircle2 className="mt-0.5 w-4 h-4 text-[var(--accent-foreground)] flex-shrink-0" />
-                  <p className="font-jakarta text-[14px] text-[#D7F3E2]">{benefit}</p>
+                  <p className="font-jakarta text-[14px] text-[var(--ondeep)]">{benefit}</p>
                 </div>
               ))}
             </div>
@@ -248,10 +248,10 @@ function AffiliateApplicationContent() {
               <div className="flex items-start gap-3">
                 <TrendingUp className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--accent-foreground)]" />
                 <div>
-                  <h3 className="font-jakarta text-[15px] font-bold text-[#F7C867]">
+                  <h3 className="font-jakarta text-[15px] font-bold text-[var(--deepacc)]">
                     How It Works
                   </h3>
-                  <ol className="mt-2 font-jakarta text-[14px] leading-7 text-[#E8F5EE] space-y-1">
+                  <ol className="mt-2 font-jakarta text-[14px] leading-7 text-[var(--ondeephi)] space-y-1">
                     <li>1. Sign up for the affiliate program</li>
                     <li>2. Get your unique referral link</li>
                     <li>3. Share EduMyles with schools</li>
@@ -556,7 +556,7 @@ function AffiliateApplicationContent() {
               </div>
 
               {error ? (
-                <div className="rounded-xl border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 font-jakarta text-sm text-[#9A1F2B]">
+                <div className="rounded-xl border border-[var(--danger)] bg-[var(--danger-muted)] px-4 py-3 font-jakarta text-sm text-[var(--danger-muted-foreground)]">
                   {error}
                 </div>
               ) : null}
@@ -571,7 +571,7 @@ function AffiliateApplicationContent() {
                   : "Submit Affiliate Application"}
               </button>
 
-              <div className="rounded-[20px] border border-[#e3ece6] bg-card px-5 py-4">
+              <div className="rounded-[20px] border border-[var(--border)] bg-card px-5 py-4">
                 <p className="font-jakarta text-[13px] leading-6 text-[var(--muted-foreground)]">
                   By submitting this application, you agree to our affiliate terms and conditions.
                   We&apos;ll review your application and contact you within 3-5 business days.

@@ -25,9 +25,9 @@ interface Category {
 }
 
 const statusStyles: Record<StatusType, { bg: string; color: string }> = {
-  Native: { bg: "#dcfce7", color: "#166534" },
-  Beta: { bg: "#dbeafe", color: "#1e40af" },
-  Planned: { bg: "#f3f4f6", color: "#6b7280" },
+  Native: { bg: "var(--success-muted)", color: "var(--success-muted-foreground)" },
+  Beta: { bg: "var(--info-muted)", color: "var(--info-muted-foreground)" },
+  Planned: { bg: "var(--muted)", color: "var(--mut)" },
 };
 
 const categories: Category[] = [
@@ -35,7 +35,7 @@ const categories: Category[] = [
     title: "Payments",
     Icon: CreditCard,
     color: "var(--primary)",
-    tintBg: "rgba(26,122,74,0.08)",
+    tintBg: "rgb(var(--primary-rgb) / 8%)",
     integrations: [
       {
         name: "M-Pesa",
@@ -58,8 +58,8 @@ const categories: Category[] = [
   {
     title: "Communication",
     Icon: MessageSquare,
-    color: "#1e40af",
-    tintBg: "rgba(30,64,175,0.08)",
+    color: "var(--info-muted-foreground)",
+    tintBg: "rgb(var(--info-rgb) / 8%)",
     integrations: [
       {
         name: "SMS Gateway",
@@ -81,8 +81,8 @@ const categories: Category[] = [
   {
     title: "Government & Compliance",
     Icon: FileText,
-    color: "#c2410c",
-    tintBg: "rgba(194,65,12,0.08)",
+    color: "var(--warning-muted-foreground)",
+    tintBg: "rgb(var(--warning-rgb) / 8%)",
     integrations: [
       {
         name: "NEMIS",
@@ -100,8 +100,8 @@ const categories: Category[] = [
   {
     title: "Productivity",
     Icon: BookOpen,
-    color: "#7c3aed",
-    tintBg: "rgba(124,58,237,0.08)",
+    color: "var(--info-muted-foreground)",
+    tintBg: "rgb(var(--info-rgb) / 8%)",
     integrations: [
       {
         name: "Google Classroom",
@@ -123,7 +123,7 @@ const categories: Category[] = [
   {
     title: "Data & Reporting",
     Icon: BarChart2,
-    color: "#b45309",
+    color: "var(--warning)",
     tintBg: "rgb(var(--primary-rgb) / 10%)",
     integrations: [
       {
@@ -210,7 +210,7 @@ export default function IntegrationsPage() {
                 style={{
                   background: "rgba(255,255,255,0.07)",
                   border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#E8E8E8",
+                  color: "var(--ondeephi)",
                 }}
               >
                 {pill}
@@ -286,7 +286,7 @@ export default function IntegrationsPage() {
                         </div>
                         <p
                           className="font-jakarta"
-                          style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.6 }}
+                          style={{ fontSize: "13px", color: "var(--mut)", lineHeight: 1.6 }}
                         >
                           {item.description}
                         </p>
@@ -317,7 +317,7 @@ export default function IntegrationsPage() {
           </h2>
           <p
             className="font-jakarta font-light mb-10 mx-auto"
-            style={{ fontSize: "17px", color: "#4a7a5a", maxWidth: "600px", lineHeight: 1.8 }}
+            style={{ fontSize: "17px", color: "var(--deepbd2)", maxWidth: "600px", lineHeight: 1.8 }}
           >
             EduMyles has a full REST API. Query student records, push attendance, trigger payments,
             and subscribe to webhook events.

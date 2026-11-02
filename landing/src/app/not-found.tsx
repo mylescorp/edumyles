@@ -65,11 +65,11 @@ export default function NotFound() {
           >
             E
           </div>
-          <span className="font-display font-bold text-[20px] text-white">EduMyles</span>
+          <span className="font-display font-bold text-[20px] text-foreground">EduMyles</span>
         </Link>
 
         <h1
-          className="font-display font-bold text-white mb-4"
+          className="font-display font-bold text-foreground mb-4"
           style={{ fontSize: "clamp(2rem,5vw,3rem)" }}
         >
           Page not found
@@ -106,7 +106,7 @@ export default function NotFound() {
               >
                 <Icon className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
               </div>
-              <span className="font-jakarta font-medium text-[13px] text-white">{label}</span>
+              <span className="font-jakarta font-medium text-[13px] text-foreground">{label}</span>
             </Link>
           ))}
         </div>

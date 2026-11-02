@@ -95,7 +95,7 @@ export default function Benefits() {
                     className="text-[14px] leading-relaxed mb-3 pl-6 relative"
                     style={{ color: "var(--foreground)" }}
                   >
-                    <span className="absolute left-0 font-bold" style={{ color: "#26A65B" }}>
+                    <span className="absolute left-0 font-bold" style={{ color: "var(--success)" }}>
                       ✓
                     </span>
                     {item}
@@ -106,7 +106,7 @@ export default function Benefits() {
                 href="#demo"
                 className="inline-block mt-4 text-[14px] font-semibold no-underline transition-colors duration-300"
                 style={{ color: "var(--primary)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--success)")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
               >
                 See how it works →

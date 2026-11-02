@@ -129,7 +129,7 @@ export default function SecurityPage() {
                   style={{
                     background: "rgba(255,255,255,0.07)",
                     border: "1px solid rgba(255,255,255,0.2)",
-                    color: "#E8E8E8",
+                    color: "var(--ondeephi)",
                   }}
                 >
                   {badge.icon}
@@ -203,7 +203,7 @@ export default function SecurityPage() {
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
             >
               Transparency
             </div>

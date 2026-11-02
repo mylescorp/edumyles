@@ -139,7 +139,7 @@ export default function SolutionBoardPage({ kind }: { kind: SolutionBoardConfig[
           <div className="grid gap-3">{page.faqs.map(({ question, answer }) => <details className="solution-board-question" key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div>
         </div>
       </section>
-      <section className="solution-board-cta"><div><span className="board-eyebrow">{page.label}</span><h2>See EduMyles in your context.</h2><p>Book a walkthrough tailored to your school type and curriculum.</p><div className="mt-6 flex flex-wrap justify-center gap-3"><Link href="/book-demo" className="rounded-full bg-white px-6 py-3 font-semibold text-[#0f2a24]">Book a Demo</Link><Link href="/pricing" className="rounded-full border border-white/40 px-6 py-3 font-semibold text-white">See Pricing</Link></div></div></section>
+      <section className="solution-board-cta"><div><span className="board-eyebrow">{page.label}</span><h2>See EduMyles in your context.</h2><p>Book a walkthrough tailored to your school type and curriculum.</p><div className="mt-6 flex flex-wrap justify-center gap-3"><Link href="/book-demo" className="rounded-full bg-card px-6 py-3 font-semibold text-foreground">Book a Demo</Link><Link href="/pricing" className="rounded-full border border-[var(--deepbd)] px-6 py-3 font-semibold text-[var(--ondeephi)]">See Pricing</Link></div></div></section>
     </div>
   );
 }

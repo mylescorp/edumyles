@@ -87,13 +87,13 @@ export default function Comparison() {
         <div className="overflow-x-auto rounded-2xl shadow-sm">
           <table className="w-full min-w-[640px] bg-card text-sm">
             <thead>
-              <tr style={{ background: "var(--platform-chrome)" }}>
-                <th className="text-left px-5 py-4 text-white font-semibold w-[200px]">Feature</th>
-                <th className="text-left px-5 py-4 text-white font-semibold">
+              <tr style={{ background: "var(--deep)" }}>
+                <th className="text-left px-5 py-4 text-[var(--ondeephi)] font-semibold w-[200px]">Feature</th>
+                <th className="text-left px-5 py-4 text-[var(--ondeephi)] font-semibold">
                   ❌ Manual (Excel/WhatsApp)
                 </th>
-                <th className="text-left px-5 py-4 text-white font-semibold">⚠️ Generic SaaS</th>
-                <th className="text-left px-5 py-4 text-white font-semibold">✅ EduMyles</th>
+                <th className="text-left px-5 py-4 text-[var(--ondeephi)] font-semibold">⚠️ Generic SaaS</th>
+                <th className="text-left px-5 py-4 text-[var(--ondeephi)] font-semibold">✅ EduMyles</th>
               </tr>
             </thead>
             <tbody>

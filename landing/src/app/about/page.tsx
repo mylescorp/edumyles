@@ -207,7 +207,7 @@ export default function AboutPage() {
             <div>
               <div
                 className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-5 px-4 py-2 rounded-[50px]"
-                style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+                style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
               >
                 Our Mission
               </div>
@@ -280,7 +280,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── Our Journey ───────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--platform-chrome)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--deep)" }}>
         <div className="max-w-[860px] mx-auto">
           <div className="text-center mb-12">
             <div
@@ -288,17 +288,17 @@ export default function AboutPage() {
               style={{
                 background: "rgb(var(--primary-rgb) / 12%)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                color: "#B9CBD6",
+                color: "var(--ondeep)",
               }}
             >
               Our Journey
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--ondeephi)" }}
             >
               From a WhatsApp group{" "}
-              <em className="italic" style={{ color: "#B9CBD6" }}>
+              <em className="italic" style={{ color: "var(--ondeep)" }}>
                 to students across multiple campuses.
               </em>
             </h2>
@@ -325,19 +325,19 @@ export default function AboutPage() {
                 <div className="pb-8">
                   <div
                     className="font-jakarta font-bold text-[12px] mb-1"
-                    style={{ color: "#B9CBD6" }}
+                    style={{ color: "var(--ondeep)" }}
                   >
                     {m.year}
                   </div>
                   <h3
                     className="font-display font-bold text-[18px] mb-2"
-                    style={{ color: "#ffffff" }}
+                    style={{ color: "var(--ondeephi)" }}
                   >
                     {m.title}
                   </h3>
                   <p
                     className="font-jakarta text-[14px] leading-[1.7]"
-                    style={{ color: "#D5E1DE" }}
+                    style={{ color: "var(--ondeep)" }}
                   >
                     {m.desc}
                   </p>
@@ -405,7 +405,7 @@ export default function AboutPage() {
                       style={{
                         background: "rgb(var(--primary-rgb) / 10%)",
                         border: "1px solid rgb(var(--primary-rgb) / 25%)",
-                        color: "#9A5D00",
+                        color: "var(--warning-muted-foreground)",
                       }}
                     >
                       {kw}

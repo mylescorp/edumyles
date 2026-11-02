@@ -232,7 +232,7 @@ function NewsletterStrip() {
               <CheckCircle2
                 className="w-6 h-6 flex-shrink-0"
                 strokeWidth={2}
-                style={{ color: "#26A65B" }}
+                style={{ color: "var(--success)" }}
               />
               <div>
                 <p className="font-jakarta font-bold text-[14px] text-foreground">

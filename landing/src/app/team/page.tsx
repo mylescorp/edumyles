@@ -180,7 +180,7 @@ export default function TeamPage() {
                 {/* Photo */}
                 <div
                   className="flex items-center justify-center"
-                  style={{ height: "160px", background: "var(--platform-chrome)" }}
+                  style={{ height: "160px", background: "var(--deep)" }}
                   aria-hidden="true"
                 >
                   <span className="grid h-16 w-16 place-items-center rounded-full text-xl font-bold text-white" style={{ background: "rgba(255,255,255,.12)" }}>
@@ -207,7 +207,7 @@ export default function TeamPage() {
                   >
                     {founder.bio}
                   </p>
-                  <div className="pt-4 border-t" style={{ borderColor: "#f0f0f0" }}>
+                  <div className="pt-4 border-t" style={{ borderColor: "var(--border)" }}>
                     <a
                       href={founder.linkedin}
                       target="_blank"
@@ -314,7 +314,7 @@ export default function TeamPage() {
                     {member.bio}
                   </p>
 
-                  <div className="pt-4 border-t" style={{ borderColor: "#f0f0f0" }}>
+                  <div className="pt-4 border-t" style={{ borderColor: "var(--border)" }}>
                     <a
                       href={member.linkedin}
                       target="_blank"
