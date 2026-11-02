@@ -326,7 +326,7 @@ function NewsletterStrip() {
                   rel="noopener noreferrer"
                   aria-label={`EduMyles on ${label}`}
                   title={label}
-                  className="w-9 h-9 rounded-[8px] flex items-center justify-center no-underline transition-all duration-200"
+                  className="footer-social-link w-9 h-9 rounded-[8px] flex items-center justify-center no-underline transition-all duration-200"
                   style={{
                     background: "var(--muted)",
                     border: "1px solid var(--border)",
