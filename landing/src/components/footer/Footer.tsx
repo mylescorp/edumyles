@@ -175,7 +175,7 @@ function ScrollToTop() {
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLButtonElement;
         el.style.background = "var(--primary)";
-        el.style.color = "var(--foreground)";
+        el.style.color = "var(--primary-foreground)";
       }}
       onMouseLeave={(e) => {
         const el = e.currentTarget as HTMLButtonElement;
