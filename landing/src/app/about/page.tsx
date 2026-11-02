@@ -247,7 +247,7 @@ export default function AboutPage() {
               className="rounded-2xl p-8"
               style={{
                 background: "var(--primary)",
-                boxShadow: "0 20px 60px rgba(6,26,18,0.25)",
+                boxShadow: "var(--shadow-xl)",
               }}
             >
               <blockquote
@@ -354,7 +354,7 @@ export default function AboutPage() {
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               What We Believe
             </div>
@@ -375,8 +375,8 @@ export default function AboutPage() {
                 className="rounded-2xl p-6 flex flex-col items-center text-center"
                 style={{
                   background: "var(--card)",
-                  border: "1px solid rgba(38,166,91,0.15)",
-                  boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                  border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 <div

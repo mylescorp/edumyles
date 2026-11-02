@@ -192,8 +192,8 @@ export default function ContactPage() {
                   background: opt.primary ? "var(--primary)" : "var(--card)",
                   border: opt.primary ? "2px solid var(--primary)" : "1px solid var(--border)",
                   boxShadow: opt.primary
-                    ? "0 16px 48px rgba(6,26,18,0.25)"
-                    : "0 4px 16px rgba(6,26,18,0.06)",
+                    ? "0 16px 48px rgb(0 0 0 / 25%)"
+                    : "var(--shadow-md)",
                 }}
               >
                 <div style={{ color: opt.primary ? "var(--primary-foreground)" : "var(--primary)" }}>
@@ -250,7 +250,7 @@ export default function ContactPage() {
             className="rounded-2xl p-8 flex flex-col md:flex-row items-center gap-6"
             style={{
               background: "linear-gradient(135deg, var(--primary) 0%, var(--primary) 100%)",
-              boxShadow: "0 8px 32px rgba(6,26,18,0.2)",
+              boxShadow: "var(--shadow-lg)",
             }}
           >
             <div style={{ color: "var(--primary-foreground)" }}>
@@ -302,7 +302,7 @@ export default function ContactPage() {
                   >
                     <div
                       className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0"
-                      style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+                      style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
                     >
                       <c.icon className="w-5 h-5" strokeWidth={1.5} />
                     </div>
@@ -341,7 +341,7 @@ export default function ContactPage() {
                 style={{
                   background: "var(--card)",
                   border: "1px solid var(--border)",
-                  boxShadow: "0 4px 16px rgba(6,26,18,0.06)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 <div className="flex flex-col gap-5">

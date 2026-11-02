@@ -89,30 +89,30 @@ const tagConfig: Record<
   new: {
     icon: Sparkles,
     label: "New",
-    bg: "rgba(38,166,91,0.1)",
+    bg: "color-mix(in srgb, var(--primary) 10%, transparent)",
     color: "var(--primary)",
-    border: "rgba(38,166,91,0.25)",
+    border: "color-mix(in srgb, var(--primary) 25%, transparent)",
   },
   improved: {
     icon: Star,
     label: "Improved",
-    bg: "rgb(var(--primary-rgb) / 10%)",
+    bg: "var(--warning-muted)",
     color: "var(--warning-muted-foreground)",
-    border: "rgb(var(--primary-rgb) / 25%)",
+    border: "color-mix(in srgb, var(--warning) 25%, transparent)",
   },
   fixed: {
     icon: Bug,
     label: "Fixed",
-    bg: "rgba(59,130,246,0.1)",
+    bg: "var(--info-muted)",
     color: "var(--info-muted-foreground)",
-    border: "rgba(59,130,246,0.25)",
+    border: "color-mix(in srgb, var(--info) 25%, transparent)",
   },
   security: {
     icon: ShieldCheck,
     label: "Security",
-    bg: "rgba(139,92,246,0.1)",
-    color: "var(--info-muted-foreground)",
-    border: "rgba(139,92,246,0.25)",
+    bg: "var(--success-muted)",
+    color: "var(--success-muted-foreground)",
+    border: "color-mix(in srgb, var(--success) 25%, transparent)",
   },
 };
 
@@ -279,7 +279,7 @@ export default function ChangelogPage() {
         <div className="max-w-[560px] mx-auto text-center">
           <div
             className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-            style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+            style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
           >
             Stay Updated
           </div>

@@ -110,7 +110,7 @@ export default function MpesaFeeCollectionGuide() {
               className="p-6 rounded-2xl mb-8"
               style={{
                 background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
@@ -173,7 +173,7 @@ export default function MpesaFeeCollectionGuide() {
                 >
                   <div
                     className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: "rgba(26,122,74,0.1)" }}
+                    style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                   >
                     <item.icon className="w-6 h-6" style={{ color: "var(--primary)" }} />
                   </div>

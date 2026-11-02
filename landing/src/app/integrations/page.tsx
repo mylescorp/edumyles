@@ -247,7 +247,7 @@ export default function IntegrationsPage() {
                   >
                     {title}
                   </h3>
-                  <div className="flex-1 h-px ml-2" style={{ background: "rgba(6,26,18,0.08)" }} />
+                  <div className="flex-1 h-px ml-2" style={{ background: "var(--border)" }} />
                 </div>
 
                 {/* Integration cards */}
@@ -305,7 +305,7 @@ export default function IntegrationsPage() {
         <div className="max-w-[900px] mx-auto text-center">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-6"
-            style={{ background: "rgba(15,76,42,0.1)" }}
+            style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
           >
             <Zap size={22} style={{ color: "var(--primary)" }} />
           </div>

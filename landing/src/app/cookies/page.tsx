@@ -100,7 +100,7 @@ export default function CookiesPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Cookie className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -180,7 +180,7 @@ export default function CookiesPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Settings className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -231,7 +231,7 @@ export default function CookiesPage() {
                     duration: "Session",
                     type: "Essential",
                     typeColor: "var(--primary)",
-                    typeBg: "rgba(26,122,74,0.1)",
+                    typeBg: "rgb(var(--primary-rgb) / 10%)",
                   },
                   {
                     name: "em_auth_token",
@@ -240,7 +240,7 @@ export default function CookiesPage() {
                     duration: "7 days",
                     type: "Essential",
                     typeColor: "var(--primary)",
-                    typeBg: "rgba(26,122,74,0.1)",
+                    typeBg: "rgb(var(--primary-rgb) / 10%)",
                   },
                   {
                     name: "em_pref",
@@ -249,7 +249,7 @@ export default function CookiesPage() {
                     duration: "1 year",
                     type: "Preference",
                     typeColor: "var(--info)",
-                    typeBg: "rgba(21,101,192,0.1)",
+                    typeBg: "rgb(var(--primary-rgb) / 10%)",
                   },
                   {
                     name: "em_consent",
@@ -258,7 +258,7 @@ export default function CookiesPage() {
                     duration: "1 year",
                     type: "Essential",
                     typeColor: "var(--primary)",
-                    typeBg: "rgba(26,122,74,0.1)",
+                    typeBg: "rgb(var(--primary-rgb) / 10%)",
                   },
                   {
                     name: "_analytics",
@@ -322,7 +322,7 @@ export default function CookiesPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Shield className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -338,7 +338,7 @@ export default function CookiesPage() {
               <div className="flex items-center gap-2 mb-3">
                 <span
                   className="font-jakarta font-bold text-[11px] px-2.5 py-1 rounded-full"
-                  style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                  style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                 >
                   Essential
                 </span>
@@ -415,7 +415,7 @@ export default function CookiesPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <BarChart2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -431,7 +431,7 @@ export default function CookiesPage() {
               <div className="flex items-start gap-4">
                 <div
                   className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(26,122,74,0.08)", border: "1px solid var(--border)" }}
+                  style={{ background: "rgb(var(--primary-rgb) / 8%)", border: "1px solid var(--border)" }}
                 >
                   <BarChart2 className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
                 </div>
@@ -461,7 +461,7 @@ export default function CookiesPage() {
               <div className="flex items-start gap-4">
                 <div
                   className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(26,122,74,0.08)", border: "1px solid var(--border)" }}
+                  style={{ background: "rgb(var(--primary-rgb) / 8%)", border: "1px solid var(--border)" }}
                 >
                   <BarChart2 className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
                 </div>
@@ -512,7 +512,7 @@ export default function CookiesPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Settings className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>

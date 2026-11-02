@@ -162,7 +162,7 @@ export default function BlogContent() {
               style={{
                 background: "var(--card)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                boxShadow: "0 12px 40px rgba(6,26,18,0.2)",
+                boxShadow: "var(--shadow-xl)",
               }}
             >
               <div className="flex-1">
@@ -244,7 +244,7 @@ export default function BlogContent() {
                   style={{
                     background: "var(--card)",
                     border: "1px solid var(--border)",
-                    boxShadow: "0 4px 20px rgba(6,26,18,0.08)",
+                    boxShadow: "var(--shadow-md)",
                   }}
                 >
                   <div

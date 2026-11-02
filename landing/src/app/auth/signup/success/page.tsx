@@ -21,7 +21,7 @@ function SignUpSuccessContent() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted px-4 py-10">
-      <div className="w-full max-w-3xl rounded-[32px] border border-[var(--border)] bg-card p-8 shadow-[0_24px_64px_rgba(6,26,18,0.08)] sm:p-10">
+      <div className="w-full max-w-3xl rounded-[32px] border border-[var(--border)] bg-card p-8 shadow-[0_24px_64px_rgb(0 0 0 / 8%)] sm:p-10">
         <div className="mx-auto max-w-2xl text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <ShieldCheck className="h-8 w-8" />
@@ -143,7 +143,7 @@ function SignUpSuccessContent() {
 function SignUpSuccessFallback() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted px-4 py-10">
-      <div className="w-full max-w-2xl rounded-[32px] border border-[var(--border)] bg-card p-8 text-center shadow-[0_24px_64px_rgba(6,26,18,0.08)] sm:p-10">
+      <div className="w-full max-w-2xl rounded-[32px] border border-[var(--border)] bg-card p-8 text-center shadow-[0_24px_64px_rgb(0 0 0 / 8%)] sm:p-10">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
           <ShieldCheck className="h-8 w-8" />
         </div>

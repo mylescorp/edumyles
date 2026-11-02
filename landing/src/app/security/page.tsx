@@ -147,7 +147,7 @@ export default function SecurityPage() {
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               Built-In Protections
             </div>
@@ -169,7 +169,7 @@ export default function SecurityPage() {
                 style={{
                   background: "var(--card)",
                   border: "1px solid var(--border)",
-                  boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 <div
@@ -225,7 +225,7 @@ export default function SecurityPage() {
                 style={{
                   background: "var(--card)",
                   border: "1px solid var(--border)",
-                  boxShadow: "0 2px 8px rgba(6,26,18,0.04)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 <div

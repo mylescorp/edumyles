@@ -113,8 +113,8 @@ export default function StatusPage() {
           <div
             className="inline-flex items-center gap-3 font-jakarta font-bold text-[18px] px-6 py-3 rounded-[50px] mb-4"
             style={{
-              background: "rgba(38,166,91,0.15)",
-              border: "1px solid rgba(38,166,91,0.4)",
+              background: "var(--success-muted)",
+              border: "1px solid color-mix(in srgb, var(--success) 40%, transparent)",
               color: "var(--success-muted-foreground)",
             }}
           >
@@ -125,7 +125,7 @@ export default function StatusPage() {
                 borderRadius: "50%",
                 background: "var(--success)",
                 display: "inline-block",
-                boxShadow: "0 0 0 3px rgba(38,166,91,0.3)",
+                boxShadow: "0 0 0 3px color-mix(in srgb, var(--success) 30%, transparent)",
               }}
             />
             All Systems Operational
@@ -146,7 +146,7 @@ export default function StatusPage() {
           </h2>
           <div
             className="rounded-2xl overflow-hidden"
-            style={{ border: "1px solid var(--border)", boxShadow: "0 2px 12px rgba(6,26,18,0.05)" }}
+            style={{ border: "1px solid var(--border)", boxShadow: "var(--shadow-md)" }}
           >
             {services.map((svc, i) => (
               <div
@@ -177,9 +177,9 @@ export default function StatusPage() {
                   <span
                     className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-3 py-1 rounded-full"
                     style={{
-                      background: "rgba(38,166,91,0.1)",
-                      color: "var(--primary)",
-                      border: "1px solid rgba(38,166,91,0.2)",
+                      background: "var(--success-muted)",
+                      color: "var(--success-muted-foreground)",
+                      border: "1px solid color-mix(in srgb, var(--success) 20%, transparent)",
                     }}
                   >
                     <span
@@ -210,9 +210,9 @@ export default function StatusPage() {
             <span
               className="font-jakarta font-bold text-[14px] px-4 py-2 rounded-full"
               style={{
-                background: "rgba(38,166,91,0.1)",
-                color: "var(--primary)",
-                border: "1px solid rgba(38,166,91,0.2)",
+                background: "var(--success-muted)",
+                color: "var(--success-muted-foreground)",
+                border: "1px solid color-mix(in srgb, var(--success) 20%, transparent)",
               }}
             >
               Live status monitoring
@@ -277,14 +277,14 @@ export default function StatusPage() {
           </h2>
           <div
             className="rounded-2xl mb-6 p-5 flex items-center gap-3"
-            style={{ background: "rgba(38,166,91,0.06)", border: "1px solid rgba(38,166,91,0.2)" }}
+            style={{ background: "var(--success-muted)", border: "1px solid color-mix(in srgb, var(--success) 20%, transparent)" }}
           >
             <CheckCircle2
               className="w-4 h-4 inline mr-1"
               style={{ color: "var(--success)" }}
               strokeWidth={1.5}
             />
-            <span className="font-jakarta font-medium text-[14px]" style={{ color: "var(--primary)" }}>
+            <span className="font-jakarta font-medium text-[14px]" style={{ color: "var(--success-muted-foreground)" }}>
               No incidents in the last 30 days.
             </span>
           </div>
@@ -316,9 +316,9 @@ export default function StatusPage() {
                   <span
                     className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-3 py-1.5 rounded-full flex-shrink-0"
                     style={{
-                      background: "rgba(38,166,91,0.1)",
-                      color: "var(--primary)",
-                      border: "1px solid rgba(38,166,91,0.2)",
+                      background: "var(--success-muted)",
+                      color: "var(--success-muted-foreground)",
+                      border: "1px solid color-mix(in srgb, var(--success) 20%, transparent)",
                     }}
                   >
                     <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} /> Resolved
@@ -349,7 +349,7 @@ export default function StatusPage() {
             <input
               type="email"
               placeholder="you@school.ac.ke"
-              className="flex-1 min-w-0 border border-gray-200 rounded-[50px] px-5 py-3 font-jakarta text-[14px] outline-none focus:border-primary"
+              className="flex-1 min-w-0 border border-input rounded-[50px] px-5 py-3 font-jakarta text-[14px] outline-none focus:border-primary"
               style={{ color: "var(--foreground)", minWidth: "220px" }}
             />
             <button

@@ -168,9 +168,9 @@ export default function CustomersPage() {
       {/* ── Stats Bar ─────────────────────────────────────── */}
       <section
         style={{
-          background: "rgba(26,122,74,0.06)",
-          borderTop: "1px solid rgba(26,122,74,0.12)",
-          borderBottom: "1px solid rgba(26,122,74,0.12)",
+          background: "rgb(var(--primary-rgb) / 6%)",
+          borderTop: "1px solid rgb(var(--primary-rgb) / 12%)",
+          borderBottom: "1px solid rgb(var(--primary-rgb) / 12%)",
           padding: "3rem 2rem",
         }}
       >
@@ -211,8 +211,8 @@ export default function CustomersPage() {
                 key={c.label}
                 className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full cursor-default"
                 style={{
-                  background: "rgba(6,26,18,0.04)",
-                  border: "1px solid rgba(6,26,18,0.1)",
+                  background: "var(--tint)",
+                  border: "1px solid var(--border)",
                   color: "var(--foreground)",
                 }}
               >
@@ -288,7 +288,7 @@ export default function CustomersPage() {
                   className="font-display font-bold leading-none mb-3"
                   style={{
                     fontSize: "4rem",
-                    color: t.featured ? "rgb(var(--primary-rgb) / 40%)" : "rgba(26,122,74,0.2)",
+                    color: t.featured ? "rgb(var(--primary-rgb) / 40%)" : "rgb(var(--primary-rgb) / 20%)",
                     lineHeight: 0.8,
                   }}
                 >
@@ -354,7 +354,7 @@ export default function CustomersPage() {
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: "rgba(15,76,42,0.1)" }}
+                  style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                 >
                   <Icon size={22} style={{ color: "var(--primary)" }} />
                 </div>

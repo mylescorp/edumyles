@@ -198,7 +198,7 @@ export default function Navbar() {
                       >
                         <div
                           className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
-                          style={{ background: "rgba(26,122,74,0.08)" }}
+                          style={{ background: "rgb(var(--primary-rgb) / 8%)" }}
                         >
                           <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
                         </div>

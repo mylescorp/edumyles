@@ -109,7 +109,7 @@ export default function ParentPortalGuide() {
               className="p-6 rounded-2xl mb-8"
               style={{
                 background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
@@ -364,7 +364,7 @@ export default function ParentPortalGuide() {
                     </span>
                     <span
                       className="text-xs px-2 py-1 rounded-full"
-                      style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                     >
                       {feature.adoption} adoption
                     </span>
@@ -699,7 +699,7 @@ export default function ParentPortalGuide() {
                   </p>
                   <div
                     className="text-xs p-2 rounded"
-                    style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                    style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                   >
                     💡 {practice.tip}
                   </div>

@@ -15,7 +15,7 @@ export default function SubscribeForm() {
       <input
         type="email"
         placeholder="you@school.ac.ke"
-        className="flex-1 min-w-0 border border-gray-200 rounded-[50px] px-5 py-3 font-jakarta text-[14px] outline-none focus:border-primary"
+        className="flex-1 min-w-0 border border-input rounded-[50px] px-5 py-3 font-jakarta text-[14px] outline-none focus:border-primary"
         style={{ color: "var(--foreground)", minWidth: "220px" }}
       />
       <button

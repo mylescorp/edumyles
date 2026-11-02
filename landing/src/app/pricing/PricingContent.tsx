@@ -91,7 +91,7 @@ export default function PricingContent() {
               type="button"
               onClick={() => setAnnual(!annual)}
               className="relative w-12 h-6 rounded-full transition-colors duration-300"
-              style={{ background: annual ? "var(--primary)" : "rgba(6,26,18,0.2)" }}
+              style={{ background: annual ? "var(--primary)" : "var(--muted)" }}
               aria-label="Toggle annual billing"
             >
               <div
@@ -122,7 +122,7 @@ export default function PricingContent() {
                   background: plan.featured ? "var(--deep)" : "var(--card)",
                   border: plan.featured ? "1px solid var(--deep)" : "1px solid var(--border)",
                   padding: "2rem",
-                  boxShadow: plan.featured ? "none" : "0 4px 20px rgba(6,26,18,0.06)",
+                  boxShadow: plan.featured ? "none" : "var(--shadow-md)",
                   transform: "none",
                 }}
               >

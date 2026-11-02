@@ -239,7 +239,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
           className="absolute inset-0 opacity-80"
           style={{
             background:
-              "linear-gradient(135deg, rgba(26,122,74,0.34), transparent 45%), radial-gradient(circle at 78% 18%, rgb(var(--primary-rgb) / 16%), transparent 28%)",
+              "linear-gradient(135deg, rgb(var(--primary-rgb) / 34%), transparent 45%), radial-gradient(circle at 78% 18%, rgb(var(--primary-rgb) / 16%), transparent 28%)",
           }}
         />
         <div className="relative mx-auto grid max-w-[1200px] items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
@@ -268,7 +268,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
             </div>
             <div className="mt-10 grid max-w-[680px] grid-cols-2 gap-3 sm:grid-cols-4">
               {config.proof.map((item) => (
-                <div key={item.label} className="rounded-[8px] border p-4" style={{ borderColor: "rgba(168,230,195,0.18)", background: "rgba(255,255,255,0.04)" }}>
+                <div key={item.label} className="rounded-[8px] border p-4" style={{ borderColor: "color-mix(in srgb, var(--deepacc) 18%, transparent)", background: "rgba(255,255,255,0.04)" }}>
                   <p className="font-display text-[24px] font-bold" style={{ color: "var(--ondeephi)" }}>
                     {item.value}
                   </p>
@@ -369,7 +369,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             {config.steps.map((step, index) => (
-              <div key={step.title} className="rounded-[8px] border p-6" style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(168,230,195,0.16)" }}>
+              <div key={step.title} className="rounded-[8px] border p-6" style={{ background: "rgba(255,255,255,0.04)", borderColor: "color-mix(in srgb, var(--deepacc) 16%, transparent)" }}>
                 <span className="font-display text-[28px] font-bold" style={{ color: "var(--ondeep)" }}>
                   0{index + 1}
                 </span>

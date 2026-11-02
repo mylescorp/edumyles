@@ -72,7 +72,7 @@ const modules: {
   {
     abbr: "SIS",
     color: "var(--primary)",
-    iconBg: "rgba(26,122,74,0.10)",
+    iconBg: "var(--accent)",
     icon: Users,
     name: "Student Information System",
     desc: "Complete student profiles, class allocation, streams, and full academic history in one place.",
@@ -88,7 +88,7 @@ const modules: {
   {
     abbr: "ADM",
     color: "var(--accent-foreground)",
-    iconBg: "rgb(var(--primary-rgb) / 10%)",
+    iconBg: "var(--accent)",
     icon: UserPlus,
     name: "Admissions",
     desc: "Digital applications, enrollment workflows, waitlists, and automated communication — paperless from day one.",
@@ -104,7 +104,7 @@ const modules: {
   {
     abbr: "FIN",
     color: "var(--success)",
-    iconBg: "rgba(38,166,91,0.10)",
+    iconBg: "var(--accent)",
     icon: Banknote,
     name: "Finance & Fees",
     desc: "Fee structures, invoicing, M-Pesa collection, receipts, and full financial reporting. No more Excel chaos.",
@@ -120,7 +120,7 @@ const modules: {
   {
     abbr: "TTB",
     color: "var(--muted-foreground)",
-    iconBg: "rgba(107,158,131,0.10)",
+    iconBg: "var(--accent)",
     icon: CalendarClock,
     name: "Timetable & Scheduling",
     desc: "Automated timetable generation, substitution management, room bookings, and conflict detection.",
@@ -136,7 +136,7 @@ const modules: {
   {
     abbr: "ACA",
     color: "var(--info)",
-    iconBg: "rgba(21,101,192,0.10)",
+    iconBg: "var(--accent)",
     icon: BookOpen,
     name: "Academics & Gradebook",
     desc: "Assessments, grading, report cards, and curriculum tracking. Supports CBC, 8-4-4, UNEB, and more.",
@@ -152,7 +152,7 @@ const modules: {
   {
     abbr: "HR",
     color: "var(--primary)",
-    iconBg: "rgba(15,76,42,0.10)",
+    iconBg: "var(--accent)",
     icon: Briefcase,
     name: "HR & Payroll",
     desc: "Staff records, attendance, leave management, payroll processing, and statutory compliance (KRA, NHIF, NSSF).",
@@ -168,7 +168,7 @@ const modules: {
   {
     abbr: "LIB",
     color: "var(--warning-muted-foreground)",
-    iconBg: "rgba(154,93,0,0.10)",
+    iconBg: "var(--accent)",
     icon: BookMarked,
     name: "Library",
     desc: "Book cataloguing, borrowing, returns, fines, overdue notices, and digital resource management.",
@@ -184,7 +184,7 @@ const modules: {
   {
     abbr: "TRN",
     color: "var(--primary)",
-    iconBg: "rgba(26,122,74,0.10)",
+    iconBg: "var(--accent)",
     icon: Bus,
     name: "Transport",
     desc: "Route planning, vehicle tracking, driver assignment, and real-time parent notifications for safe journeys.",
@@ -200,7 +200,7 @@ const modules: {
   {
     abbr: "COM",
     color: "var(--success)",
-    iconBg: "rgba(38,166,91,0.10)",
+    iconBg: "var(--accent)",
     icon: MessageSquare,
     name: "Communications",
     desc: "SMS, email, and in-app messaging to parents, staff, and students. Bulk announcements in seconds.",
@@ -216,7 +216,7 @@ const modules: {
   {
     abbr: "WAL",
     color: "var(--muted-foreground)",
-    iconBg: "rgba(107,158,131,0.10)",
+    iconBg: "var(--accent)",
     icon: Wallet,
     name: "eWallet",
     desc: "Digital wallet for cashless transactions within the school ecosystem. Parents top up, students spend.",
@@ -232,7 +232,7 @@ const modules: {
   {
     abbr: "SHP",
     color: "var(--info)",
-    iconBg: "rgba(21,101,192,0.10)",
+    iconBg: "var(--accent)",
     icon: ShoppingBag,
     name: "School Shop",
     desc: "Online storefront for uniforms, books, and school supplies with full inventory management.",
@@ -248,7 +248,7 @@ const modules: {
   {
     abbr: "USR",
     color: "var(--primary)",
-    iconBg: "rgba(15,76,42,0.10)",
+    iconBg: "var(--accent)",
     icon: ShieldCheck,
     name: "User Management",
     desc: "Invite users, assign roles, and control access across every portal and campus from one dashboard.",
@@ -264,7 +264,7 @@ const modules: {
   {
     abbr: "TKT",
     color: "var(--accent-foreground)",
-    iconBg: "rgb(var(--primary-rgb) / 10%)",
+    iconBg: "var(--accent)",
     icon: Headphones,
     name: "Support Tickets",
     desc: "Track school support requests from staff, parents, and students with clear ownership and resolution history.",
@@ -452,7 +452,7 @@ export default function FeaturesPage() {
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               Built on a unified platform
             </div>
@@ -473,14 +473,14 @@ export default function FeaturesPage() {
                 className="rounded-2xl p-7 flex flex-col gap-4 group transition-all duration-300 hover:-translate-y-1"
                 style={{
                   background: "var(--card)",
-                  border: "1px solid rgba(38,166,91,0.15)",
-                  boxShadow: "0 2px 12px rgba(6,26,18,0.06)",
+                  border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 {/* Icon circle */}
                 <div
                   className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0 transition-colors duration-300"
-                  style={{ background: "rgba(26,122,74,0.08)" }}
+                  style={{ background: "rgb(var(--primary-rgb) / 8%)" }}
                 >
                   <h.icon className="w-6 h-6" strokeWidth={1.75} style={{ color: "var(--primary)" }} />
                 </div>
@@ -549,7 +549,7 @@ export default function FeaturesPage() {
                 className="rounded-2xl p-7 flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                 style={{
                   border: "1px solid var(--border)",
-                  boxShadow: "0 2px 16px rgba(6,26,18,0.05)",
+                  boxShadow: "var(--shadow-md)",
                   background: "var(--card)",
                 }}
               >
@@ -698,7 +698,7 @@ export default function FeaturesPage() {
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               Integrations
             </div>
@@ -726,8 +726,8 @@ export default function FeaturesPage() {
                 className="rounded-2xl p-5 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                 style={{
                   background: "var(--card)",
-                  border: "1px solid rgba(38,166,91,0.15)",
-                  boxShadow: "0 2px 10px rgba(6,26,18,0.05)",
+                  border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 <div className="flex items-center gap-3">
@@ -735,8 +735,8 @@ export default function FeaturesPage() {
                   <div
                     className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
                     style={{
-                      background: "rgba(26,122,74,0.08)",
-                      border: "1px solid rgba(26,122,74,0.15)",
+                      background: "rgb(var(--primary-rgb) / 8%)",
+                      border: "1px solid rgb(var(--primary-rgb) / 15%)",
                     }}
                   >
                     {int.isEmoji ? (

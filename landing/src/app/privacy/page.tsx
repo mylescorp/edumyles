@@ -102,7 +102,7 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Database className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -202,7 +202,7 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Eye className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -253,7 +253,7 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <FileText className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -316,7 +316,7 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <UserCheck className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -387,7 +387,7 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <FileText className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -462,7 +462,7 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Lock className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -509,7 +509,7 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Shield className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -554,7 +554,7 @@ export default function PrivacyPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Mail className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>

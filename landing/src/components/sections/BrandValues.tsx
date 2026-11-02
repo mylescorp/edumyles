@@ -71,8 +71,8 @@ export default function BrandValues() {
             className="rounded-2xl p-8"
             style={{
               background: "var(--card)",
-              border: "1px solid rgba(38,166,91,0.15)",
-              boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
+              border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+              boxShadow: "var(--shadow-md)",
             }}
           >
             <div
@@ -90,13 +90,13 @@ export default function BrandValues() {
             className="rounded-2xl p-8"
             style={{
               background: "var(--card)",
-              border: "1px solid rgba(38,166,91,0.15)",
-              boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
+              border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+              boxShadow: "var(--shadow-md)",
             }}
           >
             <div
               className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-[50px] uppercase tracking-wider"
-              style={{ background: "rgba(15,76,42,0.08)", color: "var(--primary)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 8%)", color: "var(--primary)" }}
             >
               Our Vision
             </div>
@@ -129,8 +129,8 @@ export default function BrandValues() {
               className="rounded-2xl p-6 text-center flex flex-col items-center"
               style={{
                 background: "var(--card)",
-                border: "1px solid rgba(38,166,91,0.15)",
-                boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+                boxShadow: "var(--shadow-md)",
               }}
             >
               <div
@@ -172,7 +172,7 @@ export default function BrandValues() {
           className="rounded-2xl p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start"
           style={{
             background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-            boxShadow: "0 20px 60px rgba(6,26,18,0.2)",
+            boxShadow: "var(--shadow-xl)",
           }}
         >
           <div className="flex-shrink-0">

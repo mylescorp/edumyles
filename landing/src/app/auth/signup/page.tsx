@@ -220,7 +220,7 @@ function SignUpPageContent() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-[24px] border border-[rgba(168,230,195,0.16)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
+                className="rounded-[24px] border border-[color-mix(in srgb, var(--deepacc) 16%, transparent)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
               >
                 <item.icon className="h-6 w-6 text-[var(--accent-foreground)]" />
                 <h2 className="mt-3 font-jakarta text-[15px] font-bold text-[var(--ondeephi)]">{item.title}</h2>
@@ -232,7 +232,7 @@ function SignUpPageContent() {
           </div>
 
           <div className="mt-12 grid max-w-5xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-[28px] border border-[rgba(168,230,195,0.14)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
+            <div className="rounded-[28px] border border-[color-mix(in srgb, var(--deepacc) 14%, transparent)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
               <h2 className="font-display text-[28px] font-bold text-[var(--ondeephi)]">
                 What happens after you join
               </h2>
@@ -312,7 +312,7 @@ function SignUpPageContent() {
           </div>
 
           <div className="mt-auto pt-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(168,230,195,0.15)] bg-[rgba(255,255,255,0.04)] px-4 py-2 font-jakarta text-[12px] font-semibold tracking-[0.08em] text-[var(--deepacc)]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in srgb, var(--deepacc) 15%, transparent)] bg-[rgba(255,255,255,0.04)] px-4 py-2 font-jakarta text-[12px] font-semibold tracking-[0.08em] text-[var(--deepacc)]">
               <ArrowRight className="h-4 w-4 text-[var(--accent-foreground)]" />
               Trusted onboarding for schools across East Africa
             </div>
@@ -624,7 +624,7 @@ function SignUpPageContent() {
 function SignUpPageFallback() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8 sm:px-6 lg:px-8">
-      <div className="w-full max-w-xl rounded-[28px] bg-card px-8 py-12 text-center shadow-[0_24px_64px_rgba(6,26,18,0.08)]">
+      <div className="w-full max-w-xl rounded-[28px] bg-card px-8 py-12 text-center shadow-[0_24px_64px_rgb(0 0 0 / 8%)]">
         <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-primary">
           Preparing waitlist form
         </p>

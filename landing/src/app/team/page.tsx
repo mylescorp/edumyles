@@ -174,7 +174,7 @@ export default function TeamPage() {
                 className="rounded-2xl overflow-hidden flex flex-col"
                 style={{
                   border: "1.5px solid var(--accent-foreground)",
-                  boxShadow: "0 4px 24px rgba(6,26,18,0.10)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 {/* Photo */}
@@ -183,7 +183,7 @@ export default function TeamPage() {
                   style={{ height: "160px", background: "var(--deep)" }}
                   aria-hidden="true"
                 >
-                  <span className="grid h-16 w-16 place-items-center rounded-full text-xl font-bold text-white" style={{ background: "rgba(255,255,255,.12)" }}>
+                  <span className="grid h-16 w-16 place-items-center rounded-full text-xl font-bold text-[var(--ondeephi)]" style={{ background: "rgba(255,255,255,.12)" }}>
                     {founder.name.split(" ").map((part) => part[0]).join("")}
                   </span>
                 </div>
@@ -237,7 +237,7 @@ export default function TeamPage() {
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-3 px-4 py-1.5 rounded-[50px]"
             style={{
-              background: "rgba(26,122,74,0.1)",
+              background: "rgb(var(--primary-rgb) / 10%)",
               border: "1px solid var(--primary)",
               color: "var(--primary)",
             }}
@@ -261,7 +261,7 @@ export default function TeamPage() {
                 className="bg-card rounded-2xl overflow-hidden flex flex-col"
                 style={{
                   border: "1px solid var(--border)",
-                  boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 {/* Avatar */}

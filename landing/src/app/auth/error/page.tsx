@@ -27,9 +27,9 @@ export default async function AuthErrorPage({
           <Logo variant="lockup" width={320} height={91} priority appearance="dark" href={null} />
         </div>
         <div className="space-y-2">
-          <p className="text-6xl font-bold text-gray-200">!</p>
-          <h1 className="text-2xl font-semibold text-gray-900">Sign-in failed</h1>
-          <p className="text-gray-500 text-sm leading-relaxed">{message}</p>
+          <p className="text-6xl font-bold text-muted-foreground">!</p>
+          <h1 className="text-2xl font-semibold text-foreground">Sign-in failed</h1>
+          <p className="text-muted-foreground text-sm leading-relaxed">{message}</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
@@ -41,13 +41,13 @@ export default async function AuthErrorPage({
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-card px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center justify-center rounded-md border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground hover:bg-background transition-colors"
           >
             Go home
           </Link>
         </div>
 
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-muted-foreground">
           If this keeps happening, contact{" "}
           <a href="mailto:support@edumyles.com" className="underline underline-offset-2">
             support@edumyles.com

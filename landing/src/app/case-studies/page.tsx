@@ -135,7 +135,7 @@ export default function CaseStudiesPage() {
                 style={{
                   background: "var(--card)",
                   border: "1px solid var(--border)",
-                  boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 <div className="p-7 flex flex-col flex-1">
@@ -199,7 +199,7 @@ export default function CaseStudiesPage() {
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               Aggregate Results
             </div>
@@ -221,7 +221,7 @@ export default function CaseStudiesPage() {
                 style={{
                   background: "var(--card)",
                   border: "1px solid var(--border)",
-                  boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                  boxShadow: "var(--shadow-md)",
                 }}
               >
                 <div

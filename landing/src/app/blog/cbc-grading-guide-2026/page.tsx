@@ -175,7 +175,7 @@ export default function CBCGradingGuide() {
                       <div
                         key={example}
                         className="text-xs px-2 py-1 rounded"
-                        style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                        style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                       >
                         {example}
                       </div>
@@ -361,7 +361,7 @@ export default function CBCGradingGuide() {
                         <span
                           key={example}
                           className="text-xs px-2 py-1 rounded"
-                          style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                          style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                         >
                           {example}
                         </span>
@@ -383,7 +383,7 @@ export default function CBCGradingGuide() {
               className="p-6 rounded-2xl mb-6"
               style={{
                 background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <div className="flex items-center gap-3 mb-4">
@@ -469,7 +469,7 @@ export default function CBCGradingGuide() {
                 >
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: "rgba(26,122,74,0.1)" }}
+                    style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                   >
                     <TrendingUp className="w-5 h-5" style={{ color: "var(--primary)" }} />
                   </div>

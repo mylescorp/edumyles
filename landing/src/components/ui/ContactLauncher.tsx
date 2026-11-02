@@ -360,7 +360,7 @@ function ContactLauncherPanel({
             </button>
           </div>
           <div className="mt-4 flex items-center gap-2 rounded-lg border border-[var(--deepbd)] bg-card/[0.06] px-3 py-2 text-xs text-[var(--ondeep)]">
-            <ShieldCheck className="h-4 w-4 text-emerald-300" />
+            <ShieldCheck className="h-4 w-4 text-success" />
             Your contact details are used only so our team can respond accurately.
           </div>
         </div>

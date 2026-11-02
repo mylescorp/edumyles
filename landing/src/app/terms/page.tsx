@@ -112,7 +112,7 @@ export default function TermsPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <CheckCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -158,7 +158,7 @@ export default function TermsPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -229,7 +229,7 @@ export default function TermsPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -310,7 +310,7 @@ export default function TermsPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <CreditCard className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -422,7 +422,7 @@ export default function TermsPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Database className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -487,7 +487,7 @@ export default function TermsPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Code2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -586,7 +586,7 @@ export default function TermsPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <XCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>
@@ -668,7 +668,7 @@ export default function TermsPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Scale className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
             </div>

@@ -119,7 +119,7 @@ export default function EduMyles2026Launch() {
               className="p-6 rounded-2xl mb-8"
               style={{
                 background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
@@ -150,8 +150,8 @@ export default function EduMyles2026Launch() {
                     key={stat.number}
                     className="text-center p-4 rounded-xl"
                     style={{
-                      background: "rgba(255,255,255,0.8)",
-                      border: "1px solid rgba(26,122,74,0.1)",
+                      background: "var(--card)",
+                      border: "1px solid rgb(var(--primary-rgb) / 10%)",
                     }}
                   >
                     <div
@@ -199,7 +199,7 @@ export default function EduMyles2026Launch() {
                       className="flex items-center gap-3 p-3 rounded-lg"
                       style={{ background: "var(--danger-muted)", border: "1px solid var(--danger)" }}
                     >
-                      <span className="text-red-500 text-lg">✕</span>
+                      <span className="text-danger text-lg">✕</span>
                       <span className="font-jakarta text-sm" style={{ color: "var(--danger-muted-foreground)" }}>
                         {item}
                       </span>
@@ -377,7 +377,7 @@ export default function EduMyles2026Launch() {
                   <div className="flex items-center gap-3 mb-3">
                     <div
                       className="w-10 h-10 rounded-lg flex items-center justify-center"
-                      style={{ background: "rgba(26,122,74,0.1)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                     >
                       <module.icon className="w-5 h-5" style={{ color: "var(--primary)" }} />
                     </div>
@@ -480,7 +480,7 @@ export default function EduMyles2026Launch() {
                       <span
                         key={permission}
                         className="text-xs px-2 py-1 rounded"
-                        style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                        style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                       >
                         {permission}
                       </span>
@@ -528,7 +528,7 @@ export default function EduMyles2026Launch() {
                     <div
                       key={item.feature}
                       className="flex gap-3 p-3 rounded-lg"
-                      style={{ background: "rgba(26,122,74,0.1)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                     >
                       <Zap className="w-5 h-5 flex-shrink-0" style={{ color: "var(--primary)" }} />
                       <div>
@@ -663,7 +663,7 @@ export default function EduMyles2026Launch() {
                     <div
                       key={improvement}
                       className="flex items-center gap-2 p-2 rounded"
-                      style={{ background: "rgba(26,122,74,0.1)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                     >
                       <CheckCircle2
                         className="w-4 h-4 flex-shrink-0"
@@ -766,7 +766,7 @@ export default function EduMyles2026Launch() {
                         <span
                           key={deliverable}
                           className="text-xs px-2 py-1 rounded"
-                          style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                          style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--primary)" }}
                         >
                           {deliverable}
                         </span>
@@ -803,7 +803,7 @@ export default function EduMyles2026Launch() {
                     <div
                       key={benefit}
                       className="flex items-center gap-2 p-2 rounded"
-                      style={{ background: "rgba(26,122,74,0.1)" }}
+                      style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
                     >
                       <CheckCircle2
                         className="w-4 h-4 flex-shrink-0"

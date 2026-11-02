@@ -79,7 +79,7 @@ export default function Comparison() {
           >
             Why EduMyles?
           </h2>
-          <p className="text-base text-gray-500 max-w-xl mx-auto">
+          <p className="text-base text-muted-foreground max-w-xl mx-auto">
             Compare what running a school looks like before and after.
           </p>
         </div>

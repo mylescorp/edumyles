@@ -106,7 +106,7 @@ export default function ExcelAlternativesGuide() {
               className="p-6 rounded-2xl mb-8"
               style={{
                 background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                border: "1px solid rgb(var(--primary-rgb) / 20%)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
@@ -227,10 +227,10 @@ export default function ExcelAlternativesGuide() {
                     <span
                       className={`font-jakarta text-sm px-2 py-1 rounded ${
                         warning.impact === "Critical"
-                          ? "bg-red-100 text-red-700"
+                          ? "bg-danger-muted text-danger-muted-foreground"
                           : warning.impact === "High"
-                            ? "bg-orange-100 text-orange-700"
-                            : "bg-yellow-100 text-yellow-700"
+                            ? "bg-warning-muted text-warning-muted-foreground"
+                            : "bg-success-muted text-success-muted-foreground"
                       }`}
                     >
                       {warning.impact} Impact
@@ -264,7 +264,7 @@ export default function ExcelAlternativesGuide() {
                       ))}
                     </ul>
                   </div>
-                  <div className="p-3 rounded-lg" style={{ background: "rgba(26,122,74,0.1)" }}>
+                  <div className="p-3 rounded-lg" style={{ background: "rgb(var(--primary-rgb) / 10%)" }}>
                     <span className="font-semibold text-sm" style={{ color: "var(--primary)" }}>
                       Solution:{" "}
                     </span>

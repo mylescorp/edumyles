@@ -373,7 +373,7 @@ export default function BookDemoContent() {
                         autoComplete="given-name"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="John"
                       />
                     </label>
@@ -390,7 +390,7 @@ export default function BookDemoContent() {
                         autoComplete="family-name"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="Doe"
                       />
                     </label>
@@ -410,7 +410,7 @@ export default function BookDemoContent() {
                         autoComplete="email"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="john@school.ac.ke"
                       />
                     </label>
@@ -427,7 +427,7 @@ export default function BookDemoContent() {
                         autoComplete="tel"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="+254 700 000 000"
                       />
                     </label>
@@ -447,7 +447,7 @@ export default function BookDemoContent() {
                         autoComplete="organization"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="Nairobi Green Academy"
                       />
                     </label>
@@ -464,7 +464,7 @@ export default function BookDemoContent() {
                         autoComplete="organization-title"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="Principal, Administrator, etc."
                       />
                     </label>
@@ -483,7 +483,7 @@ export default function BookDemoContent() {
                         autoComplete="off"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                       >
                         <option value="">Select school type</option>
                         <option value="primary">Primary School</option>
@@ -505,7 +505,7 @@ export default function BookDemoContent() {
                         autoComplete="off"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                       />
                     </label>
                   </div>
@@ -523,7 +523,7 @@ export default function BookDemoContent() {
                         autoComplete="country-name"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                       />
                     </label>
                     <label className="block">
@@ -538,7 +538,7 @@ export default function BookDemoContent() {
                         autoComplete="address-level1"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="Nairobi"
                       />
                     </label>
@@ -558,7 +558,7 @@ export default function BookDemoContent() {
                         autoComplete="off"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                         placeholder="650"
                       />
                     </label>
@@ -573,7 +573,7 @@ export default function BookDemoContent() {
                         autoComplete="off"
                         data-lpignore="true"
                         data-form-type="other"
-                        className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                        className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                       >
                         <option value="">Select current system</option>
                         <option value="Paper records">Paper records</option>
@@ -596,7 +596,7 @@ export default function BookDemoContent() {
                       autoComplete="off"
                       data-lpignore="true"
                       data-form-type="other"
-                      className="w-full rounded-[8px] border border-gray-200 px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
+                      className="w-full rounded-[8px] border border-input px-4 py-3 font-jakarta text-[14px] text-[var(--foreground)] outline-none transition-colors focus:border-primary"
                       style={{ resize: "vertical" }}
                       placeholder="What challenges are you looking to solve? What features interest you most?"
                     />
