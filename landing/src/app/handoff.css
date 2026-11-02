@@ -160,7 +160,7 @@ body {
   outline-offset: 2px;
 }
 
-/* Shared floating navigation, rounded panels and deep footer. */
+/* Shared floating navigation, rounded panels and semantic footer surface. */
 nav[role="banner"] {
   position: sticky;
   top: 12px;
@@ -203,22 +203,13 @@ nav[role="banner"] a[href^="/waitlist?"] {
 }
 
 footer[role="contentinfo"] {
-  /* Map the footer's component-level semantic variables onto the handoff
-     palette so its interactive elements work on the deep surface in either theme. */
-  --foreground: var(--ondeephi);
-  --muted-foreground: var(--ondeep);
-  --muted: color-mix(in srgb, var(--ondeephi) 8%, var(--deep));
-  --border: color-mix(in srgb, var(--ondeep) 28%, transparent);
-  --accent-foreground: var(--deepacc);
-  --primary: var(--handoff-gold);
-  --primary-foreground: var(--deep);
   position: relative;
   width: calc(100% - 48px);
   max-width: 1200px;
   margin: 96px auto 24px;
   overflow: hidden;
-  color: var(--ondeephi);
-  background: var(--deep) !important;
+  color: var(--card-foreground);
+  background: var(--card) !important;
   border-radius: 40px;
 }
 
@@ -231,7 +222,7 @@ footer[role="contentinfo"]::after {
   aspect-ratio: 1;
   opacity: 0.055;
   pointer-events: none;
-  background: url("/brand/edumyles-mark-white.png") center / contain no-repeat;
+  background: url("/brand/edumyles-mark-ink.png") center / contain no-repeat;
 }
 
 footer[role="contentinfo"] > div:first-child {
@@ -243,23 +234,9 @@ footer[role="contentinfo"] > div:nth-child(2) {
   padding: 56px 24px 40px;
 }
 
-footer[role="contentinfo"] h3,
-footer[role="contentinfo"] h4 {
-  color: var(--deepacc) !important;
-}
-
-footer[role="contentinfo"] p,
-footer[role="contentinfo"] a:not(.footer-social-link),
-footer[role="contentinfo"] span {
-  color: var(--ondeep) !important;
-}
-
-footer[role="contentinfo"] a:not(.footer-social-link):hover {
-  color: var(--ondeephi) !important;
-}
-
-footer[role="contentinfo"] > div:last-child {
-  border-color: var(--border) !important;
+html[data-theme="dark"] footer[role="contentinfo"]::after,
+html.dark footer[role="contentinfo"]::after {
+  background-image: url("/brand/edumyles-mark-white.png");
 }
 
 footer[role="contentinfo"] > div:last-child > div > p {
