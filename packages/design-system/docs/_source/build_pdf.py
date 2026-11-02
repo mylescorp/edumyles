@@ -6,7 +6,7 @@ def sw(h): return f'<span class="sw" style="background:{h}"></span>' if h.starts
 def tbl(head,rows,cls=''):
     return f'<table class="{cls}"><tr>'+''.join(f'<th>{h}</th>' for h in head)+'</tr>'+''.join('<tr>'+''.join(f'<td>{c}</td>' for c in r)+'</tr>' for r in rows)+'</table>'
 def code(s): return '<pre>'+E(s.strip('\n'))+'</pre>'
-def pill(t): 
+def pill(t):
     c={'Yes':'y','No':'n','Locked':'n','Derived':'d','Plan':'p'}.get(t.split()[0],'');return f'<span class="pl {c}">{t}</span>'
 # ---- derived theme results
 reports={t:json.load(open(f'generated/{t}.report.json')) for t in ['default-green','neon-pink','pale-sun']}

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import ArtDashboard from "@/components/sections/ArtDashboard";
+import { BarChart2 } from "lucide-react";
 
 export default function Hero() {
   useEffect(() => {
@@ -24,7 +25,6 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      ref={sectionRef}
       className="relative flex items-center overflow-hidden px-4 sm:px-8 py-20 sm:py-24"
       aria-label="Hero section"
       style={{
