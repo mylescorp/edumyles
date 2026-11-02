@@ -1,0 +1,280 @@
+{
+ "tenantId": "pale-sun",
+ "allPass": true,
+ "notes": [
+  {
+   "level": "adjusted",
+   "token": "primary",
+   "mode": "light",
+   "message": "Brand primary (#F2E27A) is 1.32:1 against the page, below the 3:1 needed to see a control's edge. The brand fill is kept and controls get a #A59525 border (3.03:1)."
+  },
+  {
+   "level": "info",
+   "token": "primary",
+   "mode": "light",
+   "message": "White text on #F2E27A is only 1.32:1, so text on this colour is #171717 (13.60:1)."
+  },
+  {
+   "level": "info",
+   "token": "primary",
+   "mode": "light",
+   "message": "A separate primary text shade (#807001) is used for links and outline buttons so they stay at 4.96:1 on the surface."
+  },
+  {
+   "level": "adjusted",
+   "token": "accent",
+   "mode": "light",
+   "message": "Brand accent (#CFE8E0) is 1.29:1 against the page, below the 3:1 needed to see a control's edge. The brand fill is kept and controls get a #819891 border (3.07:1)."
+  },
+  {
+   "level": "info",
+   "token": "accent",
+   "mode": "light",
+   "message": "White text on #CFE8E0 is only 1.29:1, so text on this colour is #171717 (13.89:1)."
+  },
+  {
+   "level": "info",
+   "token": "accent",
+   "mode": "light",
+   "message": "A separate accent text shade (#5A736B) is used for links and outline buttons so they stay at 5.12:1 on the surface."
+  },
+  {
+   "level": "info",
+   "token": "primary",
+   "mode": "dark",
+   "message": "Dark-mode primary derived at lightness 82% so the fill keeps 3:1 against the dark surface."
+  },
+  {
+   "level": "info",
+   "token": "accent",
+   "mode": "dark",
+   "message": "Dark-mode accent derived at lightness 82% so the fill keeps 3:1 against the dark surface."
+  }
+ ],
+ "checks": [
+  {
+   "name": "primary light: text on fill",
+   "fg": "#171717",
+   "bg": "#F2E27A",
+   "ratio": 13.6,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary light: text on hover",
+   "fg": "#171717",
+   "bg": "#FFF3A1",
+   "ratio": 15.87,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary light: text on pressed",
+   "fg": "#171717",
+   "bg": "#FFFDEB",
+   "ratio": 17.5,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary light: link text on surface",
+   "fg": "#807001",
+   "bg": "#FFFFFF",
+   "ratio": 4.96,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary light: link text on page background",
+   "fg": "#807001",
+   "bg": "#F4F4F5",
+   "ratio": 4.51,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary light: text on subtle tint",
+   "fg": "#4C4300",
+   "bg": "#F8F5DA",
+   "ratio": 9.03,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary light: outline border on surface",
+   "fg": "#A59525",
+   "bg": "#FFFFFF",
+   "ratio": 3.03,
+   "min": 3,
+   "pass": true
+  },
+  {
+   "name": "accent light: text on fill",
+   "fg": "#171717",
+   "bg": "#CFE8E0",
+   "ratio": 13.89,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent light: text on hover",
+   "fg": "#171717",
+   "bg": "#DFF9F1",
+   "ratio": 16.18,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent light: text on pressed",
+   "fg": "#171717",
+   "bg": "#F4FFFB",
+   "ratio": 17.54,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent light: link text on surface",
+   "fg": "#5A736B",
+   "bg": "#FFFFFF",
+   "ratio": 5.12,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent light: link text on page background",
+   "fg": "#5A736B",
+   "bg": "#F4F4F5",
+   "ratio": 4.66,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent light: text on subtle tint",
+   "fg": "#364741",
+   "bg": "#EEF5F3",
+   "ratio": 8.9,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent light: outline border on surface",
+   "fg": "#819891",
+   "bg": "#FFFFFF",
+   "ratio": 3.07,
+   "min": 3,
+   "pass": true
+  },
+  {
+   "name": "primary dark: text on fill",
+   "fg": "#082A56",
+   "bg": "#D5C669",
+   "ratio": 8.21,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary dark: text on hover",
+   "fg": "#082A56",
+   "bg": "#E5D679",
+   "ratio": 9.64,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary dark: text on pressed",
+   "fg": "#082A56",
+   "bg": "#F3E486",
+   "ratio": 11.01,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary dark: link text on surface",
+   "fg": "#D5C669",
+   "bg": "#172235",
+   "ratio": 9.2,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary dark: link text on page background",
+   "fg": "#D5C669",
+   "bg": "#0B111C",
+   "ratio": 10.9,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary dark: text on subtle tint",
+   "fg": "#E6DA8A",
+   "bg": "#28240F",
+   "ratio": 10.94,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "primary dark: outline border on surface",
+   "fg": "#D5C669",
+   "bg": "#172235",
+   "ratio": 9.2,
+   "min": 3,
+   "pass": true
+  },
+  {
+   "name": "accent dark: text on fill",
+   "fg": "#082A56",
+   "bg": "#B4CAC3",
+   "ratio": 8.25,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent dark: text on hover",
+   "fg": "#082A56",
+   "bg": "#C4DAD3",
+   "ratio": 9.7,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent dark: text on pressed",
+   "fg": "#082A56",
+   "bg": "#D1E7E0",
+   "ratio": 10.99,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent dark: link text on surface",
+   "fg": "#B4CAC3",
+   "bg": "#172235",
+   "ratio": 9.25,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent dark: link text on page background",
+   "fg": "#B4CAC3",
+   "bg": "#0B111C",
+   "ratio": 10.96,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent dark: text on subtle tint",
+   "fg": "#C9DDD6",
+   "bg": "#202524",
+   "ratio": 10.95,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "name": "accent dark: outline border on surface",
+   "fg": "#B4CAC3",
+   "bg": "#172235",
+   "ratio": 9.25,
+   "min": 3,
+   "pass": true
+  }
+ ]
+}

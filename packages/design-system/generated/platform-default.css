@@ -1,0 +1,89 @@
+/* EduMyles semantic tokens — platform defaults. Derived brand tokens are appended per tenant by the theme compiler. */
+:root{
+  /* Platform brand (exact, from the shell) */
+  --color-action-primary:#1565C0; --color-action-primary-hover:#0F4FA0; --color-action-primary-pressed:#0B3B78; --color-action-primary-disabled:#E5E5E5;
+  --color-text-on-primary:#FFFFFF; --color-action-primary-text:#1565C0; --color-action-primary-border:#1565C0;
+  --color-action-primary-subtle:#EAF2FD; --color-text-on-primary-subtle:#0B3B78;
+  --color-action-accent:#C79639; --color-text-on-accent:#171717;
+  --font-sans:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --radius-control:8px;
+  --radius-card:12px;
+  --radius-dialog:16px;
+  --radius-badge:6px;
+  --control-height:40px;
+  --row-height:48px;
+  --pad-x:16px;
+  --motion-fast:150ms;
+  --motion-normal:200ms;
+  --color-surface-page:#F4F4F5;
+  --color-surface-default:#FFFFFF;
+  --color-surface-raised:#FFFFFF;
+  --color-surface-sunken:#F1F1F2;
+  --color-surface-overlay:rgb(15 22 35 / 55%);
+  --color-text-default:#171717;
+  --color-text-muted:#666666;
+  --color-text-inverse:#FFFFFF;
+  --color-text-disabled:#8A8A8A;
+  --color-border-default:#E5E5E5;
+  --color-border-strong:#8A8A8A;
+  --color-focus-ring:#0F4FA0;
+  --color-action-primary-disabled:#E5E5E5;
+  --color-status-success-solid:#1B7F4B;
+  --color-status-success-on-solid:#FFFFFF;
+  --color-status-success-subtle:#E3F4EA;
+  --color-status-success-on-subtle:#14532D;
+  --color-status-warning-solid:#B45309;
+  --color-status-warning-on-solid:#FFFFFF;
+  --color-status-warning-subtle:#FFF1D6;
+  --color-status-warning-on-subtle:#7A3E00;
+  --color-status-danger-solid:#C62828;
+  --color-status-danger-on-solid:#FFFFFF;
+  --color-status-danger-subtle:#FDE8E8;
+  --color-status-danger-on-subtle:#8E1B1B;
+  --color-status-info-solid:#0277BD;
+  --color-status-info-on-solid:#FFFFFF;
+  --color-status-info-subtle:#E1F5FE;
+  --color-status-info-on-subtle:#01579B;
+  --color-chrome-platform:#1A395B;
+}
+[data-theme="dark"]{
+  --color-action-primary:#6FA2F3; --color-action-primary-hover:#A4C4FA; --color-action-primary-pressed:#BFDBFE; --color-action-primary-disabled:#243247;
+  --color-text-on-primary:#082A56; --color-action-primary-text:#6FA2F3; --color-action-primary-border:#6FA2F3;
+  --color-action-primary-subtle:#263D5D; --color-text-on-primary-subtle:#BFDBFE;
+  --color-action-accent:#C79639; --color-text-on-accent:#171717;
+  --color-surface-page:#0B111C;
+  --color-surface-default:#172235;
+  --color-surface-raised:#172235;
+  --color-surface-sunken:#243247;
+  --color-surface-overlay:rgb(0 0 0 / 65%);
+  --color-text-default:#F8FAFC;
+  --color-text-muted:#A3B1C2;
+  --color-text-inverse:#0B111C;
+  --color-text-disabled:#6B7C93;
+  --color-border-default:#2B3A4F;
+  --color-border-strong:#6B7C93;
+  --color-focus-ring:#6FA2F3;
+  --color-action-primary-disabled:#243247;
+  --color-status-success-solid:#4ADE80;
+  --color-status-success-on-solid:#052E16;
+  --color-status-success-subtle:#12301F;
+  --color-status-success-on-subtle:#86EFAC;
+  --color-status-warning-solid:#FBBF24;
+  --color-status-warning-on-solid:#422006;
+  --color-status-warning-subtle:#3A2A0A;
+  --color-status-warning-on-subtle:#FCD34D;
+  --color-status-danger-solid:#F87171;
+  --color-status-danger-on-solid:#450A0A;
+  --color-status-danger-subtle:#3B1414;
+  --color-status-danger-on-subtle:#FCA5A5;
+  --color-status-info-solid:#38BDF8;
+  --color-status-info-on-solid:#082F49;
+  --color-status-info-subtle:#0C2D44;
+  --color-status-info-on-subtle:#7DD3FC;
+  --color-chrome-platform:#1A395B;
+}
+[data-density="compact"]{
+  --control-height:32px;
+  --row-height:36px;
+  --pad-x:12px;
+}

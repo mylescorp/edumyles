@@ -1,0 +1,4 @@
+{ "schemaVersion":1, "tenantId":"pale-sun", "version":1,
+  "branding":{"schoolName":"St. Anne's","logoUrl":null,"faviconUrl":null},
+  "colors":{"primary":"#F2E27A","accent":"#CFE8E0"},
+  "updatedAt":1793500000 }

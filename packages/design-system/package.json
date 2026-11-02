@@ -1,0 +1,22 @@
+{
+  "name": "@edumyles/design-system",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "description": "EduMyles design tokens, tenant theme compiler, brand assets (MylesCorp Technologies)",
+  "exports": {
+    "./css": "./css/index.css",
+    "./css/*": "./css/*",
+    "./generated/*": "./generated/*",
+    "./logos/*": "./assets/logos/*",
+    "./schema": "./schema/tenant-theme.schema.json",
+    "./compiler": "./tools/compile-theme.mjs"
+  },
+  "scripts": {
+    "test": "node --test tools/theme.test.mjs",
+    "build:themes": "node scripts/build-themes.mjs",
+    "verify": "npm run test && npm run build:themes && git diff --exit-code -- generated",
+    "sync:assets": "node scripts/sync-assets.mjs"
+  },
+  "engines": { "node": ">=18" }
+}

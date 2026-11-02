@@ -1,0 +1,3 @@
+/* App entry. Order matters: platform defaults -> (tenant CSS is injected server-side in <head>) -> shadcn bridge. */
+@import "./platform.css";
+@import "./shadcn-bridge.css";

@@ -1,0 +1,691 @@
+{
+ "$description": "Tier 2. Meaning. Components consume only these. tenant: locked = platform-owned; derived = computed from brand inputs by the theme engine; input = a tenant brand input; none = not related to tenants (neutral platform value).",
+ "color": {
+  "surface": {
+   "page": {
+    "$type": "color",
+    "$value": {
+     "light": "#F4F4F5",
+     "dark": "#0B111C"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    }
+   },
+   "default": {
+    "$type": "color",
+    "$value": {
+     "light": "#FFFFFF",
+     "dark": "#172235"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    }
+   },
+   "raised": {
+    "$type": "color",
+    "$value": {
+     "light": "#FFFFFF",
+     "dark": "#172235"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    }
+   },
+   "sunken": {
+    "$type": "color",
+    "$value": {
+     "light": "#F1F1F2",
+     "dark": "#243247"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    }
+   },
+   "overlay": {
+    "$type": "color",
+    "$value": {
+     "light": "rgb(15 22 35 / 55%)",
+     "dark": "rgb(0 0 0 / 65%)"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    }
+   }
+  },
+  "text": {
+   "default": {
+    "$type": "color",
+    "$value": {
+     "light": "#171717",
+     "dark": "#F8FAFC"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    }
+   },
+   "muted": {
+    "$type": "color",
+    "$value": {
+     "light": "#666666",
+     "dark": "#A3B1C2"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    }
+   },
+   "inverse": {
+    "$type": "color",
+    "$value": {
+     "light": "#FFFFFF",
+     "dark": "#0B111C"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    }
+   },
+   "disabled": {
+    "$type": "color",
+    "$value": {
+     "light": "#8A8A8A",
+     "dark": "#6B7C93"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    }
+   },
+   "on-primary": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    },
+    "$description": "Chosen white or ink to reach 4.5:1 on the primary fill"
+   },
+   "on-accent": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    }
+   },
+   "on-primary-subtle": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    }
+   }
+  },
+  "border": {
+   "default": {
+    "$type": "color",
+    "$value": {
+     "light": "#E5E5E5",
+     "dark": "#2B3A4F"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    }
+   },
+   "strong": {
+    "$type": "color",
+    "$value": {
+     "light": "#8A8A8A",
+     "dark": "#6B7C93"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    },
+    "$description": "Form field borders, 3:1"
+   }
+  },
+  "focus": {
+   "ring": {
+    "$type": "color",
+    "$value": {
+     "light": "#0F4FA0",
+     "dark": "#6FA2F3"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    },
+    "$description": "Platform blue, never tenant colour. 2px ring + 2px surface-coloured offset"
+   }
+  },
+  "action": {
+   "primary": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "input"
+     }
+    },
+    "$description": "Fill"
+   },
+   "primary-hover": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    }
+   },
+   "primary-pressed": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    }
+   },
+   "primary-disabled": {
+    "$type": "color",
+    "$value": {
+     "light": "#E5E5E5",
+     "dark": "#243247"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    }
+   },
+   "primary-text": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    },
+    "$description": "Links, outline-button labels: 4.5:1 on surface"
+   },
+   "primary-border": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    },
+    "$description": "3:1 edge for outline controls"
+   },
+   "primary-subtle": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    },
+    "$description": "Selected row, soft badge background"
+   },
+   "primary-muted": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    }
+   },
+   "accent": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "input"
+     }
+    }
+   },
+   "accent-hover": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    }
+   },
+   "accent-pressed": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    }
+   },
+   "accent-text": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    }
+   },
+   "accent-border": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    }
+   },
+   "accent-subtle": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    }
+   },
+   "accent-muted": {
+    "$type": "color",
+    "$value": {
+     "light": "derived",
+     "dark": "derived"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "derived"
+     }
+    }
+   }
+  },
+  "status": {
+   "success": {
+    "solid": {
+     "$type": "color",
+     "$value": {
+      "light": "#1B7F4B",
+      "dark": "#4ADE80"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "on-solid": {
+     "$type": "color",
+     "$value": {
+      "light": "#FFFFFF",
+      "dark": "#052E16"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "subtle": {
+     "$type": "color",
+     "$value": {
+      "light": "#E3F4EA",
+      "dark": "#12301F"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "on-subtle": {
+     "$type": "color",
+     "$value": {
+      "light": "#14532D",
+      "dark": "#86EFAC"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    }
+   },
+   "warning": {
+    "solid": {
+     "$type": "color",
+     "$value": {
+      "light": "#B45309",
+      "dark": "#FBBF24"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "on-solid": {
+     "$type": "color",
+     "$value": {
+      "light": "#FFFFFF",
+      "dark": "#422006"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "subtle": {
+     "$type": "color",
+     "$value": {
+      "light": "#FFF1D6",
+      "dark": "#3A2A0A"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "on-subtle": {
+     "$type": "color",
+     "$value": {
+      "light": "#7A3E00",
+      "dark": "#FCD34D"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    }
+   },
+   "danger": {
+    "solid": {
+     "$type": "color",
+     "$value": {
+      "light": "#C62828",
+      "dark": "#F87171"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "on-solid": {
+     "$type": "color",
+     "$value": {
+      "light": "#FFFFFF",
+      "dark": "#450A0A"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "subtle": {
+     "$type": "color",
+     "$value": {
+      "light": "#FDE8E8",
+      "dark": "#3B1414"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "on-subtle": {
+     "$type": "color",
+     "$value": {
+      "light": "#8E1B1B",
+      "dark": "#FCA5A5"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    }
+   },
+   "info": {
+    "solid": {
+     "$type": "color",
+     "$value": {
+      "light": "#0277BD",
+      "dark": "#38BDF8"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "on-solid": {
+     "$type": "color",
+     "$value": {
+      "light": "#FFFFFF",
+      "dark": "#082F49"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "subtle": {
+     "$type": "color",
+     "$value": {
+      "light": "#E1F5FE",
+      "dark": "#0C2D44"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    },
+    "on-subtle": {
+     "$type": "color",
+     "$value": {
+      "light": "#01579B",
+      "dark": "#7DD3FC"
+     },
+     "$extensions": {
+      "edumyles": {
+       "tenant": "locked"
+      }
+     }
+    }
+   }
+  },
+  "chrome": {
+   "platform": {
+    "$type": "color",
+    "$value": {
+     "light": "#1A395B",
+     "dark": "#1A395B"
+    },
+    "$extensions": {
+     "edumyles": {
+      "tenant": "locked"
+     }
+    },
+    "$description": "Platform navy: platform admin chrome only. Tenant shells use action-primary."
+   }
+  }
+ },
+ "typography": {
+  "family": {
+   "$value": "{font.family.sans}",
+   "$type": "fontFamily",
+   "$extensions": {
+    "edumyles": {
+     "tenant": "input",
+     "options": [
+      "Inter",
+      "Source Sans 3",
+      "Noto Sans",
+      "Nunito Sans"
+     ]
+    }
+   }
+  },
+  "min-size": {
+   "$value": "12px",
+   "$type": "dimension",
+   "$extensions": {
+    "edumyles": {
+     "tenant": "locked"
+    }
+   }
+  }
+ },
+ "space": {
+  "inline": {
+   "$value": "{space.2}"
+  },
+  "stack": {
+   "$value": "{space.4}"
+  },
+  "inset": {
+   "$value": "{space.4}"
+  },
+  "gutter": {
+   "$value": "{space.6}"
+  },
+  "section": {
+   "$value": "{space.12}"
+  }
+ },
+ "radius": {
+  "control": {
+   "$value": "8px"
+  },
+  "card": {
+   "$value": "12px"
+  },
+  "dialog": {
+   "$value": "16px"
+  },
+  "badge": {
+   "$value": "6px"
+  }
+ },
+ "density": {
+  "comfortable": {
+   "control-height": {
+    "$value": "40px"
+   },
+   "row-height": {
+    "$value": "48px"
+   },
+   "pad-x": {
+    "$value": "16px"
+   }
+  },
+  "compact": {
+   "control-height": {
+    "$value": "32px"
+   },
+   "row-height": {
+    "$value": "36px"
+   },
+   "pad-x": {
+    "$value": "12px"
+   }
+  }
+ },
+ "elevation": {
+  "card": {
+   "$value": "{shadow.sm}"
+  },
+  "popover": {
+   "$value": "{shadow.md}"
+  },
+  "dialog": {
+   "$value": "{shadow.xl}"
+  }
+ }
+}

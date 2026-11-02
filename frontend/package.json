@@ -64,7 +64,8 @@
     "tailwindcss-animate": "^1.0.7",
     "vitest": "^2.1.8",
     "web-vitals": "^5.1.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "@edumyles/design-system": "*"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
