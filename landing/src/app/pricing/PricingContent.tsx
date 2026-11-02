@@ -65,9 +65,9 @@ const comparisonRows = [
 ];
 
 function Cell({ val }: { val: boolean | string }) {
-  if (val === true) return <span style={{ color: "#26A65B", fontSize: 18 }}>✓</span>;
-  if (val === false) return <span style={{ color: "#ccc" }}>—</span>;
-  return <span style={{ color: "var(--accent-foreground)", fontSize: 13, fontWeight: 600 }}>{val}</span>;
+  if (val === true) return <span style={{ color: "var(--color-status-success-solid)", fontSize: 18 }}>✓</span>;
+  if (val === false) return <span style={{ color: "var(--color-action-primary-disabled)" }}>—</span>;
+  return <span style={{ color: "var(--color-text-on-primary-subtle)", fontSize: 13, fontWeight: 600 }}>{val}</span>;
 }
 
 export default function PricingContent() {
@@ -77,13 +77,13 @@ export default function PricingContent() {
   return (
     <>
       {/* ── Pricing Cards ─────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--background)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[1200px] mx-auto">
           {/* Billing toggle */}
           <div className="flex items-center justify-center gap-4 mb-12">
             <span
               className="font-jakarta text-[14px] font-medium"
-              style={{ color: annual ? "var(--muted-foreground)" : "var(--foreground)" }}
+              style={{ color: annual ? "var(--color-text-muted)" : "var(--color-text-default)" }}
             >
               Monthly
             </span>
@@ -91,7 +91,7 @@ export default function PricingContent() {
               type="button"
               onClick={() => setAnnual(!annual)}
               className="relative w-12 h-6 rounded-full transition-colors duration-300"
-              style={{ background: annual ? "var(--primary)" : "rgba(6,26,18,0.2)" }}
+              style={{ background: annual ? "var(--color-action-primary)" : "color-mix(in srgb, var(--color-surface-page) 20%, transparent)" }}
               aria-label="Toggle annual billing"
             >
               <div
@@ -101,12 +101,12 @@ export default function PricingContent() {
             </button>
             <span
               className="font-jakarta text-[14px] font-medium"
-              style={{ color: annual ? "var(--foreground)" : "var(--muted-foreground)" }}
+              style={{ color: annual ? "var(--color-text-default)" : "var(--color-text-muted)" }}
             >
               Annual{" "}
               <span
                 className="text-[11px] font-bold px-2 py-0.5 rounded-[20px] ml-1"
-                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
               >
                 Save 20%
               </span>
@@ -119,18 +119,20 @@ export default function PricingContent() {
                 key={plan.name}
                 className="relative rounded-2xl flex flex-col"
                 style={{
-                  background: plan.featured ? "var(--deep)" : "var(--card)",
-                  border: plan.featured ? "1px solid var(--deep)" : "1px solid var(--border)",
+                  background: plan.featured ? "var(--color-action-primary)" : "var(--color-surface-default)",
+                  border: plan.featured ? "2px solid var(--color-action-primary)" : "1px solid var(--color-border-default)",
                   padding: "2rem",
-                  boxShadow: plan.featured ? "none" : "0 4px 20px rgba(6,26,18,0.06)",
-                  transform: "none",
+                  boxShadow: plan.featured
+                    ? "0 20px 60px color-mix(in srgb, var(--color-surface-page) 30%, transparent)"
+                    : "0 4px 20px color-mix(in srgb, var(--color-surface-page) 6%, transparent)",
+                  transform: plan.featured ? "scale(1.02)" : "none",
                 }}
               >
                 {plan.highlight && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span
                       className="font-jakarta font-bold text-[12px] px-4 py-1.5 rounded-[20px] whitespace-nowrap"
-                      style={{ background: "var(--handoff-gold)", color: "#171717" }}
+                      style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
                     >
                       <Star
                         className="w-3 h-3 inline mr-1 -mt-0.5"
@@ -144,11 +146,11 @@ export default function PricingContent() {
 
                 <h3
                   className="font-display font-bold text-[24px] mb-1"
-                  style={{ color: plan.featured ? "#ffffff" : "var(--foreground)" }}
+                  style={{ color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-default)" }}
                 >
                   {plan.name}
                 </h3>
-                <p className="font-jakarta text-[13px] mb-4" style={{ color: plan.featured ? "var(--ondeep)" : "var(--muted-foreground)", opacity: 1 }}>
+                <p className="font-jakarta text-[13px] mb-4" style={{ color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-muted)", opacity: plan.featured ? 0.82 : 1 }}>
                   {plan.tagline}
                 </p>
 
@@ -156,7 +158,7 @@ export default function PricingContent() {
                   {plan.monthlyPriceKes === null ? (
                     <div
                       className="font-display font-bold text-[40px]"
-                      style={{ color: plan.featured ? "#ffffff" : "var(--foreground)" }}
+                      style={{ color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-default)" }}
                     >
                       Custom
                     </div>
@@ -164,7 +166,7 @@ export default function PricingContent() {
                     <>
                       <div
                         className="font-display font-bold text-[38px]"
-                        style={{ color: plan.featured ? "#ffffff" : "var(--foreground)" }}
+                        style={{ color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-default)" }}
                       >
                         {formatPublicKes(
                           annual ? plan.annualMonthlyPriceKes! : plan.monthlyPriceKes
@@ -172,7 +174,7 @@ export default function PricingContent() {
                       </div>
                       <div
                         className="font-jakarta text-[13px]"
-                        style={{ color: plan.featured ? "var(--ondeep)" : "var(--muted-foreground)", opacity: 1 }}
+                        style={{ color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-muted)", opacity: 0.82 }}
                       >
                         per school / month {annual ? "(billed annually)" : ""}
                       </div>
@@ -182,7 +184,7 @@ export default function PricingContent() {
 
                 <p
                   className="font-jakarta text-[14px] leading-[1.7] mb-6"
-                  style={{ color: plan.featured ? "var(--ondeep)" : "var(--muted-foreground)", opacity: 1 }}
+                  style={{ color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-muted)", opacity: 0.86 }}
                 >
                   {plan.description}
                 </p>
@@ -192,13 +194,13 @@ export default function PricingContent() {
                     <li key={f} className="flex items-start gap-2">
                       <span
                         className="font-bold text-[14px] flex-shrink-0 mt-0.5"
-                        style={{ color: "#26A65B" }}
+                        style={{ color: "var(--color-status-success-solid)" }}
                       >
                         ✓
                       </span>
                       <span
                         className="font-jakarta text-[14px]"
-                        style={{ color: plan.featured ? "#ffffff" : "var(--foreground)", opacity: 1 }}
+                        style={{ color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-default)", opacity: plan.featured ? 0.9 : 1 }}
                       >
                         {f}
                       </span>
@@ -211,8 +213,8 @@ export default function PricingContent() {
                   className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-[50px] no-underline transition-all duration-200"
                   style={
                     plan.featured
-                      ? { background: "var(--handoff-gold)", color: "#171717" }
-                      : { background: "var(--primary)", color: "var(--primary-foreground)" }
+                      ? { background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }
+                      : { background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }
                   }
                 >
                   {plan.cta}
@@ -221,33 +223,33 @@ export default function PricingContent() {
             ))}
           </div>
 
-            <p className="text-center font-jakarta text-[13px] mt-8" style={{ color: "var(--muted-foreground)" }}>
+            <p className="text-center font-jakarta text-[13px] mt-8" style={{ color: "var(--color-text-muted)" }}>
             30-day money-back guarantee · No setup fees · Prices in KES · M-Pesa or bank transfer
           </p>
         </div>
       </section>
 
       {/* ── Comparison Table ──────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--card)" }} id="compare">
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-default)" }} id="compare">
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-10">
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
             >
               Compare{" "}
-              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+              <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 all features
               </em>
             </h2>
           </div>
-          <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid var(--border)" }}>
+          <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid var(--color-border-default)" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ background: "var(--platform-chrome)" }}>
+                <tr style={{ background: "var(--color-chrome-platform)" }}>
                   <th
                     className="font-jakarta font-bold text-[14px] text-left py-4 px-5"
-                    style={{ color: "#ffffff", width: "40%" }}
+                    style={{ color: "var(--color-text-inverse)", width: "40%" }}
                   >
                     Feature
                   </th>
@@ -255,7 +257,7 @@ export default function PricingContent() {
                     <th
                       key={p}
                       className="font-jakarta font-bold text-[14px] text-center py-4 px-5"
-                      style={{ color: p === "Professional" ? "#B9CBD6" : "#ffffff" }}
+                      style={{ color: p === "Professional" ? "var(--color-text-muted)" : "var(--color-text-inverse)" }}
                     >
                       {p}
                     </th>
@@ -267,13 +269,13 @@ export default function PricingContent() {
                   <tr
                     key={row.feature}
                     style={{
-                      background: i % 2 === 0 ? "var(--card)" : "var(--muted)",
-                      borderBottom: "1px solid var(--border)",
+                      background: i % 2 === 0 ? "var(--color-surface-default)" : "var(--color-surface-sunken)",
+                      borderBottom: "1px solid var(--color-border-default)",
                     }}
                   >
                     <td
                       className="font-jakarta text-[14px] py-3.5 px-5"
-                      style={{ color: "var(--foreground)" }}
+                      style={{ color: "var(--color-text-default)" }}
                     >
                       {row.feature}
                     </td>
@@ -295,15 +297,15 @@ export default function PricingContent() {
       </section>
 
       {/* ── FAQ ───────────────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--background)" }} id="faq">
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-page)" }} id="faq">
         <div className="max-w-[760px] mx-auto">
           <div className="text-center mb-10">
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
             >
               Pricing{" "}
-              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+              <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 FAQs
               </em>
             </h2>
@@ -313,13 +315,13 @@ export default function PricingContent() {
               <div
                 key={faq.q}
                 className="rounded-2xl overflow-hidden"
-                style={{ border: "1px solid var(--border)", background: "var(--card)" }}
+                style={{ border: "1px solid var(--color-border-default)", background: "var(--color-surface-default)" }}
               >
                 <button
                   type="button"
                   className="w-full flex justify-between items-center gap-4 text-left font-jakarta font-semibold text-[15px] py-5 px-6 transition-colors duration-200"
                   style={{
-                    color: openFaq === i ? "var(--accent-foreground)" : "var(--foreground)",
+                    color: openFaq === i ? "var(--color-text-on-primary-subtle)" : "var(--color-text-default)",
                     background: "transparent",
                     cursor: "pointer",
                   }}
@@ -330,7 +332,7 @@ export default function PricingContent() {
                     className="flex-shrink-0 text-[20px] transition-transform duration-300"
                     style={{
                       transform: openFaq === i ? "rotate(45deg)" : "none",
-                      color: "var(--accent-foreground)",
+                      color: "var(--color-text-on-primary-subtle)",
                     }}
                   >
                     +
@@ -340,7 +342,7 @@ export default function PricingContent() {
                   <div className="px-6 pb-5">
                     <p
                       className="font-jakarta text-[14px] leading-[1.8]"
-                      style={{ color: "var(--muted-foreground)" }}
+                      style={{ color: "var(--color-text-muted)" }}
                     >
                       {faq.a}
                     </p>
@@ -353,25 +355,25 @@ export default function PricingContent() {
       </section>
 
       {/* ── Final CTA ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-action-primary)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--color-text-on-primary)" }}
           >
             Ready to get started?{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary)" }}>
               It&apos;s free for 30 days.
             </em>
           </h2>
-          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)", opacity: 0.82 }}>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--color-text-on-primary)", opacity: 0.82 }}>
             No credit card required. No setup fees. Full access from day one.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              style={{ background: "var(--color-text-on-primary)", color: "var(--color-action-primary)" }}
             >
               Start Free Trial →
             </a>
@@ -380,8 +382,8 @@ export default function PricingContent() {
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid color-mix(in srgb, var(--color-text-on-primary) 45%, transparent)",
+                color: "var(--color-text-on-primary)",
               }}
             >
               Talk to Sales

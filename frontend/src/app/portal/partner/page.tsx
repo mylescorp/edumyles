@@ -125,20 +125,20 @@ export default function PartnerDashboardPage() {
           </CardHeader>
           <CardContent className="px-5 pb-5">
             {!financeEnabled ? (
-              <div className="p-3 rounded-lg border border-[rgba(232,160,32,0.2)] bg-[rgba(232,160,32,0.05)]">
+              <div className="p-3 rounded-lg border border-[color-mix(in_srgb,_var(--color-status-warning-solid)_20%,_transparent)] bg-[color-mix(in_srgb,_var(--color-status-warning-solid)_5%,_transparent)]">
                 <p className="text-sm text-muted-foreground">
                   Finance-powered reporting appears here when the Finance module is enabled.
                 </p>
               </div>
             ) : report?.summary?.averageScore != null ? (
               <div className="space-y-3">
-                <div className="p-4 rounded-lg border border-[rgba(38,166,91,0.2)] bg-[rgba(38,166,91,0.05)]">
+                <div className="p-4 rounded-lg border border-[color-mix(in_srgb,_var(--color-status-success-solid)_20%,_transparent)] bg-[color-mix(in_srgb,_var(--color-status-success-solid)_5%,_transparent)]">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Average Score</p>
                   <p className="text-2xl font-bold text-success">{report.summary.averageScore.toFixed(1)}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">Across {reportsCount} sponsored student{reportsCount !== 1 ? "s" : ""}</p>
                 </div>
                 {report.summary.attendanceRate != null && (
-                  <div className="p-4 rounded-lg border border-[rgba(21,101,192,0.2)] bg-[rgba(21,101,192,0.05)]">
+                  <div className="p-4 rounded-lg border border-[color-mix(in_srgb,_var(--color-action-primary-border)_20%,_transparent)] bg-[color-mix(in_srgb,_var(--color-action-primary)_5%,_transparent)]">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Attendance Rate</p>
                     <p className="text-2xl font-bold text-info">{report.summary.attendanceRate.toFixed(1)}%</p>
                   </div>

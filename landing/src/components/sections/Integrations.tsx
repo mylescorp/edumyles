@@ -37,7 +37,7 @@ export default function Integrations() {
               {badge.isEmoji ? (
                 <span className="text-lg leading-none">{badge.icon}</span>
               ) : (
-                <badge.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+                <badge.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
               )}
               <span className="text-sm font-semibold text-foreground">{badge.name}</span>
               <span className="text-xs text-gray-400">{badge.subtitle}</span>

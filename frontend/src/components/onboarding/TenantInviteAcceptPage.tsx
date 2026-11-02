@@ -197,9 +197,9 @@ export function TenantInviteAcceptPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_var(--accent),_var(--background)_50%,_var(--muted))] px-4 py-12">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_var(--color-action-primary-subtle),_var(--color-surface-page)_50%,_var(--color-surface-sunken))] px-4 py-12">
       <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-slate-200/70 bg-card/90 shadow-xl shadow-slate-200/50">
+        <Card className="border-slate-200/70 bg-[var(--color-surface-default)] shadow-xl shadow-slate-200/50">
           <CardHeader className="space-y-4">
             <div className="flex items-center gap-2 text-sm text-slate-500">
               <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
@@ -325,7 +325,7 @@ export function TenantInviteAcceptPage() {
         </Card>
 
         <div className="space-y-6">
-          <Card className="border-slate-200/70 bg-slate-950 text-white shadow-xl shadow-slate-300/40">
+          <Card className="border-slate-200/70 bg-slate-950 text-[var(--color-text-on-primary)] shadow-xl shadow-slate-300/40">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
                 <School className="h-5 w-5 text-emerald-300" />
@@ -336,26 +336,26 @@ export function TenantInviteAcceptPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-slate-200">
-              <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
+              <div className="flex items-center justify-between rounded-lg border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)] p-3">
                 <span>Suggested plan</span>
-                <Badge className="bg-white/10 text-white">{invite.suggestedPlan ?? "starter"}</Badge>
+                <Badge className="bg-[var(--color-surface-default)] text-[var(--color-text-on-primary)]">{invite.suggestedPlan ?? "starter"}</Badge>
               </div>
-              <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
+              <div className="flex items-center justify-between rounded-lg border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)] p-3">
                 <span>Estimated students</span>
                 <span>{invite.studentCountEstimate ?? "Not provided"}</span>
               </div>
-              <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
+              <div className="flex items-center justify-between rounded-lg border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)] p-3">
                 <span>Country</span>
                 <span>{invite.country ?? "Kenya"}</span>
               </div>
-              <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
+              <div className="flex items-center justify-between rounded-lg border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)] p-3">
                 <span>Invite email</span>
                 <span className="max-w-[60%] truncate text-right">{invite.email}</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-slate-200/70 bg-card/90">
+          <Card className="border-slate-200/70 bg-[var(--color-surface-default)]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl text-slate-900">
                 <UserRound className="h-5 w-5 text-sky-600" />

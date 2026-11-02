@@ -33,7 +33,7 @@ export default async function LoginPage({
     <div className="flex min-h-screen">
       {/* ── Left brand panel ── */}
       <div
-        className="hidden flex-col justify-between bg-[var(--platform-chrome)] p-12 text-white lg:flex lg:w-[52%] xl:w-[55%] xl:p-16">
+        className="hidden flex-col justify-between bg-[var(--color-chrome-platform)] p-12 text-[var(--color-text-on-primary)] lg:flex lg:w-[52%] xl:w-[55%] xl:p-16">
         {/* Logo */}
         <div>
           <Logo variant="lockup" width={320} height={91} priority appearance="dark" href={null} />
@@ -46,7 +46,7 @@ export default async function LoginPage({
               className="text-4xl font-bold leading-tight text-white xl:text-5xl">
               The all-in-one platform for East African schools.
             </h1>
-            <p className="text-white/80">
+            <p className="text-[var(--color-text-on-primary)]">
               Replace disconnected spreadsheets and WhatsApp groups with one unified system — from
               admissions to graduation.
             </p>
@@ -58,11 +58,11 @@ export default async function LoginPage({
               <li key={text} className="flex items-center gap-2.5">
                 <span
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
-                  style={{ background: "rgb(255 255 255 / 14%)" }}
+                  style={{ background: "color-mix(in srgb, var(--color-surface-default) 14%, transparent)" }}
                 >
-                  <Icon className="h-4 w-4 text-white" />
+                  <Icon className="h-4 w-4 text-[var(--color-text-on-primary)]" />
                 </span>
-                <span className="text-white/80">
+                <span className="text-[var(--color-text-on-primary)]">
                   {text}
                 </span>
               </li>
@@ -71,7 +71,7 @@ export default async function LoginPage({
         </div>
 
         {/* Footer trust signal */}
-        <p className="text-white/65">
+        <p className="text-[var(--color-text-on-primary)]">
           Trusted by schools across Kenya, Uganda, Tanzania &amp; Rwanda
         </p>
       </div>

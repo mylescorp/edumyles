@@ -37,7 +37,7 @@ export default function BrandValues() {
       id="brand-values"
       className="px-4 sm:px-8 py-20"
       aria-label="Our mission, vision, and values"
-      style={{ background: "var(--background)" }}
+      style={{ background: "var(--color-surface-page)" }}
     >
       <div className="max-w-[1200px] mx-auto">
         {/* Section badge */}
@@ -45,9 +45,9 @@ export default function BrandValues() {
           <div
             className="inline-block font-jakarta font-semibold text-[13px] px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgb(var(--primary-rgb) / 12%)",
-              border: "1px solid rgb(var(--primary-rgb) / 40%)",
-              color: "#9A5D00",
+              background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--color-action-primary) 40%, transparent)",
+              color: "var(--color-status-warning-solid)",
             }}
           >
             Who We Are
@@ -57,10 +57,10 @@ export default function BrandValues() {
         {/* Tagline */}
         <h2
           className="font-display font-bold text-center leading-[1.2] mb-4"
-          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--foreground)" }}
+          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--color-text-default)" }}
         >
           Empowering Schools,{" "}
-          <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+          <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
             One Mile at a Time.
           </em>
         </h2>
@@ -70,18 +70,18 @@ export default function BrandValues() {
           <div
             className="rounded-2xl p-8"
             style={{
-              background: "var(--card)",
-              border: "1px solid rgba(38,166,91,0.15)",
-              boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
+              background: "var(--color-surface-default)",
+              border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 15%, transparent)",
+              boxShadow: "0 2px 16px color-mix(in srgb, var(--color-surface-page) 6%, transparent)",
             }}
           >
             <div
               className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-[50px] uppercase tracking-wider"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)", color: "var(--color-status-warning-solid)" }}
             >
               Our Mission
             </div>
-            <p className="font-jakarta text-[16px] leading-[1.8]" style={{ color: "var(--foreground)" }}>
+            <p className="font-jakarta text-[16px] leading-[1.8]" style={{ color: "var(--color-text-default)" }}>
               To simplify school administration across Africa so that educators can focus on what
               matters most — teaching and student success.
             </p>
@@ -89,18 +89,18 @@ export default function BrandValues() {
           <div
             className="rounded-2xl p-8"
             style={{
-              background: "var(--card)",
-              border: "1px solid rgba(38,166,91,0.15)",
-              boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
+              background: "var(--color-surface-default)",
+              border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 15%, transparent)",
+              boxShadow: "0 2px 16px color-mix(in srgb, var(--color-surface-page) 6%, transparent)",
             }}
           >
             <div
               className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-[50px] uppercase tracking-wider"
-              style={{ background: "rgba(15,76,42,0.08)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-on-subtle) 8%, transparent)", color: "var(--color-action-primary)" }}
             >
               Our Vision
             </div>
-            <p className="font-jakarta text-[16px] leading-[1.8]" style={{ color: "var(--foreground)" }}>
+            <p className="font-jakarta text-[16px] leading-[1.8]" style={{ color: "var(--color-text-default)" }}>
               To be Africa&apos;s most trusted school management platform, powering institutions of
               every size — from single-classroom community schools to multi-campus international
               networks.
@@ -112,10 +112,10 @@ export default function BrandValues() {
         <div className="text-center mb-10">
           <h3
             className="font-display font-bold leading-[1.2]"
-            style={{ fontSize: "clamp(1.4rem, 2.5vw, 2rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.4rem, 2.5vw, 2rem)", color: "var(--color-text-default)" }}
           >
             Our Core{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               Values
             </em>
           </h3>
@@ -128,23 +128,23 @@ export default function BrandValues() {
               key={v.title}
               className="rounded-2xl p-6 text-center flex flex-col items-center"
               style={{
-                background: "var(--card)",
-                border: "1px solid rgba(38,166,91,0.15)",
-                boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                background: "var(--color-surface-default)",
+                border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 15%, transparent)",
+                boxShadow: "0 2px 12px color-mix(in srgb, var(--color-surface-page) 5%, transparent)",
               }}
             >
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-[18px] mb-3"
-                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
               >
                 {v.letter}
               </div>
-              <h4 className="font-display font-bold text-[17px] mb-2" style={{ color: "var(--foreground)" }}>
+              <h4 className="font-display font-bold text-[17px] mb-2" style={{ color: "var(--color-text-default)" }}>
                 {v.title}
               </h4>
               <p
                 className="font-jakarta text-[13px] leading-[1.7] mb-3"
-                style={{ color: "var(--muted-foreground)" }}
+                style={{ color: "var(--color-text-muted)" }}
               >
                 {v.desc}
               </p>
@@ -154,9 +154,9 @@ export default function BrandValues() {
                     key={kw}
                     className="font-jakarta font-semibold text-[10px] px-2 py-0.5 rounded-full"
                     style={{
-                      background: "rgb(var(--primary-rgb) / 10%)",
-                      border: "1px solid rgb(var(--primary-rgb) / 25%)",
-                      color: "#9A5D00",
+                      background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)",
+                      border: "1px solid color-mix(in srgb, var(--color-action-primary) 25%, transparent)",
+                      color: "var(--color-status-warning-solid)",
                     }}
                   >
                     {kw}
@@ -171,14 +171,14 @@ export default function BrandValues() {
         <div
           className="rounded-2xl p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start"
           style={{
-            background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-            boxShadow: "0 20px 60px rgba(6,26,18,0.2)",
+            background: "linear-gradient(135deg, var(--color-chrome-platform) 0%, var(--color-action-primary) 100%)",
+            boxShadow: "0 20px 60px color-mix(in srgb, var(--color-surface-page) 20%, transparent)",
           }}
         >
           <div className="flex-shrink-0">
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center font-display font-bold text-2xl"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               JM
             </div>
@@ -187,16 +187,16 @@ export default function BrandValues() {
             <div
               className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-[50px] uppercase tracking-wider"
               style={{
-                background: "rgb(var(--primary-rgb) / 15%)",
-                border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                color: "#B9CBD6",
+                background: "color-mix(in srgb, var(--color-action-primary) 15%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-action-primary) 30%, transparent)",
+                color: "var(--color-text-muted)",
               }}
             >
               Founding Story
             </div>
             <blockquote
               className="font-display italic text-[19px] leading-[1.65] mb-5"
-              style={{ color: "#ffffff" }}
+              style={{ color: "var(--color-text-inverse)" }}
             >
               &ldquo;I watched a principal manage a 1,200-student school on WhatsApp groups and
               paper registers. It was brilliant improvisation — but it was costing teachers hours
@@ -204,10 +204,10 @@ export default function BrandValues() {
               time back.&rdquo;
             </blockquote>
             <div>
-              <div className="font-jakarta font-bold text-[15px]" style={{ color: "#B9CBD6" }}>
+              <div className="font-jakarta font-bold text-[15px]" style={{ color: "var(--color-text-muted)" }}>
                 Jonathan Myles
               </div>
-              <div className="font-jakarta text-[13px]" style={{ color: "#D5E1DE" }}>
+              <div className="font-jakarta text-[13px]" style={{ color: "var(--color-action-primary-disabled)" }}>
                 CEO &amp; Founder — EduMyles · Founded in Nairobi, Kenya
               </div>
             </div>

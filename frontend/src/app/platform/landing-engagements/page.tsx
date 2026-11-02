@@ -368,7 +368,7 @@ export default function LandingEngagementsPage() {
                 </div>
                 {selectedLive.channel === "live_chat" && (
                   <div className="rounded-xl border bg-slate-50">
-                    <div className="flex items-center justify-between border-b bg-card px-4 py-3">
+                    <div className="flex items-center justify-between border-b bg-[var(--color-surface-default)] px-4 py-3">
                       <div>
                         <p className="text-sm font-semibold">Live chat thread</p>
                         <p className="text-xs text-muted-foreground">
@@ -392,7 +392,7 @@ export default function LandingEngagementsPage() {
                           ].join(" ")}
                         >
                           {item.sender === "system" ? (
-                            <p className="max-w-[90%] rounded-full bg-card px-3 py-1.5 text-center text-xs text-muted-foreground ring-1 ring-border">
+                            <p className="max-w-[90%] rounded-full bg-[var(--color-surface-default)] px-3 py-1.5 text-center text-xs text-muted-foreground ring-1 ring-border">
                               {item.body}
                             </p>
                           ) : (
@@ -400,8 +400,8 @@ export default function LandingEngagementsPage() {
                               className={[
                                 "max-w-[82%] rounded-xl px-3.5 py-2 text-sm leading-6 shadow-sm",
                                 item.sender === "agent"
-                                  ? "rounded-br-sm bg-primary text-primary-foreground"
-                                  : "rounded-bl-sm border bg-card text-foreground",
+                                  ? "rounded-br-sm bg-emerald-700 text-[var(--color-text-on-primary)]"
+                                  : "rounded-bl-sm border bg-[var(--color-surface-default)] text-foreground",
                               ].join(" ")}
                             >
                               <p className="mb-1 text-[11px] font-semibold opacity-70">
@@ -413,7 +413,7 @@ export default function LandingEngagementsPage() {
                         </div>
                       ))}
                     </div>
-                    <div className="border-t bg-card p-3">
+                    <div className="border-t bg-[var(--color-surface-default)] p-3">
                       <div className="flex items-end gap-2">
                         <Textarea
                           value={agentReply}

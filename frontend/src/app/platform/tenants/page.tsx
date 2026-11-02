@@ -93,12 +93,12 @@ type SortOption =
 function StatusBadge({ status }: { status: string }) {
   const className =
     status === "active"
-      ? "border-[var(--platform-success-border)] bg-[var(--platform-success-soft)] text-[var(--em-success)]"
+      ? "border-[var(--platform-success-border)] bg-[var(--platform-success-soft)] text-[var(--color-status-success-solid)]"
       : status === "trial"
         ? "border-[var(--platform-accent-border)] bg-[var(--platform-accent-soft)] text-[var(--platform-accent)]"
         : status === "archived"
           ? "border-slate-300 bg-slate-100 text-slate-700"
-          : "border-[var(--platform-danger-border)] bg-[var(--platform-danger-soft)] text-[var(--em-danger)]";
+          : "border-[var(--platform-danger-border)] bg-[var(--platform-danger-soft)] text-[var(--color-status-danger-solid)]";
 
   return (
     <Badge variant="outline" className={className}>
@@ -115,7 +115,7 @@ function PlanBadge({ plan }: { plan: string }) {
         ? "border-[var(--platform-highlight-border)] bg-[var(--platform-highlight-soft)] text-[var(--em-gold-deep)]"
         : plan === "standard" || plan === "growth"
           ? "border-[var(--platform-accent-border)] bg-[var(--platform-accent-soft)] text-[var(--platform-accent)]"
-          : "border-[var(--platform-success-border)] bg-[var(--platform-success-soft)] text-[var(--em-success)]";
+          : "border-[var(--platform-success-border)] bg-[var(--platform-success-soft)] text-[var(--color-status-success-solid)]";
 
   return (
     <Badge variant="outline" className={className}>
@@ -458,10 +458,10 @@ export default function TenantsPage() {
         <Card className="border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active + Trial</CardTitle>
-            <Users className="h-4 w-4 text-[var(--em-success)]" />
+            <Users className="h-4 w-4 text-[var(--color-status-success-solid)]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold text-[var(--em-success)]">
+            <div className="text-2xl font-semibold text-[var(--color-status-success-solid)]">
               {statusCards.activeTenants + statusCards.trialTenants}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -473,10 +473,10 @@ export default function TenantsPage() {
         <Card className="border-border/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Suspended</CardTitle>
-            <Ban className="h-4 w-4 text-[var(--em-danger)]" />
+            <Ban className="h-4 w-4 text-[var(--color-status-danger-solid)]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold text-[var(--em-danger)]">{statusCards.suspendedTenants}</div>
+            <div className="text-2xl font-semibold text-[var(--color-status-danger-solid)]">{statusCards.suspendedTenants}</div>
             <p className="text-xs text-muted-foreground">Tenants requiring intervention</p>
           </CardContent>
         </Card>

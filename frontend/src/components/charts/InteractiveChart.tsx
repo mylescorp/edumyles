@@ -88,7 +88,7 @@ export function InteractiveChart({
           {/* Interactive tooltip */}
           {selectedPoint && (
             <div 
-              className="absolute bg-black text-white p-2 rounded shadow-lg text-sm z-10"
+              className="absolute bg-[var(--color-surface-overlay)] text-[var(--color-text-on-primary)] p-2 rounded shadow-lg text-sm z-10"
               style={{
                 left: `${Math.min(...data.map(d => Number(d.x)))}px`,
                 top: '20px'
@@ -97,12 +97,12 @@ export function InteractiveChart({
               <div className="font-semibold">{selectedPoint.x}</div>
               <div className="text-xs opacity-80">{formatValue(selectedPoint.y)}</div>
               {selectedPoint.value && (
-                <div className="text-xs mt-1 pt-1 border-t border-white/20">
+                <div className="text-xs mt-1 pt-1 border-t border-[color-mix(in_srgb,var(--color-text-inverse)_20%,transparent)]">
                   {JSON.stringify(selectedPoint.value, null, 2)}
                 </div>
               )}
               <button
-                className="absolute top-1 right-1 text-white hover:bg-gray-700 p-1 rounded"
+                className="absolute top-1 right-1 text-[var(--color-text-on-primary)] hover:bg-gray-700 p-1 rounded"
                 onClick={() => setSelectedPoint(null)}
               >
                 ×

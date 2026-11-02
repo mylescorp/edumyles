@@ -25,17 +25,17 @@ interface Category {
 }
 
 const statusStyles: Record<StatusType, { bg: string; color: string }> = {
-  Native: { bg: "#dcfce7", color: "#166534" },
-  Beta: { bg: "#dbeafe", color: "#1e40af" },
-  Planned: { bg: "#f3f4f6", color: "#6b7280" },
+  Native: { bg: "var(--color-status-success-subtle)", color: "var(--color-status-success-on-subtle)" },
+  Beta: { bg: "var(--color-status-info-subtle)", color: "var(--color-action-primary-hover)" },
+  Planned: { bg: "var(--color-surface-page)", color: "var(--color-text-disabled)" },
 };
 
 const categories: Category[] = [
   {
     title: "Payments",
     Icon: CreditCard,
-    color: "var(--primary)",
-    tintBg: "rgba(26,122,74,0.08)",
+    color: "var(--color-action-primary)",
+    tintBg: "color-mix(in srgb, var(--color-status-success-solid) 8%, transparent)",
     integrations: [
       {
         name: "M-Pesa",
@@ -58,8 +58,8 @@ const categories: Category[] = [
   {
     title: "Communication",
     Icon: MessageSquare,
-    color: "#1e40af",
-    tintBg: "rgba(30,64,175,0.08)",
+    color: "var(--color-action-primary-hover)",
+    tintBg: "color-mix(in srgb, var(--color-action-primary-hover) 8%, transparent)",
     integrations: [
       {
         name: "SMS Gateway",
@@ -81,8 +81,8 @@ const categories: Category[] = [
   {
     title: "Government & Compliance",
     Icon: FileText,
-    color: "#c2410c",
-    tintBg: "rgba(194,65,12,0.08)",
+    color: "var(--color-status-warning-solid)",
+    tintBg: "color-mix(in srgb, var(--color-status-warning-solid) 8%, transparent)",
     integrations: [
       {
         name: "NEMIS",
@@ -100,8 +100,8 @@ const categories: Category[] = [
   {
     title: "Productivity",
     Icon: BookOpen,
-    color: "#7c3aed",
-    tintBg: "rgba(124,58,237,0.08)",
+    color: "var(--color-action-primary-text)",
+    tintBg: "color-mix(in srgb, var(--color-action-primary-text) 8%, transparent)",
     integrations: [
       {
         name: "Google Classroom",
@@ -123,8 +123,8 @@ const categories: Category[] = [
   {
     title: "Data & Reporting",
     Icon: BarChart2,
-    color: "#b45309",
-    tintBg: "rgb(var(--primary-rgb) / 10%)",
+    color: "var(--color-status-warning-solid)",
+    tintBg: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)",
     integrations: [
       {
         name: "Excel / Google Sheets",
@@ -157,13 +157,13 @@ const apiFeatures = [
 
 export default function IntegrationsPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "420px",
         }}
@@ -171,7 +171,7 @@ export default function IntegrationsPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -179,25 +179,25 @@ export default function IntegrationsPage() {
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgb(var(--primary-rgb) / 12%)",
-              border: "1px solid var(--accent-foreground)",
-              color: "var(--accent-foreground)",
+              background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+              border: "1px solid var(--color-text-on-primary-subtle)",
+              color: "var(--color-text-on-primary-subtle)",
             }}
           >
             Integrations
           </div>
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--color-text-default)" }}
           >
             Connect EduMyles with the{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               tools your school uses.
             </em>
           </h1>
           <p
             className="font-jakarta font-light leading-[1.8] mx-auto mb-8"
-            style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "600px" }}
+            style={{ fontSize: "18px", color: "var(--color-text-muted)", maxWidth: "600px" }}
           >
             Native integrations with M-Pesa, SMS gateways, government systems, and education tools —
             no extra cost.
@@ -208,9 +208,9 @@ export default function IntegrationsPage() {
                 key={pill}
                 className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#E8E8E8",
+                  background: "color-mix(in srgb, var(--color-surface-default) 7%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-surface-default) 15%, transparent)",
+                  color: "var(--color-action-primary-disabled)",
                 }}
               >
                 {pill}
@@ -221,11 +221,11 @@ export default function IntegrationsPage() {
       </section>
 
       {/* ── Integration Categories ────────────────────────── */}
-      <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--color-surface-default)", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <h2
             className="font-display font-bold text-center mb-14"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
           >
             All Integrations
           </h2>
@@ -243,11 +243,11 @@ export default function IntegrationsPage() {
                   </div>
                   <h3
                     className="font-display font-bold"
-                    style={{ fontSize: "1.35rem", color: "var(--foreground)" }}
+                    style={{ fontSize: "1.35rem", color: "var(--color-text-default)" }}
                   >
                     {title}
                   </h3>
-                  <div className="flex-1 h-px ml-2" style={{ background: "rgba(6,26,18,0.08)" }} />
+                  <div className="flex-1 h-px ml-2" style={{ background: "color-mix(in_srgb,_var(--color-surface-page)_8%,_transparent)" }} />
                 </div>
 
                 {/* Integration cards */}
@@ -258,7 +258,7 @@ export default function IntegrationsPage() {
                       <div
                         key={item.name}
                         className="rounded-xl p-5 transition-shadow duration-200 hover:shadow-md"
-                        style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                        style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                       >
                         <div className="flex items-start justify-between gap-3 mb-3">
                           <div
@@ -280,13 +280,13 @@ export default function IntegrationsPage() {
                         </div>
                         <div
                           className="font-display font-bold mb-1.5"
-                          style={{ fontSize: "16px", color: "var(--foreground)" }}
+                          style={{ fontSize: "16px", color: "var(--color-text-default)" }}
                         >
                           {item.name}
                         </div>
                         <p
                           className="font-jakarta"
-                          style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.6 }}
+                          style={{ fontSize: "13px", color: "var(--color-text-disabled)", lineHeight: 1.6 }}
                         >
                           {item.description}
                         </p>
@@ -301,23 +301,23 @@ export default function IntegrationsPage() {
       </section>
 
       {/* ── API Section ───────────────────────────────────── */}
-      <section style={{ background: "var(--background)", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--color-surface-page)", padding: "5rem 2rem" }}>
         <div className="max-w-[900px] mx-auto text-center">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-6"
-            style={{ background: "rgba(15,76,42,0.1)" }}
+            style={{ background: "color-mix(in srgb, var(--color-status-success-on-subtle) 10%, transparent)" }}
           >
-            <Zap size={22} style={{ color: "var(--primary)" }} />
+            <Zap size={22} style={{ color: "var(--color-action-primary)" }} />
           </div>
           <h2
             className="font-display font-bold mb-4"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
           >
             Build your own integration
           </h2>
           <p
             className="font-jakarta font-light mb-10 mx-auto"
-            style={{ fontSize: "17px", color: "#4a7a5a", maxWidth: "600px", lineHeight: 1.8 }}
+            style={{ fontSize: "17px", color: "var(--color-text-muted)", maxWidth: "600px", lineHeight: 1.8 }}
           >
             EduMyles has a full REST API. Query student records, push attendance, trigger payments,
             and subscribe to webhook events.
@@ -328,17 +328,17 @@ export default function IntegrationsPage() {
               <div
                 key={f.title}
                 className="rounded-xl p-5 text-left"
-                style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
               >
                 <div
                   className="font-jakarta font-bold mb-2"
-                  style={{ fontSize: "14px", color: "var(--foreground)" }}
+                  style={{ fontSize: "14px", color: "var(--color-text-default)" }}
                 >
                   {f.title}
                 </div>
                 <p
                   className="font-jakarta"
-                  style={{ fontSize: "13px", color: "var(--muted-foreground)", lineHeight: 1.6 }}
+                  style={{ fontSize: "13px", color: "var(--color-text-muted)", lineHeight: 1.6 }}
                 >
                   {f.desc}
                 </p>
@@ -349,7 +349,7 @@ export default function IntegrationsPage() {
           <Link
             href="/contact?subject=api-access"
             className="inline-block font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-opacity hover:opacity-90"
-            style={{ background: "var(--primary)", color: "var(--primary-foreground)", fontSize: "15px" }}
+            style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)", fontSize: "15px" }}
           >
             Request API Access →
           </Link>
@@ -359,32 +359,32 @@ export default function IntegrationsPage() {
       {/* ── CTA ───────────────────────────────────────────── */}
       <section
         className="relative overflow-hidden"
-        style={{ background: "var(--card)", padding: "5rem 2rem" }}
+        style={{ background: "var(--color-surface-default)", padding: "5rem 2rem" }}
       >
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
         <div className="relative max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold mb-4"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
           >
             Missing an integration? Let us know.
           </h2>
           <p
             className="font-jakarta font-light mb-8"
-            style={{ fontSize: "17px", color: "var(--muted-foreground)" }}
+            style={{ fontSize: "17px", color: "var(--color-text-muted)" }}
           >
             We add new integrations based on what schools need most.
           </p>
           <Link
             href="/contact?subject=integration-request"
             className="inline-block font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-opacity hover:opacity-90"
-            style={{ background: "var(--primary)", color: "var(--primary-foreground)", fontSize: "15px" }}
+            style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)", fontSize: "15px" }}
           >
             Request Integration →
           </Link>

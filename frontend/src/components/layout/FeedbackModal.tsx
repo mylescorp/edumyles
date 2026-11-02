@@ -33,11 +33,11 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
   return (
     <div
       className="fixed inset-0 z-[9000] flex items-center justify-center"
-      style={{ background: "rgba(0,0,0,0.5)" }}
+      style={{ background: "color-mix(in srgb, var(--color-surface-page) 50%, transparent)" }}
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-[440px] mx-4 rounded-2xl bg-card shadow-2xl overflow-hidden"
+        className="relative w-full max-w-[440px] mx-4 rounded-2xl bg-[var(--color-surface-default)] shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -88,7 +88,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                     <Star
                       className="h-6 w-6 transition-colors"
                       fill={(hovered || rating) >= star ? "var(--platform-highlight)" : "none"}
-                      stroke={(hovered || rating) >= star ? "var(--platform-highlight)" : "var(--border)"}
+                      stroke={(hovered || rating) >= star ? "var(--platform-highlight)" : "var(--color-border-default)"}
                     />
                   </button>
                 ))}
@@ -126,7 +126,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
             <button
               type="submit"
               disabled={!subject.trim() || !message.trim()}
-              className="flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-[var(--platform-accent)] text-[13px] font-medium text-white transition-colors hover:bg-[var(--platform-accent-hover)] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-[var(--platform-accent)] text-[13px] font-medium text-[var(--color-text-on-primary)] transition-colors hover:bg-[var(--platform-accent-hover)] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Send className="h-3.5 w-3.5" />
               Send Feedback

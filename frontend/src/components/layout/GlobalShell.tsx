@@ -269,8 +269,8 @@ function NavGroupDropdown({ group, pathname }: { group: NavGroup; pathname: stri
           className={cn(
             "relative flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-150 whitespace-nowrap outline-none",
             isGroupActive
-              ? "text-white bg-[var(--topnav-active-bg)]"
-              : "text-white/70 hover:text-white hover:bg-white/8"
+              ? "text-[var(--color-text-on-primary)] bg-[var(--topnav-active-bg)]"
+              : "text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)]"
           )}
         >
           {group.label}
@@ -282,7 +282,7 @@ function NavGroupDropdown({ group, pathname }: { group: NavGroup; pathname: stri
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="w-52 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-white shadow-xl"
+        className="w-52 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-[var(--color-text-on-primary)] shadow-xl"
       >
         {group.items?.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -294,7 +294,7 @@ function NavGroupDropdown({ group, pathname }: { group: NavGroup; pathname: stri
                   "flex items-center gap-2 cursor-pointer rounded-md text-sm py-2 px-3",
                   isActive
                     ? "text-[var(--platform-highlight)] font-semibold bg-[var(--sidebar-accent)]"
-                    : "text-white/80 hover:text-white hover:bg-white/8"
+                    : "text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)]"
                 )}
               >
                 {isActive && (
@@ -341,7 +341,7 @@ function MobileDrawer({
           variant="ghost"
           size="sm"
           aria-label="Open navigation menu"
-          className="h-8 w-8 p-0 text-white/70 hover:text-white hover:bg-white/10"
+          className="h-8 w-8 p-0 text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)]"
         >
           <Menu className="h-5 w-5" />
         </Button>
@@ -364,7 +364,7 @@ function MobileDrawer({
           <Button
             variant="ghost"
             size="sm"
-            className="ml-auto h-7 w-7 p-0 text-white/50 hover:text-white hover:bg-white/10"
+            className="ml-auto h-7 w-7 p-0 text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)]"
             onClick={() => setOpen(false)}
           >
             <X className="h-4 w-4" />
@@ -392,7 +392,7 @@ function MobileDrawer({
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                       isActive
                         ? "bg-[var(--sidebar-accent-hover)] text-[var(--platform-highlight)] border-l-2 border-[var(--topnav-active-border)]"
-                        : "text-white/70 hover:text-white hover:bg-white/8"
+                        : "text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)]"
                     )}
                   >
                     {group.label}
@@ -412,7 +412,7 @@ function MobileDrawer({
                       "flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left transition-all duration-150",
                       isGroupActive
                         ? "border-[var(--topnav-active-border)] bg-[var(--sidebar-accent)] text-[var(--platform-highlight)]"
-                        : "border-white/10 bg-white/[0.03] text-white/75 hover:bg-white/[0.06] hover:text-white"
+                        : "border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)]/[0.03] text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)]/[0.06] hover:text-[var(--color-text-on-primary)]"
                     )}
                   >
                     <span className="text-xs font-bold uppercase tracking-widest">{group.label}</span>
@@ -431,7 +431,7 @@ function MobileDrawer({
                               "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-150 ml-1",
                               isActive
                                 ? "bg-[var(--sidebar-accent)] text-[var(--platform-highlight)] font-semibold border-l-2 border-[var(--topnav-active-border)]"
-                                : "text-white/65 hover:text-white hover:bg-white/8"
+                                : "text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)]"
                             )}
                           >
                             {item.label}
@@ -458,7 +458,7 @@ function MobileDrawer({
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white truncate">
+              <p className="text-sm font-semibold text-[var(--color-text-on-primary)] truncate">
                 {formatName(user?.firstName, user?.lastName) || user?.email}
               </p>
               <p className="text-xs text-[var(--em-sage-muted)]">
@@ -468,7 +468,7 @@ function MobileDrawer({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-white/40 hover:text-red-400 hover:bg-red-500/10"
+              className="h-8 w-8 p-0 text-[var(--color-text-on-primary)] hover:text-red-400 hover:bg-red-500/10"
               onClick={() => {
                 setOpen(false);
                 logout();
@@ -571,10 +571,10 @@ function GlobalSearch({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="shell-search-trigger flex h-8 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 text-sm text-white/70 transition-all duration-150 hover:border-[var(--topnav-active-border)] hover:bg-white/[0.09] hover:text-white">
+        <button className="shell-search-trigger flex h-8 items-center gap-2 rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)]/[0.05] px-3 text-sm text-[var(--color-text-on-primary)] transition-all duration-150 hover:border-[var(--topnav-active-border)] hover:bg-[var(--color-surface-default)]/[0.09] hover:text-[var(--color-text-on-primary)]">
           <Search className="h-3.5 w-3.5" />
           <span className="hidden sm:block text-xs">Search</span>
-          <kbd className="hidden rounded bg-white/10 px-1.5 py-0.5 font-mono text-[9px] sm:block">
+          <kbd className="hidden rounded bg-[var(--color-surface-default)] px-1.5 py-0.5 font-mono text-[9px] sm:block">
             Ctrl K
           </kbd>
         </button>
@@ -582,28 +582,28 @@ function GlobalSearch({
       <PopoverContent
         align="end"
         side="bottom"
-        className="shell-popover w-[380px] border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] p-0 text-white shadow-2xl"
+        className="shell-popover w-[380px] border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] p-0 text-[var(--color-text-on-primary)] shadow-2xl"
       >
         <div className="border-b border-[var(--sidebar-border)] p-3">
-          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3">
+          <div className="flex items-center gap-2 rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)]/[0.04] px-3">
             <Search className="h-4 w-4 text-[var(--platform-highlight)]" />
             <Input
               ref={inputRef}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search pages, tools, and actions"
-              className="border-0 bg-transparent px-0 text-sm text-white placeholder:text-white/35 focus-visible:ring-0"
+              className="border-0 bg-transparent px-0 text-sm text-[var(--color-text-on-primary)] placeholder:text-[var(--color-text-on-primary)] focus-visible:ring-0"
             />
           </div>
         </div>
 
         <div className="max-h-[420px] overflow-y-auto p-3">
           <div className="space-y-2">
-            <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">
+            <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--color-text-on-primary)]">
               Navigate
             </p>
             {filteredNavItems.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-white/10 px-3 py-4 text-sm text-white/45">
+              <div className="rounded-xl border border-dashed border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] px-3 py-4 text-sm text-[var(--color-text-on-primary)]">
                 No matching pages found.
               </div>
             ) : (
@@ -611,36 +611,36 @@ function GlobalSearch({
                 <button
                   key={item.href}
                   onClick={() => handleNavigate(item.href)}
-                  className="flex w-full items-start justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 text-left transition-all hover:bg-white/[0.07] hover:text-white"
+                  className="flex w-full items-start justify-between gap-3 rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_8%,transparent)] bg-[var(--color-surface-default)]/[0.03] px-3 py-3 text-left transition-all hover:bg-[var(--color-surface-default)]/[0.07] hover:text-[var(--color-text-on-primary)]"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-white">{item.label}</p>
-                    <p className="truncate text-xs text-white/45">
+                    <p className="text-sm font-medium text-[var(--color-text-on-primary)]">{item.label}</p>
+                    <p className="truncate text-xs text-[var(--color-text-on-primary)]">
                       {item.section ? `${item.section} • ` : ""}
                       {item.href}
                     </p>
                   </div>
-                  <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-white/35" />
+                  <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-text-on-primary)]" />
                 </button>
               ))
             )}
           </div>
 
           <div className="mt-4 space-y-2">
-            <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">
+            <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--color-text-on-primary)]">
               Quick Links
             </p>
             {filteredQuickLinks.map((item) => (
               <button
                 key={item.href}
                 onClick={() => handleNavigate(item.href)}
-                className="flex w-full items-start justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 text-left transition-all hover:bg-white/[0.07] hover:text-white"
+                className="flex w-full items-start justify-between gap-3 rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_8%,transparent)] bg-[var(--color-surface-default)]/[0.03] px-3 py-3 text-left transition-all hover:bg-[var(--color-surface-default)]/[0.07] hover:text-[var(--color-text-on-primary)]"
               >
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-white">{item.label}</p>
-                  <p className="text-xs text-white/45">{item.description}</p>
+                  <p className="text-sm font-medium text-[var(--color-text-on-primary)]">{item.label}</p>
+                  <p className="text-xs text-[var(--color-text-on-primary)]">{item.description}</p>
                 </div>
-                <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-white/35" />
+                <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-text-on-primary)]" />
               </button>
             ))}
           </div>
@@ -669,12 +669,12 @@ function NotificationsMenu({
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className="relative flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/60 transition-all duration-150 hover:bg-white/[0.09] hover:text-white"
+          className="relative flex h-8 w-8 items-center justify-center rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)]/[0.04] text-[var(--color-text-on-primary)] transition-all duration-150 hover:bg-[var(--color-surface-default)]/[0.09] hover:text-[var(--color-text-on-primary)]"
           title="Notifications"
         >
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-[var(--topnav-bg)] bg-destructive text-[9px] font-bold text-destructive-foreground">
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-[var(--topnav-bg)] bg-red-500 text-[9px] font-bold text-[var(--color-text-on-primary)]">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
@@ -683,17 +683,17 @@ function NotificationsMenu({
       <PopoverContent
         align="end"
         side="bottom"
-        className="shell-popover w-[380px] border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] p-0 text-white shadow-2xl"
+        className="shell-popover w-[380px] border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] p-0 text-[var(--color-text-on-primary)] shadow-2xl"
       >
         <div className="flex items-center justify-between border-b border-[var(--sidebar-border)] px-4 py-3">
           <div>
-            <p className="text-sm font-semibold text-white">Notifications</p>
-            <p className="text-xs text-white/45">{unreadCount} unread items</p>
+            <p className="text-sm font-semibold text-[var(--color-text-on-primary)]">Notifications</p>
+            <p className="text-xs text-[var(--color-text-on-primary)]">{unreadCount} unread items</p>
           </div>
           {unreadCount > 0 ? (
             <button
               onClick={markAllAsRead}
-              className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] text-white/70 transition-all hover:bg-white/[0.09] hover:text-white"
+              className="inline-flex items-center gap-1 rounded-full border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)]/[0.05] px-2.5 py-1 text-[11px] text-[var(--color-text-on-primary)] transition-all hover:bg-[var(--color-surface-default)]/[0.09] hover:text-[var(--color-text-on-primary)]"
             >
               <CheckCheck className="h-3.5 w-3.5" />
               Mark all read
@@ -703,7 +703,7 @@ function NotificationsMenu({
 
         <div className="max-h-[360px] overflow-y-auto p-3">
           {preview.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-white/10 px-3 py-6 text-center text-sm text-white/45">
+            <div className="rounded-xl border border-dashed border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] px-3 py-6 text-center text-sm text-[var(--color-text-on-primary)]">
               You are all caught up.
             </div>
           ) : (
@@ -719,14 +719,14 @@ function NotificationsMenu({
                         markAsRead(String(notification._id));
                       }
                     }}
-                    className="block rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 transition-all hover:bg-white/[0.07]"
+                    className="block rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_8%,transparent)] bg-[var(--color-surface-default)]/[0.03] px-3 py-3 transition-all hover:bg-[var(--color-surface-default)]/[0.07]"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-white">
+                        <p className="truncate text-sm font-medium text-[var(--color-text-on-primary)]">
                           {notification.title ?? "Platform update"}
                         </p>
-                        <p className="mt-1 line-clamp-2 text-xs text-white/45">
+                        <p className="mt-1 line-clamp-2 text-xs text-[var(--color-text-on-primary)]">
                           {notification.message ?? "Open to view more details."}
                         </p>
                       </div>
@@ -744,7 +744,7 @@ function NotificationsMenu({
         <div className="border-t border-[var(--sidebar-border)] p-3">
           <Link
             href={notificationsHref}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white/75 transition-all hover:bg-white/[0.09] hover:text-white"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)]/[0.04] px-3 py-2 text-sm text-[var(--color-text-on-primary)] transition-all hover:bg-[var(--color-surface-default)]/[0.09] hover:text-[var(--color-text-on-primary)]"
           >
             View all notifications
             <ArrowRight className="h-4 w-4" />
@@ -768,7 +768,7 @@ function HelpMenu({
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className="shell-support-trigger flex h-8 items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 text-white/60 transition-all duration-150 hover:bg-white/[0.09] hover:text-white"
+          className="shell-support-trigger flex h-8 items-center justify-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)]/[0.04] px-3 text-[var(--color-text-on-primary)] transition-all duration-150 hover:bg-[var(--color-surface-default)]/[0.09] hover:text-[var(--color-text-on-primary)]"
           title="Help & support"
         >
           <HelpCircle className="h-3.5 w-3.5" />
@@ -779,33 +779,33 @@ function HelpMenu({
       <PopoverContent
         align="end"
         side="bottom"
-        className="shell-popover w-[280px] border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] p-3 text-white shadow-2xl"
+        className="shell-popover w-[280px] border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] p-3 text-[var(--color-text-on-primary)] shadow-2xl"
       >
         <div className="mb-2">
           <p className="text-sm font-semibold">Help & Support</p>
-          <p className="text-xs text-white/45">Get help, documentation, and guided assistance.</p>
+          <p className="text-xs text-[var(--color-text-on-primary)]">Get help, documentation, and guided assistance.</p>
         </div>
         <div className="space-y-2">
           <Link
             href={helpHref}
-            className="block rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 transition-all hover:bg-white/[0.07]"
+            className="block rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_8%,transparent)] bg-[var(--color-surface-default)]/[0.03] px-3 py-3 transition-all hover:bg-[var(--color-surface-default)]/[0.07]"
           >
-            <p className="text-sm font-medium text-white">Support tickets</p>
-            <p className="text-xs text-white/45">Open or review support requests.</p>
+            <p className="text-sm font-medium text-[var(--color-text-on-primary)]">Support tickets</p>
+            <p className="text-xs text-[var(--color-text-on-primary)]">Open or review support requests.</p>
           </Link>
           <Link
             href={knowledgeHref}
-            className="block rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 transition-all hover:bg-white/[0.07]"
+            className="block rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_8%,transparent)] bg-[var(--color-surface-default)]/[0.03] px-3 py-3 transition-all hover:bg-[var(--color-surface-default)]/[0.07]"
           >
-            <p className="text-sm font-medium text-white">Knowledge base</p>
-            <p className="text-xs text-white/45">Browse guides, docs, and platform answers.</p>
+            <p className="text-sm font-medium text-[var(--color-text-on-primary)]">Knowledge base</p>
+            <p className="text-xs text-[var(--color-text-on-primary)]">Browse guides, docs, and platform answers.</p>
           </Link>
           <Link
             href={aiSupportHref}
-            className="block rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3 transition-all hover:bg-white/[0.07]"
+            className="block rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_8%,transparent)] bg-[var(--color-surface-default)]/[0.03] px-3 py-3 transition-all hover:bg-[var(--color-surface-default)]/[0.07]"
           >
-            <p className="text-sm font-medium text-white">AI support</p>
-            <p className="text-xs text-white/45">Launch the guided troubleshooting workspace.</p>
+            <p className="text-sm font-medium text-[var(--color-text-on-primary)]">AI support</p>
+            <p className="text-xs text-[var(--color-text-on-primary)]">Launch the guided troubleshooting workspace.</p>
           </Link>
         </div>
       </PopoverContent>
@@ -831,7 +831,7 @@ function TopNavIconBtn({
   className?: string;
 }) {
   const cls = cn(
-    "relative h-8 w-8 flex items-center justify-center rounded-md text-white/60 hover:text-white hover:bg-white/10 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--topnav-bg)]",
+    "relative h-8 w-8 flex items-center justify-center rounded-md text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--topnav-bg)]",
     className
   );
 
@@ -839,7 +839,7 @@ function TopNavIconBtn({
     <>
       {children}
       {badge != null && badge > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white border border-[var(--topnav-bg)]">
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-[var(--color-text-on-primary)] border border-[var(--topnav-bg)]">
           {badge > 9 ? "9+" : badge}
         </span>
       )}
@@ -1235,8 +1235,8 @@ function LeftSidebar({
                           "shell-sidebar-item group flex min-h-9 items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150 min-w-0",
                           collapsed ? "justify-center" : "",
                           isActive
-                            ? "bg-[var(--sidebar-accent-hover)] text-[var(--foreground)] shadow-sm ring-1 ring-[var(--topnav-active-border)]"
-                            : "text-[var(--sidebar-text)] hover:text-[var(--foreground)] hover:bg-[var(--muted)]"
+                            ? "bg-[var(--sidebar-accent-hover)] text-[var(--color-text-default)] shadow-sm ring-1 ring-[var(--topnav-active-border)]"
+                            : "text-[var(--sidebar-text)] hover:text-[var(--color-text-default)] hover:bg-[var(--color-surface-sunken)]"
                         )}
                       >
                         <Icon
@@ -1311,10 +1311,10 @@ function LeftSidebar({
                           <TooltipTrigger asChild>{navBtn}</TooltipTrigger>
                           <TooltipContent
                             side="right"
-                            className="shell-popover border border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-xs text-white"
+                            className="shell-popover border border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-xs text-[var(--color-text-on-primary)]"
                           >
                             <div className="space-y-1">
-                              <p className="text-[10px] uppercase tracking-[0.14em] text-white/50">
+                              <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--color-text-on-primary)]">
                                 {group.section === "__standalone__" ? "Navigation" : group.section}
                               </p>
                               <p>{item.label}</p>
@@ -1568,7 +1568,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                 isDashboardRoute && "dashboard-app-shell"
               )
         )}
-        style={{ background: "var(--background)" }}
+        style={{ background: "var(--color-surface-page)" }}
       >
         {/* ══ Top navigation bar — platform shell ══════════ */}
         <header
@@ -1606,20 +1606,20 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
             {/* ── Workspace / school selector pill (like Zoho "Personal ▾") ── */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="shell-workspace-switch hidden md:flex items-center gap-1 rounded-md border border-white/12 bg-white/6 px-2.5 h-[28px] text-xs font-medium text-white/75 hover:text-white hover:bg-white/10 hover:border-[var(--topnav-active-border)] transition-all duration-150 mr-1 max-w-[160px]">
+                <button className="shell-workspace-switch hidden md:flex items-center gap-1 rounded-md border border-[color-mix(in_srgb,var(--color-text-inverse)_12%,transparent)] bg-[var(--color-surface-default)] px-2.5 h-[28px] text-xs font-medium text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)] hover:border-[var(--topnav-active-border)] transition-all duration-150 mr-1 max-w-[160px]">
                   <span className="truncate">{workspaceLabel}</span>
                   <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-56 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-white shadow-xl"
+                className="w-56 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-[var(--color-text-on-primary)] shadow-xl"
               >
                 <DropdownMenuLabel className="text-[var(--em-sage-muted)] text-xs font-bold uppercase tracking-wider">
                   Workspace
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
-                <DropdownMenuItem className="text-white/80 hover:text-white hover:bg-white/8 cursor-pointer">
+                <DropdownMenuItem className="text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)] cursor-pointer">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[var(--platform-highlight)]" />
                     <span className="font-medium">{workspaceLabel}</span>
@@ -1638,19 +1638,19 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                         <DropdownMenuItem
                           key={tenantOption.tenantId}
                           onClick={() => handleAdminWorkspaceTenantSwitch(tenantOption.tenantId)}
-                          className="cursor-pointer text-white/80 hover:bg-white/8 hover:text-white"
+                          className="cursor-pointer text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)] hover:text-[var(--color-text-on-primary)]"
                           disabled={isSwitchingTenant}
                         >
                           <div className="flex min-w-0 items-center gap-2">
                             <div
                               className={cn(
                                 "h-2 w-2 rounded-full",
-                                isActiveTenant ? "bg-[var(--platform-highlight)]" : "bg-white/20"
+                                isActiveTenant ? "bg-[var(--platform-highlight)]" : "bg-[var(--color-surface-default)]"
                               )}
                             />
                             <div className="min-w-0">
                               <div className="truncate text-sm font-medium">{tenantOption.name}</div>
-                              <div className="truncate text-[11px] text-white/45">
+                              <div className="truncate text-[11px] text-[var(--color-text-on-primary)]">
                                 {tenantOption.subdomain || tenantOption.tenantId}
                               </div>
                             </div>
@@ -1659,7 +1659,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                       );
                     })}
                     <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
-                    <DropdownMenuItem asChild className="cursor-pointer text-white/80 hover:bg-white/8 hover:text-white">
+                    <DropdownMenuItem asChild className="cursor-pointer text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)] hover:text-[var(--color-text-on-primary)]">
                       <Link href="/platform/tenants">Open tenant manager</Link>
                     </DropdownMenuItem>
                   </>
@@ -1670,7 +1670,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
             <div className="shell-context-info hidden min-w-0 flex-1 items-center justify-between gap-4 px-2 lg:flex">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="truncate text-sm font-semibold text-white">{workspaceTitle}</p>
+                  <p className="truncate text-sm font-semibold text-[var(--color-text-on-primary)]">{workspaceTitle}</p>
                   <Badge
                     className={cn(
                       "h-5 rounded-full px-2 text-[10px] font-semibold shadow-none",
@@ -1678,24 +1678,24 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                         ? "border border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
                         : hasActiveTrial
                           ? "border border-warning/25 bg-warning-muted text-warning-muted-foreground"
-                          : "border border-white/12 bg-white/8 text-white/80"
+                          : "border border-[color-mix(in_srgb,var(--color-text-inverse)_12%,transparent)] bg-[var(--color-surface-default)] text-[var(--color-text-on-primary)]"
                     )}
                   >
                     {workspaceBadgeLabel}
                   </Badge>
                 </div>
-                <p className="mt-1 truncate text-xs text-white/45">{workspaceDescriptor}</p>
+                <p className="mt-1 truncate text-xs text-[var(--color-text-on-primary)]">{workspaceDescriptor}</p>
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-                  <div className="flex items-center gap-2 text-[11px] text-white/55">
+                <div className="rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)]/[0.04] px-3 py-2">
+                  <div className="flex items-center gap-2 text-[11px] text-[var(--color-text-on-primary)]">
                     <span className={cn("h-2.5 w-2.5 rounded-full", isPlatformRoute ? shellHealthTone : workspaceHealthTone)} />
                     <span className="uppercase tracking-[0.18em]">
                       {isPlatformRoute ? "Platform status" : "Workspace status"}
                     </span>
                   </div>
-                  <div className="mt-1 flex items-center gap-4 text-xs text-white/85">
+                  <div className="mt-1 flex items-center gap-4 text-xs text-[var(--color-text-on-primary)]">
                     <span className="font-semibold">
                       {isPlatformRoute ? shellHealthLabel : workspaceHealthLabel}
                     </span>
@@ -1714,11 +1714,11 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+                <div className="rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)]/[0.04] px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-text-on-primary)]">
                     {isPlatformRoute ? "Queue" : "Readiness"}
                   </p>
-                  <div className="mt-1 flex items-center gap-3 text-xs text-white/80">
+                  <div className="mt-1 flex items-center gap-3 text-xs text-[var(--color-text-on-primary)]">
                     {isPlatformRoute ? (
                       <>
                         <span>{safeRenderNumber(normalizedShellHealth?.pendingReviews, 0)} reviews</span>
@@ -1772,25 +1772,25 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
               />
 
               {/* Divider */}
-              <div className="mx-0.5 h-6 w-px bg-white/10" />
+              <div className="mx-0.5 h-6 w-px bg-[var(--color-surface-default)]" />
 
               {/* ── User dropdown ── */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button aria-label="Open account menu" className="shell-account-trigger ml-0.5 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] pl-1.5 pr-2.5 py-1.5 text-white transition-all duration-150 hover:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">
+                  <button aria-label="Open account menu" className="shell-account-trigger ml-0.5 flex items-center gap-2 rounded-xl border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-[var(--color-surface-default)]/[0.05] pl-1.5 pr-2.5 py-1.5 text-[var(--color-text-on-primary)] transition-all duration-150 hover:bg-[var(--color-surface-default)]/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)]">
                     <Avatar className="h-7 w-7">
                       <AvatarImage src={safeRenderText(anyUser?.avatarUrl, "") || undefined} alt={displayName} />
                       <AvatarFallback className="text-[10px] bg-[var(--sidebar-accent)] text-[var(--platform-highlight)] font-bold border border-[var(--topnav-active-border)]">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
-                    <ChevronDown className="h-3 w-3 text-white/40" />
+                    <ChevronDown className="h-3 w-3 text-[var(--color-text-on-primary)]" />
                   </button>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent
                   align="end"
-                  className="shell-popover shell-account-menu shell-platform-account-menu w-72 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-white shadow-xl"
+                  className="shell-popover shell-account-menu shell-platform-account-menu w-72 border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] text-[var(--color-text-on-primary)] shadow-xl"
                 >
                   <DropdownMenuLabel className="px-3 py-3">
                     <div className="flex min-w-0 items-center gap-2.5">
@@ -1801,7 +1801,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span className="truncate text-sm font-semibold text-white">
+                        <span className="truncate text-sm font-semibold text-[var(--color-text-on-primary)]">
                           {displayName || safeUserEmail}
                         </span>
                         <span className="truncate text-xs text-[var(--em-sage-muted)]">{safeUserEmail}</span>
@@ -1836,22 +1836,22 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                     </div>
                   </div>
                   <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
-                  <DropdownMenuLabel className="px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-white/45">Account</DropdownMenuLabel>
+                  <DropdownMenuLabel className="px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-on-primary)]">Account</DropdownMenuLabel>
                   <DropdownMenuItem asChild>
                     <Link
                       href={profileHref}
-                      className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
+                      className="flex items-center gap-2.5 cursor-pointer text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)] py-2"
                     >
                       <User className="h-4 w-4 text-[var(--em-sage-muted)]" />
                       Profile
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-[var(--sidebar-accent)]" />
-                  <DropdownMenuLabel className="px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-white/45">Workspace</DropdownMenuLabel>
+                  <DropdownMenuLabel className="px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-on-primary)]">Workspace</DropdownMenuLabel>
                   <DropdownMenuItem asChild>
                     <Link
                       href={settingsHref}
-                      className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
+                      className="flex items-center gap-2.5 cursor-pointer text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)] py-2"
                     >
                       <Settings className="h-4 w-4 text-[var(--em-sage-muted)]" />
                       Settings
@@ -1890,12 +1890,12 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                   <DropdownMenuItem asChild>
                     <Link
                       href={notificationsHref}
-                      className="flex items-center gap-2.5 cursor-pointer text-white/80 hover:text-white hover:bg-white/8 py-2"
+                      className="flex items-center gap-2.5 cursor-pointer text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)] py-2"
                     >
                       <Zap className="h-4 w-4 text-[var(--em-sage-muted)]" />
                       Notifications
                         {normalizedUnreadCount > 0 && (
-                          <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-destructive text-destructive-foreground border-0 text-[10px] font-bold">
+                          <Badge className="ml-auto h-5 min-w-[20px] px-1.5 bg-red-500 text-[var(--color-text-on-primary)] border-0 text-[10px] font-bold">
                             {normalizedUnreadCount > 9 ? "9+" : normalizedUnreadCount}
                           </Badge>
                         )}
@@ -1933,7 +1933,7 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
           <main
             className={cn("shell-page-main flex-1 overflow-y-auto", isFamilyMobileShell && "pb-20 md:pb-0")}
             style={{
-              background: "var(--background)",
+              background: "var(--color-surface-page)",
             }}
           >
             {children}
@@ -1984,15 +1984,15 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                   </span>
                   <button
                     onClick={() => setFooterPanel(null)}
-                    className="text-white/40 hover:text-white transition-colors"
+                    className="text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
                 <div className="flex-1 overflow-y-auto">
                   <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
-                    <MessageCircle className="h-8 w-8 text-white/20" />
-                    <p className="text-xs text-white/40">No active chats</p>
+                    <MessageCircle className="h-8 w-8 text-[var(--color-text-on-primary)]" />
+                    <p className="text-xs text-[var(--color-text-on-primary)]">No active chats</p>
                     <Link
                       href={sectionHref("communications")}
                       onClick={() => setFooterPanel(null)}
@@ -2024,15 +2024,15 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                   </span>
                   <button
                     onClick={() => setFooterPanel(null)}
-                    className="text-white/40 hover:text-white transition-colors"
+                    className="text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
                 <div className="flex-1 overflow-y-auto">
                   <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
-                    <Hash className="h-8 w-8 text-white/20" />
-                    <p className="text-xs text-white/40">No channels yet</p>
+                    <Hash className="h-8 w-8 text-[var(--color-text-on-primary)]" />
+                    <p className="text-xs text-[var(--color-text-on-primary)]">No channels yet</p>
                     <Link
                       href={sectionHref("communications")}
                       onClick={() => setFooterPanel(null)}
@@ -2064,15 +2064,15 @@ export function GlobalShell({ children, navItems }: GlobalShellProps) {
                   </span>
                   <button
                     onClick={() => setFooterPanel(null)}
-                    className="text-white/40 hover:text-white transition-colors"
+                    className="text-[var(--color-text-on-primary)] hover:text-[var(--color-text-on-primary)] transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
                 <div className="flex-1 overflow-y-auto">
                   <div className="p-4 flex flex-col items-center justify-center h-40 text-center gap-2">
-                    <Users2 className="h-8 w-8 text-white/20" />
-                    <p className="text-xs text-white/40">No contacts found</p>
+                    <Users2 className="h-8 w-8 text-[var(--color-text-on-primary)]" />
+                    <p className="text-xs text-[var(--color-text-on-primary)]">No contacts found</p>
                     <Link
                       href={sectionHref("communications")}
                       onClick={() => setFooterPanel(null)}

@@ -1,0 +1,9 @@
+{
+  "ignoreFiles": [
+    "packages/design-system/{tokens,generated,css}/**",
+    "packages/design-tokens/**"
+  ],
+  "rules": {
+    "color-no-hex": true
+  }
+}

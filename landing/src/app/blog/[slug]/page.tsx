@@ -300,7 +300,7 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
       <p
         key={block.text}
         className="font-jakarta text-[16px] leading-[1.9] font-light"
-        style={{ color: "var(--muted-foreground)" }}
+        style={{ color: "var(--color-text-muted)" }}
       >
         {block.text}
       </p>
@@ -311,7 +311,7 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
       <h2
         key={block.text}
         className="font-display font-bold text-[22px] mt-10 mb-4"
-        style={{ color: "var(--foreground)" }}
+        style={{ color: "var(--color-text-default)" }}
       >
         {block.text}
       </h2>
@@ -322,7 +322,7 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
       <p
         key={block.text}
         className="font-jakarta text-[15px] leading-[1.9]"
-        style={{ color: "var(--muted-foreground)" }}
+        style={{ color: "var(--color-text-muted)" }}
       >
         {block.text}
       </p>
@@ -333,11 +333,11 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
       <div
         key={block.text}
         className="rounded-xl p-5 my-2"
-        style={{ background: "rgb(var(--primary-rgb) / 6%)", border: "1px solid rgb(var(--primary-rgb) / 20%)" }}
+        style={{ background: "color-mix(in_srgb,_var(--color-action-primary)_6%,_transparent)", border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)" }}
       >
         <p
           className="font-jakarta font-semibold text-[14px] leading-[1.8]"
-          style={{ color: "var(--muted-foreground)" }}
+          style={{ color: "var(--color-text-muted)" }}
         >
           {block.text}
         </p>
@@ -352,18 +352,18 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
           <li
             key={idx}
             className="flex items-start gap-3 font-jakarta text-[14.5px] leading-[1.8]"
-            style={{ color: "var(--muted-foreground)", listStyle: "none" }}
+            style={{ color: "var(--color-text-muted)", listStyle: "none" }}
           >
             <span
               className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
             >
               <span
                 style={{
                   width: 6,
                   height: 6,
                   borderRadius: "50%",
-                  background: "var(--primary)",
+                  background: "var(--color-action-primary)",
                   display: "block",
                 }}
               />
@@ -382,12 +382,12 @@ function renderContent(block: (typeof posts)[0]["content"][0]) {
           <div
             key={idx}
             className="rounded-xl p-5"
-            style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+            style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
           >
-            <p className="font-jakarta font-bold text-[14px] mb-2" style={{ color: "var(--foreground)" }}>
+            <p className="font-jakarta font-bold text-[14px] mb-2" style={{ color: "var(--color-text-default)" }}>
               {item.q}
             </p>
-            <p className="font-jakarta text-[13.5px] leading-[1.8]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-[13.5px] leading-[1.8]" style={{ color: "var(--color-text-muted)" }}>
               {item.a}
             </p>
           </div>
@@ -406,16 +406,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const related = posts.filter((p) => p.slug !== post.slug);
 
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* Hero */}
       <section
         className="relative flex items-center overflow-hidden"
-        style={{ background: "var(--card)", borderTop: "3px solid var(--primary)", padding: "5rem 2rem 4rem" }}
+        style={{ background: "var(--color-surface-default)", borderTop: "3px solid var(--color-action-primary)", padding: "5rem 2rem 4rem" }}
       >
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -423,7 +423,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <Link
             href="/blog"
             className="inline-flex items-center gap-2 font-jakarta text-[13px] mb-6 no-underline transition-colors duration-200"
-            style={{ color: "var(--muted-foreground)" }}
+            style={{ color: "var(--color-text-muted)" }}
           >
             <ArrowLeft className="w-4 h-4" strokeWidth={2} />
             Back to Blog
@@ -432,9 +432,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <span
               className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-4 py-1.5 rounded-full"
               style={{
-                background: "rgb(var(--primary-rgb) / 12%)",
-                border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                color: "var(--accent-foreground)",
+                background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-action-primary) 30%, transparent)",
+                color: "var(--color-text-on-primary-subtle)",
               }}
             >
               <Tag className="w-3 h-3" strokeWidth={2} />
@@ -443,21 +443,21 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </div>
           <h1
             className="font-display font-bold leading-tight mb-5"
-            style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)", color: "var(--color-text-default)" }}
           >
             {post.title}
           </h1>
           <div className="flex flex-wrap gap-5">
             <span
               className="inline-flex items-center gap-2 font-jakarta text-[13px]"
-              style={{ color: "var(--muted-foreground)" }}
+              style={{ color: "var(--color-text-muted)" }}
             >
               <Calendar className="w-3.5 h-3.5" strokeWidth={1.5} />
               {post.date}
             </span>
             <span
               className="inline-flex items-center gap-2 font-jakarta text-[13px]"
-              style={{ color: "var(--muted-foreground)" }}
+              style={{ color: "var(--color-text-muted)" }}
             >
               <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
               {post.readTime}
@@ -475,11 +475,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
 
         {/* Divider */}
-        <div className="my-14" style={{ borderTop: "1px solid var(--border)" }} />
+        <div className="my-14" style={{ borderTop: "1px solid var(--color-border-default)" }} />
 
         {/* Related posts */}
         <div>
-          <h3 className="font-display font-bold text-[20px] mb-6" style={{ color: "var(--foreground)" }}>
+          <h3 className="font-display font-bold text-[20px] mb-6" style={{ color: "var(--color-text-default)" }}>
             Related Articles
           </h3>
           <div className="grid sm:grid-cols-2 gap-5">
@@ -488,23 +488,23 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 key={r.slug}
                 href={`/blog/${r.slug}`}
                 className="rounded-xl p-5 no-underline transition-all duration-200 hover:-translate-y-0.5 group"
-                style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+                style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
               >
                 <span
                   className="font-jakarta text-[11px] font-semibold uppercase tracking-wider mb-2 block"
-                  style={{ color: "var(--muted-foreground)" }}
+                  style={{ color: "var(--color-text-muted)" }}
                 >
                   {r.category}
                 </span>
                 <h4
-                  className="font-display font-bold text-[15px] mb-2 group-hover:text-[var(--accent-foreground)] transition-colors duration-200"
-                  style={{ color: "var(--foreground)" }}
+                  className="font-display font-bold text-[15px] mb-2 group-hover:text-[var(--color-text-on-primary-subtle)] transition-colors duration-200"
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {r.title}
                 </h4>
                 <span
                   className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px]"
-                  style={{ color: "var(--primary)" }}
+                  style={{ color: "var(--color-action-primary)" }}
                 >
                   Read article <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
                 </span>
@@ -514,18 +514,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
 
         {/* CTA */}
-        <div className="mt-14 rounded-2xl p-8 text-center" style={{ background: "var(--card)" }}>
+        <div className="mt-14 rounded-2xl p-8 text-center" style={{ background: "var(--color-surface-default)" }}>
           <h3 className="font-display font-bold text-[22px] text-foreground mb-3">
             Ready to manage your school smarter?
           </h3>
-          <p className="font-jakarta text-[14px] mb-6" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[14px] mb-6" style={{ color: "var(--color-text-muted)" }}>
             Join schools already running better with EduMyles. Free 30-day trial.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-7 py-3.5 rounded-[50px] no-underline"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               Start Free Trial →
             </Link>
@@ -534,8 +534,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[14px] px-7 py-3.5 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgba(255,255,255,0.3)",
-                color: "#ffffff",
+                border: "2px solid color-mix(in srgb, var(--color-surface-default) 30%, transparent)",
+                color: "var(--color-text-inverse)",
               }}
             >
               Book a Demo

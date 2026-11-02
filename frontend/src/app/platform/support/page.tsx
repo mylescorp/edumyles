@@ -70,7 +70,7 @@ export default function PlatformSupportPage() {
               </CardHeader>
               <CardContent>
                 <Link href={area.href}>
-                  <Button className="w-full bg-[var(--platform-accent)] text-white hover:bg-[var(--platform-accent-hover)]">
+                  <Button className="w-full bg-[var(--platform-accent)] text-[var(--color-text-on-primary)] hover:bg-[var(--platform-accent-hover)]">
                     Open {area.title}
                   </Button>
                 </Link>

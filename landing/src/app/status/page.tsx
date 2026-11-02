@@ -57,7 +57,7 @@ function UptimeBar() {
             width: "18px",
             height: "18px",
             borderRadius: "3px",
-            background: color === "green" ? "#26A65B" : "#d1d5db",
+            background: color === "green" ? "var(--color-status-success-solid)" : "var(--color-action-primary-disabled)",
             flexShrink: 0,
           }}
         />
@@ -85,13 +85,13 @@ export default function StatusPage() {
   }, []);
 
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* ── Hero ───────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "5rem 2rem 4rem",
           minHeight: "340px",
         }}
@@ -99,23 +99,23 @@ export default function StatusPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
         <div className="relative max-w-[1200px] mx-auto w-full text-center">
           <h1
             className="font-display font-bold leading-[1.2] mb-6"
-            style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--color-text-default)" }}
           >
             System Status
           </h1>
           <div
             className="inline-flex items-center gap-3 font-jakarta font-bold text-[18px] px-6 py-3 rounded-[50px] mb-4"
             style={{
-              background: "rgba(38,166,91,0.15)",
-              border: "1px solid rgba(38,166,91,0.4)",
-              color: "#6EE7A0",
+              background: "color-mix(in srgb, var(--color-status-success-solid) 15%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 40%, transparent)",
+              color: "var(--color-status-success-on-subtle)",
             }}
           >
             <span
@@ -123,15 +123,15 @@ export default function StatusPage() {
                 width: "10px",
                 height: "10px",
                 borderRadius: "50%",
-                background: "#26A65B",
+                background: "var(--color-status-success-solid)",
                 display: "inline-block",
-                boxShadow: "0 0 0 3px rgba(38,166,91,0.3)",
+                boxShadow: "0 0 0 3px color-mix(in srgb, var(--color-status-success-solid) 30%, transparent)",
               }}
             />
             All Systems Operational
           </div>
           {lastChecked && (
-            <p className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-[13px]" style={{ color: "var(--color-text-muted)" }}>
               Last checked: {lastChecked}
             </p>
           )}
@@ -139,47 +139,47 @@ export default function StatusPage() {
       </section>
 
       {/* ── Services Status ─────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[860px] mx-auto">
-          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "var(--foreground)" }}>
+          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "var(--color-text-default)" }}>
             Current Status
           </h2>
           <div
             className="rounded-2xl overflow-hidden"
-            style={{ border: "1px solid var(--border)", boxShadow: "0 2px 12px rgba(6,26,18,0.05)" }}
+            style={{ border: "1px solid var(--color-border-default)", boxShadow: "0 2px 12px color-mix(in srgb, var(--color-surface-page) 5%, transparent)" }}
           >
             {services.map((svc, i) => (
               <div
                 key={svc.name}
                 className="flex items-center justify-between px-6 py-4"
                 style={{
-                  borderBottom: i < services.length - 1 ? "1px solid #f0f8f3" : "none",
-                  background: i % 2 === 0 ? "var(--card)" : "var(--background)",
+                  borderBottom: i < services.length - 1 ? "1px solid var(--color-surface-page)" : "none",
+                  background: i % 2 === 0 ? "var(--color-surface-default)" : "var(--color-surface-page)",
                 }}
               >
                 <div className="flex items-center gap-3">
                   <svc.icon
                     className="w-5 h-5 flex-shrink-0"
                     strokeWidth={1.5}
-                    style={{ color: "var(--primary)" }}
+                    style={{ color: "var(--color-action-primary)" }}
                   />
                   <span
                     className="font-jakarta font-medium text-[15px]"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
                     {svc.name}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="font-jakarta text-[13px]" style={{ color: "#9ca3af" }}>
+                  <span className="font-jakarta text-[13px]" style={{ color: "var(--color-text-muted)" }}>
                     {svc.ms}
                   </span>
                   <span
                     className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-3 py-1 rounded-full"
                     style={{
-                      background: "rgba(38,166,91,0.1)",
-                      color: "var(--primary)",
-                      border: "1px solid rgba(38,166,91,0.2)",
+                      background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
+                      color: "var(--color-action-primary)",
+                      border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 20%, transparent)",
                     }}
                   >
                     <span
@@ -187,7 +187,7 @@ export default function StatusPage() {
                         width: "6px",
                         height: "6px",
                         borderRadius: "50%",
-                        background: "#26A65B",
+                        background: "var(--color-status-success-solid)",
                         display: "inline-block",
                       }}
                     />
@@ -201,18 +201,18 @@ export default function StatusPage() {
       </section>
 
       {/* ── Uptime History ──────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--background)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[860px] mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="font-display font-bold text-[24px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[24px]" style={{ color: "var(--color-text-default)" }}>
               30-Day Uptime
             </h2>
             <span
               className="font-jakarta font-bold text-[14px] px-4 py-2 rounded-full"
               style={{
-                background: "rgba(38,166,91,0.1)",
-                color: "var(--primary)",
-                border: "1px solid rgba(38,166,91,0.2)",
+                background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
+                color: "var(--color-action-primary)",
+                border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 20%, transparent)",
               }}
             >
               Live status monitoring
@@ -225,11 +225,11 @@ export default function StatusPage() {
                   <svc.icon
                     className="w-4 h-4 flex-shrink-0"
                     strokeWidth={1.5}
-                    style={{ color: "var(--primary)" }}
+                    style={{ color: "var(--color-action-primary)" }}
                   />
                   <span
                     className="font-jakarta font-medium text-[13px]"
-                    style={{ color: "#3a3a3a" }}
+                    style={{ color: "var(--color-border-default)" }}
                   >
                     {svc.name}
                   </span>
@@ -245,10 +245,10 @@ export default function StatusPage() {
                   width: "12px",
                   height: "12px",
                   borderRadius: "2px",
-                  background: "#26A65B",
+                  background: "var(--color-status-success-solid)",
                 }}
               />
-              <span className="font-jakarta text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+              <span className="font-jakarta text-[12px]" style={{ color: "var(--color-text-muted)" }}>
                 Operational
               </span>
             </div>
@@ -258,10 +258,10 @@ export default function StatusPage() {
                   width: "12px",
                   height: "12px",
                   borderRadius: "2px",
-                  background: "#d1d5db",
+                  background: "var(--color-action-primary-disabled)",
                 }}
               />
-              <span className="font-jakarta text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+              <span className="font-jakarta text-[12px]" style={{ color: "var(--color-text-muted)" }}>
                 Scheduled Maintenance
               </span>
             </div>
@@ -270,21 +270,21 @@ export default function StatusPage() {
       </section>
 
       {/* ── Incident History ────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[860px] mx-auto">
-          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "var(--foreground)" }}>
+          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "var(--color-text-default)" }}>
             Past Incidents
           </h2>
           <div
             className="rounded-2xl mb-6 p-5 flex items-center gap-3"
-            style={{ background: "rgba(38,166,91,0.06)", border: "1px solid rgba(38,166,91,0.2)" }}
+            style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 20%, transparent)" }}
           >
             <CheckCircle2
               className="w-4 h-4 inline mr-1"
-              style={{ color: "#26A65B" }}
+              style={{ color: "var(--color-status-success-solid)" }}
               strokeWidth={1.5}
             />
-            <span className="font-jakarta font-medium text-[14px]" style={{ color: "var(--primary)" }}>
+            <span className="font-jakarta font-medium text-[14px]" style={{ color: "var(--color-action-primary)" }}>
               No incidents in the last 30 days.
             </span>
           </div>
@@ -293,32 +293,32 @@ export default function StatusPage() {
               <div
                 key={inc.title}
                 className="rounded-2xl p-6"
-                style={{ background: "#fafafa", border: "1px solid #f0f0f0" }}
+                style={{ background: "var(--color-text-default)", border: "1px solid var(--color-surface-sunken)" }}
               >
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div>
                     <div
                       className="font-jakarta font-bold text-[13px] mb-1"
-                      style={{ color: "#9ca3af" }}
+                      style={{ color: "var(--color-text-muted)" }}
                     >
                       {inc.date}
                     </div>
                     <h3
                       className="font-jakarta font-semibold text-[16px] mb-1"
-                      style={{ color: "var(--foreground)" }}
+                      style={{ color: "var(--color-text-default)" }}
                     >
                       {inc.title}
                     </h3>
-                    <span className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+                    <span className="font-jakarta text-[13px]" style={{ color: "var(--color-text-muted)" }}>
                       Duration: {inc.duration}
                     </span>
                   </div>
                   <span
                     className="inline-flex items-center gap-1.5 font-jakarta font-semibold text-[12px] px-3 py-1.5 rounded-full flex-shrink-0"
                     style={{
-                      background: "rgba(38,166,91,0.1)",
-                      color: "var(--primary)",
-                      border: "1px solid rgba(38,166,91,0.2)",
+                      background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
+                      color: "var(--color-action-primary)",
+                      border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 20%, transparent)",
                     }}
                   >
                     <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} /> Resolved
@@ -331,15 +331,15 @@ export default function StatusPage() {
       </section>
 
       {/* ── Subscribe Strip ─────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--background)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[520px] mx-auto text-center">
           <h2
             className="font-display font-bold mb-3"
-            style={{ fontSize: "clamp(1.4rem,2.5vw,1.9rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.4rem,2.5vw,1.9rem)", color: "var(--color-text-default)" }}
           >
             Get incident alerts
           </h2>
-          <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--color-text-muted)" }}>
             Be notified immediately when there&apos;s a service disruption.
           </p>
           <form
@@ -350,12 +350,12 @@ export default function StatusPage() {
               type="email"
               placeholder="you@school.ac.ke"
               className="flex-1 min-w-0 border border-gray-200 rounded-[50px] px-5 py-3 font-jakarta text-[14px] outline-none focus:border-primary"
-              style={{ color: "var(--foreground)", minWidth: "220px" }}
+              style={{ color: "var(--color-text-default)", minWidth: "220px" }}
             />
             <button
               type="submit"
               className="font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] flex-shrink-0"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)", border: "none", cursor: "pointer" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)", border: "none", cursor: "pointer" }}
             >
               Subscribe
             </button>

@@ -130,7 +130,7 @@ export default function BlogContent() {
       {/* ── Category Filter ───────────────────────────────── */}
       <section
         className="py-8 px-4 border-b"
-        style={{ background: "var(--card)", borderColor: "var(--border)" }}
+        style={{ background: "var(--color-surface-default)", borderColor: "var(--color-border-default)" }}
       >
         <div className="max-w-[1200px] mx-auto">
           <div className="flex flex-wrap gap-2">
@@ -142,8 +142,8 @@ export default function BlogContent() {
                 className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-[50px] transition-all duration-200"
                 style={
                   activeCategory === cat
-                    ? { background: "var(--primary)", color: "var(--primary-foreground)" }
-                    : { background: "var(--background)", color: "var(--muted-foreground)", border: "1px solid var(--border)" }
+                    ? { background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }
+                    : { background: "var(--color-surface-page)", color: "var(--color-text-muted)", border: "1px solid var(--color-border-default)" }
                 }
               >
                 {cat}
@@ -155,57 +155,57 @@ export default function BlogContent() {
 
       {/* ── Featured Post ─────────────────────────────────── */}
       {(activeCategory === "All" || activeCategory === "Product Update") && (
-        <section className="py-12 px-4" style={{ background: "var(--background)" }}>
+        <section className="py-12 px-4" style={{ background: "var(--color-surface-page)" }}>
           <div className="max-w-[1200px] mx-auto">
             <div
               className="rounded-2xl p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start"
               style={{
-                background: "var(--card)",
-                border: "1px solid rgb(var(--primary-rgb) / 30%)",
-                boxShadow: "0 12px 40px rgba(6,26,18,0.2)",
+                background: "var(--color-surface-default)",
+                border: "1px solid color-mix(in srgb, var(--color-action-primary) 30%, transparent)",
+                boxShadow: "0 12px 40px color-mix(in srgb, var(--color-surface-page) 20%, transparent)",
               }}
             >
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-4">
                   <span
                     className="font-jakarta font-bold text-[11px] px-3 py-1 rounded-[20px] uppercase tracking-wider"
-                    style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                    style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
                   >
                     NEW
                   </span>
-                  <span className="font-jakarta text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+                  <span className="font-jakarta text-[12px]" style={{ color: "var(--color-text-muted)" }}>
                     {featured.category}
                   </span>
                 </div>
                 <h2
                   className="font-display font-bold leading-[1.25] mb-4"
-                  style={{ fontSize: "clamp(1.5rem,2.5vw,2.25rem)", color: "var(--foreground)" }}
+                  style={{ fontSize: "clamp(1.5rem,2.5vw,2.25rem)", color: "var(--color-text-default)" }}
                 >
                   {featured.title}
                 </h2>
                 <p
                   className="font-jakarta text-[15px] leading-[1.7] mb-6"
-                  style={{ color: "var(--muted-foreground)" }}
+                  style={{ color: "var(--color-text-muted)" }}
                 >
                   {featured.excerpt}
                 </p>
                 <div className="flex items-center gap-4 mb-6">
-                  <span className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+                  <span className="font-jakarta text-[13px]" style={{ color: "var(--color-text-muted)" }}>
                     {featured.author}
                   </span>
-                  <span style={{ color: "var(--primary)" }}>·</span>
-                  <span className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+                  <span style={{ color: "var(--color-action-primary)" }}>·</span>
+                  <span className="font-jakarta text-[13px]" style={{ color: "var(--color-text-muted)" }}>
                     {featured.date}
                   </span>
-                  <span style={{ color: "var(--primary)" }}>·</span>
-                  <span className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+                  <span style={{ color: "var(--color-action-primary)" }}>·</span>
+                  <span className="font-jakarta text-[13px]" style={{ color: "var(--color-text-muted)" }}>
                     {featured.readTime}
                   </span>
                 </div>
                 <a
                   href={featured.slug}
                   className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
-                  style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                  style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
                 >
                   Read Article →
                 </a>
@@ -213,11 +213,11 @@ export default function BlogContent() {
               <div
                 className="hidden md:flex w-[200px] h-[200px] flex-shrink-0 rounded-2xl items-center justify-center"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 4%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
                 }}
               >
-                <Rocket className="w-20 h-20" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
+                <Rocket className="w-20 h-20" strokeWidth={1.5} style={{ color: "var(--color-text-on-primary-subtle)" }} />
               </div>
             </div>
           </div>
@@ -225,13 +225,13 @@ export default function BlogContent() {
       )}
 
       {/* ── Post Grid ─────────────────────────────────────── */}
-      <section className="py-12 px-4 pb-16" style={{ background: "var(--background)" }}>
+      <section className="py-12 px-4 pb-16" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[1200px] mx-auto">
-          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "var(--foreground)" }}>
+          <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "var(--color-text-default)" }}>
             {activeCategory === "All" ? "Latest articles" : activeCategory}
           </h2>
           {visiblePosts.length === 0 ? (
-            <p className="font-jakarta text-[15px] text-center py-12" style={{ color: "#8a8a8a" }}>
+            <p className="font-jakarta text-[15px] text-center py-12" style={{ color: "var(--color-text-disabled)" }}>
               No articles in this category yet. Check back soon.
             </p>
           ) : (
@@ -242,17 +242,17 @@ export default function BlogContent() {
                   href={post.slug}
                   className="rounded-2xl overflow-hidden flex flex-col no-underline group transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
                   style={{
-                    background: "var(--card)",
-                    border: "1px solid var(--border)",
-                    boxShadow: "0 4px 20px rgba(6,26,18,0.08)",
+                    background: "var(--color-surface-default)",
+                    border: "1px solid var(--color-border-default)",
+                    boxShadow: "0 4px 20px color-mix(in srgb, var(--color-surface-page) 8%, transparent)",
                   }}
                 >
                   <div
                     className="flex items-center justify-center relative overflow-hidden"
                     style={{
-                      background: "var(--background)",
+                      background: "var(--color-surface-page)",
                       height: "180px",
-                      borderBottom: "1px solid var(--border)",
+                      borderBottom: "1px solid var(--color-border-default)",
                     }}
                   >
                     {post.flagEmoji ? (
@@ -264,7 +264,7 @@ export default function BlogContent() {
                         <post.icon
                           className="w-14 h-14 transform transition-transform duration-300 group-hover:scale-110"
                           strokeWidth={1.5}
-                          style={{ color: "var(--primary)" }}
+                          style={{ color: "var(--color-action-primary)" }}
                         />
                       )
                     )}
@@ -273,42 +273,42 @@ export default function BlogContent() {
                     <div className="flex items-center justify-between">
                       <span
                         className="font-jakarta font-semibold text-[11px] px-3 py-1.5 rounded-[20px]"
-                        style={{ background: "rgb(var(--primary-rgb) / 15%)", color: "#9A5D00" }}
+                        style={{ background: "color-mix(in srgb, var(--color-action-primary) 15%, transparent)", color: "var(--color-status-warning-solid)" }}
                       >
                         {post.category}
                       </span>
-                      <span className="font-jakarta text-xs" style={{ color: "var(--muted-foreground)" }}>
+                      <span className="font-jakarta text-xs" style={{ color: "var(--color-text-muted)" }}>
                         {post.readTime}
                       </span>
                     </div>
                     <h3
                       className="font-jakarta font-bold text-[16px] leading-[1.4] line-clamp-2 group-hover:text-foreground transition-colors duration-200"
-                      style={{ color: "var(--muted-foreground)" }}
+                      style={{ color: "var(--color-text-muted)" }}
                     >
                       {post.title}
                     </h3>
                     <p
                       className="font-jakarta text-[14px] leading-[1.6] line-clamp-3 flex-1"
-                      style={{ color: "var(--muted-foreground)" }}
+                      style={{ color: "var(--color-text-muted)" }}
                     >
                       {post.excerpt}
                     </p>
                     <div
                       className="flex items-center justify-between pt-2 border-t"
-                      style={{ borderColor: "#f0f0f0" }}
+                      style={{ borderColor: "var(--color-surface-sunken)" }}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-jakarta text-xs" style={{ color: "var(--muted-foreground)" }}>
+                        <span className="font-jakarta text-xs" style={{ color: "var(--color-text-muted)" }}>
                           {post.author}
                         </span>
-                        <span style={{ color: "#d0d0d0" }}>·</span>
-                        <span className="font-jakarta text-xs" style={{ color: "var(--muted-foreground)" }}>
+                        <span style={{ color: "var(--color-action-primary-disabled)" }}>·</span>
+                        <span className="font-jakarta text-xs" style={{ color: "var(--color-text-muted)" }}>
                           {post.date}
                         </span>
                       </div>
                       <span
-                        className="font-jakarta text-xs font-medium transition-colors duration-200 group-hover:text-[var(--accent-foreground)]"
-                        style={{ color: "var(--primary)" }}
+                        className="font-jakarta text-xs font-medium transition-colors duration-200 group-hover:text-[var(--color-text-on-primary-subtle)]"
+                        style={{ color: "var(--color-action-primary)" }}
                       >
                         Read more →
                       </span>
@@ -322,18 +322,18 @@ export default function BlogContent() {
       </section>
 
       {/* ── Newsletter ────────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--platform-chrome)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-chrome-platform)" }}>
         <div className="max-w-[660px] mx-auto text-center">
           <div className="flex justify-center mb-4">
-            <Mail className="w-10 h-10" strokeWidth={1.5} style={{ color: "#B9CBD6" }} />
+            <Mail className="w-10 h-10" strokeWidth={1.5} style={{ color: "var(--color-text-muted)" }} />
           </div>
           <h2
             className="font-display font-bold leading-[1.2] mb-3"
-            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "#ffffff" }}
+            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--color-text-inverse)" }}
           >
             Stay in the loop
           </h2>
-          <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "#D5E1DE" }}>
+          <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "var(--color-action-primary-disabled)" }}>
             Monthly insights on school management, product updates, and education technology in
             Africa. No spam.
           </p>
@@ -352,45 +352,45 @@ export default function BlogContent() {
               placeholder="Your school email address"
               className="flex-1 font-jakarta text-[15px] px-5 py-3.5 rounded-[50px] outline-none"
               style={{
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#ffffff",
+                background: "color-mix(in srgb, var(--color-surface-default) 8%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-surface-default) 20%, transparent)",
+                color: "var(--color-text-inverse)",
               }}
             />
             <button
               type="submit"
               className="font-jakarta font-bold text-[14px] px-6 py-3.5 rounded-[50px] flex-shrink-0"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               Subscribe →
             </button>
           </form>
-          <p className="font-jakarta text-[12px] mt-3" style={{ color: "#D5E1DE" }}>
+          <p className="font-jakarta text-[12px] mt-3" style={{ color: "var(--color-action-primary-disabled)" }}>
             Join 200+ school administrators. Unsubscribe anytime.
           </p>
         </div>
       </section>
 
       {/* ── CTA ───────────────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-action-primary)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--color-text-on-primary)" }}
           >
             Ready to run your school{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary)" }}>
               better?
             </em>
           </h2>
-          <p className="font-jakarta text-[16px] leading-[1.7] mb-7" style={{ color: "var(--primary-foreground)", opacity: 0.82 }}>
+          <p className="font-jakarta text-[16px] leading-[1.7] mb-7" style={{ color: "var(--color-text-on-primary)", opacity: 0.82 }}>
             Start your free 30-day trial. No credit card. No setup fees.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               Start Free Trial →
             </a>
@@ -399,8 +399,8 @@ export default function BlogContent() {
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid color-mix(in srgb, var(--color-text-on-primary) 45%, transparent)",
+                color: "var(--color-text-on-primary)",
               }}
             >
               See All Features

@@ -94,34 +94,34 @@ const cbcLevels = [
   {
     code: "EE",
     label: "Exceeds Expectations",
-    borderColor: "var(--primary)",
-    badgeBg: "rgb(var(--primary-rgb) / 12%)",
-    badgeColor: "#9A5D00",
-    dot: "var(--accent-foreground)",
+    borderColor: "var(--color-action-primary)",
+    badgeBg: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+    badgeColor: "var(--color-status-warning-solid)",
+    dot: "var(--color-text-on-primary-subtle)",
   },
   {
     code: "ME",
     label: "Meets Expectations",
-    borderColor: "var(--primary)",
-    badgeBg: "rgba(26,122,74,0.1)",
-    badgeColor: "var(--primary)",
-    dot: "var(--primary)",
+    borderColor: "var(--color-action-primary)",
+    badgeBg: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
+    badgeColor: "var(--color-action-primary)",
+    dot: "var(--color-action-primary)",
   },
   {
     code: "AE",
     label: "Approaches Expectations",
-    borderColor: "#D97706",
-    badgeBg: "rgba(217,119,6,0.1)",
-    badgeColor: "#92400E",
-    dot: "#D97706",
+    borderColor: "var(--color-status-warning-solid)",
+    badgeBg: "color-mix(in srgb, var(--color-status-warning-solid) 10%, transparent)",
+    badgeColor: "var(--color-status-warning-on-subtle)",
+    dot: "var(--color-status-warning-solid)",
   },
   {
     code: "BE",
     label: "Below Expectations",
-    borderColor: "#DC2626",
-    badgeBg: "rgba(220,38,38,0.08)",
-    badgeColor: "#991B1B",
-    dot: "#DC2626",
+    borderColor: "var(--color-status-danger-solid)",
+    badgeBg: "color-mix(in srgb, var(--color-status-danger-solid) 8%, transparent)",
+    badgeColor: "var(--color-status-danger-on-subtle)",
+    dot: "var(--color-status-danger-solid)",
   },
 ];
 
@@ -175,12 +175,12 @@ const comparisonRows = [
 ];
 
 const integrations = [
-  { name: "M-Pesa (Safaricom)", tag: "Native", color: "var(--primary)" },
-  { name: "SMS Gateway", tag: "Native", color: "var(--primary)" },
-  { name: "WhatsApp Business", tag: "Native", color: "var(--primary)" },
-  { name: "NEMIS (Ministry of Education)", tag: "Native", color: "var(--primary)" },
-  { name: "Google Classroom", tag: "Beta", color: "#6366F1" },
-  { name: "Excel / Sheets Export", tag: "Native", color: "var(--primary)" },
+  { name: "M-Pesa (Safaricom)", tag: "Native", color: "var(--color-action-primary)" },
+  { name: "SMS Gateway", tag: "Native", color: "var(--color-action-primary)" },
+  { name: "WhatsApp Business", tag: "Native", color: "var(--color-action-primary)" },
+  { name: "NEMIS (Ministry of Education)", tag: "Native", color: "var(--color-action-primary)" },
+  { name: "Google Classroom", tag: "Beta", color: "var(--color-action-primary-text)" },
+  { name: "Excel / Sheets Export", tag: "Native", color: "var(--color-action-primary)" },
 ];
 
 const faqs = [
@@ -214,15 +214,15 @@ const faqs = [
 
 export default function PrimarySchoolsPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* ─────────────────────────────────────────────────────────
           SECTION 1 · HERO
       ───────────────────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "580px",
         }}
@@ -231,7 +231,7 @@ export default function PrimarySchoolsPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -240,9 +240,9 @@ export default function PrimarySchoolsPage() {
           <div
             className="inline-block font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgb(var(--primary-rgb) / 12%)",
-              border: "1px solid var(--accent-foreground)",
-              color: "var(--accent-foreground)",
+              background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+              border: "1px solid var(--color-text-on-primary-subtle)",
+              color: "var(--color-text-on-primary-subtle)",
             }}
           >
             For Primary Schools
@@ -251,10 +251,10 @@ export default function PrimarySchoolsPage() {
           {/* H1 */}
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--color-text-default)" }}
           >
             Built for CBC. Made for{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               primary schools.
             </em>
           </h1>
@@ -262,7 +262,7 @@ export default function PrimarySchoolsPage() {
           {/* Subtitle */}
           <p
             className="font-jakarta font-light leading-[1.8] mb-8 mx-auto"
-            style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "660px" }}
+            style={{ fontSize: "18px", color: "var(--color-text-muted)", maxWidth: "660px" }}
           >
             From PP1 to Class 8 — EduMyles handles CBC assessment, M-Pesa fee collection, NEMIS
             reporting, and parent communication in one platform built for Kenya.
@@ -273,7 +273,7 @@ export default function PrimarySchoolsPage() {
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               Start Free Trial <ArrowRight className="w-4 h-4" />
             </a>
@@ -282,8 +282,8 @@ export default function PrimarySchoolsPage() {
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgba(255,255,255,0.4)",
-                color: "#ffffff",
+                border: "2px solid color-mix(in srgb, var(--color-surface-default) 40%, transparent)",
+                color: "var(--color-text-inverse)",
               }}
             >
               Book a Demo
@@ -302,9 +302,9 @@ export default function PrimarySchoolsPage() {
                 key={badge}
                 className="font-semibold text-[12px] px-4 py-2 rounded-[50px]"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  color: "var(--muted-foreground)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 7%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-surface-default) 20%, transparent)",
+                  color: "var(--color-text-muted)",
                 }}
               >
                 ✓ {badge}
@@ -315,7 +315,7 @@ export default function PrimarySchoolsPage() {
           {/* Stats row */}
           <div
             className="inline-flex flex-wrap justify-center gap-0 rounded-2xl overflow-hidden mx-auto"
-            style={{ border: "1px solid rgb(var(--primary-rgb) / 20%)" }}
+            style={{ border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)" }}
           >
             {[
               { value: "520 avg", sub: "students per school" },
@@ -326,14 +326,14 @@ export default function PrimarySchoolsPage() {
                 key={i}
                 className="px-8 py-4 text-center"
                 style={{
-                  background: "rgb(var(--primary-rgb) / 6%)",
-                  borderRight: i < 2 ? "1px solid rgb(var(--primary-rgb) / 20%)" : "none",
+                  background: "color-mix(in srgb, var(--color-action-primary) 6%, transparent)",
+                  borderRight: i < 2 ? "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)" : "none",
                 }}
               >
-                <div className="font-display font-bold text-[1.5rem]" style={{ color: "var(--accent-foreground)" }}>
+                <div className="font-display font-bold text-[1.5rem]" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                   {s.value}
                 </div>
-                <div className="font-jakarta text-[12px] mt-0.5" style={{ color: "var(--muted-foreground)" }}>
+                <div className="font-jakarta text-[12px] mt-0.5" style={{ color: "var(--color-text-muted)" }}>
                   {s.sub}
                 </div>
               </div>
@@ -345,18 +345,18 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 2 · PAIN POINTS
       ───────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--platform-chrome)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-chrome-platform)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <p
               className="font-jakarta font-semibold text-[13px] uppercase tracking-[0.12em] mb-3"
-              style={{ color: "#B9CBD6" }}
+              style={{ color: "var(--color-text-muted)" }}
             >
               The challenges primary schools face
             </p>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-inverse)" }}
             >
               Sound familiar?
             </h2>
@@ -367,35 +367,35 @@ export default function PrimarySchoolsPage() {
                 key={i}
                 className="rounded-2xl p-8"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 5%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
                 }}
               >
                 {/* Number badge */}
                 <div className="flex items-center gap-3 mb-5">
                   <span
                     className="font-display font-bold text-[22px] leading-none"
-                    style={{ color: "#B9CBD6" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   >
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span
                     className="font-jakarta text-[11px] font-semibold uppercase tracking-[0.1em] px-3 py-1 rounded-[50px]"
-                    style={{ background: "rgba(255,255,255,0.12)", color: "#F4F8F7" }}
+                    style={{ background: "color-mix(in srgb, var(--color-surface-default) 12%, transparent)", color: "var(--color-surface-page)" }}
                   >
                     Before EduMyles
                   </span>
                 </div>
                 <div className="mb-4">
-                  <p.icon className="w-10 h-10" strokeWidth={1.5} style={{ color: "#B9CBD6" }} />
+                  <p.icon className="w-10 h-10" strokeWidth={1.5} style={{ color: "var(--color-text-muted)" }} />
                 </div>
                 <h3
                   className="font-display font-bold text-[18px] mb-3"
-                  style={{ color: "#ffffff" }}
+                  style={{ color: "var(--color-text-inverse)" }}
                 >
                   {p.title}
                 </h3>
-                <p className="font-jakarta leading-[1.8] text-[15px]" style={{ color: "#D5E1DE" }}>
+                <p className="font-jakarta leading-[1.8] text-[15px]" style={{ color: "var(--color-action-primary-disabled)" }}>
                   {p.text}
                 </p>
               </div>
@@ -407,27 +407,27 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 3 · HOW EDUMYLES SOLVES IT (3-step process)
       ───────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-16">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
             >
               Getting started
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               From chaos to clarity in{" "}
-              <em className="italic" style={{ color: "var(--primary)" }}>
+              <em className="italic" style={{ color: "var(--color-action-primary)" }}>
                 3 steps
               </em>
             </h2>
             <p
               className="font-jakarta text-[16px] leading-[1.7]"
-              style={{ color: "var(--muted-foreground)", maxWidth: "520px", margin: "0 auto" }}
+              style={{ color: "var(--color-text-muted)", maxWidth: "520px", margin: "0 auto" }}
             >
               Most primary schools are fully live and generating reports within two weeks.
             </p>
@@ -438,7 +438,7 @@ export default function PrimarySchoolsPage() {
             {/* Connector line (desktop only) */}
             <div
               className="hidden md:block absolute top-[38px] left-[calc(16.66%-8px)] right-[calc(16.66%-8px)] h-[2px]"
-              style={{ background: "linear-gradient(90deg,var(--accent-foreground),var(--primary),var(--primary))", zIndex: 0 }}
+              style={{ background: "linear-gradient(90deg,var(--color-text-on-primary-subtle),var(--color-action-primary),var(--color-action-primary))", zIndex: 0 }}
             />
 
             <div className="grid md:grid-cols-3 gap-8 relative" style={{ zIndex: 1 }}>
@@ -448,24 +448,24 @@ export default function PrimarySchoolsPage() {
                   title: "Set up your school",
                   desc: "Import students, configure classes, and set up CBC strands. Our team handles the heavy lifting.",
                   time: "Day 1",
-                  timeBg: "rgb(var(--primary-rgb) / 12%)",
-                  timeColor: "#9A5D00",
+                  timeBg: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+                  timeColor: "var(--color-status-warning-solid)",
                 },
                 {
                   step: "2",
                   title: "Connect M-Pesa & communication",
                   desc: "Paybill linked, parent SMS active. Parents can pay and receive alerts from day two.",
                   time: "Day 2",
-                  timeBg: "rgba(26,122,74,0.1)",
-                  timeColor: "var(--primary)",
+                  timeBg: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
+                  timeColor: "var(--color-action-primary)",
                 },
                 {
                   step: "3",
                   title: "Go live & grow",
                   desc: "Attendance, grades, and reports all flowing. Your school runs on one connected platform.",
                   time: "Week 2",
-                  timeBg: "rgba(15,76,42,0.1)",
-                  timeColor: "var(--primary)",
+                  timeBg: "color-mix(in srgb, var(--color-status-success-on-subtle) 10%, transparent)",
+                  timeColor: "var(--color-action-primary)",
                 },
               ].map((s) => (
                 <div key={s.step} className="flex flex-col items-center text-center">
@@ -475,9 +475,9 @@ export default function PrimarySchoolsPage() {
                     style={{
                       width: "64px",
                       height: "64px",
-                      background: "var(--primary)",
-                      color: "var(--primary-foreground)",
-                      boxShadow: "0 0 0 6px rgb(var(--primary-rgb) / 15%)",
+                      background: "var(--color-action-primary)",
+                      color: "var(--color-text-on-primary)",
+                      boxShadow: "0 0 0 6px color-mix(in srgb, var(--color-action-primary) 15%, transparent)",
                     }}
                   >
                     {s.step}
@@ -490,13 +490,13 @@ export default function PrimarySchoolsPage() {
                   </span>
                   <h3
                     className="font-display font-bold text-[19px] mb-3"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
                     {s.title}
                   </h3>
                   <p
                     className="font-jakarta text-[14px] leading-[1.75]"
-                    style={{ color: "var(--muted-foreground)", maxWidth: "280px" }}
+                    style={{ color: "var(--color-text-muted)", maxWidth: "280px" }}
                   >
                     {s.desc}
                   </p>
@@ -510,22 +510,22 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 4 · CORE MODULES (8 modules)
       ───────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)", color: "var(--color-status-warning-solid)" }}
             >
               Features for Primary Schools
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               Everything a primary school needs
             </h2>
-            <p className="font-jakarta text-[16px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-[16px] leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
               8 integrated modules, configured for CBC primary education
             </p>
           </div>
@@ -535,9 +535,9 @@ export default function PrimarySchoolsPage() {
                 key={m.title}
                 className="rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1"
                 style={{
-                  background: "var(--card)",
-                  border: "1px solid var(--border)",
-                  boxShadow: "0 2px 16px rgba(6,26,18,0.05)",
+                  background: "var(--color-surface-default)",
+                  border: "1px solid var(--color-border-default)",
+                  boxShadow: "0 2px 16px color-mix(in srgb, var(--color-surface-page) 5%, transparent)",
                 }}
               >
                 <div
@@ -545,18 +545,18 @@ export default function PrimarySchoolsPage() {
                   style={{
                     width: "48px",
                     height: "48px",
-                    background: "rgba(26,122,74,0.1)",
+                    background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
                   }}
                 >
-                  <m.icon className="w-6 h-6" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+                  <m.icon className="w-6 h-6" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
                 </div>
                 <h3
                   className="font-display font-bold text-[17px] mb-2"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {m.title}
                 </h3>
-                <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
                   {m.desc}
                 </p>
               </div>
@@ -568,21 +568,21 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 5 · CBC DEEP-DIVE
       ───────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--background)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
             >
               CBC Grading System
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               CBC grading,{" "}
-              <em className="italic" style={{ color: "var(--primary)" }}>
+              <em className="italic" style={{ color: "var(--color-action-primary)" }}>
                 done right.
               </em>
             </h2>
@@ -602,9 +602,9 @@ export default function PrimarySchoolsPage() {
                     key={lvl.code}
                     className="flex items-center gap-4 rounded-xl p-4"
                     style={{
-                      background: "var(--card)",
+                      background: "var(--color-surface-default)",
                       border: `2px solid ${lvl.borderColor}20`,
-                      boxShadow: "0 1px 8px rgba(6,26,18,0.05)",
+                      boxShadow: "0 1px 8px color-mix(in srgb, var(--color-surface-page) 5%, transparent)",
                     }}
                   >
                     <div
@@ -621,11 +621,11 @@ export default function PrimarySchoolsPage() {
                     <div>
                       <div
                         className="font-display font-bold text-[16px]"
-                        style={{ color: "var(--foreground)" }}
+                        style={{ color: "var(--color-text-default)" }}
                       >
                         {lvl.code}
                       </div>
-                      <div className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+                      <div className="font-jakarta text-[13px]" style={{ color: "var(--color-text-muted)" }}>
                         {lvl.label}
                       </div>
                     </div>
@@ -642,12 +642,12 @@ export default function PrimarySchoolsPage() {
             <div
               className="rounded-2xl p-8"
               style={{
-                background: "var(--card)",
-                border: "1px solid var(--border)",
-                boxShadow: "0 2px 16px rgba(6,26,18,0.06)",
+                background: "var(--color-surface-default)",
+                border: "1px solid var(--color-border-default)",
+                boxShadow: "0 2px 16px color-mix(in srgb, var(--color-surface-page) 6%, transparent)",
               }}
             >
-              <p className="font-display font-bold text-[20px] mb-6" style={{ color: "var(--foreground)" }}>
+              <p className="font-display font-bold text-[20px] mb-6" style={{ color: "var(--color-text-default)" }}>
                 What EduMyles auto-generates
               </p>
               <ul className="flex flex-col gap-4">
@@ -656,22 +656,22 @@ export default function PrimarySchoolsPage() {
                     <CheckCircle2
                       className="w-5 h-5 flex-shrink-0 mt-0.5"
                       strokeWidth={2}
-                      style={{ color: "var(--primary)" }}
+                      style={{ color: "var(--color-action-primary)" }}
                     />
                     <span
                       className="font-jakarta text-[15px] leading-[1.65]"
-                      style={{ color: "var(--foreground)" }}
+                      style={{ color: "var(--color-text-default)" }}
                     >
                       {item}
                     </span>
                   </li>
                 ))}
               </ul>
-              <div className="mt-8 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
+              <div className="mt-8 pt-6" style={{ borderTop: "1px solid var(--color-border-default)" }}>
                 <a
                   href="/waitlist"
                   className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
-                  style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                  style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
                 >
                   Preview a report card <ArrowRight className="w-4 h-4" />
                 </a>
@@ -684,15 +684,15 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 6 · RESULTS / STATS BAR
       ───────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
             >
               What primary schools achieve with{" "}
-              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+              <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 EduMyles
               </em>
             </h2>
@@ -703,17 +703,17 @@ export default function PrimarySchoolsPage() {
                 key={s.value}
                 className="rounded-2xl p-8 text-center"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 5%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
                 }}
               >
                 <div
                   className="font-display font-bold mb-3"
-                  style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "var(--accent-foreground)", lineHeight: 1 }}
+                  style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "var(--color-text-on-primary-subtle)", lineHeight: 1 }}
                 >
                   {s.value}
                 </div>
-                <p className="font-jakarta text-[14px] leading-[1.6]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="font-jakarta text-[14px] leading-[1.6]" style={{ color: "var(--color-text-muted)" }}>
                   {s.label}
                 </p>
               </div>
@@ -725,7 +725,7 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 7 · TESTIMONIAL
       ───────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--muted)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-sunken)" }}>
         <div className="max-w-[840px] mx-auto text-center">
           {/* Stars */}
           <div className="flex justify-center gap-1 mb-6">
@@ -733,28 +733,28 @@ export default function PrimarySchoolsPage() {
               <Star
                 key={n}
                 className="w-5 h-5"
-                fill="var(--accent-foreground)"
+                fill="var(--color-text-on-primary-subtle)"
                 strokeWidth={0}
-                style={{ color: "var(--accent-foreground)" }}
+                style={{ color: "var(--color-text-on-primary-subtle)" }}
               />
             ))}
           </div>
           {/* Large quotation mark */}
           <div
             className="font-display leading-none mb-4 select-none"
-            style={{ fontSize: "6rem", color: "var(--accent-foreground)", lineHeight: 0.7, opacity: 0.5 }}
+            style={{ fontSize: "6rem", color: "var(--color-text-on-primary-subtle)", lineHeight: 0.7, opacity: 0.5 }}
           >
             &ldquo;
           </div>
           <blockquote
             className="font-display italic leading-[1.8] mb-7"
-            style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "var(--color-text-default)" }}
           >
             We have 520 learners from PP2 to Class 8. Before EduMyles, CBC report cards alone took
             three teachers an entire weekend every term. Now it takes four hours. The M-Pesa
             integration means zero cash handling — parents love it.
           </blockquote>
-          <p className="font-jakarta font-semibold text-[14px]" style={{ color: "var(--primary)" }}>
+          <p className="font-jakarta font-semibold text-[14px]" style={{ color: "var(--color-action-primary)" }}>
             — James M., Head Teacher, Greenfield Primary School, Thika
           </p>
         </div>
@@ -763,21 +763,21 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 8 · COMPARISON TABLE
       ───────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[900px] mx-auto">
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(6,26,18,0.07)", color: "var(--foreground)" }}
+              style={{ background: "color-mix(in srgb, var(--color-surface-page) 7%, transparent)", color: "var(--color-text-default)" }}
             >
               Why switch?
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               EduMyles vs{" "}
-              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+              <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 the old way
               </em>
             </h2>
@@ -785,25 +785,25 @@ export default function PrimarySchoolsPage() {
 
           <div
             className="rounded-2xl overflow-hidden"
-            style={{ border: "1px solid var(--border)", boxShadow: "0 2px 20px rgba(6,26,18,0.07)" }}
+            style={{ border: "1px solid var(--color-border-default)", boxShadow: "0 2px 20px color-mix(in srgb, var(--color-surface-page) 7%, transparent)" }}
           >
             {/* Header */}
-            <div className="grid grid-cols-3" style={{ background: "var(--platform-chrome)" }}>
+            <div className="grid grid-cols-3" style={{ background: "var(--color-chrome-platform)" }}>
               <div
                 className="px-6 py-4 font-jakarta font-semibold text-[13px] uppercase tracking-[0.08em]"
-                style={{ color: "#F4F8F7" }}
+                style={{ color: "var(--color-surface-page)" }}
               >
                 Feature
               </div>
               <div
                 className="px-6 py-4 font-jakarta font-semibold text-[13px] uppercase tracking-[0.08em] text-center"
-                style={{ color: "#FCA5A5" }}
+                style={{ color: "var(--color-status-danger-on-subtle)" }}
               >
                 Manual / Excel
               </div>
               <div
                 className="px-6 py-4 font-jakarta font-semibold text-[13px] uppercase tracking-[0.08em] text-center"
-                style={{ color: "#B9CBD6" }}
+                style={{ color: "var(--color-text-muted)" }}
               >
                 EduMyles
               </div>
@@ -814,20 +814,20 @@ export default function PrimarySchoolsPage() {
                 key={row.feature}
                 className="grid grid-cols-3 items-center"
                 style={{
-                  background: i % 2 === 0 ? "var(--card)" : "var(--muted)",
-                  borderTop: "1px solid var(--border)",
+                  background: i % 2 === 0 ? "var(--color-surface-default)" : "var(--color-surface-sunken)",
+                  borderTop: "1px solid var(--color-border-default)",
                 }}
               >
                 <div
                   className="px-6 py-4 font-jakarta font-semibold text-[14px]"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {row.feature}
                 </div>
                 <div className="px-6 py-4 text-center">
                   <span
                     className="inline-flex items-center gap-1.5 font-jakarta text-[13px]"
-                    style={{ color: "#DC2626" }}
+                    style={{ color: "var(--color-status-danger-solid)" }}
                   >
                     <X className="w-4 h-4 flex-shrink-0" strokeWidth={2.5} />
                     {row.manual}
@@ -836,7 +836,7 @@ export default function PrimarySchoolsPage() {
                 <div className="px-6 py-4 text-center">
                   <span
                     className="inline-flex items-center gap-1.5 font-jakarta text-[13px] font-semibold"
-                    style={{ color: "var(--primary)" }}
+                    style={{ color: "var(--color-action-primary)" }}
                   >
                     <CheckCircle2 className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
                     {row.edumyles}
@@ -851,21 +851,21 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 9 · INTEGRATIONS
       ───────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--background)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[900px] mx-auto">
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
             >
               Integrations
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
             >
               Plays well with{" "}
-              <em className="italic" style={{ color: "var(--primary)" }}>
+              <em className="italic" style={{ color: "var(--color-action-primary)" }}>
                 what you already use
               </em>
             </h2>
@@ -876,15 +876,15 @@ export default function PrimarySchoolsPage() {
                 key={intg.name}
                 className="flex items-center gap-3 rounded-[50px] px-5 py-3"
                 style={{
-                  background: "var(--card)",
-                  border: "1px solid var(--border)",
-                  boxShadow: "0 1px 8px rgba(6,26,18,0.05)",
+                  background: "var(--color-surface-default)",
+                  border: "1px solid var(--color-border-default)",
+                  boxShadow: "0 1px 8px color-mix(in srgb, var(--color-surface-page) 5%, transparent)",
                 }}
               >
                 <Globe className="w-4 h-4" strokeWidth={1.5} style={{ color: intg.color }} />
                 <span
                   className="font-jakarta font-semibold text-[14px]"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {intg.name}
                 </span>
@@ -892,7 +892,7 @@ export default function PrimarySchoolsPage() {
                   className="font-jakarta font-semibold text-[11px] px-2 py-0.5 rounded-[50px]"
                   style={{
                     background:
-                      intg.color === "#6366F1" ? "rgba(99,102,241,0.1)" : "rgba(26,122,74,0.1)",
+                      intg.color === "var(--color-action-primary)" ? "color-mix(in srgb, var(--color-action-primary) 10%, transparent)" : "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
                     color: intg.color,
                   }}
                 >
@@ -907,18 +907,18 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 10 · FAQ
       ───────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[860px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)", color: "var(--color-status-warning-solid)" }}
             >
               FAQ
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
             >
               Common questions from primary schools
             </h2>
@@ -929,18 +929,18 @@ export default function PrimarySchoolsPage() {
                 key={i}
                 className="rounded-2xl p-7"
                 style={{
-                  background: "var(--card)",
-                  border: "1px solid var(--border)",
-                  boxShadow: "0 1px 8px rgba(6,26,18,0.04)",
+                  background: "var(--color-surface-default)",
+                  border: "1px solid var(--color-border-default)",
+                  boxShadow: "0 1px 8px color-mix(in srgb, var(--color-surface-page) 4%, transparent)",
                 }}
               >
                 <h3
                   className="font-display font-bold text-[17px] mb-3"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {faq.q}
                 </h3>
-                <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "var(--color-text-muted)" }}>
                   {faq.a}
                 </p>
               </div>
@@ -952,22 +952,22 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 11 · PRICING CALLOUT
       ───────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--background)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[900px] mx-auto">
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
             >
               Pricing
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-4"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
             >
               Affordable for every primary school
             </h2>
-            <p className="font-jakarta text-[15px]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-[15px]" style={{ color: "var(--color-text-muted)" }}>
               30-day free trial · No credit card required
             </p>
           </div>
@@ -1008,38 +1008,38 @@ export default function PrimarySchoolsPage() {
                 key={tier.plan}
                 className="rounded-2xl p-8"
                 style={{
-                  background: tier.highlight ? "var(--primary)" : "var(--card)",
-                  border: tier.highlight ? "2px solid var(--primary)" : "1px solid var(--border)",
+                  background: tier.highlight ? "var(--color-action-primary)" : "var(--color-surface-default)",
+                  border: tier.highlight ? "2px solid var(--color-action-primary)" : "1px solid var(--color-border-default)",
                   boxShadow: tier.highlight
-                    ? "0 8px 32px rgb(var(--primary-rgb) / 20%)"
-                    : "0 2px 16px rgba(6,26,18,0.06)",
+                    ? "0 8px 32px color-mix(in srgb, var(--color-action-primary) 20%, transparent)"
+                    : "0 2px 16px color-mix(in srgb, var(--color-surface-page) 6%, transparent)",
                 }}
               >
                 <div className="flex items-start justify-between mb-6">
                   <div>
                     <p
                       className="font-jakarta font-semibold text-[13px] uppercase tracking-[0.1em] mb-1"
-                      style={{ color: tier.highlight ? "var(--accent-foreground)" : "var(--primary)" }}
+                      style={{ color: tier.highlight ? "var(--color-text-on-primary-subtle)" : "var(--color-action-primary)" }}
                     >
                       {tier.plan}
                     </p>
                     <div className="flex items-baseline gap-1">
                       <span
                         className="font-display font-bold"
-                        style={{ fontSize: "2rem", color: tier.highlight ? "var(--primary-foreground)" : "var(--foreground)" }}
+                        style={{ fontSize: "2rem", color: tier.highlight ? "var(--color-text-on-primary)" : "var(--color-text-default)" }}
                       >
                         {tier.price}
                       </span>
                       <span
                         className="font-jakarta text-[14px]"
-                        style={{ color: tier.highlight ? "var(--primary-foreground)" : "var(--muted-foreground)" }}
+                        style={{ color: tier.highlight ? "var(--color-text-on-primary)" : "var(--color-text-muted)" }}
                       >
                         {tier.period}
                       </span>
                     </div>
                     <p
                       className="font-jakarta text-[13px] mt-1"
-                      style={{ color: tier.highlight ? "var(--primary-foreground)" : "var(--muted-foreground)" }}
+                      style={{ color: tier.highlight ? "var(--color-text-on-primary)" : "var(--color-text-muted)" }}
                     >
                       {tier.capacity}
                     </p>
@@ -1047,7 +1047,7 @@ export default function PrimarySchoolsPage() {
                   {tier.highlight && (
                     <span
                       className="font-jakarta font-bold text-[11px] px-3 py-1 rounded-[50px]"
-                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                      style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
                     >
                       Most Popular
                     </span>
@@ -1059,11 +1059,11 @@ export default function PrimarySchoolsPage() {
                       <CheckCircle2
                         className="w-4 h-4 flex-shrink-0"
                         strokeWidth={2}
-                        style={{ color: tier.highlight ? "var(--accent-foreground)" : "var(--primary)" }}
+                        style={{ color: tier.highlight ? "var(--color-text-on-primary-subtle)" : "var(--color-action-primary)" }}
                       />
                       <span
                         className="font-jakarta text-[14px]"
-                        style={{ color: tier.highlight ? "var(--primary-foreground)" : "var(--foreground)" }}
+                        style={{ color: tier.highlight ? "var(--color-text-on-primary)" : "var(--color-text-default)" }}
                       >
                         {f}
                       </span>
@@ -1074,8 +1074,8 @@ export default function PrimarySchoolsPage() {
                   href="/waitlist"
                   className="block text-center font-jakarta font-bold text-[15px] px-6 py-3 rounded-[50px] no-underline"
                   style={{
-                    background: tier.highlight ? "var(--primary)" : "var(--primary)",
-                    color: "var(--primary-foreground)",
+                    background: tier.highlight ? "var(--color-action-primary)" : "var(--color-action-primary)",
+                    color: "var(--color-text-on-primary)",
                   }}
                 >
                   Start Free Trial
@@ -1088,7 +1088,7 @@ export default function PrimarySchoolsPage() {
             <Link
               href="/pricing"
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-7 py-3 rounded-[50px] no-underline"
-              style={{ border: "2px solid var(--border)", color: "var(--foreground)" }}
+              style={{ border: "2px solid var(--color-border-default)", color: "var(--color-text-default)" }}
             >
               See full pricing <ArrowRight className="w-4 h-4" />
             </Link>
@@ -1099,21 +1099,21 @@ export default function PrimarySchoolsPage() {
       {/* ─────────────────────────────────────────────────────────
           SECTION 12 · FINAL CTA
       ───────────────────────────────────────────────────────── */}
-      <section className="py-24 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-24 px-4" style={{ background: "var(--color-action-primary)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <div className="flex justify-center gap-1 mb-8">
-            <Shield className="w-8 h-8" strokeWidth={1.5} style={{ color: "var(--primary-foreground)" }} />
+            <Shield className="w-8 h-8" strokeWidth={1.5} style={{ color: "var(--color-text-on-primary)" }} />
           </div>
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--color-text-on-primary)" }}
           >
             Ready to bring your primary school{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary)" }}>
               into the digital age?
             </em>
           </h2>
-          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)" }}>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--color-text-on-primary)" }}>
             Join hundreds of Kenyan primary schools already running on EduMyles. Set up in days, not
             months.
           </p>
@@ -1121,7 +1121,7 @@ export default function PrimarySchoolsPage() {
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              style={{ background: "var(--color-text-on-primary)", color: "var(--color-action-primary)" }}
             >
               Start Free Trial <ArrowRight className="w-4 h-4" />
             </a>
@@ -1130,14 +1130,14 @@ export default function PrimarySchoolsPage() {
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid color-mix(in srgb, var(--color-text-on-primary) 45%, transparent)",
+                color: "var(--color-text-on-primary)",
               }}
             >
               Book a Demo
             </a>
           </div>
-          <p className="font-jakarta text-[13px]" style={{ color: "var(--primary-foreground)" }}>
+          <p className="font-jakarta text-[13px]" style={{ color: "var(--color-text-on-primary)" }}>
             30-day free trial · No credit card required · Onboarding included
           </p>
         </div>

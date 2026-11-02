@@ -63,13 +63,13 @@ const dataQA = [
 
 export default function SecurityPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* ── Hero ───────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "5rem 2rem 4.5rem",
           minHeight: "400px",
         }}
@@ -77,7 +77,7 @@ export default function SecurityPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -86,25 +86,25 @@ export default function SecurityPage() {
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
               style={{
-                background: "rgb(var(--primary-rgb) / 12%)",
-                border: "1px solid var(--accent-foreground)",
-                color: "var(--accent-foreground)",
+                background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+                border: "1px solid var(--color-text-on-primary-subtle)",
+                color: "var(--color-text-on-primary-subtle)",
               }}
             >
               Security &amp; Privacy
             </div>
             <h1
               className="font-display font-bold leading-[1.15] mb-5"
-              style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--color-text-default)" }}
             >
               Your school data is{" "}
-              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+              <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 safe with us.
               </em>
             </h1>
             <p
               className="font-jakarta font-light leading-[1.8] mb-8"
-              style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "560px" }}
+              style={{ fontSize: "18px", color: "var(--color-text-muted)", maxWidth: "560px" }}
             >
               Student data is sacred. We&apos;ve built EduMyles from the ground up with security,
               privacy, and compliance at every layer.
@@ -127,9 +127,9 @@ export default function SecurityPage() {
                   key={badge.label}
                   className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] px-4 py-2 rounded-[50px]"
                   style={{
-                    background: "rgba(255,255,255,0.07)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    color: "#E8E8E8",
+                    background: "color-mix(in srgb, var(--color-surface-default) 7%, transparent)",
+                    border: "1px solid color-mix(in srgb, var(--color-surface-default) 20%, transparent)",
+                    color: "var(--color-action-primary-disabled)",
                   }}
                 >
                   {badge.icon}
@@ -142,21 +142,21 @@ export default function SecurityPage() {
       </section>
 
       {/* ── Security Features Grid ──────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
             >
               Built-In Protections
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               Security at{" "}
-              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+              <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 every layer
               </em>
             </h2>
@@ -167,28 +167,28 @@ export default function SecurityPage() {
                 key={f.title}
                 className="rounded-2xl p-7 transition-transform duration-200 hover:-translate-y-1"
                 style={{
-                  background: "var(--card)",
-                  border: "1px solid var(--border)",
-                  boxShadow: "0 2px 12px rgba(6,26,18,0.05)",
+                  background: "var(--color-surface-default)",
+                  border: "1px solid var(--color-border-default)",
+                  boxShadow: "0 2px 12px color-mix(in srgb, var(--color-surface-page) 5%, transparent)",
                 }}
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center text-[22px] mb-4"
-                  style={{ background: "var(--background)" }}
+                  style={{ background: "var(--color-surface-page)" }}
                 >
                   {typeof f.icon === "string" ? (
                     f.icon
                   ) : (
-                    <f.icon className="w-6 h-6" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+                    <f.icon className="w-6 h-6" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
                   )}
                 </div>
                 <h3
                   className="font-display font-bold text-[18px] mb-3"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {f.title}
                 </h3>
-                <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "var(--color-text-muted)" }}>
                   {f.body}
                 </p>
               </div>
@@ -198,21 +198,21 @@ export default function SecurityPage() {
       </section>
 
       {/* ── Data Practices ──────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--background)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[1000px] mx-auto">
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)", color: "var(--color-status-warning-solid)" }}
             >
               Transparency
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               How We Handle{" "}
-              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+              <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 Your Data
               </em>
             </h2>
@@ -223,24 +223,24 @@ export default function SecurityPage() {
                 key={item.q}
                 className="rounded-2xl p-7"
                 style={{
-                  background: "var(--card)",
-                  border: "1px solid var(--border)",
-                  boxShadow: "0 2px 8px rgba(6,26,18,0.04)",
+                  background: "var(--color-surface-default)",
+                  border: "1px solid var(--color-border-default)",
+                  boxShadow: "0 2px 8px color-mix(in srgb, var(--color-surface-page) 4%, transparent)",
                 }}
               >
                 <div
                   className="font-jakarta font-bold text-[12px] mb-1 uppercase tracking-wide"
-                  style={{ color: "var(--accent-foreground)" }}
+                  style={{ color: "var(--color-text-on-primary-subtle)" }}
                 >
                   Q
                 </div>
                 <h3
                   className="font-display font-bold text-[17px] mb-3"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {item.q}
                 </h3>
-                <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="font-jakarta text-[14px] leading-[1.8]" style={{ color: "var(--color-text-muted)" }}>
                   {item.a}
                 </p>
               </div>
@@ -250,32 +250,32 @@ export default function SecurityPage() {
       </section>
 
       {/* ── Contact Security ────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[620px] mx-auto text-center">
           <div
             className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-6"
             style={{
-              background: "rgb(var(--primary-rgb) / 15%)",
-              border: "1px solid rgb(var(--primary-rgb) / 30%)",
+              background: "color-mix(in srgb, var(--color-action-primary) 15%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--color-action-primary) 30%, transparent)",
             }}
           >
-            <Lock className="w-6 h-6" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
+            <Lock className="w-6 h-6" strokeWidth={1.5} style={{ color: "var(--color-text-on-primary-subtle)" }} />
           </div>
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
           >
             Found a vulnerability?
           </h2>
-          <p className="font-jakarta text-[16px] leading-[1.8] mb-3" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[16px] leading-[1.8] mb-3" style={{ color: "var(--color-text-muted)" }}>
             We have a responsible disclosure programme. Security researchers who report issues in
             good faith are protected and acknowledged.
           </p>
-          <p className="font-jakarta text-[14px] mb-8" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[14px] mb-8" style={{ color: "var(--color-text-muted)" }}>
             Email:{" "}
             <a
               href="mailto:security@edumyles.com"
-              style={{ color: "var(--accent-foreground)", textDecoration: "none", fontWeight: 600 }}
+              style={{ color: "var(--color-text-on-primary-subtle)", textDecoration: "none", fontWeight: 600 }}
             >
               security@edumyles.com
             </a>
@@ -283,7 +283,7 @@ export default function SecurityPage() {
           <a
             href="mailto:security@edumyles.com?subject=Security%20Vulnerability%20Report"
             className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-            style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+            style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
           >
             Report a security issue →
           </a>

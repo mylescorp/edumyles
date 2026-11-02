@@ -26,7 +26,7 @@ const QUICK_ACTIONS = [
   { label: "View Classes", href: "/portal/teacher/classes", icon: BookOpen, iconBg: "bg-primary/10", iconColor: "text-primary", module: "sis" },
   { label: "Create Assignment", href: "/portal/teacher/assignments/create", icon: Plus, iconBg: "bg-warning/10", iconColor: "text-warning", module: "academics" },
   { label: "Manage Assignments", href: "/portal/teacher/assignments", icon: ClipboardList, iconBg: "bg-info/10", iconColor: "text-info", module: "academics" },
-  { label: "View Timetable", href: "/portal/teacher/timetable", icon: Calendar, iconBg: "bg-[rgba(124,58,237,0.1)]", iconColor: "text-info", module: "timetable" },
+  { label: "View Timetable", href: "/portal/teacher/timetable", icon: Calendar, iconBg: "bg-[color-mix(in srgb, var(--color-action-primary) 10%, transparent)]", iconColor: "text-info", module: "timetable" },
 ];
 
 export default function TeacherDashboardPage() {

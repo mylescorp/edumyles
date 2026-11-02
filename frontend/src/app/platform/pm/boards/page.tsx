@@ -122,12 +122,12 @@ export default function PMBoardsPage() {
         </Card>
       ) : (
         <>
-          <Card className="overflow-hidden border-slate-200/80 surface-gradient">
+          <Card className="overflow-hidden border-slate-200/80 bg-[radial-gradient(circle_at_top_left,color-mix(in srgb, var(--color-surface-page) 8%, transparent),transparent_34%),radial-gradient(circle_at_top_right,color-mix(in srgb, var(--color-status-info-solid) 12%, transparent),transparent_32%),linear-gradient(180deg,color-mix(in srgb, var(--color-text-default) 96%, transparent),var(--color-text-on-primary))]">
             <CardContent className="grid gap-6 p-6 xl:grid-cols-[1.15fr_0.85fr]">
               <div className="space-y-5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge className="border-0 bg-platform-chrome text-white">Kanban Launch Surface</Badge>
-                  <Badge variant="outline" className="border-slate-300 bg-card/90 text-slate-700">
+                  <Badge className="border-0 bg-platform-chrome text-[var(--color-text-on-primary)]">Kanban Launch Surface</Badge>
+                  <Badge variant="outline" className="border-slate-300 bg-[var(--color-surface-default)] text-slate-700">
                     Live PM data
                   </Badge>
                 </div>
@@ -141,7 +141,7 @@ export default function PMBoardsPage() {
                   </p>
                 </div>
                 {featuredProject && featuredWorkspace ? (
-                  <div className="rounded-[28px] border border-slate-200 bg-card/90 p-5 shadow-sm">
+                  <div className="rounded-[28px] border border-slate-200 bg-[var(--color-surface-default)] p-5 shadow-sm">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div className="space-y-2">
                         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
@@ -213,7 +213,7 @@ export default function PMBoardsPage() {
                     return (
                       <Card
                         key={project._id}
-                        className="overflow-hidden border-slate-200/80 bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+                        className="overflow-hidden border-slate-200/80 bg-[linear-gradient(180deg,color-mix(in_srgb,_var(--color-surface-default)_98%,_transparent),color-mix(in srgb, var(--color-text-default) 96%, transparent))] shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
                       >
                         <CardHeader className="space-y-3 pb-4">
                           <div className="flex items-start justify-between gap-3">
@@ -221,7 +221,7 @@ export default function PMBoardsPage() {
                               <CardTitle className="text-lg text-foreground">{project.name}</CardTitle>
                               <p className="text-sm text-muted-foreground">{group.workspace.name}</p>
                             </div>
-                            <Badge variant="outline" className="border-slate-300 bg-card/90">
+                            <Badge variant="outline" className="border-slate-300 bg-[var(--color-surface-default)]">
                               {project.status}
                             </Badge>
                           </div>
@@ -285,9 +285,9 @@ function StatCard({
   icon: typeof Columns3;
 }) {
   return (
-    <div className="rounded-[24px] border border-slate-200 bg-card/92 p-4 shadow-sm">
+    <div className="rounded-[24px] border border-slate-200 bg-[var(--color-surface-default)] p-4 shadow-sm">
       <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-platform-chrome text-white">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-platform-chrome text-[var(--color-text-on-primary)]">
           <Icon className="h-5 w-5" />
         </div>
         <div>

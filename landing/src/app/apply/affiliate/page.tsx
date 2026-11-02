@@ -64,7 +64,7 @@ const AFFILIATE_BENEFITS = [
 ];
 
 const inputClass =
-  "w-full rounded-xl border border-[var(--border)] bg-card px-4 py-3.5 font-jakarta text-[15px] text-foreground outline-none transition-colors duration-200 focus:border-primary";
+  "w-full rounded-xl border border-[var(--color-border-default)] bg-card px-4 py-3.5 font-jakarta text-[15px] text-foreground outline-none transition-colors duration-200 focus:border-primary";
 
 function AffiliateApplicationContent() {
   const router = useRouter();
@@ -155,7 +155,7 @@ function AffiliateApplicationContent() {
       <main className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
           <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-8 h-8 text-white" />
+            <CheckCircle2 className="w-8 h-8 text-[var(--color-text-on-primary)]" />
           </div>
           <h1 className="font-display text-3xl font-bold text-foreground mb-4">
             Application Submitted!
@@ -174,28 +174,28 @@ function AffiliateApplicationContent() {
     <main className="no-handoff-hero min-h-screen bg-background">
       <div className="grid min-h-screen xl:grid-cols-[minmax(0,1.7fr)_minmax(540px,0.95fr)]">
         {/* Left Panel - Information */}
-        <section className="flex h-full flex-col bg-[linear-gradient(180deg,#072015_0%,#0A2A1C_55%,#0C301F_100%)] px-8 py-10 text-white sm:px-12 lg:px-16 xl:px-16 xl:py-14">
+        <section className="flex h-full flex-col bg-[linear-gradient(180deg,#072015_0%,#0A2A1C_55%,#0C301F_100%)] px-8 py-10 text-[var(--color-text-on-primary)] sm:px-12 lg:px-16 xl:px-16 xl:py-14">
           <div className="mb-10 flex items-center justify-between gap-4">
             <Logo size="md" />
             <Link
               href="/"
-              className="font-jakarta text-sm font-semibold text-[#A8E6C3] no-underline transition-colors hover:text-[var(--accent-foreground)]"
+              className="font-jakarta text-sm font-semibold text-[var(--color-status-success-on-subtle)] no-underline transition-colors hover:text-[var(--color-text-on-primary-subtle)]"
             >
               Back to site
             </Link>
           </div>
 
           <div className="max-w-3xl pt-8 xl:pt-20">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-foreground)] bg-[rgb(var(--primary-rgb)_/_12%)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-foreground)]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--color-text-on-primary-subtle)] bg-[color-mix(in_srgb,var(--color-action-primary)_12%,transparent)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-on-primary-subtle)]">
               <Share2 className="h-4 w-4" />
               Affiliate Program
             </div>
-            <h1 className="font-display text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-white">
+            <h1 className="font-display text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-[var(--color-text-on-primary)]">
               Earn by Sharing
               <br />
               EduMyles
             </h1>
-            <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[#A8E6C3]">
+            <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[var(--color-status-success-on-subtle)]">
               Join our affiliate program and earn 10% commission by referring schools to EduMyles.
               No sales experience required - just share your referral link and earn when schools
               subscribe.
@@ -222,36 +222,36 @@ function AffiliateApplicationContent() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-[24px] border border-[rgba(168,230,195,0.16)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
+                className="rounded-[24px] border border-[color-mix(in_srgb,_var(--color-status-success-on-subtle)_16%,_transparent)] bg-[color-mix(in_srgb,_var(--color-surface-default)_4%,_transparent)] p-6 backdrop-blur-sm"
               >
-                <item.icon className="h-6 w-6 text-[var(--accent-foreground)]" />
-                <h2 className="mt-3 font-jakarta text-[15px] font-bold text-white">{item.title}</h2>
-                <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#A8E6C3]">
+                <item.icon className="h-6 w-6 text-[var(--color-text-on-primary-subtle)]" />
+                <h2 className="mt-3 font-jakarta text-[15px] font-bold text-[var(--color-text-on-primary)]">{item.title}</h2>
+                <p className="mt-2 font-jakarta text-[13px] leading-6 text-[var(--color-status-success-on-subtle)]">
                   {item.body}
                 </p>
               </div>
             ))}
           </div>
 
-          <div className="mt-12 rounded-[28px] border border-[rgba(168,230,195,0.14)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
-            <h2 className="font-display text-[28px] font-bold text-white">Affiliate Benefits</h2>
+          <div className="mt-12 rounded-[28px] border border-[color-mix(in_srgb,_var(--color-status-success-on-subtle)_14%,_transparent)] bg-[color-mix(in_srgb,_var(--color-surface-default)_4%,_transparent)] p-6 xl:p-8">
+            <h2 className="font-display text-[28px] font-bold text-[var(--color-text-on-primary)]">Affiliate Benefits</h2>
             <div className="mt-6 space-y-3">
               {AFFILIATE_BENEFITS.map((benefit) => (
                 <div key={benefit} className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 w-4 h-4 text-[var(--accent-foreground)] flex-shrink-0" />
-                  <p className="font-jakarta text-[14px] text-[#D7F3E2]">{benefit}</p>
+                  <CheckCircle2 className="mt-0.5 w-4 h-4 text-[var(--color-text-on-primary-subtle)] flex-shrink-0" />
+                  <p className="font-jakarta text-[14px] text-[var(--color-status-success-subtle)]">{benefit}</p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-8 rounded-[20px] border border-[rgb(var(--primary-rgb)_/_18%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-5">
+            <div className="mt-8 rounded-[20px] border border-[color-mix(in_srgb,var(--color-action-primary)_18%,transparent)] bg-[color-mix(in_srgb,var(--color-action-primary)_8%,transparent)] p-5">
               <div className="flex items-start gap-3">
-                <TrendingUp className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--accent-foreground)]" />
+                <TrendingUp className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-text-on-primary-subtle)]" />
                 <div>
-                  <h3 className="font-jakarta text-[15px] font-bold text-[#F7C867]">
+                  <h3 className="font-jakarta text-[15px] font-bold text-[var(--color-status-warning-on-subtle)]">
                     How It Works
                   </h3>
-                  <ol className="mt-2 font-jakarta text-[14px] leading-7 text-[#E8F5EE] space-y-1">
+                  <ol className="mt-2 font-jakarta text-[14px] leading-7 text-[var(--color-status-success-subtle)] space-y-1">
                     <li>1. Sign up for the affiliate program</li>
                     <li>2. Get your unique referral link</li>
                     <li>3. Share EduMyles with schools</li>
@@ -334,7 +334,7 @@ function AffiliateApplicationContent() {
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
                     <input
                       id="email"
                       name="email"
@@ -357,7 +357,7 @@ function AffiliateApplicationContent() {
                       Phone Number
                     </label>
                     <div className="relative">
-                      <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                      <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
                       <input
                         id="phone"
                         name="phone"
@@ -377,7 +377,7 @@ function AffiliateApplicationContent() {
                       Country
                     </label>
                     <div className="relative">
-                      <Globe2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                      <Globe2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
                       <select
                         id="country"
                         name="country"
@@ -541,13 +541,13 @@ function AffiliateApplicationContent() {
                   {REFERRAL_CHANNELS.map((channel) => (
                     <label
                       key={channel}
-                      className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border)] bg-card cursor-pointer hover:border-primary transition-colors"
+                      className="flex items-center gap-3 p-3 rounded-lg border border-[var(--color-border-default)] bg-card cursor-pointer hover:border-primary transition-colors"
                     >
                       <input
                         type="checkbox"
                         checked={selectedChannels.includes(channel)}
                         onChange={() => handleChannelToggle(channel)}
-                        className="w-4 h-4 text-primary rounded focus:ring-[var(--primary)]"
+                        className="w-4 h-4 text-primary rounded focus:ring-[var(--color-action-primary)]"
                       />
                       <span className="font-jakarta text-[14px] text-foreground">{channel}</span>
                     </label>
@@ -556,7 +556,7 @@ function AffiliateApplicationContent() {
               </div>
 
               {error ? (
-                <div className="rounded-xl border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 font-jakarta text-sm text-[#9A1F2B]">
+                <div className="rounded-xl border border-[var(--color-status-danger-on-subtle)] bg-[var(--color-surface-page)] px-4 py-3 font-jakarta text-sm text-[var(--color-status-danger-on-subtle)]">
                   {error}
                 </div>
               ) : null}
@@ -571,8 +571,8 @@ function AffiliateApplicationContent() {
                   : "Submit Affiliate Application"}
               </button>
 
-              <div className="rounded-[20px] border border-[#e3ece6] bg-card px-5 py-4">
-                <p className="font-jakarta text-[13px] leading-6 text-[var(--muted-foreground)]">
+              <div className="rounded-[20px] border border-[var(--color-border-default)] bg-card px-5 py-4">
+                <p className="font-jakarta text-[13px] leading-6 text-[var(--color-text-muted)]">
                   By submitting this application, you agree to our affiliate terms and conditions.
                   We&apos;ll review your application and contact you within 3-5 business days.
                 </p>

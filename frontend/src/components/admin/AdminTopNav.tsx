@@ -66,7 +66,7 @@ export function AdminTopNav({ onMobileMenuToggle, mobileMenuOpen = false }: Admi
   };
 
   return (
-    <header className="flex h-14 items-center justify-between border-b bg-card px-4 shadow-sm">
+    <header className="flex h-14 items-center justify-between border-b bg-[var(--color-surface-default)] px-4 shadow-sm">
       {/* Left side — Hamburger (mobile) + Personal dropdown + Home + App icons */}
       <div className="flex items-center gap-2">
         {/* Mobile hamburger button — only visible on small screens */}
@@ -92,7 +92,7 @@ export function AdminTopNav({ onMobileMenuToggle, mobileMenuOpen = false }: Admi
               className="flex items-center gap-2 h-8 px-3 hover:bg-gray-100"
             >
               <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <span className="text-xs text-white font-medium">
+                <span className="text-xs text-[var(--color-text-on-primary)] font-medium">
                   {displayName.charAt(0).toUpperCase()}
                 </span>
               </div>

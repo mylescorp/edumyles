@@ -18,13 +18,13 @@ const sections = [
 
 export default function CookiesPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* Hero */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "5rem 2rem 4rem",
           minHeight: "320px",
         }}
@@ -32,7 +32,7 @@ export default function CookiesPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -40,9 +40,9 @@ export default function CookiesPage() {
           <div
             className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-5 px-4 py-2 rounded-full"
             style={{
-              background: "rgb(var(--primary-rgb) / 12%)",
-              border: "1px solid var(--accent-foreground)",
-              color: "var(--accent-foreground)",
+              background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+              border: "1px solid var(--color-text-on-primary-subtle)",
+              color: "var(--color-text-on-primary-subtle)",
             }}
           >
             <Cookie className="w-3.5 h-3.5" strokeWidth={2} />
@@ -50,14 +50,14 @@ export default function CookiesPage() {
           </div>
           <h1
             className="font-display font-bold leading-tight mb-4"
-            style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--color-text-default)" }}
           >
             We use cookies{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               fairly.
             </em>
           </h1>
-          <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--color-text-muted)" }}>
             Last updated: March 2026 · Effective: 1 January 2025
           </p>
           {/* Quick nav */}
@@ -68,9 +68,9 @@ export default function CookiesPage() {
                 href={`#${s.id}`}
                 className="font-jakarta font-medium text-[12px] px-4 py-2 rounded-full no-underline transition-colors duration-200"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "var(--muted-foreground)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 7%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-surface-default) 12%, transparent)",
+                  color: "var(--color-text-muted)",
                 }}
               >
                 {s.label}
@@ -85,9 +85,9 @@ export default function CookiesPage() {
         {/* Intro */}
         <div
           className="rounded-2xl p-6"
-          style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+          style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
         >
-          <p className="font-jakarta text-[14px] leading-[1.9]" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[14px] leading-[1.9]" style={{ color: "var(--color-text-muted)" }}>
             This Cookie Policy explains what cookies are, which cookies EduMyles uses, and how you
             can control them. We keep our cookie usage to the minimum necessary to run the platform
             securely and improve your experience. We do <strong>not</strong> use advertising
@@ -100,16 +100,16 @@ export default function CookiesPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <Cookie className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <Cookie className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               What Are Cookies?
             </h2>
           </div>
           <div className="flex flex-col gap-4">
-            <p className="font-jakarta text-[14px] leading-[1.85]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-[14px] leading-[1.85]" style={{ color: "var(--color-text-muted)" }}>
               Cookies are small text files placed on your device by websites you visit. They are
               widely used to make websites work, work more efficiently, and to provide information
               to the site owners.
@@ -135,17 +135,17 @@ export default function CookiesPage() {
                 <div
                   key={item.type}
                   className="rounded-xl p-4"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
                   <p
                     className="font-jakarta font-bold text-[13px] mb-1.5"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
                     {item.type}
                   </p>
                   <p
                     className="font-jakarta text-[12.5px] leading-[1.6]"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   >
                     {item.detail}
                   </p>
@@ -155,16 +155,16 @@ export default function CookiesPage() {
             <div
               className="rounded-xl p-4 flex items-start gap-3"
               style={{
-                background: "rgb(var(--primary-rgb) / 6%)",
-                border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                background: "color-mix(in srgb, var(--color-action-primary) 6%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
               }}
             >
               <Shield
                 className="w-4 h-4 flex-shrink-0 mt-0.5"
                 strokeWidth={1.5}
-                style={{ color: "var(--accent-foreground)" }}
+                style={{ color: "var(--color-text-on-primary-subtle)" }}
               />
-              <p className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+              <p className="font-jakarta text-[13px]" style={{ color: "var(--color-text-muted)" }}>
                 EduMyles does <strong>not</strong> use tracking cookies, retargeting cookies,
                 advertising cookies, or fingerprinting technologies. We will never use cookies to
                 build profiles for ad targeting.
@@ -173,50 +173,50 @@ export default function CookiesPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }} />
 
         {/* 2 — Cookies We Use */}
         <section id="table" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <Settings className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <Settings className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Cookies We Use
             </h2>
           </div>
-          <p className="font-jakarta text-[14px] leading-[1.8] mb-5" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[14px] leading-[1.8] mb-5" style={{ color: "var(--color-text-muted)" }}>
             The following table lists every cookie set by EduMyles. We keep this list current — if
             we add a cookie we update this page.
           </p>
-          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--color-border-default)" }}>
             <table className="w-full border-collapse">
               <thead>
-                <tr style={{ background: "var(--card)" }}>
+                <tr style={{ background: "var(--color-surface-default)" }}>
                   <th
                     className="font-jakarta font-bold text-[12px] text-left px-4 py-3"
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "var(--color-text-on-primary-subtle)" }}
                   >
                     Cookie Name
                   </th>
                   <th
                     className="font-jakarta font-bold text-[12px] text-left px-4 py-3"
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "var(--color-text-on-primary-subtle)" }}
                   >
                     Purpose
                   </th>
                   <th
                     className="font-jakarta font-bold text-[12px] text-left px-4 py-3 hidden sm:table-cell"
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "var(--color-text-on-primary-subtle)" }}
                   >
                     Duration
                   </th>
                   <th
                     className="font-jakarta font-bold text-[12px] text-left px-4 py-3"
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "var(--color-text-on-primary-subtle)" }}
                   >
                     Type
                   </th>
@@ -230,8 +230,8 @@ export default function CookiesPage() {
                       "Maintains your authenticated session while using the platform. Required for login to work.",
                     duration: "Session",
                     type: "Essential",
-                    typeColor: "var(--primary)",
-                    typeBg: "rgba(26,122,74,0.1)",
+                    typeColor: "var(--color-action-primary)",
+                    typeBg: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
                   },
                   {
                     name: "em_auth_token",
@@ -239,8 +239,8 @@ export default function CookiesPage() {
                       "Stores your authentication token so you stay logged in between browser sessions.",
                     duration: "7 days",
                     type: "Essential",
-                    typeColor: "var(--primary)",
-                    typeBg: "rgba(26,122,74,0.1)",
+                    typeColor: "var(--color-action-primary)",
+                    typeBg: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
                   },
                   {
                     name: "em_pref",
@@ -248,8 +248,8 @@ export default function CookiesPage() {
                       "Saves your UI preferences such as sidebar state, theme selection, and dashboard layout.",
                     duration: "1 year",
                     type: "Preference",
-                    typeColor: "#1565C0",
-                    typeBg: "rgba(21,101,192,0.1)",
+                    typeColor: "var(--color-action-primary-text)",
+                    typeBg: "color-mix(in srgb, var(--color-action-primary-text) 10%, transparent)",
                   },
                   {
                     name: "em_consent",
@@ -257,8 +257,8 @@ export default function CookiesPage() {
                       "Records your cookie consent choice (accepted or rejected optional cookies) to avoid re-showing the banner.",
                     duration: "1 year",
                     type: "Essential",
-                    typeColor: "var(--primary)",
-                    typeBg: "rgba(26,122,74,0.1)",
+                    typeColor: "var(--color-action-primary)",
+                    typeBg: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
                   },
                   {
                     name: "_analytics",
@@ -266,8 +266,8 @@ export default function CookiesPage() {
                       "Anonymous, aggregated usage analytics. No personal data is collected. Used to understand which features are most used.",
                     duration: "30 days",
                     type: "Analytics",
-                    typeColor: "#7A4A00",
-                    typeBg: "rgb(var(--primary-rgb) / 10%)",
+                    typeColor: "var(--color-status-warning-on-subtle)",
+                    typeBg: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)",
                   },
                   {
                     name: "_ga",
@@ -275,28 +275,28 @@ export default function CookiesPage() {
                       "Google Analytics aggregate traffic statistics. IP addresses are anonymised. No personal data is associated with this cookie.",
                     duration: "2 years",
                     type: "Analytics",
-                    typeColor: "#7A4A00",
-                    typeBg: "rgb(var(--primary-rgb) / 10%)",
+                    typeColor: "var(--color-status-warning-on-subtle)",
+                    typeBg: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)",
                   },
                 ].map(({ name, purpose, duration, type, typeColor, typeBg }, i) => (
-                  <tr key={name} style={{ background: i % 2 === 0 ? "var(--card)" : "var(--muted)" }}>
+                  <tr key={name} style={{ background: i % 2 === 0 ? "var(--color-surface-default)" : "var(--color-surface-sunken)" }}>
                     <td className="px-4 py-3 align-top">
                       <code
                         className="font-mono text-[12px] font-semibold"
-                        style={{ color: "var(--primary)" }}
+                        style={{ color: "var(--color-action-primary)" }}
                       >
                         {name}
                       </code>
                     </td>
                     <td
                       className="font-jakarta text-[12.5px] leading-[1.6] px-4 py-3 align-top"
-                      style={{ color: "var(--muted-foreground)" }}
+                      style={{ color: "var(--color-text-muted)" }}
                     >
                       {purpose}
                     </td>
                     <td
                       className="font-jakarta text-[12.5px] px-4 py-3 align-top hidden sm:table-cell"
-                      style={{ color: "var(--muted-foreground)" }}
+                      style={{ color: "var(--color-text-muted)" }}
                     >
                       {duration}
                     </td>
@@ -315,38 +315,38 @@ export default function CookiesPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }} />
 
         {/* 3 — Essential vs Optional */}
         <section id="essential" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <Shield className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <Shield className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Essential vs Optional Cookies
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-4 mb-5">
             <div
               className="rounded-xl p-5"
-              style={{ background: "var(--background)", border: "2px solid var(--border)" }}
+              style={{ background: "var(--color-surface-page)", border: "2px solid var(--color-border-default)" }}
             >
               <div className="flex items-center gap-2 mb-3">
                 <span
                   className="font-jakarta font-bold text-[11px] px-2.5 py-1 rounded-full"
-                  style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                  style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
                 >
                   Essential
                 </span>
-                <span className="font-jakarta text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-[11px]" style={{ color: "var(--color-text-muted)" }}>
                   Always active
                 </span>
               </div>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
                 Essential cookies are strictly necessary for the platform to function. They enable
                 core features such as authentication, session management, security, and your saved
                 UI preferences. These cannot be disabled without breaking the platform.
@@ -356,9 +356,9 @@ export default function CookiesPage() {
                   <li
                     key={c}
                     className="flex items-center gap-2 font-jakarta text-[12.5px]"
-                    style={{ color: "var(--muted-foreground)", listStyle: "none" }}
+                    style={{ color: "var(--color-text-muted)", listStyle: "none" }}
                   >
-                    <span style={{ color: "var(--primary)" }}>✓</span>
+                    <span style={{ color: "var(--color-action-primary)" }}>✓</span>
                     <code className="font-mono text-[12px]">{c}</code>
                   </li>
                 ))}
@@ -367,22 +367,22 @@ export default function CookiesPage() {
             <div
               className="rounded-xl p-5"
               style={{
-                background: "rgb(var(--primary-rgb) / 4%)",
-                border: "2px solid rgb(var(--primary-rgb) / 20%)",
+                background: "color-mix(in_srgb,_var(--color-action-primary)_4%,_transparent)",
+                border: "2px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
               }}
             >
               <div className="flex items-center gap-2 mb-3">
                 <span
                   className="font-jakarta font-bold text-[11px] px-2.5 py-1 rounded-full"
-                  style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#7A4A00" }}
+                  style={{ background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)", color: "var(--color-status-warning-on-subtle)" }}
                 >
                   Analytics
                 </span>
-                <span className="font-jakarta text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-[11px]" style={{ color: "var(--color-text-muted)" }}>
                   Optional — your choice
                 </span>
               </div>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
                 Analytics cookies collect <strong>anonymous, aggregate</strong> data about how users
                 navigate the platform. No personal data is tied to these cookies. Disabling them
                 does not affect your ability to use EduMyles — it only means we receive less
@@ -393,58 +393,58 @@ export default function CookiesPage() {
                   <li
                     key={c}
                     className="flex items-center gap-2 font-jakarta text-[12.5px]"
-                    style={{ color: "var(--muted-foreground)", listStyle: "none" }}
+                    style={{ color: "var(--color-text-muted)", listStyle: "none" }}
                   >
-                    <span style={{ color: "var(--accent-foreground)" }}>○</span>
+                    <span style={{ color: "var(--color-text-on-primary-subtle)" }}>○</span>
                     <code className="font-mono text-[12px]">{c}</code>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
-          <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
             If you decline analytics cookies, the platform functions identically. Your school&apos;s
             data, reports, and communications are entirely unaffected.
           </p>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }} />
 
         {/* 4 — Third-Party */}
         <section id="third" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <BarChart2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <BarChart2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Third-Party Cookies
             </h2>
           </div>
           <div className="flex flex-col gap-4">
             <div
               className="rounded-xl p-5"
-              style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
             >
               <div className="flex items-start gap-4">
                 <div
                   className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(26,122,74,0.08)", border: "1px solid var(--border)" }}
+                  style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 8%, transparent)", border: "1px solid var(--color-border-default)" }}
                 >
-                  <BarChart2 className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+                  <BarChart2 className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
                 </div>
                 <div>
                   <p
                     className="font-jakarta font-bold text-[13.5px] mb-1"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
                     Analytics Cookies
                   </p>
                   <p
                     className="font-jakarta text-[13px] leading-[1.75]"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   >
                     Analytics cookies collect <strong>fully anonymous</strong> usage data — page
                     views, navigation paths, and performance metrics. No IP address or user identity
@@ -456,25 +456,25 @@ export default function CookiesPage() {
             </div>
             <div
               className="rounded-xl p-5"
-              style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
             >
               <div className="flex items-start gap-4">
                 <div
                   className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0"
-                  style={{ background: "rgba(26,122,74,0.08)", border: "1px solid var(--border)" }}
+                  style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 8%, transparent)", border: "1px solid var(--color-border-default)" }}
                 >
-                  <BarChart2 className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+                  <BarChart2 className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
                 </div>
                 <div>
                   <p
                     className="font-jakarta font-bold text-[13.5px] mb-1"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
                     Google Analytics
                   </p>
                   <p
                     className="font-jakarta text-[13px] leading-[1.75]"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   >
                     We use Google Analytics with <strong>IP anonymisation enabled</strong> to
                     understand aggregate traffic patterns on the marketing site (edumyles.com). This
@@ -488,16 +488,16 @@ export default function CookiesPage() {
             <div
               className="rounded-xl p-4 flex items-start gap-3"
               style={{
-                background: "rgb(var(--primary-rgb) / 6%)",
-                border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                background: "color-mix(in srgb, var(--color-action-primary) 6%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
               }}
             >
               <Shield
                 className="w-4 h-4 flex-shrink-0 mt-0.5"
                 strokeWidth={1.5}
-                style={{ color: "var(--accent-foreground)" }}
+                style={{ color: "var(--color-text-on-primary-subtle)" }}
               />
-              <p className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+              <p className="font-jakarta text-[13px]" style={{ color: "var(--color-text-muted)" }}>
                 We do <strong>not</strong> use Facebook Pixel, Google Ads remarketing tags, LinkedIn
                 Insight Tag, or any other advertising or retargeting cookies. Zero.
               </p>
@@ -505,18 +505,18 @@ export default function CookiesPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }} />
 
         {/* 5 — Managing Preferences */}
         <section id="manage" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <Settings className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <Settings className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Managing Your Preferences
             </h2>
           </div>
@@ -547,17 +547,17 @@ export default function CookiesPage() {
                 <div
                   key={item.title}
                   className="rounded-xl p-5"
-                  style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
                 >
                   <h3
                     className="font-jakarta font-bold text-[13.5px] mb-1.5"
-                    style={{ color: "var(--primary)" }}
+                    style={{ color: "var(--color-action-primary)" }}
                   >
                     {item.title}
                   </h3>
                   <p
                     className="font-jakarta text-[13px] leading-[1.7]"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   >
                     {item.detail}
                   </p>
@@ -566,13 +566,13 @@ export default function CookiesPage() {
             </div>
 
             {/* Browser how-to */}
-            <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
-              <div className="px-5 py-3" style={{ background: "var(--card)" }}>
-                <p className="font-jakarta font-bold text-[12px]" style={{ color: "var(--accent-foreground)" }}>
+            <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--color-border-default)" }}>
+              <div className="px-5 py-3" style={{ background: "var(--color-surface-default)" }}>
+                <p className="font-jakarta font-bold text-[12px]" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                   How to manage cookies in your browser
                 </p>
               </div>
-              <div className="grid sm:grid-cols-2" style={{ background: "var(--card)" }}>
+              <div className="grid sm:grid-cols-2" style={{ background: "var(--color-surface-default)" }}>
                 {[
                   {
                     browser: "Google Chrome",
@@ -592,17 +592,17 @@ export default function CookiesPage() {
                     key={b.browser}
                     className="px-5 py-3"
                     style={{
-                      borderTop: i >= 2 || i === 1 ? "1px solid #f0f7f3" : "none",
-                      borderLeft: i % 2 === 1 ? "1px solid #f0f7f3" : "none",
+                      borderTop: i >= 2 || i === 1 ? "1px solid var(--color-surface-page)" : "none",
+                      borderLeft: i % 2 === 1 ? "1px solid var(--color-surface-page)" : "none",
                     }}
                   >
                     <p
                       className="font-jakarta font-semibold text-[12.5px]"
-                      style={{ color: "var(--foreground)" }}
+                      style={{ color: "var(--color-text-default)" }}
                     >
                       {b.browser}
                     </p>
-                    <p className="font-jakarta text-[12px] mt-0.5" style={{ color: "var(--muted-foreground)" }}>
+                    <p className="font-jakarta text-[12px] mt-0.5" style={{ color: "var(--color-text-muted)" }}>
                       {b.path}
                     </p>
                   </div>
@@ -610,13 +610,13 @@ export default function CookiesPage() {
               </div>
             </div>
 
-            <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
               For questions about our cookie practices, email{" "}
-              <a href="mailto:privacy@edumyles.com" style={{ color: "var(--primary)" }}>
+              <a href="mailto:privacy@edumyles.com" style={{ color: "var(--color-action-primary)" }}>
                 privacy@edumyles.com
               </a>{" "}
               or visit our full{" "}
-              <Link href="/privacy" style={{ color: "var(--primary)" }}>
+              <Link href="/privacy" style={{ color: "var(--color-action-primary)" }}>
                 Privacy Policy
               </Link>
               .
@@ -625,14 +625,14 @@ export default function CookiesPage() {
         </section>
 
         {/* Contact card */}
-        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--color-border-default)" }}>
           <div
             className="px-6 py-4"
-            style={{ background: "var(--background)", borderBottom: "1px solid var(--border)" }}
+            style={{ background: "var(--color-surface-page)", borderBottom: "1px solid var(--color-border-default)" }}
           >
             <div className="flex items-center gap-3">
-              <Mail className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
-              <p className="font-jakarta font-bold text-[13.5px]" style={{ color: "var(--foreground)" }}>
+              <Mail className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
+              <p className="font-jakarta font-bold text-[13.5px]" style={{ color: "var(--color-text-default)" }}>
                 Privacy &amp; Cookie Enquiries
               </p>
             </div>
@@ -654,11 +654,11 @@ export default function CookiesPage() {
               <div
                 key={c.label}
                 className="px-5 py-4"
-                style={{ borderLeft: i > 0 ? "1px solid var(--border)" : "none", background: "var(--card)" }}
+                style={{ borderLeft: i > 0 ? "1px solid var(--color-border-default)" : "none", background: "var(--color-surface-default)" }}
               >
                 <p
                   className="font-jakarta text-[11px] uppercase tracking-wider mb-1"
-                  style={{ color: "var(--muted-foreground)" }}
+                  style={{ color: "var(--color-text-muted)" }}
                 >
                   {c.label}
                 </p>
@@ -666,14 +666,14 @@ export default function CookiesPage() {
                   <a
                     href={c.href}
                     className="font-jakarta font-semibold text-[13px] no-underline"
-                    style={{ color: "var(--primary)" }}
+                    style={{ color: "var(--color-action-primary)" }}
                   >
                     {c.value}
                   </a>
                 ) : (
                   <p
                     className="font-jakarta font-semibold text-[13px]"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   >
                     {c.value}
                   </p>
@@ -684,18 +684,18 @@ export default function CookiesPage() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="rounded-2xl p-8 text-center" style={{ background: "var(--card)" }}>
+        <div className="rounded-2xl p-8 text-center" style={{ background: "var(--color-surface-default)" }}>
           <h3 className="font-display font-bold text-[20px] text-foreground mb-2">
             Questions about cookies?
           </h3>
-          <p className="font-jakarta text-[14px] mb-5" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[14px] mb-5" style={{ color: "var(--color-text-muted)" }}>
             Our privacy team is happy to explain how we use cookies and how to manage your
             preferences.
           </p>
           <Link
             href="/contact"
             className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
-            style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+            style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
           >
             Contact Us
           </Link>

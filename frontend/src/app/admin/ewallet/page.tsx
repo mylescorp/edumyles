@@ -254,7 +254,7 @@ export default function EWalletPage() {
                         <Link href="/admin/ewallet/wallets">
                             <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                                 <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-3">
-                                    <Wallet className="h-6 w-6 text-white" />
+                                    <Wallet className="h-6 w-6 text-[var(--color-text-on-primary)]" />
                                 </div>
                                 <h3 className="font-medium text-center">Manage Wallets</h3>
                                 <p className="text-sm text-muted-foreground text-center mt-1">
@@ -265,7 +265,7 @@ export default function EWalletPage() {
                         <Link href="/admin/ewallet/transactions">
                             <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                                 <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-3">
-                                    <CreditCard className="h-6 w-6 text-white" />
+                                    <CreditCard className="h-6 w-6 text-[var(--color-text-on-primary)]" />
                                 </div>
                                 <h3 className="font-medium text-center">Process Transaction</h3>
                                 <p className="text-sm text-muted-foreground text-center mt-1">
@@ -276,7 +276,7 @@ export default function EWalletPage() {
                         <Link href="/admin/ewallet/reports">
                             <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                                 <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-3">
-                                    <TrendingUp className="h-6 w-6 text-white" />
+                                    <TrendingUp className="h-6 w-6 text-[var(--color-text-on-primary)]" />
                                 </div>
                                 <h3 className="font-medium text-center">Analytics</h3>
                                 <p className="text-sm text-muted-foreground text-center mt-1">
@@ -287,7 +287,7 @@ export default function EWalletPage() {
                         <Link href="/admin/ewallet/topup">
                             <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                                 <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mb-3">
-                                    <Plus className="h-6 w-6 text-white" />
+                                    <Plus className="h-6 w-6 text-[var(--color-text-on-primary)]" />
                                 </div>
                                 <h3 className="font-medium text-center">Bulk Top-up</h3>
                                 <p className="text-sm text-muted-foreground text-center mt-1">

@@ -236,13 +236,13 @@ const integrations = [
 
 export default function InternationalSchoolsPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* ── Section 1: Hero ─────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "560px",
         }}
@@ -251,7 +251,7 @@ export default function InternationalSchoolsPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -260,9 +260,9 @@ export default function InternationalSchoolsPage() {
           <div
             className="inline-block font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgb(var(--primary-rgb) / 12%)",
-              border: "1px solid var(--accent-foreground)",
-              color: "var(--accent-foreground)",
+              background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+              border: "1px solid var(--color-text-on-primary-subtle)",
+              color: "var(--color-text-on-primary-subtle)",
             }}
           >
             For International Schools
@@ -270,17 +270,17 @@ export default function InternationalSchoolsPage() {
           {/* H1 */}
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--color-text-default)" }}
           >
             The premium school management platform for{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               international schools in Africa.
             </em>
           </h1>
           {/* subtitle */}
           <p
             className="font-jakarta font-light leading-[1.8] mb-8 mx-auto"
-            style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "660px" }}
+            style={{ fontSize: "18px", color: "var(--color-text-muted)", maxWidth: "660px" }}
           >
             IGCSE curriculum support. Multi-currency fee collection. SSO and MFA. White-label
             options so your school brand is always front and centre.
@@ -290,7 +290,7 @@ export default function InternationalSchoolsPage() {
             <Link
               href="/contact?subject=enterprise"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               Contact Sales <ArrowRight className="w-4 h-4" />
             </Link>
@@ -299,8 +299,8 @@ export default function InternationalSchoolsPage() {
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgba(255,255,255,0.4)",
-                color: "#ffffff",
+                border: "2px solid color-mix(in srgb, var(--color-surface-default) 40%, transparent)",
+                color: "var(--color-text-inverse)",
               }}
             >
               Book a Demo
@@ -318,9 +318,9 @@ export default function InternationalSchoolsPage() {
                 key={badge}
                 className="font-semibold text-[12px] px-4 py-2 rounded-[50px]"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  color: "var(--muted-foreground)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 7%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-surface-default) 20%, transparent)",
+                  color: "var(--color-text-muted)",
                 }}
               >
                 ✓ {badge}
@@ -335,12 +335,12 @@ export default function InternationalSchoolsPage() {
               { value: "White-label", label: "ready" },
             ].map((s) => (
               <div key={s.label} className="text-center">
-                <div className="font-display font-bold text-[2rem]" style={{ color: "var(--accent-foreground)" }}>
+                <div className="font-display font-bold text-[2rem]" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                   {s.value}
                 </div>
                 <div
                   className="text-[13px] font-semibold uppercase tracking-[0.08em] mt-1"
-                  style={{ color: "rgba(255,255,255,0.5)" }}
+                  style={{ color: "color-mix(in srgb, var(--color-text-inverse) 50%, transparent)" }}
                 >
                   {s.label}
                 </div>
@@ -351,18 +351,18 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 2: Pain Points ──────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--platform-chrome)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-chrome-platform)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <p
               className="font-semibold text-[13px] uppercase tracking-[0.12em] mb-3"
-              style={{ color: "#B9CBD6" }}
+              style={{ color: "var(--color-text-muted)" }}
             >
               The challenges international schools face
             </p>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#F4F8F7" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-surface-page)" }}
             >
               Your school deserves better.
             </h2>
@@ -373,30 +373,30 @@ export default function InternationalSchoolsPage() {
                 key={p.num}
                 className="rounded-2xl p-8"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 5%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
                 }}
               >
                 <div className="flex items-start gap-4 mb-4">
                   <span
                     className="font-display font-bold text-[2.5rem] leading-none"
-                    style={{ color: "rgb(var(--primary-rgb) / 25%)" }}
+                    style={{ color: "color-mix(in srgb, var(--color-action-primary) 25%, transparent)" }}
                   >
                     {p.num}
                   </span>
                   <p.icon
                     className="w-9 h-9 flex-shrink-0 mt-1"
                     strokeWidth={1.5}
-                    style={{ color: "#B9CBD6" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   />
                 </div>
                 <h3
                   className="font-display font-bold text-[17px] mb-3"
-                  style={{ color: "#ffffff" }}
+                  style={{ color: "var(--color-text-inverse)" }}
                 >
                   {p.title}
                 </h3>
-                <p className="leading-[1.8] text-[14px]" style={{ color: "#D5E1DE" }}>
+                <p className="leading-[1.8] text-[14px]" style={{ color: "var(--color-action-primary-disabled)" }}>
                   {p.text}
                 </p>
               </div>
@@ -406,21 +406,21 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 3: How It Works ─────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)", color: "var(--color-status-warning-solid)" }}
             >
               How It Works
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               From contract to fully live in{" "}
-              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+              <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 11 days.
               </em>
             </h2>
@@ -430,27 +430,27 @@ export default function InternationalSchoolsPage() {
               <div
                 key={s.step}
                 className="rounded-2xl p-8 relative"
-                style={{ border: "1px solid var(--border)", boxShadow: "0 2px 16px rgba(6,26,18,0.05)" }}
+                style={{ border: "1px solid var(--color-border-default)", boxShadow: "0 2px 16px color-mix(in srgb, var(--color-surface-page) 5%, transparent)" }}
               >
                 <div
                   className="font-display font-bold text-[3rem] leading-none mb-4"
-                  style={{ color: "rgba(15,76,42,0.12)" }}
+                  style={{ color: "color-mix(in srgb, var(--color-status-success-on-subtle) 12%, transparent)" }}
                 >
                   {s.step}
                 </div>
                 <span
                   className="inline-block font-semibold text-[11px] uppercase tracking-[0.1em] mb-3 px-3 py-1 rounded-[50px]"
-                  style={{ background: "rgb(var(--primary-rgb) / 12%)", color: "#9A5D00" }}
+                  style={{ background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)", color: "var(--color-status-warning-solid)" }}
                 >
                   {s.when}
                 </span>
                 <h3
                   className="font-display font-bold text-[19px] mb-3"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {s.title}
                 </h3>
-                <p className="text-[14px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="text-[14px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
                   {s.desc}
                 </p>
               </div>
@@ -460,22 +460,22 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 4: Core Modules ─────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)", color: "var(--color-status-warning-solid)" }}
             >
               Core Modules
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               Everything an international school expects
             </h2>
-            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
               8 integrated modules built for the complexity of world-class education in Africa
             </p>
           </div>
@@ -484,18 +484,18 @@ export default function InternationalSchoolsPage() {
               <div
                 key={m.title}
                 className="rounded-2xl p-6"
-                style={{ border: "1px solid var(--border)", boxShadow: "0 2px 16px rgba(6,26,18,0.05)" }}
+                style={{ border: "1px solid var(--color-border-default)", boxShadow: "0 2px 16px color-mix(in srgb, var(--color-surface-page) 5%, transparent)" }}
               >
                 <div className="mb-4">
-                  <m.icon className="w-8 h-8" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+                  <m.icon className="w-8 h-8" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
                 </div>
                 <h3
                   className="font-display font-bold text-[17px] mb-2"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {m.title}
                 </h3>
-                <p className="text-[13px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="text-[13px] leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
                   {m.desc}
                 </p>
               </div>
@@ -505,15 +505,15 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 5: Curriculum Deep-Dive ────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--muted)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-sunken)" }}>
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               Curriculum support,{" "}
-              <em className="italic" style={{ color: "var(--primary)" }}>
+              <em className="italic" style={{ color: "var(--color-action-primary)" }}>
                 built to the standard you teach to.
               </em>
             </h2>
@@ -522,9 +522,9 @@ export default function InternationalSchoolsPage() {
             {/* Left: supported curricula */}
             <div
               className="rounded-2xl p-8"
-              style={{ background: "var(--card)", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
+              style={{ background: "var(--color-surface-default)", boxShadow: "0 4px 24px color-mix(in srgb, var(--color-surface-page) 8%, transparent)" }}
             >
-              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "var(--foreground)" }}>
+              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "var(--color-text-default)" }}>
                 Supported curricula
               </h3>
               <div className="flex flex-wrap gap-3">
@@ -533,9 +533,9 @@ export default function InternationalSchoolsPage() {
                     key={c}
                     className="text-[13px] font-semibold px-4 py-2 rounded-[50px]"
                     style={{
-                      background: "rgba(26,122,74,0.1)",
-                      color: "var(--primary)",
-                      border: "1px solid rgba(26,122,74,0.2)",
+                      background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
+                      color: "var(--color-action-primary)",
+                      border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 20%, transparent)",
                     }}
                   >
                     {c}
@@ -546,9 +546,9 @@ export default function InternationalSchoolsPage() {
             {/* Right: gradebook features */}
             <div
               className="rounded-2xl p-8"
-              style={{ background: "var(--card)", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
+              style={{ background: "var(--color-surface-default)", boxShadow: "0 4px 24px color-mix(in srgb, var(--color-surface-page) 8%, transparent)" }}
             >
-              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "var(--foreground)" }}>
+              <h3 className="font-display font-bold text-[21px] mb-6" style={{ color: "var(--color-text-default)" }}>
                 What makes our gradebook premium
               </h3>
               <ul className="space-y-3">
@@ -557,9 +557,9 @@ export default function InternationalSchoolsPage() {
                     <CheckCircle2
                       className="w-5 h-5 flex-shrink-0 mt-0.5"
                       strokeWidth={2}
-                      style={{ color: "var(--primary)" }}
+                      style={{ color: "var(--color-action-primary)" }}
                     />
-                    <span className="text-[14px] leading-[1.65]" style={{ color: "var(--foreground)" }}>
+                    <span className="text-[14px] leading-[1.65]" style={{ color: "var(--color-text-default)" }}>
                       {feat}
                     </span>
                   </li>
@@ -571,24 +571,24 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 6: Security & Compliance ───────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 12%)", color: "var(--accent-foreground)" }}
+              style={{ background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)", color: "var(--color-text-on-primary-subtle)" }}
             >
               Security & Compliance
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-inverse)" }}
             >
               Enterprise-grade security, built in.
             </h2>
             <p
               className="text-[16px] leading-[1.7]"
-              style={{ color: "var(--muted-foreground)", maxWidth: "560px", margin: "0 auto" }}
+              style={{ color: "var(--color-text-muted)", maxWidth: "560px", margin: "0 auto" }}
             >
               Every control your IT team will ask for — available on day one.
             </p>
@@ -599,22 +599,22 @@ export default function InternationalSchoolsPage() {
                 key={card.title}
                 className="rounded-2xl p-7"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 5%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
                 }}
               >
                 <card.icon
                   className="w-8 h-8 mb-4"
                   strokeWidth={1.5}
-                  style={{ color: "var(--accent-foreground)" }}
+                  style={{ color: "var(--color-text-on-primary-subtle)" }}
                 />
                 <h3
                   className="font-display font-bold text-[18px] mb-2"
-                  style={{ color: "#ffffff" }}
+                  style={{ color: "var(--color-text-inverse)" }}
                 >
                   {card.title}
                 </h3>
-                <p className="text-[13px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="text-[13px] leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
                   {card.desc}
                 </p>
               </div>
@@ -624,20 +624,20 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 7: Stats Bar ────────────────────────────────── */}
-      <section className="py-14 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-14 px-4" style={{ background: "var(--color-action-primary)" }}>
         <div className="max-w-[1000px] mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {stats.map((s) => (
               <div key={s.label}>
                 <div
                   className="font-display font-bold leading-none mb-2"
-                  style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "var(--primary-foreground)" }}
+                  style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "var(--color-text-on-primary)" }}
                 >
                   {s.value}
                 </div>
                 <div
                   className="font-semibold text-[12px] uppercase tracking-[0.1em]"
-                  style={{ color: "var(--primary-foreground)" }}
+                  style={{ color: "var(--color-text-on-primary)" }}
                 >
                   {s.label}
                 </div>
@@ -648,18 +648,18 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 8: Benefits ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <h2
               className="font-display font-bold leading-[1.2] mb-4"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
-              Why International Schools Choose <span style={{ color: "var(--accent-foreground)" }}>EduMyles</span>
+              Why International Schools Choose <span style={{ color: "var(--color-text-on-primary-subtle)" }}>EduMyles</span>
             </h2>
             <p
               className="font-jakarta text-lg max-w-[700px] mx-auto"
-              style={{ color: "var(--muted-foreground)", lineHeight: "1.7" }}
+              style={{ color: "var(--color-text-muted)", lineHeight: "1.7" }}
             >
               Experience the difference with our premium platform designed for international
               education standards.
@@ -709,20 +709,20 @@ export default function InternationalSchoolsPage() {
                 key={benefit.title}
                 className="text-center p-6 rounded-2xl"
                 style={{
-                  background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                  border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                  background: "linear-gradient(135deg, var(--color-surface-default) 0%, var(--color-surface-sunken) 100%)",
+                  border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
                 }}
               >
                 <div
                   className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                  style={{ background: "rgb(var(--primary-rgb) / 15%)" }}
+                  style={{ background: "color-mix(in srgb, var(--color-action-primary) 15%, transparent)" }}
                 >
-                  <benefit.icon className="w-8 h-8" style={{ color: "var(--accent-foreground)" }} />
+                  <benefit.icon className="w-8 h-8" style={{ color: "var(--color-text-on-primary-subtle)" }} />
                 </div>
-                <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--foreground)" }}>
+                <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--color-text-default)" }}>
                   {benefit.title}
                 </h3>
-                <p className="font-jakarta text-sm leading-[1.6]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="font-jakarta text-sm leading-[1.6]" style={{ color: "var(--color-text-muted)" }}>
                   {benefit.description}
                 </p>
               </div>
@@ -732,14 +732,14 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 9: Testimonial ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--muted)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-sunken)" }}>
         <div className="max-w-[820px] mx-auto text-center">
-          <div className="text-[5rem] leading-none mb-4" style={{ color: "var(--accent-foreground)" }}>
+          <div className="text-[5rem] leading-none mb-4" style={{ color: "var(--color-text-on-primary-subtle)" }}>
             &ldquo;
           </div>
           <blockquote
             className="font-display italic leading-[1.85] mb-8"
-            style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "var(--color-text-default)" }}
           >
             What impressed us most was the parent portal adoption rate. Within two weeks, 98% of our
             parents were checking their child&apos;s attendance and fees online. The white-label
@@ -748,15 +748,15 @@ export default function InternationalSchoolsPage() {
           <div className="flex items-center justify-center gap-3">
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-[16px]"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               CN
             </div>
             <div className="text-left">
-              <p className="font-semibold text-[14px]" style={{ color: "var(--primary)" }}>
+              <p className="font-semibold text-[14px]" style={{ color: "var(--color-action-primary)" }}>
                 Catherine Njoroge
               </p>
-              <p className="text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+              <p className="text-[13px]" style={{ color: "var(--color-text-muted)" }}>
                 Head of Administration, Brookside International Preparatory, Karen
               </p>
             </div>
@@ -765,41 +765,41 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 9: Comparison Table ────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[900px] mx-auto">
           <div className="text-center mb-14">
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               EduMyles vs generic SIS tools
             </h2>
-            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
               See what you get that other platforms simply don&apos;t offer.
             </p>
           </div>
           <div
             className="rounded-2xl overflow-hidden"
-            style={{ border: "1px solid var(--border)", boxShadow: "0 4px 24px rgba(6,26,18,0.07)" }}
+            style={{ border: "1px solid var(--color-border-default)", boxShadow: "0 4px 24px color-mix(in srgb, var(--color-surface-page) 7%, transparent)" }}
           >
             <table className="w-full" style={{ borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ background: "var(--platform-chrome)" }}>
+                <tr style={{ background: "var(--color-chrome-platform)" }}>
                   <th
                     className="text-left py-4 px-6 font-semibold text-[14px]"
-                    style={{ color: "#F4F8F7" }}
+                    style={{ color: "var(--color-surface-page)" }}
                   >
                     Feature
                   </th>
                   <th
                     className="text-center py-4 px-6 font-semibold text-[14px]"
-                    style={{ color: "#B9CBD6" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   >
                     Generic SIS Tools
                   </th>
                   <th
                     className="text-center py-4 px-6 font-semibold text-[14px]"
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "var(--color-text-on-primary-subtle)" }}
                   >
                     EduMyles
                   </th>
@@ -810,26 +810,26 @@ export default function InternationalSchoolsPage() {
                   <tr
                     key={row.feature}
                     style={{
-                      background: i % 2 === 0 ? "var(--card)" : "var(--muted)",
-                      borderBottom: "1px solid #f0f0f0",
+                      background: i % 2 === 0 ? "var(--color-surface-default)" : "var(--color-surface-sunken)",
+                      borderBottom: "1px solid var(--color-surface-sunken)",
                     }}
                   >
                     <td
                       className="py-4 px-6 font-semibold text-[14px]"
-                      style={{ color: "var(--foreground)" }}
+                      style={{ color: "var(--color-text-default)" }}
                     >
                       {row.feature}
                     </td>
-                    <td className="py-4 px-6 text-center" style={{ color: "var(--muted-foreground)" }}>
+                    <td className="py-4 px-6 text-center" style={{ color: "var(--color-text-muted)" }}>
                       <span className="inline-flex items-center gap-1.5 text-[13px]">
-                        <X className="w-4 h-4 flex-shrink-0" style={{ color: "#e53935" }} />
+                        <X className="w-4 h-4 flex-shrink-0" style={{ color: "var(--color-status-danger-solid)" }} />
                         {row.before}
                       </span>
                     </td>
                     <td className="py-4 px-6 text-center">
                       <span
                         className="inline-flex items-center gap-1.5 text-[13px] font-semibold"
-                        style={{ color: "var(--primary)" }}
+                        style={{ color: "var(--color-action-primary)" }}
                       >
                         <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                         {row.after}
@@ -844,12 +844,12 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 10: FAQ ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[820px] mx-auto">
           <div className="text-center mb-14">
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               Frequently asked questions
             </h2>
@@ -859,15 +859,15 @@ export default function InternationalSchoolsPage() {
               <div
                 key={faq.q}
                 className="rounded-2xl p-7"
-                style={{ border: "1px solid var(--border)", boxShadow: "0 2px 10px rgba(6,26,18,0.04)" }}
+                style={{ border: "1px solid var(--color-border-default)", boxShadow: "0 2px 10px color-mix(in srgb, var(--color-surface-page) 4%, transparent)" }}
               >
                 <h3
                   className="font-display font-bold text-[17px] mb-3"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {faq.q}
                 </h3>
-                <p className="text-[14px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="text-[14px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
                   {faq.a}
                 </p>
               </div>
@@ -877,17 +877,17 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 11: Integrations ────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--muted)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-sunken)" }}>
         <div className="max-w-[1100px] mx-auto text-center">
           <p
             className="font-semibold text-[13px] uppercase tracking-[0.12em] mb-5"
-            style={{ color: "var(--primary)" }}
+            style={{ color: "var(--color-action-primary)" }}
           >
             Integrations
           </p>
           <h2
             className="font-display font-bold leading-[1.2] mb-8"
-            style={{ fontSize: "clamp(1.4rem,2.5vw,2rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.4rem,2.5vw,2rem)", color: "var(--color-text-default)" }}
           >
             Works with the tools your school already uses
           </h2>
@@ -897,10 +897,10 @@ export default function InternationalSchoolsPage() {
                 key={int}
                 className="font-semibold text-[13px] px-5 py-2.5 rounded-[50px]"
                 style={{
-                  background: "var(--card)",
-                  color: "var(--primary)",
-                  border: "1px solid rgba(15,76,42,0.2)",
-                  boxShadow: "0 1px 4px rgba(6,26,18,0.08)",
+                  background: "var(--color-surface-default)",
+                  color: "var(--color-action-primary)",
+                  border: "1px solid color-mix(in srgb, var(--color-status-success-on-subtle) 20%, transparent)",
+                  boxShadow: "0 1px 4px color-mix(in srgb, var(--color-surface-page) 8%, transparent)",
                 }}
               >
                 {int}
@@ -911,21 +911,21 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 12: Pricing Callout ──────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[760px] mx-auto text-center">
           <div
             className="inline-flex items-center gap-2 font-semibold text-[13px] mb-5 px-4 py-2 rounded-[50px]"
-            style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+            style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
           >
             Enterprise Pricing
           </div>
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
           >
             Custom pricing for international schools
           </h2>
-          <p className="text-[16px] leading-[1.8] mb-8" style={{ color: "var(--muted-foreground)" }}>
+          <p className="text-[16px] leading-[1.8] mb-8" style={{ color: "var(--color-text-muted)" }}>
             International schools use our Enterprise plan — custom pricing based on student count,
             campus configuration, and required integrations. Contact us for a white-glove onboarding
             experience.
@@ -934,14 +934,14 @@ export default function InternationalSchoolsPage() {
             <Link
               href="/contact?subject=enterprise"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-7 py-3 rounded-[50px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              style={{ background: "var(--color-text-on-primary)", color: "var(--color-action-primary)" }}
             >
               Contact Sales <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/pricing"
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-7 py-3 rounded-[50px] no-underline"
-              style={{ border: "2px solid var(--border)", color: "var(--foreground)" }}
+              style={{ border: "2px solid var(--color-border-default)", color: "var(--color-text-default)" }}
             >
               See pricing overview
             </Link>
@@ -950,18 +950,18 @@ export default function InternationalSchoolsPage() {
       </section>
 
       {/* ── Section 13: Final CTA ────────────────────────────────── */}
-      <section className="py-24 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-24 px-4" style={{ background: "var(--color-action-primary)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--color-text-on-primary)" }}
           >
             Ready to give your international school{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary)" }}>
               the platform it deserves?
             </em>
           </h2>
-          <p className="text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)", opacity: 0.84 }}>
+          <p className="text-[17px] leading-[1.7] mb-8" style={{ color: "var(--color-text-on-primary)", opacity: 0.84 }}>
             Talk to our enterprise team and get a bespoke demo tailored to your curriculum and
             infrastructure.
           </p>
@@ -969,7 +969,7 @@ export default function InternationalSchoolsPage() {
             <Link
               href="/contact?subject=enterprise"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              style={{ background: "var(--color-text-on-primary)", color: "var(--color-action-primary)" }}
             >
               Contact Sales <ArrowRight className="w-4 h-4" />
             </Link>
@@ -978,8 +978,8 @@ export default function InternationalSchoolsPage() {
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid color-mix(in srgb, var(--color-text-on-primary) 45%, transparent)",
+                color: "var(--color-text-on-primary)",
               }}
             >
               Book a Demo

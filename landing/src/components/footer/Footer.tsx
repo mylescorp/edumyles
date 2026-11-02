@@ -123,37 +123,37 @@ const SOCIAL_LINKS = [
     label: "LinkedIn",
     Icon: IconLinkedIn,
     href: "https://www.linkedin.com/company/mylescorptech/",
-    color: "#0077B5",
+    color: "var(--color-status-info-solid)",
   },
   {
     label: "Facebook",
     Icon: IconFacebook,
     href: "https://www.facebook.com/mylescorptech",
-    color: "#1877F2",
+    color: "var(--color-action-primary-text)",
   },
   {
     label: "Instagram",
     Icon: IconInstagram,
     href: "https://www.instagram.com/mylescorptech/",
-    color: "#E1306C",
+    color: "var(--color-status-danger-solid)",
   },
   {
     label: "Twitter / X",
     Icon: IconTwitterX,
     href: "https://x.com/mylescorptech",
-    color: "var(--foreground)",
+    color: "var(--color-text-default)",
   },
   {
     label: "YouTube",
     Icon: IconYouTube,
     href: "https://www.youtube.com/@mylescorptech",
-    color: "#FF0000",
+    color: "var(--color-status-danger-solid)",
   },
   {
     label: "TikTok",
     Icon: IconTikTok,
     href: "https://www.tiktok.com/@edumyles_",
-    color: "var(--foreground)",
+    color: "var(--color-text-default)",
   },
 ];
 
@@ -167,20 +167,20 @@ function ScrollToTop() {
       aria-label="Scroll to top"
       className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-all duration-200"
       style={{
-        background: "rgb(var(--primary-rgb) / 12%)",
-        border: "1px solid rgb(var(--primary-rgb) / 25%)",
-        color: "var(--accent-foreground)",
+        background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+        border: "1px solid color-mix(in srgb, var(--color-action-primary) 25%, transparent)",
+        color: "var(--color-text-on-primary-subtle)",
         cursor: "pointer",
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLButtonElement;
-        el.style.background = "var(--primary)";
-        el.style.color = "var(--foreground)";
+        el.style.background = "var(--color-action-primary)";
+        el.style.color = "var(--color-text-default)";
       }}
       onMouseLeave={(e) => {
         const el = e.currentTarget as HTMLButtonElement;
-        el.style.background = "rgb(var(--primary-rgb) / 12%)";
-        el.style.color = "var(--accent-foreground)";
+        el.style.background = "color-mix(in srgb, var(--color-action-primary) 12%, transparent)";
+        el.style.color = "var(--color-text-on-primary-subtle)";
       }}
     >
       <ChevronUp className="w-4 h-4" strokeWidth={2.5} />
@@ -209,16 +209,16 @@ function NewsletterStrip() {
   return (
     <div
       className="max-w-[1200px] mx-auto px-6 lg:px-16 py-10"
-      style={{ borderBottom: "1px solid var(--border)" }}
+      style={{ borderBottom: "1px solid var(--color-border-default)" }}
     >
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
         {/* Left: heading + description */}
         <div className="flex-1 min-w-0">
           <h3 className="font-jakarta font-bold text-[20px] text-foreground mb-1.5">Stay Connected</h3>
-          <p className="font-jakarta text-[13px] leading-[1.8]" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[13px] leading-[1.8]" style={{ color: "var(--color-text-muted)" }}>
             Get the latest product updates, school management insights and education tips delivered
             to your inbox.{" "}
-            <span className="font-semibold" style={{ color: "var(--accent-foreground)" }}>
+            <span className="font-semibold" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               No spam, ever.
             </span>
           </p>
@@ -232,13 +232,13 @@ function NewsletterStrip() {
               <CheckCircle2
                 className="w-6 h-6 flex-shrink-0"
                 strokeWidth={2}
-                style={{ color: "#26A65B" }}
+                style={{ color: "var(--color-status-success-solid)" }}
               />
               <div>
                 <p className="font-jakarta font-bold text-[14px] text-foreground">
                   You&apos;re subscribed!
                 </p>
-                <p className="font-jakarta text-[12px]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="font-jakarta text-[12px]" style={{ color: "var(--color-text-muted)" }}>
                   First issue lands next month.
                 </p>
               </div>
@@ -249,14 +249,14 @@ function NewsletterStrip() {
                 className="relative flex-1 lg:w-[260px]"
                 style={{
                   borderRadius: "8px",
-                  boxShadow: focused ? "0 0 0 3px rgb(var(--primary-rgb) / 25%)" : "none",
+                  boxShadow: focused ? "0 0 0 3px color-mix(in srgb, var(--color-action-primary) 25%, transparent)" : "none",
                   transition: "box-shadow 0.2s",
                 }}
               >
                 <Mail
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
                   strokeWidth={1.5}
-                  style={{ color: focused ? "var(--accent-foreground)" : "var(--muted-foreground)", transition: "color 0.2s" }}
+                  style={{ color: focused ? "var(--color-text-on-primary-subtle)" : "var(--color-text-muted)", transition: "color 0.2s" }}
                 />
                 <input
                   type="email"
@@ -268,9 +268,9 @@ function NewsletterStrip() {
                   placeholder="your@email.com"
                   className="w-full font-jakarta text-[13px] pl-9 pr-4 py-[11px] rounded-[8px] outline-none"
                   style={{
-                    background: "var(--muted)",
-                    border: `1px solid ${focused ? "rgb(var(--primary-rgb) / 50%)" : "var(--border)"}`,
-                    color: "var(--foreground)",
+                    background: "var(--color-surface-sunken)",
+                    border: `1px solid ${focused ? "color-mix(in srgb, var(--color-action-primary) 50%, transparent)" : "var(--color-border-default)"}`,
+                    color: "var(--color-text-default)",
                     transition: "border-color 0.2s",
                   }}
                 />
@@ -280,18 +280,18 @@ function NewsletterStrip() {
                 disabled={loading}
                 className="group font-jakarta font-bold text-[13px] px-5 py-[11px] rounded-[8px] flex items-center gap-2 flex-shrink-0 transition-all duration-200"
                 style={{
-                  background: loading ? "var(--primary)" : "var(--primary)",
-                  color: "var(--primary-foreground)",
+                  background: loading ? "var(--color-action-primary)" : "var(--color-action-primary)",
+                  color: "var(--color-text-on-primary)",
                   border: "none",
                   cursor: loading ? "wait" : "pointer",
                   minWidth: "100px",
                   justifyContent: "center",
                 }}
                 onMouseEnter={(e) => {
-                  if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "var(--primary)";
+                  if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "var(--color-action-primary)";
                 }}
                 onMouseLeave={(e) => {
-                  if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "var(--primary)";
+                  if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "var(--color-action-primary)";
                 }}
               >
                 {loading ? (
@@ -313,7 +313,7 @@ function NewsletterStrip() {
           <div className="flex flex-col gap-2.5">
             <span
               className="font-jakarta font-bold uppercase tracking-[2px] text-[10px]"
-              style={{ color: "var(--muted-foreground)" }}
+              style={{ color: "var(--color-text-muted)" }}
             >
               Follow Us On Social Media
             </span>
@@ -328,9 +328,9 @@ function NewsletterStrip() {
                   title={label}
                   className="footer-social-link w-9 h-9 rounded-[8px] flex items-center justify-center no-underline transition-all duration-200"
                   style={{
-                    background: "var(--muted)",
-                    border: "1px solid var(--border)",
-                    color: "var(--muted-foreground)",
+                    background: "var(--color-surface-sunken)",
+                    border: "1px solid var(--color-border-default)",
+                    color: "var(--color-text-muted)",
                   }}
                   onMouseEnter={(e) => {
                     const el = e.currentTarget as HTMLAnchorElement;
@@ -341,9 +341,9 @@ function NewsletterStrip() {
                   }}
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLAnchorElement;
-                    el.style.background = "var(--muted)";
-                    el.style.borderColor = "var(--border)";
-                    el.style.color = "var(--muted-foreground)";
+                    el.style.background = "var(--color-surface-sunken)";
+                    el.style.borderColor = "var(--color-border-default)";
+                    el.style.color = "var(--color-text-muted)";
                     el.style.transform = "translateY(0)";
                   }}
                 >
@@ -362,12 +362,12 @@ function NewsletterStrip() {
 
 export default function Footer() {
   return (
-    <footer role="contentinfo" className="font-jakarta" style={{ background: "var(--card)" }}>
+    <footer role="contentinfo" className="font-jakarta" style={{ background: "var(--color-surface-default)" }}>
       {/* Gold top accent */}
       <div
         style={{
           height: "3px",
-          background: "linear-gradient(90deg, var(--primary) 0%, var(--accent-foreground) 50%, var(--primary) 100%)",
+          background: "linear-gradient(90deg, var(--color-action-primary) 0%, var(--color-text-on-primary-subtle) 50%, var(--color-action-primary) 100%)",
         }}
       />
 
@@ -395,14 +395,14 @@ export default function Footer() {
             {/* Description */}
             <p
               className="font-jakarta text-[12.5px] leading-[1.9] mb-5"
-              style={{ color: "var(--muted-foreground)", maxWidth: "260px" }}
+              style={{ color: "var(--color-text-muted)", maxWidth: "260px" }}
             >
               East Africa&apos;s leading school management platform &mdash; built for African
               schools, by people who understand African education.
             </p>
 
             {/* Contact info */}
-            <div className="flex flex-col gap-2.5" style={{ color: "var(--muted-foreground)" }}>
+            <div className="flex flex-col gap-2.5" style={{ color: "var(--color-text-muted)" }}>
               {[
                 { Icon: Mail, text: "contact@edumyles.com" },
                 { Icon: Phone, text: "+254 743 993 715" },
@@ -416,18 +416,18 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 font-jakarta text-[12.5px] no-underline transition-colors duration-200"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--foreground)";
+                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-default)";
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--muted-foreground)";
+                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-muted)";
                     }}
                   >
                     <Icon
                       className="w-3.5 h-3.5 flex-shrink-0"
                       strokeWidth={1.5}
-                      style={{ color: "var(--accent-foreground)" }}
+                      style={{ color: "var(--color-text-on-primary-subtle)" }}
                     />
                     {text}
                   </a>
@@ -436,7 +436,7 @@ export default function Footer() {
                     <Icon
                       className="w-3.5 h-3.5 flex-shrink-0"
                       strokeWidth={1.5}
-                      style={{ color: "var(--accent-foreground)" }}
+                      style={{ color: "var(--color-text-on-primary-subtle)" }}
                     />
                     {text}
                   </span>
@@ -449,7 +449,7 @@ export default function Footer() {
           <div>
             <h4
               className="font-jakarta font-bold uppercase tracking-[2.5px] text-[10px] mb-5"
-              style={{ color: "var(--accent-foreground)" }}
+              style={{ color: "var(--color-text-on-primary-subtle)" }}
             >
               Products
             </h4>
@@ -462,17 +462,17 @@ export default function Footer() {
                   >
                     <span
                       className="font-jakarta font-semibold text-[13px] transition-colors duration-200"
-                      style={{ color: "var(--foreground)" }}
+                      style={{ color: "var(--color-text-default)" }}
                       onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLSpanElement).style.color = "var(--accent-foreground)";
+                        (e.currentTarget as HTMLSpanElement).style.color = "var(--color-text-on-primary-subtle)";
                       }}
                       onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLSpanElement).style.color = "var(--foreground)";
+                        (e.currentTarget as HTMLSpanElement).style.color = "var(--color-text-default)";
                       }}
                     >
                       {item.label}
                     </span>
-                    <span className="font-jakarta text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+                    <span className="font-jakarta text-[11px]" style={{ color: "var(--color-text-muted)" }}>
                       {item.sub}
                     </span>
                   </Link>
@@ -485,7 +485,7 @@ export default function Footer() {
           <div>
             <h4
               className="font-jakarta font-bold uppercase tracking-[2.5px] text-[10px] mb-5"
-              style={{ color: "var(--accent-foreground)" }}
+              style={{ color: "var(--color-text-on-primary-subtle)" }}
             >
               Solutions
             </h4>
@@ -495,17 +495,17 @@ export default function Footer() {
                   <Link
                     href={link.href}
                     className="font-jakarta text-[13px] no-underline inline-flex items-center gap-1.5 group transition-colors duration-200"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--foreground)";
+                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-default)";
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--muted-foreground)";
+                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-muted)";
                     }}
                   >
                     <span
                       className="inline-block w-0 h-px transition-all duration-200 group-hover:w-3"
-                      style={{ background: "var(--accent-foreground)" }}
+                      style={{ background: "var(--color-text-on-primary-subtle)" }}
                     />
                     {link.label}
                   </Link>
@@ -518,7 +518,7 @@ export default function Footer() {
           <div>
             <h4
               className="font-jakarta font-bold uppercase tracking-[2.5px] text-[10px] mb-5"
-              style={{ color: "var(--accent-foreground)" }}
+              style={{ color: "var(--color-text-on-primary-subtle)" }}
             >
               Partners
             </h4>
@@ -528,17 +528,17 @@ export default function Footer() {
                   <Link
                     href={link.href}
                     className="font-jakarta text-[13px] no-underline inline-flex items-center gap-1.5 group transition-colors duration-200"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--foreground)";
+                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-default)";
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--muted-foreground)";
+                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-muted)";
                     }}
                   >
                     <span
                       className="inline-block w-0 h-px transition-all duration-200 group-hover:w-3"
-                      style={{ background: "var(--accent-foreground)" }}
+                      style={{ background: "var(--color-text-on-primary-subtle)" }}
                     />
                     {link.label}
                   </Link>
@@ -551,7 +551,7 @@ export default function Footer() {
           <div>
             <h4
               className="font-jakarta font-bold uppercase tracking-[2.5px] text-[10px] mb-5"
-              style={{ color: "var(--accent-foreground)" }}
+              style={{ color: "var(--color-text-on-primary-subtle)" }}
             >
               Company
             </h4>
@@ -561,17 +561,17 @@ export default function Footer() {
                   <Link
                     href={link.href}
                     className="font-jakarta text-[13px] no-underline inline-flex items-center gap-1.5 group transition-colors duration-200"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--foreground)";
+                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-default)";
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--muted-foreground)";
+                      (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-muted)";
                     }}
                   >
                     <span
                       className="inline-block w-0 h-px transition-all duration-200 group-hover:w-3"
-                      style={{ background: "var(--accent-foreground)" }}
+                      style={{ background: "var(--color-text-on-primary-subtle)" }}
                     />
                     {link.label}
                   </Link>
@@ -584,7 +584,7 @@ export default function Footer() {
 
       {/* Divider */}
       <div className="max-w-[1200px] mx-auto px-6 lg:px-16">
-        <div style={{ borderTop: "1px solid var(--border)" }} />
+        <div style={{ borderTop: "1px solid var(--color-border-default)" }} />
       </div>
 
       {/* Newsletter + Social strip */}
@@ -597,22 +597,22 @@ export default function Footer() {
             key={badge.label}
             className="font-jakarta text-[11px] px-3 py-[5px] rounded-full inline-flex items-center gap-1.5 transition-all duration-200"
             style={{
-              background: "rgb(var(--primary-rgb) / 6%)",
-              border: "1px solid rgb(var(--primary-rgb) / 12%)",
-              color: "var(--muted-foreground)",
+              background: "color-mix(in srgb, var(--color-action-primary) 6%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+              color: "var(--color-text-muted)",
               cursor: "default",
             }}
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLSpanElement;
-              el.style.background = "rgb(var(--primary-rgb) / 12%)";
-              el.style.borderColor = "rgb(var(--primary-rgb) / 28%)";
-              el.style.color = "var(--accent-foreground)";
+              el.style.background = "color-mix(in srgb, var(--color-action-primary) 12%, transparent)";
+              el.style.borderColor = "color-mix(in srgb, var(--color-action-primary) 28%, transparent)";
+              el.style.color = "var(--color-text-on-primary-subtle)";
             }}
             onMouseLeave={(e) => {
               const el = e.currentTarget as HTMLSpanElement;
-              el.style.background = "rgb(var(--primary-rgb) / 6%)";
-              el.style.borderColor = "rgb(var(--primary-rgb) / 12%)";
-              el.style.color = "var(--muted-foreground)";
+              el.style.background = "color-mix(in srgb, var(--color-action-primary) 6%, transparent)";
+              el.style.borderColor = "color-mix(in srgb, var(--color-action-primary) 12%, transparent)";
+              el.style.color = "var(--color-text-muted)";
             }}
           >
             {badge.icon ? (
@@ -626,11 +626,25 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div style={{ borderTop: "1px solid var(--muted)" }}>
+      <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }}>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-16 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           {/* Copyright */}
-          <p className="font-jakarta text-[11.5px] order-2 sm:order-1" style={{ color: "var(--muted-foreground)" }}>
-            Powered by MylesCorp Technologies · &copy; 2026 EduMyles
+          <p className="font-jakarta text-[11.5px] order-2 sm:order-1" style={{ color: "var(--color-text-muted)" }}>
+            &copy; 2026{" "}
+            <Link
+              href="/about"
+              className="transition-colors duration-200"
+              style={{ color: "var(--color-text-muted)", textDecoration: "none" }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-on-primary-subtle)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-muted)";
+              }}
+            >
+              MylesCorp Technologies Ltd
+            </Link>{" "}
+            · All rights reserved.
           </p>
 
           {/* Legal links */}
@@ -645,12 +659,12 @@ export default function Footer() {
                 key={label}
                 href={href}
                 className="no-underline transition-colors duration-200"
-                style={{ color: "var(--muted-foreground)" }}
+                style={{ color: "var(--color-text-muted)" }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = "var(--accent-foreground)";
+                  (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-on-primary-subtle)";
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = "var(--muted-foreground)";
+                  (e.currentTarget as HTMLAnchorElement).style.color = "var(--color-text-muted)";
                 }}
               >
                 {label}

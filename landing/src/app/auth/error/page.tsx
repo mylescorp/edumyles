@@ -21,7 +21,7 @@ export default async function AuthErrorPage({
     `An unexpected authentication error occurred${reason ? ` (${reason})` : ""}.`;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8" style={{ background: "var(--card)" }}>
+    <div className="flex flex-col items-center justify-center min-h-screen p-8" style={{ background: "var(--color-surface-default)" }}>
       <div className="max-w-md w-full text-center space-y-6">
         <div className="flex flex-col items-center gap-2 mb-4">
           <Logo variant="lockup" width={320} height={91} priority appearance="dark" href={null} />
@@ -35,7 +35,7 @@ export default async function AuthErrorPage({
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
           <Link
             href="/auth/login/api"
-            className="inline-flex items-center justify-center rounded-md bg-green-700 text-white px-6 py-2.5 text-sm font-medium hover:bg-green-800 transition-colors"
+            className="inline-flex items-center justify-center rounded-md bg-green-700 text-[var(--color-text-on-primary)] px-6 py-2.5 text-sm font-medium hover:bg-green-800 transition-colors"
           >
             Try again
           </Link>

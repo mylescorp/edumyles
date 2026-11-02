@@ -60,7 +60,7 @@ export default function ROICalculator() {
         <div className="text-center mb-10">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--color-text-default)" }}
           >
             Calculate Your School&apos;s ROI
           </h2>
@@ -80,7 +80,7 @@ export default function ROICalculator() {
                 </label>
                 <span
                   className="text-sm font-bold px-3 py-1 rounded-full"
-                  style={{ background: "var(--muted)", color: "var(--foreground)" }}
+                  style={{ background: "var(--color-surface-sunken)", color: "var(--color-text-default)" }}
                 >
                   {formatNumber(students)}
                 </span>
@@ -94,7 +94,7 @@ export default function ROICalculator() {
                 onChange={(e) => setStudents(Number(e.target.value))}
                 className="w-full h-2 rounded-full appearance-none accent-primary cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, var(--foreground) ${((students - 50) / (3000 - 50)) * 100}%, var(--border) ${((students - 50) / (3000 - 50)) * 100}%)`,
+                  background: `linear-gradient(to right, var(--color-text-default) ${((students - 50) / (3000 - 50)) * 100}%, var(--color-border-default) ${((students - 50) / (3000 - 50)) * 100}%)`,
                 }}
                 aria-label="Number of students"
               />
@@ -112,7 +112,7 @@ export default function ROICalculator() {
                 </label>
                 <span
                   className="text-sm font-bold px-3 py-1 rounded-full"
-                  style={{ background: "var(--muted)", color: "var(--foreground)" }}
+                  style={{ background: "var(--color-surface-sunken)", color: "var(--color-text-default)" }}
                 >
                   {staff}
                 </span>
@@ -126,7 +126,7 @@ export default function ROICalculator() {
                 onChange={(e) => setStaff(Number(e.target.value))}
                 className="w-full h-2 rounded-full appearance-none accent-primary cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, var(--foreground) ${((staff - 1) / (20 - 1)) * 100}%, var(--border) ${((staff - 1) / (20 - 1)) * 100}%)`,
+                  background: `linear-gradient(to right, var(--color-text-default) ${((staff - 1) / (20 - 1)) * 100}%, var(--color-border-default) ${((staff - 1) / (20 - 1)) * 100}%)`,
                 }}
                 aria-label="Number of administrative staff"
               />
@@ -144,7 +144,7 @@ export default function ROICalculator() {
                 </label>
                 <span
                   className="text-sm font-bold px-3 py-1 rounded-full"
-                  style={{ background: "var(--muted)", color: "var(--foreground)" }}
+                  style={{ background: "var(--color-surface-sunken)", color: "var(--color-text-default)" }}
                 >
                   {formatKES(hourlyRate)}
                 </span>
@@ -158,7 +158,7 @@ export default function ROICalculator() {
                 onChange={(e) => setHourlyRate(Number(e.target.value))}
                 className="w-full h-2 rounded-full appearance-none accent-primary cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, var(--foreground) ${((hourlyRate - 200) / (1000 - 200)) * 100}%, var(--border) ${((hourlyRate - 200) / (1000 - 200)) * 100}%)`,
+                  background: `linear-gradient(to right, var(--color-text-default) ${((hourlyRate - 200) / (1000 - 200)) * 100}%, var(--color-border-default) ${((hourlyRate - 200) / (1000 - 200)) * 100}%)`,
                 }}
                 aria-label="Average admin hourly rate in KES"
               />
@@ -176,16 +176,16 @@ export default function ROICalculator() {
                 <div
                   key={metric.title}
                   className="rounded-2xl p-5 flex flex-col gap-1"
-                  style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
                 >
                   <metric.icon
                     className="w-5 h-5 mb-0.5"
                     strokeWidth={1.5}
-                    style={{ color: "var(--primary)" }}
+                    style={{ color: "var(--color-action-primary)" }}
                   />
                   <span
                     className="font-display font-bold text-lg leading-tight"
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "var(--color-text-on-primary-subtle)" }}
                   >
                     {metric.value}
                   </span>
@@ -201,7 +201,7 @@ export default function ROICalculator() {
             <Link
               href="/waitlist"
               className="inline-flex items-center justify-center gap-2 font-semibold text-sm px-6 py-3 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98] mt-2"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               Start Your Free Trial →
             </Link>

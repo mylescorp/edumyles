@@ -9,6 +9,10 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { WebVitalsReporter } from "@/components/providers/WebVitalsReporter";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { headers } from "next/headers";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "@/convex/_generated/api";
+import { getTenantSubdomainFromHost } from "@/lib/tenant-host";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -58,15 +62,32 @@ export const metadata: Metadata = {
     ],
   },
   other: {
-    "msapplication-TileColor": "#FAFAFA",
+    "msapplication-TileColor": "var(--color-text-default)",
     "msapplication-TileImage": "/favicon-192.png",
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const dynamic = "force-dynamic";
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  let tenantTheme: { tenantId: string; version: number; compiledCss: string } | null = null;
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (convexUrl) {
+    try {
+      const requestHeaders = await headers();
+      const subdomain = getTenantSubdomainFromHost(requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host"));
+      if (subdomain) {
+        const client = new ConvexHttpClient(convexUrl);
+        tenantTheme = await client.query((api as any).tenantThemes.getForSubdomain, { subdomain });
+      }
+    } catch {
+      // A tenant theme is optional; platform defaults remain available when lookup fails.
+    }
+  }
   return (
-    <html lang="en" dir="ltr" data-density="comfortable" suppressHydrationWarning>
+    <html lang="en" dir="ltr" data-density="comfortable" data-tenant={tenantTheme?.tenantId} suppressHydrationWarning>
       <head>
+        {tenantTheme && <style id="tenant-theme" data-version={tenantTheme.version} dangerouslySetInnerHTML={{ __html: tenantTheme.compiledCss }} />}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){var r=document.documentElement,t;try{var m=document.cookie.match(/(?:^|;\\s*)em-theme=(light|dark|system)(?:;|$)/);t=m&&m[1]||localStorage.getItem('em-theme');if(t!=='light'&&t!=='dark'&&t!=='system')t='system';var d=t==='dark'||t==='system'&&matchMedia('(prefers-color-scheme:dark)').matches;r.classList.toggle('dark',d);r.setAttribute('data-theme',d?'dark':'light')}catch(e){r.setAttribute('data-theme','light')}})();`,

@@ -36,7 +36,7 @@ const solutions = [
       "NEMIS Integration",
       "Digital Learning Resources",
     ],
-    color: "var(--primary)",
+    color: "var(--color-action-primary)",
     bgGradient: "from-green-50 to-emerald-50",
     stats: {
       schools: "CBC",
@@ -58,7 +58,7 @@ const solutions = [
       "Discipline Tracking",
       "Career Guidance",
     ],
-    color: "var(--primary)",
+    color: "var(--color-action-primary)",
     bgGradient: "from-emerald-50 to-teal-50",
     stats: {
       schools: "8-4-4",
@@ -80,7 +80,7 @@ const solutions = [
       "Global Standards Compliance",
       "Exchange Program Management",
     ],
-    color: "var(--accent-foreground)",
+    color: "var(--color-text-on-primary-subtle)",
     bgGradient: "from-amber-50 to-orange-50",
     stats: {
       schools: "50+",
@@ -102,7 +102,7 @@ const solutions = [
       "Standardized Processes",
       "Group-Level Analytics",
     ],
-    color: "var(--foreground)",
+    color: "var(--color-text-default)",
     bgGradient: "from-slate-50 to-gray-50",
     stats: {
       schools: "100+",
@@ -147,20 +147,20 @@ const benefits = [
 
 export default function SolutionsPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* Hero Section */}
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--color-chrome-platform) 0%, var(--color-action-primary) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
         <div className="absolute inset-0 opacity-10">
           <div
             style={{
-              backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+              backgroundImage: `radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--color-action-primary) 30%, transparent) 0%, transparent 50%),
+                            radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--color-text-on-primary) 10%, transparent) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
             }}
@@ -171,11 +171,11 @@ export default function SolutionsPage() {
           <div className="max-w-[800px] mx-auto">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,4rem)", color: "#F4F8F7" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,4rem)", color: "var(--color-surface-page)" }}
             >
-              Solutions Built for <span style={{ color: "#B9CBD6" }}>Every School</span>
+              Solutions Built for <span style={{ color: "var(--color-text-muted)" }}>Every School</span>
             </h1>
-            <p className="font-jakarta text-xl leading-[1.7] mb-8" style={{ color: "#E6F2EF" }}>
+            <p className="font-jakarta text-xl leading-[1.7] mb-8" style={{ color: "var(--color-status-success-subtle)" }}>
               From primary schools to international institutions, EduMyles adapts to your unique
               needs. Streamline administration, enhance learning, and empower your entire school
               community.
@@ -186,9 +186,9 @@ export default function SolutionsPage() {
                   key={badge}
                   className="inline-flex items-center font-jakarta font-semibold text-sm px-4 py-2 rounded-full"
                   style={{
-                    background: "rgba(255,255,255,0.12)",
-                    color: "#F4F8F7",
-                    border: "1px solid rgba(255,255,255,0.3)",
+                    background: "color-mix(in srgb, var(--color-surface-default) 12%, transparent)",
+                    color: "var(--color-surface-page)",
+                    border: "1px solid color-mix(in srgb, var(--color-text-on-primary) 30%, transparent)",
                   }}
                 >
                   {badge}
@@ -200,18 +200,18 @@ export default function SolutionsPage() {
       </section>
 
       {/* Solutions Grid */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-16">
             <h2
               className="font-display font-bold leading-tight mb-4"
-              style={{ fontSize: "clamp(2rem,3.5vw,3rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(2rem,3.5vw,3rem)", color: "var(--color-text-default)" }}
             >
-              Tailored Solutions for <span style={{ color: "var(--accent-foreground)" }}>Your Institution</span>
+              Tailored Solutions for <span style={{ color: "var(--color-text-on-primary-subtle)" }}>Your Institution</span>
             </h2>
             <p
               className="font-jakarta text-lg max-w-[700px] mx-auto"
-              style={{ color: "var(--muted-foreground)", lineHeight: "1.7" }}
+              style={{ color: "var(--color-text-muted)", lineHeight: "1.7" }}
             >
               Each solution is specifically designed to address the unique challenges and
               requirements of different educational institutions.
@@ -224,9 +224,9 @@ export default function SolutionsPage() {
                 key={solution.title}
                 className="group rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-3"
                 style={{
-                  background: "var(--card)",
-                  border: "2px solid rgba(0,0,0,0.08)",
-                  boxShadow: "0 4px 20px rgba(6,26,18,0.08)",
+                  background: "var(--color-surface-default)",
+                  border: "2px solid color-mix(in srgb, var(--color-surface-page) 8%, transparent)",
+                  boxShadow: "0 4px 20px color-mix(in srgb, var(--color-surface-page) 8%, transparent)",
                 }}
               >
                 {/* Card Header */}
@@ -234,7 +234,7 @@ export default function SolutionsPage() {
                   className="p-6 pb-4"
                   style={{
                     background: `linear-gradient(135deg, ${solution.bgGradient})`,
-                    borderBottom: "1px solid rgba(0,0,0,0.05)",
+                    borderBottom: "1px solid color-mix(in srgb, var(--color-surface-page) 5%, transparent)",
                   }}
                 >
                   <div className="flex items-center gap-4">
@@ -242,7 +242,7 @@ export default function SolutionsPage() {
                       className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
                       style={{ background: solution.color }}
                     >
-                      <solution.icon className="w-8 h-8" style={{ color: "var(--primary-foreground)" }} />
+                      <solution.icon className="w-8 h-8" style={{ color: "var(--color-text-on-primary)" }} />
                     </div>
                     <div>
                       <h3
@@ -251,7 +251,7 @@ export default function SolutionsPage() {
                       >
                         {solution.title}
                       </h3>
-                      <p className="font-jakarta text-sm font-medium" style={{ color: "var(--muted-foreground)" }}>
+                      <p className="font-jakarta text-sm font-medium" style={{ color: "var(--color-text-muted)" }}>
                         {solution.description}
                       </p>
                     </div>
@@ -268,7 +268,7 @@ export default function SolutionsPage() {
                           className="w-5 h-5 flex-shrink-0"
                           style={{ color: solution.color }}
                         />
-                        <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                        <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                           {feature}
                         </span>
                       </div>
@@ -280,8 +280,8 @@ export default function SolutionsPage() {
                     href={solution.href}
                     className="w-full inline-flex items-center justify-center gap-2 font-jakarta font-bold text-sm px-6 py-4 rounded-xl transition-all duration-200 group-hover:shadow-lg"
                     style={{
-                      background: "var(--primary)",
-                      color: "var(--primary-foreground)",
+                      background: "var(--color-action-primary)",
+                      color: "var(--color-text-on-primary)",
                     }}
                   >
                     Explore {solution.title}
@@ -294,7 +294,7 @@ export default function SolutionsPage() {
 
           {/* View All Solutions Button */}
           <div className="text-center">
-            <p className="font-jakarta text-sm mb-4" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-sm mb-4" style={{ color: "var(--color-text-muted)" }}>
               Looking for something specific? Each solution is tailored to your institution&apos;s
               unique needs.
             </p>
@@ -320,18 +320,18 @@ export default function SolutionsPage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 px-4" style={{ background: "var(--background)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-16">
             <h2
               className="font-display font-bold leading-tight mb-4"
-              style={{ fontSize: "clamp(2rem,3.5vw,3rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(2rem,3.5vw,3rem)", color: "var(--color-text-default)" }}
             >
-              Why Schools Choose <span style={{ color: "var(--accent-foreground)" }}>EduMyles</span>
+              Why Schools Choose <span style={{ color: "var(--color-text-on-primary-subtle)" }}>EduMyles</span>
             </h2>
             <p
               className="font-jakarta text-lg max-w-[700px] mx-auto"
-              style={{ color: "var(--muted-foreground)", lineHeight: "1.7" }}
+              style={{ color: "var(--color-text-muted)", lineHeight: "1.7" }}
             >
               Experience the difference with our comprehensive school management platform designed
               for the modern educational landscape.
@@ -343,18 +343,18 @@ export default function SolutionsPage() {
               <div
                 key={benefit.title}
                 className="text-center p-6 rounded-2xl bg-card"
-                style={{ border: "1px solid var(--border)" }}
+                style={{ border: "1px solid var(--color-border-default)" }}
               >
                 <div
                   className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                  style={{ background: "rgba(26,122,74,0.1)" }}
+                  style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
                 >
-                  <benefit.icon className="w-8 h-8" style={{ color: "var(--primary)" }} />
+                  <benefit.icon className="w-8 h-8" style={{ color: "var(--color-action-primary)" }} />
                 </div>
-                <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--foreground)" }}>
+                <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--color-text-default)" }}>
                   {benefit.title}
                 </h3>
-                <p className="font-jakarta text-sm leading-[1.6]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="font-jakarta text-sm leading-[1.6]" style={{ color: "var(--color-text-muted)" }}>
                   {benefit.description}
                 </p>
               </div>
@@ -364,15 +364,15 @@ export default function SolutionsPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[800px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-tight mb-6"
-            style={{ fontSize: "clamp(2rem,3.5vw,3rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2rem,3.5vw,3rem)", color: "var(--color-text-default)" }}
           >
-            Ready to Transform Your <span style={{ color: "var(--accent-foreground)" }}>School Management?</span>
+            Ready to Transform Your <span style={{ color: "var(--color-text-on-primary-subtle)" }}>School Management?</span>
           </h2>
-          <p className="font-jakarta text-lg mb-8" style={{ color: "var(--muted-foreground)", lineHeight: "1.7" }}>
+          <p className="font-jakarta text-lg mb-8" style={{ color: "var(--color-text-muted)", lineHeight: "1.7" }}>
             Streamline your school operations and give every team a clearer way to work with
             EduMyles.
           </p>
@@ -381,8 +381,8 @@ export default function SolutionsPage() {
               href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-xl no-underline transition-all duration-200 hover:shadow-lg"
               style={{
-                background: "var(--primary)",
-                color: "var(--primary-foreground)",
+                background: "var(--color-action-primary)",
+                color: "var(--color-text-on-primary)",
               }}
             >
               Book a Demo
@@ -393,8 +393,8 @@ export default function SolutionsPage() {
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[16px] px-8 py-4 rounded-xl no-underline transition-all duration-200"
               style={{
                 background: "transparent",
-                color: "var(--foreground)",
-                border: "2px solid var(--border)",
+                color: "var(--color-text-default)",
+                border: "2px solid var(--color-border-default)",
               }}
             >
               View All Solutions

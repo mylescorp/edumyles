@@ -58,13 +58,13 @@ function getHealthTone(status: string) {
   if (status === "healthy") {
     return {
       badge: "border-[var(--platform-success-border)] bg-[var(--platform-success-soft)] text-[var(--em-primary)]",
-      dot: "bg-[var(--em-success)]",
+      dot: "bg-[var(--color-status-success-solid)]",
     };
   }
   if (status === "degraded") {
     return {
-      badge: "border-[var(--platform-danger-border)] bg-[var(--platform-danger-soft)] text-[var(--em-danger)]",
-      dot: "bg-[var(--em-danger)]",
+      badge: "border-[var(--platform-danger-border)] bg-[var(--platform-danger-soft)] text-[var(--color-status-danger-solid)]",
+      dot: "bg-[var(--color-status-danger-solid)]",
     };
   }
   return {
@@ -198,7 +198,7 @@ export default function PlatformDashboardPage() {
             ))}
           </div>
           <Link href="/platform/tenants/create">
-            <Button size="sm" className="bg-[var(--platform-accent)] text-white hover:bg-[var(--platform-accent-hover)]">
+            <Button size="sm" className="bg-[var(--platform-accent)] text-[var(--color-text-on-primary)] hover:bg-[var(--platform-accent-hover)]">
               <Plus className="mr-1.5 h-4 w-4" /> New tenant
             </Button>
           </Link>
@@ -213,7 +213,7 @@ export default function PlatformDashboardPage() {
               <Button size="sm" className="bg-[var(--platform-highlight)] text-primary-foreground hover:brightness-95">Create first school</Button>
             </Link>
             <Link href="/platform/analytics">
-              <Button size="sm" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white">Open analytics</Button>
+              <Button size="sm" variant="outline" className="border-[color-mix(in_srgb,var(--color-text-inverse)_40%,transparent)] bg-transparent text-[var(--color-text-on-primary)] hover:bg-[var(--color-surface-default)] hover:text-[var(--color-text-on-primary)]">Open analytics</Button>
             </Link>
           </>
         )}

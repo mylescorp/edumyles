@@ -37,6 +37,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Check design system stylesheet colors
+        run: npm run lint:styles
+
       - name: Type check
         run: npm run type-check
 

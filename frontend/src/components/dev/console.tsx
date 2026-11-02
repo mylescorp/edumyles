@@ -469,7 +469,7 @@ export function DevConsoleShell({
                   className={cn(
                     "flex h-12 items-center gap-2 rounded-lg border px-3 text-sm transition-all",
                     isActive
-                      ? "border-platform-chrome bg-platform-chrome text-white shadow-sm"
+                      ? "border-platform-chrome bg-platform-chrome text-[var(--color-text-on-primary)] shadow-sm"
                       : "border-transparent bg-transparent text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
                   )}
                 >

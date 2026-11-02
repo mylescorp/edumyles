@@ -49,9 +49,9 @@ function printInvoice(invoice: any, schoolName: string, format: (n: number) => s
     .map(
       (item: any) =>
         `<tr>
-          <td style="padding:8px 0;border-bottom:1px solid #eee;">${item.description}</td>
-          <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:center;">${item.quantity ?? 1}</td>
-          <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;">${format(item.amountKes ?? 0)}</td>
+          <td style="padding:8px 0;border-bottom:1px solid var(--color-surface-sunken);">${item.description}</td>
+          <td style="padding:8px 0;border-bottom:1px solid var(--color-surface-sunken);text-align:center;">${item.quantity ?? 1}</td>
+          <td style="padding:8px 0;border-bottom:1px solid var(--color-surface-sunken);text-align:right;">${format(item.amountKes ?? 0)}</td>
         </tr>`
     )
     .join("");
@@ -61,20 +61,20 @@ function printInvoice(invoice: any, schoolName: string, format: (n: number) => s
 <head>
   <title>Invoice ${String(invoice._id).slice(-8).toUpperCase()}</title>
   <style>
-    body { font-family: sans-serif; max-width: 680px; margin: 40px auto; padding: 24px; color: #111; }
+    body { font-family: sans-serif; max-width: 680px; margin: 40px auto; padding: 24px; color: var(--color-text-default); }
     .header { display: flex; justify-content: space-between; margin-bottom: 32px; }
-    .school-name { font-size: 22px; font-weight: 700; color: #0F4C2A; }
-    .invoice-label { font-size: 28px; font-weight: 800; color: #0F4C2A; text-align: right; }
-    .invoice-id { font-size: 13px; color: #666; text-align: right; }
+    .school-name { font-size: 22px; font-weight: 700; color: var(--color-status-success-on-subtle); }
+    .invoice-label { font-size: 28px; font-weight: 800; color: var(--color-status-success-on-subtle); text-align: right; }
+    .invoice-id { font-size: 13px; color: var(--color-text-muted); text-align: right; }
     .section { margin-bottom: 24px; }
-    .label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .label { font-size: 12px; color: var(--color-text-disabled); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
     .value { font-size: 14px; font-weight: 600; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-    th { text-align: left; font-size: 12px; color: #888; text-transform: uppercase; padding: 8px 0; border-bottom: 2px solid #0F4C2A; }
+    th { text-align: left; font-size: 12px; color: var(--color-text-disabled); text-transform: uppercase; padding: 8px 0; border-bottom: 2px solid var(--color-status-success-on-subtle); }
     th:last-child { text-align: right; }
     th:nth-child(2) { text-align: center; }
     .total-row { font-weight: 700; font-size: 16px; }
-    .status-badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: #d1fae5; color: #065f46; }
+    .status-badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--color-status-success-subtle); color: var(--color-status-success-on-subtle); }
     @media print { body { margin: 0; } }
   </style>
 </head>
@@ -82,7 +82,7 @@ function printInvoice(invoice: any, schoolName: string, format: (n: number) => s
   <div class="header">
     <div>
       <div class="school-name">${schoolName}</div>
-      <div style="font-size:12px;color:#888;margin-top:4px;">EduMyles School Management Platform</div>
+      <div style="font-size:12px;color:var(--color-text-disabled);margin-top:4px;">EduMyles School Management Platform</div>
     </div>
     <div>
       <div class="invoice-label">INVOICE</div>

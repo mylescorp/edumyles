@@ -61,7 +61,7 @@ const quickActions: QuickAction[] = [
     href: "/admin/communications/create",
     icon: MessageSquare,
     iconBg: "bg-[var(--platform-success-soft)]",
-    iconColor: "text-[var(--em-success)]",
+    iconColor: "text-[var(--color-status-success-solid)]",
   },
   {
     title: "Generate Report",
@@ -69,7 +69,7 @@ const quickActions: QuickAction[] = [
     href: "/admin/reports",
     icon: FileText,
     iconBg: "bg-[var(--platform-danger-soft)]",
-    iconColor: "text-[var(--em-danger)]",
+    iconColor: "text-[var(--color-status-danger-solid)]",
   },
 ];
 

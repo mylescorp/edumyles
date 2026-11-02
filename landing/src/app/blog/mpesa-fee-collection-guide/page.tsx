@@ -19,20 +19,20 @@ export const metadata: Metadata = {
 
 export default function MpesaFeeCollectionGuide() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* Hero Section */}
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--color-chrome-platform) 0%, var(--color-action-primary) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
         <div className="absolute inset-0 opacity-10">
           <div
             style={{
-              backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+              backgroundImage: `radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--color-action-primary) 30%, transparent) 0%, transparent 50%),
+                            radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--color-text-on-primary) 10%, transparent) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
             }}
@@ -44,7 +44,7 @@ export default function MpesaFeeCollectionGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
+              style={{ background: "color-mix(in srgb, var(--color-surface-default) 10%, transparent)", color: "var(--color-text-muted)" }}
             >
               ← Back to Blog
             </Link>
@@ -53,33 +53,33 @@ export default function MpesaFeeCollectionGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--color-text-inverse)" }}
             >
               How to Set Up M-Pesa Fee Collection{" "}
-              <span style={{ color: "var(--accent-foreground)" }}>for Your School</span>
+              <span style={{ color: "var(--color-text-on-primary-subtle)" }}>for Your School</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <CreditCard className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <CreditCard className="w-5 h-5" style={{ color: "var(--color-text-on-primary-subtle)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                   Finance
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <Clock className="w-5 h-5" style={{ color: "var(--color-text-on-primary-subtle)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                   6 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                   February 2026
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
               A step-by-step guide to integrating M-Pesa Daraja into your EduMyles fee structure and
               going fully cashless. Transform your school&apos;s fee collection process in under 30
               minutes.
@@ -89,17 +89,17 @@ export default function MpesaFeeCollectionGuide() {
       </section>
 
       {/* Content */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[800px] mx-auto">
           {/* Introduction */}
           <div className="mb-12">
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--color-text-muted)" }}>
               Managing school fees has always been a challenge for Kenyan educational institutions.
               Manual cash handling, tracking payments, and following up with parents takes countless
               hours each term. But what if you could automate 95% of this work?
             </p>
 
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--color-text-muted)" }}>
               With EduMyles and M-Pesa integration, you can. This guide will walk you through
               setting up a complete digital fee collection system that processes payments
               automatically, sends instant receipts to parents, and gives you real-time visibility
@@ -109,13 +109,13 @@ export default function MpesaFeeCollectionGuide() {
             <div
               className="p-6 rounded-2xl mb-8"
               style={{
-                background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                background: "linear-gradient(135deg, var(--color-surface-default) 0%, var(--color-surface-sunken) 100%)",
+                border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 20%, transparent)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <TrendingUp className="w-6 h-6" style={{ color: "var(--primary)" }} />
-                <h3 className="font-display font-bold text-xl" style={{ color: "var(--foreground)" }}>
+                <TrendingUp className="w-6 h-6" style={{ color: "var(--color-action-primary)" }} />
+                <h3 className="font-display font-bold text-xl" style={{ color: "var(--color-text-default)" }}>
                   Quick Results
                 </h3>
               </div>
@@ -127,8 +127,8 @@ export default function MpesaFeeCollectionGuide() {
                   "Real-time payment tracking",
                 ].map((result) => (
                   <li key={result} className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "var(--primary)" }} />
-                    <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "var(--color-action-primary)" }} />
+                    <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                       {result}
                     </span>
                   </li>
@@ -139,7 +139,7 @@ export default function MpesaFeeCollectionGuide() {
 
           {/* What You'll Need */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               What You&apos;ll Need
             </h2>
 
@@ -169,22 +169,22 @@ export default function MpesaFeeCollectionGuide() {
                 <div
                   key={item.title}
                   className="flex gap-4 p-4 rounded-xl"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
                   <div
                     className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: "rgba(26,122,74,0.1)" }}
+                    style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
                   >
-                    <item.icon className="w-6 h-6" style={{ color: "var(--primary)" }} />
+                    <item.icon className="w-6 h-6" style={{ color: "var(--color-action-primary)" }} />
                   </div>
                   <div>
                     <h3
                       className="font-jakarta font-semibold text-base mb-1"
-                      style={{ color: "var(--foreground)" }}
+                      style={{ color: "var(--color-text-default)" }}
                     >
                       {item.title}
                     </h3>
-                    <p className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                    <p className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                       {item.description}
                     </p>
                   </div>
@@ -195,7 +195,7 @@ export default function MpesaFeeCollectionGuide() {
 
           {/* Step-by-Step Guide */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Step-by-Step Setup Guide
             </h2>
 
@@ -237,22 +237,22 @@ export default function MpesaFeeCollectionGuide() {
                   time: "2 minutes",
                 },
               ].map((step) => (
-                <div key={step.step} className="border-l-4 pl-6" style={{ borderColor: "var(--primary)" }}>
+                <div key={step.step} className="border-l-4 pl-6" style={{ borderColor: "var(--color-action-primary)" }}>
                   <div className="flex items-center gap-3 mb-3">
                     <span
                       className="font-jakarta font-bold text-sm px-3 py-1 rounded-full"
-                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                      style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
                     >
                       {step.step}
                     </span>
-                    <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                    <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                       {step.time}
                     </span>
                   </div>
-                  <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--foreground)" }}>
+                  <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--color-text-default)" }}>
                     {step.title}
                   </h3>
-                  <p className="font-jakarta text-base leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+                  <p className="font-jakarta text-base leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
                     {step.content}
                   </p>
                 </div>
@@ -262,7 +262,7 @@ export default function MpesaFeeCollectionGuide() {
 
           {/* Best Practices */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Best Practices for Success
             </h2>
 
@@ -292,15 +292,15 @@ export default function MpesaFeeCollectionGuide() {
                 <div
                   key={practice.title}
                   className="p-5 rounded-xl"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
                   <h3
                     className="font-jakarta font-semibold text-base mb-2"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
                     {practice.title}
                   </h3>
-                  <p className="font-jakarta text-sm leading-[1.6]" style={{ color: "var(--muted-foreground)" }}>
+                  <p className="font-jakarta text-sm leading-[1.6]" style={{ color: "var(--color-text-muted)" }}>
                     {practice.description}
                   </p>
                 </div>
@@ -310,20 +310,20 @@ export default function MpesaFeeCollectionGuide() {
 
           {/* Results You Can Expect */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Results You Can Expect
             </h2>
 
             <div
               className="p-8 rounded-2xl"
               style={{
-                background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-                color: "#ffffff",
+                background: "linear-gradient(135deg, var(--color-chrome-platform) 0%, var(--color-action-primary) 100%)",
+                color: "var(--color-text-inverse)",
               }}
             >
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="font-display font-bold text-xl mb-4" style={{ color: "var(--accent-foreground)" }}>
+                  <h3 className="font-display font-bold text-xl mb-4" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                     Before M-Pesa Integration
                   </h3>
                   <ul className="space-y-3">
@@ -337,7 +337,7 @@ export default function MpesaFeeCollectionGuide() {
                       <li key={item} className="flex items-center gap-2">
                         <AlertCircle
                           className="w-4 h-4 flex-shrink-0"
-                          style={{ color: "#ef4444" }}
+                          style={{ color: "var(--color-status-danger-solid)" }}
                         />
                         <span className="font-jakarta text-sm">{item}</span>
                       </li>
@@ -346,7 +346,7 @@ export default function MpesaFeeCollectionGuide() {
                 </div>
 
                 <div>
-                  <h3 className="font-display font-bold text-xl mb-4" style={{ color: "var(--accent-foreground)" }}>
+                  <h3 className="font-display font-bold text-xl mb-4" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                     After M-Pesa Integration
                   </h3>
                   <ul className="space-y-3">
@@ -360,7 +360,7 @@ export default function MpesaFeeCollectionGuide() {
                       <li key={item} className="flex items-center gap-2">
                         <CheckCircle2
                           className="w-4 h-4 flex-shrink-0"
-                          style={{ color: "var(--accent-foreground)" }}
+                          style={{ color: "var(--color-text-on-primary-subtle)" }}
                         />
                         <span className="font-jakarta text-sm">{item}</span>
                       </li>
@@ -373,16 +373,16 @@ export default function MpesaFeeCollectionGuide() {
 
           {/* CTA */}
           <div className="text-center py-12">
-            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "var(--color-text-default)" }}>
               Ready to Transform Your Fee Collection?
             </h2>
-            <p className="font-jakarta text-lg mb-6" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg mb-6" style={{ color: "var(--color-text-muted)" }}>
               Join 500+ Kenyan schools using EduMyles for seamless M-Pesa integration.
             </p>
             <Link
               href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-xl no-underline"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               Book a Demo
               <ArrowRight className="w-5 h-5" />

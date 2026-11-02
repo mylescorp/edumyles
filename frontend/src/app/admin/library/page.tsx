@@ -174,7 +174,7 @@ export default function LibraryDashboardPage() {
                                 <Link key={index} href={action.href}>
                                     <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                                         <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${action.color}`}>
-                                            <Icon className="h-6 w-6 text-white" />
+                                            <Icon className="h-6 w-6 text-[var(--color-text-on-primary)]" />
                                         </div>
                                         <h3 className="font-medium text-center">{action.title}</h3>
                                         <p className="text-sm text-muted-foreground text-center mt-1">

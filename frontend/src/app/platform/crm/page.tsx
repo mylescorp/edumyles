@@ -184,7 +184,7 @@ export default function PlatformCrmDashboardPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <Card className="border-emerald-100 surface-gradient">
+        <Card className="border-emerald-100 bg-[linear-gradient(180deg,color-mix(in_srgb,_var(--color-text-default)_70%,_transparent),color-mix(in_srgb,_var(--color-surface-default)_96%,_transparent))]">
           <CardHeader>
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
@@ -210,7 +210,7 @@ export default function PlatformCrmDashboardPage() {
               </div>
             ) : (
               stageCards.map((bucket) => (
-                <div key={bucket.stage.slug} className="rounded-2xl border border-slate-200/80 bg-card/90 p-4 shadow-sm">
+                <div key={bucket.stage.slug} className="rounded-2xl border border-slate-200/80 bg-[var(--color-surface-default)] p-4 shadow-sm">
                   <div className="flex items-center justify-between gap-3">
                     <Badge
                       variant="outline"
@@ -304,9 +304,9 @@ export default function PlatformCrmDashboardPage() {
           </Card>
 
           {can("crm.view_reports") ? (
-            <Card className="border-platform-chrome bg-platform-chrome text-white">
+            <Card className="border-platform-chrome bg-platform-chrome text-[var(--color-text-on-primary)]">
               <CardHeader>
-                <CardTitle className="text-white">Revenue pressure</CardTitle>
+                <CardTitle className="text-[var(--color-text-on-primary)]">Revenue pressure</CardTitle>
                 <CardDescription className="text-slate-300">
                   Won value currently stands at {formatKes(stats.wonValueKes)}.
                 </CardDescription>

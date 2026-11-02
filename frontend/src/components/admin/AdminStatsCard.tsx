@@ -26,9 +26,9 @@ const variantConfig = {
   },
   success: {
     iconBg: "bg-[var(--platform-success-soft)]",
-    iconColor: "text-[var(--em-success)]",
-    borderAccent: "border-l-[var(--em-success)]",
-    trendColor: "text-[var(--em-success)]",
+    iconColor: "text-[var(--color-status-success-solid)]",
+    borderAccent: "border-l-[var(--color-status-success-solid)]",
+    trendColor: "text-[var(--color-status-success-solid)]",
   },
   warning: {
     iconBg: "bg-[var(--platform-highlight-soft)]",
@@ -38,9 +38,9 @@ const variantConfig = {
   },
   danger: {
     iconBg: "bg-[var(--platform-danger-soft)]",
-    iconColor: "text-[var(--em-danger)]",
-    borderAccent: "border-l-[var(--em-danger)]",
-    trendColor: "text-[var(--em-danger)]",
+    iconColor: "text-[var(--color-status-danger-solid)]",
+    borderAccent: "border-l-[var(--color-status-danger-solid)]",
+    trendColor: "text-[var(--color-status-danger-solid)]",
   },
 };
 
