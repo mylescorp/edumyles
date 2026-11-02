@@ -1,4 +1,5 @@
 @import "@edumyles/design-tokens/tokens.css";
+@import "./handoff.css";
 
 @tailwind base;
 @tailwind components;

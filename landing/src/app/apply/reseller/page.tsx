@@ -163,7 +163,7 @@ export default function ResellerApplicationPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="no-handoff-hero min-h-screen bg-background">
       <div className="grid min-h-screen xl:grid-cols-[minmax(0,1.7fr)_minmax(540px,0.95fr)]">
         {/* Left Panel - Information */}
         <section className="flex h-full flex-col bg-[linear-gradient(180deg,#072015_0%,#0A2A1C_55%,#0C301F_100%)] px-8 py-10 text-white sm:px-12 lg:px-16 xl:px-16 xl:py-14">

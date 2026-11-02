@@ -21,6 +21,7 @@ export const metadata: Metadata = {
   title: "EduMyles for School Groups & Networks — Multi-Campus Management",
   description:
     "One platform for every campus in your school network. Multi-campus dashboard, network-wide reporting, central HR, and data isolation — built for school groups in Africa.",
+  alternates: { canonical: "/solutions/groups" },
 };
 
 /* ─── Data ─────────────────────────────────────────────────────── */

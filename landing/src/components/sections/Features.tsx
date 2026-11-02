@@ -7,17 +7,17 @@ const problems: { icon: LucideIcon; title: string; description: string }[] = [
   {
     icon: ClipboardList,
     title: "Manual Registers",
-    description: "Attendance marked on paper, then re-entered into Excel. Hours wasted. Data lost.",
+    description: "Attendance on paper, fees in notebooks and results in spreadsheets. Hours of admin every week and no single source of truth.",
   },
   {
     icon: BarChart2,
     title: "Scattered Data",
-    description: "Student records in 5 different spreadsheets. No single source of truth.",
+    description: "Student, fee and staff records live in different files and different heads, so nothing matches and reports take days.",
   },
   {
     icon: MessageCircle,
     title: "Communication Chaos",
-    description: "Parent updates via WhatsApp, SMS, and phone calls. No system. No records.",
+    description: "WhatsApp groups, phone calls and printed notices. Parents miss updates and staff repeat the same message ten times.",
   },
 ];
 
@@ -45,11 +45,10 @@ export default function Features() {
   return (
     <section
       id="features"
-      className="px-4 sm:px-8 py-16"
+      className="handoff-problem-section"
       aria-label="Problems we solve"
-      style={{ background: "var(--platform-chrome)" }}
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="handoff-problem-band">
         {/* Eyebrow */}
         <div className="flex items-center gap-[10px] mb-[10px]">
           <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "var(--primary)" }} />
@@ -80,9 +79,8 @@ export default function Features() {
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
-              className="fade-in rounded-[12px] p-8 transition-all duration-300 cursor-default"
+              className="fade-in handoff-problem-card"
               style={{
-                background: "rgba(255,255,255,0.05)",
                 border: "1px solid rgb(var(--primary-rgb) / 20%)",
                 transitionDelay: `${i * 0.1}s`,
               }}

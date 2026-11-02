@@ -1,5 +1,4 @@
 import Hero from "@/components/sections/Hero";
-import Stats from "@/components/sections/Stats";
 import Features from "@/components/sections/Features";
 import Modules from "@/components/sections/Modules";
 import Integrations from "@/components/sections/Integrations";
@@ -20,8 +19,6 @@ export default function LandingPage() {
       <div id="main-content">
         {/* Dark hero with floating dashboard cards */}
         <Hero />
-        {/* Trust bar — school logos + metrics */}
-        <Stats />
         {/* Problem section — why EduMyles exists */}
         <Features />
         {/* Platform modules — 3x2 card grid */}

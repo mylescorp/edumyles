@@ -8,7 +8,7 @@ import ContactLauncherLoader from "@/components/ui/ContactLauncherLoader";
 import ProgressBar from "@/components/ui/ProgressBar";
 import CookieBanner from "@/components/ui/CookieBanner";
 
-const NO_SHELL_PATHS = ["/auth", "/admin", "/platform", "/portal"];
+const NO_SHELL_PATHS = ["/auth", "/admin", "/platform", "/portal", "/login"];
 
 export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
