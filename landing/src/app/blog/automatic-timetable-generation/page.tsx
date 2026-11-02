@@ -19,20 +19,20 @@ export const metadata: Metadata = {
 
 export default function TimetableGenerationGuide() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* Hero Section */}
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--color-chrome-platform) 0%, var(--color-action-primary) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
         <div className="absolute inset-0 opacity-10">
           <div
             style={{
-              backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+              backgroundImage: `radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--color-action-primary) 30%, transparent) 0%, transparent 50%),
+                            radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--color-text-on-primary) 10%, transparent) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
             }}
@@ -44,7 +44,7 @@ export default function TimetableGenerationGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
+              style={{ background: "color-mix(in srgb, var(--color-surface-default) 10%, transparent)", color: "var(--color-text-muted)" }}
             >
               ← Back to Blog
             </Link>
@@ -53,32 +53,32 @@ export default function TimetableGenerationGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--color-text-inverse)" }}
             >
-              Automatic Timetable Generation <span style={{ color: "var(--accent-foreground)" }}>Saves 2 Days</span>
+              Automatic Timetable Generation <span style={{ color: "var(--color-text-on-primary-subtle)" }}>Saves 2 Days</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <CalendarDays className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <CalendarDays className="w-5 h-5" style={{ color: "var(--color-text-on-primary-subtle)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                   Operations
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <Clock className="w-5 h-5" style={{ color: "var(--color-text-on-primary-subtle)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                   7 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                   December 2025
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
               The algorithm behind EduMyles timetable engine — and why it saves school coordinators
               2 full days every term. Discover the science of conflict-free scheduling.
             </p>
@@ -87,18 +87,18 @@ export default function TimetableGenerationGuide() {
       </section>
 
       {/* Content */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[800px] mx-auto">
           {/* Introduction */}
           <div className="mb-12">
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--color-text-muted)" }}>
               Creating a school timetable is one of the most complex challenges in educational
               administration. With dozens of teachers, hundreds of students, limited classrooms, and
               countless constraints, it&apos;s a puzzle that would take most coordinators weeks to
               solve manually.
             </p>
 
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--color-text-muted)" }}>
               EduMyles solves this problem in minutes. Our automatic timetable generation engine
               uses advanced algorithms to create optimal schedules that respect every constraint
               while maximizing efficiency. Here&apos;s how it works and why it&apos;s transforming
@@ -108,13 +108,13 @@ export default function TimetableGenerationGuide() {
             <div
               className="p-6 rounded-2xl mb-8"
               style={{
-                background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                background: "linear-gradient(135deg, var(--color-surface-default) 0%, var(--color-surface-sunken) 100%)",
+                border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 20%, transparent)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <Zap className="w-6 h-6" style={{ color: "var(--primary)" }} />
-                <h3 className="font-display font-bold text-xl" style={{ color: "var(--foreground)" }}>
+                <Zap className="w-6 h-6" style={{ color: "var(--color-action-primary)" }} />
+                <h3 className="font-display font-bold text-xl" style={{ color: "var(--color-text-default)" }}>
                   Timetable Generation Impact
                 </h3>
               </div>
@@ -126,8 +126,8 @@ export default function TimetableGenerationGuide() {
                   "Zero teacher scheduling complaints",
                 ].map((impact) => (
                   <li key={impact} className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "var(--primary)" }} />
-                    <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "var(--color-action-primary)" }} />
+                    <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                       {impact}
                     </span>
                   </li>
@@ -138,7 +138,7 @@ export default function TimetableGenerationGuide() {
 
           {/* The Manual Problem */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Why Manual Timetabling Fails
             </h2>
 
@@ -172,29 +172,29 @@ export default function TimetableGenerationGuide() {
                 <div
                   key={problem.title}
                   className="flex gap-4 p-4 rounded-xl"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
                   <div
                     className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
                     style={{
                       background:
                         problem.complexity === "Very High"
-                          ? "#ef4444"
+                          ? "var(--color-status-danger-solid)"
                           : problem.complexity === "High"
-                            ? "#f97316"
-                            : "#eab308",
+                            ? "var(--color-action-accent)"
+                            : "var(--color-status-warning-solid)",
                     }}
                   >
-                    <AlertCircle className="w-6 h-6" style={{ color: "#ffffff" }} />
+                    <AlertCircle className="w-6 h-6" style={{ color: "var(--color-text-inverse)" }} />
                   </div>
                   <div>
                     <h3
                       className="font-jakarta font-bold text-lg mb-2"
-                      style={{ color: "var(--foreground)" }}
+                      style={{ color: "var(--color-text-default)" }}
                     >
                       {problem.title}
                     </h3>
-                    <p className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                    <p className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                       {problem.description}
                     </p>
                     <span
@@ -202,16 +202,16 @@ export default function TimetableGenerationGuide() {
                       style={{
                         background:
                           problem.complexity === "Very High"
-                            ? "#fef2f2"
+                            ? "var(--color-surface-page)"
                             : problem.complexity === "High"
-                              ? "#fff7ed"
-                              : "#fefce8",
+                              ? "var(--color-surface-page)"
+                              : "var(--color-surface-page)",
                         color:
                           problem.complexity === "Very High"
-                            ? "#991b1b"
+                            ? "var(--color-status-danger-on-subtle)"
                             : problem.complexity === "High"
-                              ? "#9a3412"
-                              : "#854d0e",
+                              ? "var(--color-status-danger-on-subtle)"
+                              : "var(--color-status-warning-on-subtle)",
                       }}
                     >
                       Complexity: {problem.complexity}
@@ -224,7 +224,7 @@ export default function TimetableGenerationGuide() {
 
           {/* The Algorithm Approach */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               The EduMyles Timetable Algorithm
             </h2>
 
@@ -271,32 +271,32 @@ export default function TimetableGenerationGuide() {
                   time: "5 minutes (human review)",
                 },
               ].map((step) => (
-                <div key={step.step} className="border-l-4 pl-6" style={{ borderColor: "var(--primary)" }}>
+                <div key={step.step} className="border-l-4 pl-6" style={{ borderColor: "var(--color-action-primary)" }}>
                   <div className="flex items-center gap-3 mb-3">
                     <span
                       className="font-jakarta font-bold text-sm px-3 py-1 rounded-full"
-                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                      style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
                     >
                       {step.step}
                     </span>
                     <span
                       className="text-xs px-2 py-1 rounded-full"
-                      style={{ background: "#D1FAE5", color: "#065f46" }}
+                      style={{ background: "var(--color-status-success-subtle)", color: "var(--color-status-success-on-subtle)" }}
                     >
                       {step.time}
                     </span>
                   </div>
-                  <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--foreground)" }}>
+                  <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--color-text-default)" }}>
                     {step.title}
                   </h3>
                   <p
                     className="font-jakarta text-base leading-[1.7] mb-3"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   >
                     {step.description}
                   </p>
-                  <div className="p-3 rounded-lg" style={{ background: "rgba(26,122,74,0.1)" }}>
-                    <span className="font-mono text-xs" style={{ color: "var(--primary)" }}>
+                  <div className="p-3 rounded-lg" style={{ background: "color-mix(in_srgb,_var(--color-status-success-solid)_10%,_transparent)" }}>
+                    <span className="font-mono text-xs" style={{ color: "var(--color-action-primary)" }}>
                       {step.process}
                     </span>
                   </div>
@@ -307,7 +307,7 @@ export default function TimetableGenerationGuide() {
 
           {/* Constraint Types */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Types of Constraints Handled
             </h2>
 
@@ -365,21 +365,21 @@ export default function TimetableGenerationGuide() {
                 <div
                   key={category.category}
                   className="p-5 rounded-xl"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <Settings className="w-5 h-5" style={{ color: "var(--primary)" }} />
-                    <h3 className="font-jakarta font-bold text-lg" style={{ color: "var(--foreground)" }}>
+                    <Settings className="w-5 h-5" style={{ color: "var(--color-action-primary)" }} />
+                    <h3 className="font-jakarta font-bold text-lg" style={{ color: "var(--color-text-default)" }}>
                       {category.category}
                     </h3>
                     <span
                       className="text-xs px-2 py-1 rounded-full"
-                      style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                      style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
                     >
                       {category.priority}
                     </span>
                   </div>
-                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--muted-foreground)" }}>
+                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--color-text-muted)" }}>
                     {category.description}
                   </p>
                   <ul className="space-y-1">
@@ -387,9 +387,9 @@ export default function TimetableGenerationGuide() {
                       <li key={constraint} className="flex items-center gap-2 text-sm">
                         <CheckCircle2
                           className="w-4 h-4 flex-shrink-0"
-                          style={{ color: "var(--primary)" }}
+                          style={{ color: "var(--color-action-primary)" }}
                         />
-                        <span style={{ color: "var(--muted-foreground)" }}>{constraint}</span>
+                        <span style={{ color: "var(--color-text-muted)" }}>{constraint}</span>
                       </li>
                     ))}
                   </ul>
@@ -400,7 +400,7 @@ export default function TimetableGenerationGuide() {
 
           {/* Performance Metrics */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Performance Metrics & Benchmarks
             </h2>
 
@@ -437,23 +437,23 @@ export default function TimetableGenerationGuide() {
                   key={stat.metric}
                   className="text-center p-6 rounded-xl"
                   style={{
-                    background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                    border: "1px solid rgba(26,122,74,0.2)",
+                    background: "linear-gradient(135deg, var(--color-surface-default) 0%, var(--color-surface-sunken) 100%)",
+                    border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 20%, transparent)",
                   }}
                 >
                   <div
                     className="font-jakarta font-bold text-2xl mb-2"
-                    style={{ color: "var(--primary)" }}
+                    style={{ color: "var(--color-action-primary)" }}
                   >
                     {stat.value}
                   </div>
                   <div
                     className="font-jakarta font-semibold text-sm mb-1"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
                     {stat.metric}
                   </div>
-                  <div className="font-jakarta text-xs" style={{ color: "var(--muted-foreground)" }}>
+                  <div className="font-jakarta text-xs" style={{ color: "var(--color-text-muted)" }}>
                     {stat.description}
                   </div>
                 </div>
@@ -463,11 +463,11 @@ export default function TimetableGenerationGuide() {
             <div
               className="p-6 rounded-2xl"
               style={{
-                background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-                color: "#ffffff",
+                background: "linear-gradient(135deg, var(--color-chrome-platform) 0%, var(--color-action-primary) 100%)",
+                color: "var(--color-text-inverse)",
               }}
             >
-              <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--accent-foreground)" }}>
+              <h3 className="font-jakarta font-bold text-lg mb-4" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 Scale Performance
               </h3>
               <div className="grid md:grid-cols-2 gap-6">
@@ -481,7 +481,7 @@ export default function TimetableGenerationGuide() {
                         <li key={item} className="flex items-center gap-2 text-sm">
                           <CheckCircle2
                             className="w-4 h-4 flex-shrink-0"
-                            style={{ color: "var(--accent-foreground)" }}
+                            style={{ color: "var(--color-text-on-primary-subtle)" }}
                           />
                           <span>{item}</span>
                         </li>
@@ -498,7 +498,7 @@ export default function TimetableGenerationGuide() {
                       <li key={item} className="flex items-center gap-2 text-sm">
                         <CheckCircle2
                           className="w-4 h-4 flex-shrink-0"
-                          style={{ color: "var(--accent-foreground)" }}
+                          style={{ color: "var(--color-text-on-primary-subtle)" }}
                         />
                         <span>{item}</span>
                       </li>
@@ -511,7 +511,7 @@ export default function TimetableGenerationGuide() {
 
           {/* Implementation Guide */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Implementation Guide: From Manual to Automated
             </h2>
 
@@ -565,34 +565,34 @@ export default function TimetableGenerationGuide() {
                 <div
                   key={phase.phase}
                   className="border-l-4 pl-6"
-                  style={{ borderColor: "var(--primary)" }}
+                  style={{ borderColor: "var(--color-action-primary)" }}
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <span
                       className="font-jakarta font-bold text-sm px-3 py-1 rounded-full"
-                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                      style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
                     >
                       {phase.phase}
                     </span>
                     <span
                       className="text-xs px-2 py-1 rounded-full"
-                      style={{ background: "#D1FAE5", color: "#065f46" }}
+                      style={{ background: "var(--color-status-success-subtle)", color: "var(--color-status-success-on-subtle)" }}
                     >
                       {phase.duration}
                     </span>
                   </div>
-                  <h3 className="font-jakarta font-bold text-lg mb-3" style={{ color: "var(--foreground)" }}>
+                  <h3 className="font-jakarta font-bold text-lg mb-3" style={{ color: "var(--color-text-default)" }}>
                     {phase.tasks?.[0]?.split(":")[0]?.trim() || ""}
                   </h3>
                   <ul className="space-y-1 mb-3">
                     {phase.tasks.map((task) => (
                       <li key={task} className="flex items-center gap-2 text-sm">
-                        <Target className="w-4 h-4 flex-shrink-0" style={{ color: "var(--primary)" }} />
-                        <span style={{ color: "var(--muted-foreground)" }}>{task}</span>
+                        <Target className="w-4 h-4 flex-shrink-0" style={{ color: "var(--color-action-primary)" }} />
+                        <span style={{ color: "var(--color-text-muted)" }}>{task}</span>
                       </li>
                     ))}
                   </ul>
-                  <div className="text-sm font-semibold" style={{ color: "var(--primary)" }}>
+                  <div className="text-sm font-semibold" style={{ color: "var(--color-action-primary)" }}>
                     Result: {phase.outcome}
                   </div>
                 </div>
@@ -602,7 +602,7 @@ export default function TimetableGenerationGuide() {
 
           {/* Success Stories */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Success Stories: Timetable Transformation
             </h2>
 
@@ -634,24 +634,24 @@ export default function TimetableGenerationGuide() {
                 <div
                   key={story.school}
                   className="p-6 rounded-2xl"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3
                         className="font-jakarta font-bold text-lg mb-1"
-                        style={{ color: "var(--foreground)" }}
+                        style={{ color: "var(--color-text-default)" }}
                       >
                         {story.school}
                       </h3>
-                      <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+                      <span className="text-sm" style={{ color: "var(--color-text-muted)" }}>
                         {story.size}
                       </span>
                     </div>
                     <div className="text-right">
                       <span
                         className="text-xs px-2 py-1 rounded-full"
-                        style={{ background: "#D1FAE5", color: "#065f46" }}
+                        style={{ background: "var(--color-status-success-subtle)", color: "var(--color-status-success-on-subtle)" }}
                       >
                         Success Story
                       </span>
@@ -659,26 +659,26 @@ export default function TimetableGenerationGuide() {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#ef4444" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--color-status-danger-solid)" }}>
                         Challenge:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--color-text-muted)" }}>
                         {story.challenge}
                       </span>
                     </div>
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "var(--primary)" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--color-action-primary)" }}>
                         Solution:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--color-text-muted)" }}>
                         {story.solution}
                       </span>
                     </div>
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "var(--accent-foreground)" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                         Results:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--color-text-muted)" }}>
                         {story.results}
                       </span>
                     </div>
@@ -690,7 +690,7 @@ export default function TimetableGenerationGuide() {
 
           {/* Future Enhancements */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Future of Timetable Generation
             </h2>
 
@@ -724,20 +724,20 @@ export default function TimetableGenerationGuide() {
                 <div
                   key={feature.feature}
                   className="p-5 rounded-xl"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
                   <h3
                     className="font-jakarta font-bold text-base mb-2"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
                     {feature.feature}
                   </h3>
-                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--muted-foreground)" }}>
+                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--color-text-muted)" }}>
                     {feature.description}
                   </p>
                   <div
                     className="text-xs px-2 py-1 rounded-full"
-                    style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                    style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
                   >
                     🚀 {feature.timeline}
                   </div>
@@ -748,17 +748,17 @@ export default function TimetableGenerationGuide() {
 
           {/* CTA */}
           <div className="text-center py-12">
-            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "var(--color-text-default)" }}>
               Ready to Save 2 Days Every Term?
             </h2>
-            <p className="font-jakarta text-lg mb-6" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg mb-6" style={{ color: "var(--color-text-muted)" }}>
               Join 200+ schools using automated timetable generation to create perfect schedules in
               minutes.
             </p>
             <Link
               href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-xl no-underline"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               Schedule Timetable Demo
               <ArrowRight className="w-5 h-5" />

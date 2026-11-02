@@ -30,8 +30,8 @@ export function TenantsAdminRail({ currentHref }: { currentHref: string }) {
                 className={cn(
                   "h-9 rounded-lg px-3 text-sm whitespace-nowrap",
                   active
-                    ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
-                    : "border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    ? "bg-emerald-700 text-[var(--color-text-on-primary)] shadow-sm hover:bg-emerald-800"
+                    : "border-emerald-200 bg-[var(--color-surface-default)] text-slate-700 hover:bg-emerald-50 hover:text-emerald-900"
                 )}
                 onClick={() => router.push(link.href)}
               >

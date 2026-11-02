@@ -331,7 +331,7 @@ export function FeatureFlagsManager({ className = "" }: FeatureFlagsManagerProps
 
       {/* Create Flag Modal */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[color-mix(in_srgb,var(--color-text-default)_50%,transparent)] flex items-center justify-center z-50">
           <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">

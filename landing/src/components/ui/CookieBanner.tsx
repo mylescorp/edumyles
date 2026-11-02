@@ -46,17 +46,17 @@ export default function CookieBanner() {
   return (
     <div
       className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 z-50 rounded-2xl p-5 shadow-2xl"
-      style={{ background: "var(--card)", border: "1px solid rgb(var(--primary-rgb) / 30%)" }}
+      style={{ background: "var(--color-surface-default)", border: "1px solid color-mix(in srgb, var(--color-action-primary) 30%, transparent)" }}
       role="dialog"
       aria-label="Cookie consent"
       aria-live="polite"
     >
-      <p className="font-jakarta text-sm mb-4 leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+      <p className="font-jakarta text-sm mb-4 leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
         We use cookies to improve your experience and analyse site performance. See our{" "}
         <Link
           href="/privacy"
           className="no-underline hover:underline transition-all duration-200"
-          style={{ color: "var(--accent-foreground)" }}
+          style={{ color: "var(--color-text-on-primary-subtle)" }}
         >
           Privacy Policy
         </Link>
@@ -67,7 +67,7 @@ export default function CookieBanner() {
           type="button"
           onClick={accept}
           className="flex-1 font-jakarta font-semibold text-sm py-2.5 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
-          style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+          style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
         >
           Accept All
         </button>
@@ -77,8 +77,8 @@ export default function CookieBanner() {
           className="flex-1 font-jakarta text-sm py-2.5 rounded-lg transition-all duration-200"
           style={{
             background: "transparent",
-            color: "var(--muted-foreground)",
-            border: "1px solid rgba(168,230,195,0.3)"
+            color: "var(--color-text-muted)",
+            border: "1px solid color-mix(in srgb, var(--color-status-success-on-subtle) 30%, transparent)"
           }}
         >
           Decline

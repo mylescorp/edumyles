@@ -1017,8 +1017,8 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                     <YAxis yAxisId="right" orientation="right" />
                     <Tooltip />
                     <Legend />
-                    <Line yAxisId="left" type="monotone" dataKey="downloads" stroke="var(--primary)" strokeWidth={2} name="Downloads" />
-                    <Line yAxisId="right" type="monotone" dataKey="newUsers" stroke="var(--success)" strokeWidth={2} name="New Users" />
+                    <Line yAxisId="left" type="monotone" dataKey="downloads" stroke="var(--color-action-primary)" strokeWidth={2} name="Downloads" />
+                    <Line yAxisId="right" type="monotone" dataKey="newUsers" stroke="var(--color-status-success-solid)" strokeWidth={2} name="New Users" />
                   </RechartsLineChart>
                 </ResponsiveContainer>
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
@@ -1054,11 +1054,11 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                       labelLine={false}
                       label={({ name, value }) => `${name}: ${value}%`}
                       outerRadius={80}
-                      fill="var(--info)"
+                      fill="var(--color-status-info-solid)"
                       dataKey="value"
                     >
                       {ANALYTICS_DATA.categoryDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={['var(--primary)', 'var(--success)', 'var(--info)', 'var(--warning)'][index]} />
+                        <Cell key={`cell-${index}`} fill={['var(--color-action-primary)', 'var(--color-status-success-solid)', 'var(--color-status-info-solid)', 'var(--color-status-warning-solid)'][index]} />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -1082,7 +1082,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                     <XAxis dataKey="tier" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="revenue" fill="var(--primary)" name="Revenue (KES)" />
+                    <Bar dataKey="revenue" fill="var(--color-action-primary)" name="Revenue (KES)" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -1102,14 +1102,14 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                     data={ANALYTICS_DATA.geographicData}
                     dataKey="users"
                     aspectRatio={4/3}
-                    stroke="var(--card)"
-                    fill="var(--primary)"
+                    stroke="var(--color-surface-default)"
+                    fill="var(--color-action-primary)"
                   >
                     <Tooltip content={({ payload }) => {
                       if (payload && payload[0]) {
                         const data = payload[0].payload;
                         return (
-                          <div className="bg-card p-2 border rounded shadow">
+                          <div className="bg-[var(--color-surface-default)] p-2 border rounded shadow">
                             <p className="font-medium">{data.country}</p>
                             <p className="text-sm">Users: {data.users.toLocaleString()}</p>
                             <p className="text-sm">Percentage: {data.percentage}%</p>
@@ -1139,9 +1139,9 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                     <PolarGrid />
                     <PolarAngleAxis dataKey="developer" />
                     <PolarRadiusAxis />
-                    <Radar name="Modules" dataKey="modules" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.6} />
-                    <Radar name="Downloads" dataKey="downloads" stroke="var(--success)" fill="var(--success)" fillOpacity={0.6} />
-                    <Radar name="Rating" dataKey="rating" stroke="var(--warning)" fill="var(--warning)" fillOpacity={0.6} />
+                    <Radar name="Modules" dataKey="modules" stroke="var(--color-action-primary)" fill="var(--color-action-primary)" fillOpacity={0.6} />
+                    <Radar name="Downloads" dataKey="downloads" stroke="var(--color-status-success-solid)" fill="var(--color-status-success-solid)" fillOpacity={0.6} />
+                    <Radar name="Rating" dataKey="rating" stroke="var(--color-status-warning-solid)" fill="var(--color-status-warning-solid)" fillOpacity={0.6} />
                     <Legend />
                     <Tooltip />
                   </RadarChart>
@@ -1153,7 +1153,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-em-accent rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm font-bold">{index + 1}</span>
+                          <span className="text-[var(--color-text-on-primary)] text-sm font-bold">{index + 1}</span>
                         </div>
                         <div>
                           <div className="font-medium">{dev.developer}</div>
@@ -1191,7 +1191,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
-                    <Area type="monotone" dataKey="newUsers" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.6} name="Revenue Growth" />
+                    <Area type="monotone" dataKey="newUsers" stroke="var(--color-action-primary)" fill="var(--color-action-primary)" fillOpacity={0.6} name="Revenue Growth" />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -1346,7 +1346,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
 
       {/* Add Module Modal */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[color-mix(in_srgb,var(--color-text-default)_50%,transparent)] flex items-center justify-center z-50">
           <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
@@ -1586,7 +1586,7 @@ export function MarketplaceManager({ className = "" }: MarketplaceManagerProps) 
 
       {/* Edit Module Modal */}
       {showEditModal && editingModule && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[color-mix(in_srgb,var(--color-text-default)_50%,transparent)] flex items-center justify-center z-50">
           <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">

@@ -16,7 +16,7 @@ function AffiliateApplicationSuccessContent() {
       <div className="max-w-2xl w-full">
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10 text-white" />
+            <CheckCircle2 className="w-10 h-10 text-[var(--color-text-on-primary)]" />
           </div>
           <h1 className="font-display text-4xl font-bold text-foreground mb-4">
             Application Submitted!
@@ -24,7 +24,7 @@ function AffiliateApplicationSuccessContent() {
           <p className="font-jakarta text-[18px] leading-7 text-muted-foreground mb-2">
             Your affiliate application has been received successfully.
           </p>
-          <p className="font-jakarta text-[15px] text-[var(--muted-foreground)]">
+          <p className="font-jakarta text-[15px] text-[var(--color-text-muted)]">
             Application ID: <span className="font-mono">{applicationId}</span>
           </p>
         </div>
@@ -87,7 +87,7 @@ function AffiliateApplicationSuccessContent() {
           </h2>
 
           <div className="space-y-4">
-            <div className="border-l-4 border-[var(--accent-foreground)] pl-4">
+            <div className="border-l-4 border-[var(--color-text-on-primary-subtle)] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-foreground mb-2">
                 10% Commission Rate
               </h3>
@@ -97,7 +97,7 @@ function AffiliateApplicationSuccessContent() {
               </p>
             </div>
 
-            <div className="border-l-4 border-[var(--accent-foreground)] pl-4">
+            <div className="border-l-4 border-[var(--color-text-on-primary-subtle)] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-foreground mb-2">
                 30-Day Cookie Tracking
               </h3>
@@ -106,7 +106,7 @@ function AffiliateApplicationSuccessContent() {
               </p>
             </div>
 
-            <div className="border-l-4 border-[var(--accent-foreground)] pl-4">
+            <div className="border-l-4 border-[var(--color-text-on-primary-subtle)] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-foreground mb-2">
                 Marketing Materials
               </h3>
@@ -116,7 +116,7 @@ function AffiliateApplicationSuccessContent() {
               </p>
             </div>
 
-            <div className="border-l-4 border-[var(--accent-foreground)] pl-4">
+            <div className="border-l-4 border-[var(--color-text-on-primary-subtle)] pl-4">
               <h3 className="font-jakarta text-[16px] font-bold text-foreground mb-2">
                 Real-Time Dashboard
               </h3>
@@ -144,7 +144,7 @@ function AffiliateApplicationSuccessContent() {
             </a>
           </div>
 
-          <div className="flex items-center justify-center gap-6 text-sm text-[var(--muted-foreground)]">
+          <div className="flex items-center justify-center gap-6 text-sm text-[var(--color-text-muted)]">
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
               <span>affiliates@edumyles.com</span>

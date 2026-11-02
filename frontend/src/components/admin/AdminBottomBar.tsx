@@ -36,7 +36,7 @@ export function AdminBottomBar() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-gray-200 px-4 py-2 z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-[var(--color-surface-default)] border-t border-gray-200 px-4 py-2 z-50">
       <div className="flex items-center justify-between max-w-screen-2xl mx-auto">
         {/* Left side — Navigation tabs */}
         <div className="flex items-center gap-1">
@@ -107,7 +107,7 @@ export function AdminBottomBar() {
               disabled={!chatInput.trim()}
               className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 bg-blue-500 hover:bg-blue-600"
             >
-              <Send className="h-3 w-3 text-white" />
+              <Send className="h-3 w-3 text-[var(--color-text-on-primary)]" />
             </Button>
           </div>
         </div>

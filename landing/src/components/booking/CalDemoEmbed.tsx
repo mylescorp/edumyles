@@ -134,8 +134,8 @@ export default function CalDemoEmbed({
         });
         scopedCal("ui", {
           styles: {
-            body: { background: "var(--card)" },
-            eventTypeListItem: { background: "var(--card)" },
+            body: { background: "var(--color-surface-default)" },
+            eventTypeListItem: { background: "var(--color-surface-default)" },
           },
         });
         scopedCal("on", {
@@ -189,7 +189,7 @@ export default function CalDemoEmbed({
   }, [demoRequestId, email, fullName, phone, schoolName]);
 
   return (
-    <div className="overflow-hidden rounded-[12px] border border-[var(--border)] bg-card shadow-sm">
+    <div className="overflow-hidden rounded-[12px] border border-[var(--color-border-default)] bg-card shadow-sm">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3 px-4 pt-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-muted">
@@ -213,14 +213,14 @@ export default function CalDemoEmbed({
         <div className="mx-4 flex flex-wrap gap-2">
           <a
             href="tel:+254743993715"
-            className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--border)] px-3 py-2 font-jakarta text-[13px] font-semibold text-foreground no-underline transition-colors hover:border-primary hover:bg-muted"
+            className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--color-border-default)] px-3 py-2 font-jakarta text-[13px] font-semibold text-foreground no-underline transition-colors hover:border-primary hover:bg-muted"
           >
             <Phone className="h-4 w-4" />
             Call
           </a>
           <a
             href="mailto:demo@edumyles.com"
-            className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--border)] px-3 py-2 font-jakarta text-[13px] font-semibold text-foreground no-underline transition-colors hover:border-primary hover:bg-muted"
+            className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--color-border-default)] px-3 py-2 font-jakarta text-[13px] font-semibold text-foreground no-underline transition-colors hover:border-primary hover:bg-muted"
           >
             <Mail className="h-4 w-4" />
             Email
@@ -229,7 +229,7 @@ export default function CalDemoEmbed({
       </div>
 
       {status === "error" ? (
-        <div className="mx-4 mb-4 flex gap-3 rounded-xl border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 font-jakarta text-sm text-[#9A1F2B]">
+        <div className="mx-4 mb-4 flex gap-3 rounded-xl border border-[var(--color-status-danger-on-subtle)] bg-[var(--color-surface-page)] px-4 py-3 font-jakarta text-sm text-[var(--color-status-danger-on-subtle)]">
           <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           The embedded calendar could not load. Please call or email our team and we will schedule
           the walkthrough manually.
@@ -243,7 +243,7 @@ export default function CalDemoEmbed({
       ) : null}
 
       {status !== "error" ? (
-      <div className="relative border-t border-[#edf4ef] bg-card">
+      <div className="relative border-t border-[var(--color-surface-sunken)] bg-card">
         {status === "loading" ? (
           <div className="absolute inset-x-0 top-0 z-10 flex min-h-[320px] items-center justify-center bg-card/85 px-6 text-center backdrop-blur-sm">
             <div>
@@ -251,7 +251,7 @@ export default function CalDemoEmbed({
               <p className="font-jakarta text-sm font-semibold text-foreground">
                 Loading available demo slots
               </p>
-              <p className="mt-1 font-jakarta text-xs text-[var(--muted-foreground)]">
+              <p className="mt-1 font-jakarta text-xs text-[var(--color-text-muted)]">
                 The scheduling calendar is preparing times in your browser.
               </p>
             </div>

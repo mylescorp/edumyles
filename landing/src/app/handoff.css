@@ -1,103 +1,53 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&display=swap");
 
 /* Public marketing site palette and geometry from the 2026 website handoff. */
+
 :root {
   color-scheme: light;
-  --bg: #f1f6f4;
-  --card: #ffffff;
-  --ink: #10201c;
-  --mut: #4b5c57;
-  --pri: #276b61;
-  --prih: #1e5a50;
-  --onpri: #ffffff;
-  --tint: #e3efec;
-  --deep: #0f2a24;
-  --handoff-gold: #e8a317;
-  --em: #2f4f63;
-  --fbd: #7c8b86;
-  --link: #1e5a50;
-  --ondeep: #c4d9d3;
-  --ondeephi: #e6f4f0;
-  --deepacc: #9ed8cc;
-  --deepem: #bfe3f5;
-  --deepbd: #9dbdb5;
-  --deepbd2: #4b7a70;
-  --background: var(--bg);
-  --foreground: var(--ink);
-  --card-foreground: var(--ink);
-  --popover: var(--card);
-  --popover-foreground: var(--ink);
-  --primary: var(--pri);
-  --primary-foreground: var(--onpri);
-  --secondary: var(--tint);
-  --secondary-foreground: var(--ink);
-  --muted: var(--tint);
-  --muted-foreground: var(--mut);
-  --accent: var(--tint);
-  --accent-foreground: var(--link);
-  --border: #dde6e3;
-  --input: var(--fbd);
-  --ring: var(--pri);
-  --background-rgb: 241 246 244;
-  --foreground-rgb: 16 32 28;
-  --card-rgb: 255 255 255;
-  --primary-rgb: 39 107 97;
-  --primary-foreground-rgb: 255 255 255;
-  --border-rgb: 221 230 227;
-  --radius: 24px;
-  --radius-card: 24px;
-  --radius-panel: 32px;
-  --radius-band: 40px;
-  --platform-chrome: var(--deep);
+  --bg: var(--color-surface-page);
+  --card: var(--color-surface-default);
+  --ink: var(--color-text-default);
+  --mut: var(--color-text-muted);
+  --pri: var(--color-action-primary);
+  --prih: var(--color-action-primary-hover);
+  --onpri: var(--color-text-on-primary);
+  --tint: var(--color-surface-sunken);
+  --deep: var(--color-chrome-platform);
+  --handoff-gold: var(--color-action-accent);
+  --em: var(--color-status-info-solid);
+  --fbd: var(--color-border-strong);
+  --link: var(--color-action-primary);
+  --ondeep: var(--color-text-inverse);
+  --ondeephi: var(--color-text-inverse);
+  --deepacc: var(--color-action-primary-hover);
+  --deepem: var(--color-status-info-on-subtle);
+  --deepbd: var(--color-border-strong);
+  --deepbd2: var(--color-status-info-on-subtle);
+  --background: var(--color-surface-page);
+  --foreground: var(--color-text-default);
+  --card-foreground: var(--color-text-default);
+  --popover: var(--color-surface-raised);
+  --popover-foreground: var(--color-text-default);
+  --primary: var(--color-action-primary);
+  --primary-foreground: var(--color-text-on-primary);
+  --secondary: var(--color-surface-sunken);
+  --secondary-foreground: var(--color-text-default);
+  --muted: var(--color-surface-sunken);
+  --muted-foreground: var(--color-text-muted);
+  --accent: var(--color-action-primary-subtle);
+  --accent-foreground: var(--color-action-primary-text);
+  --border: var(--color-border-default);
+  --input: var(--color-border-strong);
+  --ring: var(--color-focus-ring);
+  --platform-chrome: var(--color-chrome-platform);
 }
 
 html[data-theme="dark"],
 html.dark {
   color-scheme: dark;
-  --bg: #0b111c;
-  --card: #172235;
-  --ink: #f8fafc;
-  --mut: #a3b1c2;
-  --pri: #6fa2f3;
-  --prih: #6fa2f3;
-  --onpri: #082a56;
-  --tint: #243247;
-  --accent: #263d5d;
-  --afg: #bfdbfe;
-  --deep: #1a395b;
-  --handoff-gold: #c79639;
-  --em: #bfdbfe;
-  --fbd: #6b7c93;
-  --link: #6fa2f3;
-  --ondeep: #dce5f0;
-  --ondeephi: #f8fafc;
-  --deepacc: #bfdbfe;
-  --deepem: #bfdbfe;
-  --deepbd: #6b7c93;
-  --deepbd2: #6b7c93;
-  --background: var(--bg);
-  --foreground: var(--ink);
-  --card-foreground: var(--ink);
-  --popover: var(--card);
-  --popover-foreground: var(--ink);
-  --primary: var(--pri);
-  --primary-foreground: var(--onpri);
-  --secondary: #243247;
-  --secondary-foreground: #e2e8f0;
-  --muted: #243247;
-  --muted-foreground: var(--mut);
-  --accent: #263d5d;
-  --accent-foreground: #bfdbfe;
-  --border: #2b3a4f;
-  --input: #6b7c93;
-  --ring: var(--pri);
-  --background-rgb: 11 17 28;
-  --foreground-rgb: 248 250 252;
-  --card-rgb: 23 34 53;
-  --primary-rgb: 111 162 243;
-  --primary-foreground-rgb: 8 42 86;
-  --border-rgb: 43 58 79;
-  --platform-chrome: var(--deep);
+  --ondeep: var(--color-text-default);
+  --ondeephi: var(--color-text-default);
+  --deepacc: var(--color-action-primary-hover);
 }
 
 html,
@@ -115,7 +65,7 @@ main button,
 main input,
 main select,
 main textarea {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 html[data-theme] main h1:not(.handoff-home-copy h1) {
@@ -150,7 +100,7 @@ html[data-theme] main textarea {
 }
 
 body {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   line-height: 1.55;
 }
 
@@ -169,7 +119,7 @@ nav[role="banner"] {
   border: 1px solid var(--border) !important;
   border-radius: 999px;
   background: color-mix(in srgb, var(--card) 94%, transparent) !important;
-  box-shadow: 0 8px 30px rgb(15 42 36 / 8%);
+  box-shadow: 0 8px 30px color-mix(in srgb, var(--color-chrome-platform) 8%, transparent);
   backdrop-filter: blur(16px);
 }
 
@@ -208,7 +158,7 @@ footer[role="contentinfo"] {
   max-width: 1200px;
   margin: 96px auto 24px;
   overflow: hidden;
-  color: #fff;
+  color: var(--color-text-inverse);
   background: var(--deep) !important;
   border-radius: 40px;
 }
@@ -246,11 +196,11 @@ footer[role="contentinfo"] span {
 }
 
 footer[role="contentinfo"] a:not(.footer-social-link):hover {
-  color: #fff !important;
+  color: var(--color-text-inverse) !important;
 }
 
 footer[role="contentinfo"] > div:last-child {
-  border-color: rgb(255 255 255 / 16%) !important;
+  border-color: color-mix(in srgb, var(--color-text-inverse) 16%, transparent) !important;
 }
 
 footer[role="contentinfo"] > div:last-child > div > p {
@@ -338,7 +288,7 @@ main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has
   border-radius: 999px !important;
   background: var(--card) !important;
   color: var(--ink) !important;
-  box-shadow: 0 4px 14px rgb(15 42 36 / 6%);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--color-chrome-platform) 6%, transparent);
 }
 
 main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background:var(--primary)"],
@@ -368,12 +318,12 @@ html[data-theme] .content-section.alt {
   padding: 64px 48px;
   border-radius: 32px;
   background: var(--deep);
-  color: #fff;
+  color: var(--color-text-inverse);
 }
 
 .handoff-problem-band h2,
 .handoff-problem-band h3 {
-  color: #fff !important;
+  color: var(--color-text-inverse) !important;
 }
 
 .handoff-problem-band h2 em {
@@ -387,7 +337,7 @@ html[data-theme] .content-section.alt {
 .handoff-problem-card {
   padding: 28px;
   border-radius: 24px !important;
-  background: rgb(255 255 255 / 7%);
+  background: color-mix(in srgb, var(--color-text-inverse) 7%, transparent);
   box-shadow: none;
 }
 
@@ -551,9 +501,9 @@ html.dark #hero::after {
   aspect-ratio: 640 / 420;
   overflow: hidden;
   border-radius: 22px;
-  background: #fff;
-  box-shadow: 0 24px 60px rgb(16 42 86 / 18%);
-  color: #171717;
+  background: var(--color-surface-default);
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--color-chrome-platform) 18%, transparent);
+  color: var(--color-text-default);
   font: 11px Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -563,7 +513,7 @@ html.dark #hero::after {
   align-items: center;
   gap: 6px;
   padding: 0 14px;
-  background: #eaf2ef;
+  background: var(--color-action-primary-subtle);
 }
 
 .handoff-browser-bar i {
@@ -571,15 +521,15 @@ html.dark #hero::after {
   height: 10px;
   flex: 0 0 10px;
   border-radius: 50%;
-  background: #cbdad5;
+  background: var(--color-border-default);
 }
 
 .handoff-browser-bar span {
   margin: 0 auto;
   padding: 3px 40px;
   border-radius: 999px;
-  background: #fff;
-  color: #666;
+  background: var(--color-surface-default);
+  color: var(--color-text-muted);
   font-size: 10px;
 }
 
@@ -591,7 +541,7 @@ html.dark #hero::after {
 .handoff-sidebar {
   flex: 0 0 22%;
   padding: 14px 12px;
-  background: #fff;
+  background: var(--color-surface-default);
 }
 
 .handoff-school,
@@ -615,13 +565,13 @@ html.dark #hero::after {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  background: #276b61;
-  color: white;
+  background: var(--color-action-primary);
+  color: var(--color-text-inverse);
 }
 
 .handoff-menu-item {
   padding: 7px 8px;
-  color: #666;
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
 
@@ -629,18 +579,18 @@ html.dark #hero::after {
   width: 12px;
   height: 12px;
   border-radius: 4px;
-  background: #c7d8d3;
+  background: var(--color-border-default);
 }
 
 .handoff-menu-item.selected {
   border-radius: 8px;
-  background: #e3efec;
-  color: #164a42;
+  background: var(--color-surface-sunken);
+  color: var(--color-status-success-on-subtle);
   font-weight: 600;
 }
 
 .handoff-menu-item.selected i {
-  background: #276b61;
+  background: var(--color-action-primary);
 }
 
 .handoff-dashboard-content {
@@ -650,7 +600,7 @@ html.dark #hero::after {
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  background: #f1f6f4;
+  background: var(--color-surface-page);
 }
 
 .handoff-dashboard-heading,
@@ -673,8 +623,8 @@ html.dark #hero::after {
 .handoff-payments span {
   padding: 4px 10px;
   border-radius: 999px;
-  background: #e3f4ea;
-  color: #14532d;
+  background: var(--color-status-success-subtle);
+  color: var(--color-status-success-on-subtle);
   font-size: 10px;
   font-weight: 600;
 }
@@ -686,12 +636,12 @@ html.dark #hero::after {
   flex: 1;
   padding: 12px;
   border-radius: 14px;
-  background: white;
-  box-shadow: 0 1px 2px rgb(16 42 86 / 8%);
+  background: var(--color-surface-default);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--color-chrome-platform) 8%, transparent);
 }
 
 .handoff-metric small {
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .handoff-metric > i {
@@ -723,11 +673,11 @@ html.dark #hero::after {
 .handoff-chart i {
   flex: 1;
   border-radius: 5px 5px 0 0;
-  background: #7cc8ba;
+  background: var(--color-status-success-solid);
 }
 
 .handoff-chart i:nth-child(odd) {
-  background: #cfe5e0;
+  background: var(--color-status-success-subtle);
 }
 
 .handoff-payments {
@@ -747,15 +697,15 @@ html.dark #hero::after {
 }
 
 .handoff-payments span:nth-child(3) {
-  background: #fff1d6;
-  color: #7a3e00;
+  background: var(--color-status-warning-subtle);
+  color: var(--color-status-warning-on-subtle);
 }
 
 .handoff-payments span i {
   width: 42px;
   height: 8px;
   border-radius: 4px;
-  background: #d5e3df;
+  background: var(--color-border-default);
 }
 
 .handoff-payment-note {
@@ -893,7 +843,7 @@ html[data-theme="dark"] .feature-card,
 html.dark .card,
 html.dark .pricing-card,
 html.dark .feature-card {
-  border: 1px solid #2b3a4f;
+  border: 1px solid var(--color-border-default);
   box-shadow: none;
 }
 

@@ -321,7 +321,7 @@ function MarketplaceAdminContent() {
               return (
                 <div
                   key={module._id}
-                  className="rounded-2xl border border-slate-200 bg-card px-4 py-4 shadow-sm"
+                  className="rounded-2xl border border-slate-200 bg-[var(--color-surface-default)] px-4 py-4 shadow-sm"
                 >
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div className="flex items-start gap-3">
@@ -410,23 +410,23 @@ function MarketplaceAdminContent() {
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">{selectedModule.shortDescription}</p>
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <div className="rounded-xl border border-slate-200 bg-card p-3">
-                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Publisher</p>
-                    <p className="mt-2 text-sm font-semibold text-foreground">{selectedModule.publisherName}</p>
+                  <div className="rounded-xl border border-slate-200 bg-[var(--color-surface-default)] p-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Publisher</p>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">{selectedModule.publisherName}</p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-card p-3">
-                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Queue Age</p>
-                    <p className="mt-2 text-sm font-semibold text-foreground">
+                  <div className="rounded-xl border border-slate-200 bg-[var(--color-surface-default)] p-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Queue Age</p>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">
                       {daysWaiting(selectedModule.createdAt)} day{daysWaiting(selectedModule.createdAt) === 1 ? "" : "s"}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-card p-3">
-                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Version</p>
-                    <p className="mt-2 text-sm font-semibold text-foreground">v{selectedModule.version}</p>
+                  <div className="rounded-xl border border-slate-200 bg-[var(--color-surface-default)] p-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Version</p>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">v{selectedModule.version}</p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-card p-3">
-                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Submitted</p>
-                    <p className="mt-2 text-sm font-semibold text-foreground">{formatDate(selectedModule.createdAt)}</p>
+                  <div className="rounded-xl border border-slate-200 bg-[var(--color-surface-default)] p-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Submitted</p>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">{formatDate(selectedModule.createdAt)}</p>
                   </div>
                 </div>
               </div>

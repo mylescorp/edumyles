@@ -25,13 +25,13 @@ export const metadata: Metadata = {
 
 export default function SecondarySchoolsPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* ── SECTION 1: Hero ────────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "580px",
         }}
@@ -40,7 +40,7 @@ export default function SecondarySchoolsPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -49,9 +49,9 @@ export default function SecondarySchoolsPage() {
           <div
             className="inline-block font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgb(var(--primary-rgb) / 12%)",
-              border: "1px solid var(--accent-foreground)",
-              color: "var(--accent-foreground)",
+              background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+              border: "1px solid var(--color-text-on-primary-subtle)",
+              color: "var(--color-text-on-primary-subtle)",
             }}
           >
             For Secondary Schools
@@ -60,11 +60,11 @@ export default function SecondarySchoolsPage() {
           {/* H1 */}
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--color-text-default)" }}
           >
             From Form 1 to Form 4. <br className="hidden sm:block" />
             Every module your{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               secondary school needs.
             </em>
           </h1>
@@ -72,7 +72,7 @@ export default function SecondarySchoolsPage() {
           {/* Subtitle */}
           <p
             className="font-light leading-[1.8] mb-8 mx-auto"
-            style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "680px" }}
+            style={{ fontSize: "18px", color: "var(--color-text-muted)", maxWidth: "680px" }}
           >
             KCSE gradebook, CBC Senior, auto-timetabling, M-Pesa fee collection, HR &amp; payroll —
             unified in one platform built for Kenyan secondary schools.
@@ -83,7 +83,7 @@ export default function SecondarySchoolsPage() {
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               Start Free Trial →
             </a>
@@ -92,8 +92,8 @@ export default function SecondarySchoolsPage() {
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgba(255,255,255,0.4)",
-                color: "#ffffff",
+                border: "2px solid color-mix(in srgb, var(--color-surface-default) 40%, transparent)",
+                color: "var(--color-text-inverse)",
               }}
             >
               Book a Demo
@@ -108,9 +108,9 @@ export default function SecondarySchoolsPage() {
                   key={badge}
                   className="font-semibold text-[12px] px-4 py-2 rounded-[50px]"
                   style={{
-                    background: "rgba(255,255,255,0.07)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    color: "var(--muted-foreground)",
+                    background: "color-mix(in srgb, var(--color-surface-default) 7%, transparent)",
+                    border: "1px solid color-mix(in srgb, var(--color-surface-default) 20%, transparent)",
+                    color: "var(--color-text-muted)",
                   }}
                 >
                   ✓ {badge}
@@ -122,7 +122,7 @@ export default function SecondarySchoolsPage() {
           {/* Stats row */}
           <div
             className="grid grid-cols-1 sm:grid-cols-3 gap-px mx-auto max-w-[900px] overflow-hidden rounded-2xl"
-            style={{ border: "1px solid rgb(var(--primary-rgb) / 20%)", background: "rgb(var(--primary-rgb) / 20%)" }}
+            style={{ border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)", background: "color-mix(in srgb, var(--color-action-primary) 20%, transparent)" }}
           >
             {[
               { stat: "1,100", label: "avg students per school" },
@@ -132,15 +132,15 @@ export default function SecondarySchoolsPage() {
               <div
                 key={stat}
                 className="text-center py-6 px-4"
-                style={{ background: "rgba(6,26,18,0.95)" }}
+                style={{ background: "color-mix(in_srgb,_var(--color-surface-page)_95%,_transparent)" }}
               >
                 <div
                   className="font-display font-bold mb-1"
-                  style={{ fontSize: "clamp(1.6rem,3vw,2.25rem)", color: "var(--accent-foreground)" }}
+                  style={{ fontSize: "clamp(1.6rem,3vw,2.25rem)", color: "var(--color-text-on-primary-subtle)" }}
                 >
                   {stat}
                 </div>
-                <div className="text-[13px] font-medium" style={{ color: "var(--muted-foreground)" }}>
+                <div className="text-[13px] font-medium" style={{ color: "var(--color-text-muted)" }}>
                   {label}
                 </div>
               </div>
@@ -150,18 +150,18 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 2: Pain Points ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--platform-chrome)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-chrome-platform)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-12">
             <p
               className="font-semibold text-[13px] uppercase tracking-[0.12em] mb-3"
-              style={{ color: "#B9CBD6" }}
+              style={{ color: "var(--color-text-muted)" }}
             >
               The challenges secondary schools face
             </p>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-inverse)" }}
             >
               Sound familiar?
             </h2>
@@ -188,24 +188,24 @@ export default function SecondarySchoolsPage() {
                 key={num}
                 className="rounded-2xl p-7"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 5%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
                 }}
               >
                 <div className="flex items-start gap-4 mb-4">
                   <span
                     className="font-display font-bold text-[2rem] leading-none"
-                    style={{ color: "#B9CBD6", opacity: 0.85 }}
+                    style={{ color: "var(--color-text-muted)", opacity: 0.85 }}
                   >
                     {num}
                   </span>
                   <Icon
                     className="w-8 h-8 mt-1 flex-shrink-0"
                     strokeWidth={1.5}
-                    style={{ color: "#B9CBD6" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   />
                 </div>
-                <p className="leading-[1.8] text-[15px]" style={{ color: "#D5E1DE" }}>
+                <p className="leading-[1.8] text-[15px]" style={{ color: "var(--color-action-primary-disabled)" }}>
                   {text}
                 </p>
               </div>
@@ -215,22 +215,22 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 3: How It Works ────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)", color: "var(--color-status-warning-solid)" }}
             >
               Getting Started
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               Live in under 4 weeks
             </h2>
-            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
               A dedicated onboarding team guides you every step of the way.
             </p>
           </div>
@@ -258,26 +258,26 @@ export default function SecondarySchoolsPage() {
               <div
                 key={step}
                 className="relative rounded-2xl p-8"
-                style={{ border: "1px solid var(--border)", boxShadow: "0 2px 16px rgba(6,26,18,0.05)" }}
+                style={{ border: "1px solid var(--color-border-default)", boxShadow: "0 2px 16px color-mix(in srgb, var(--color-surface-page) 5%, transparent)" }}
               >
                 <div
                   className="inline-flex items-center gap-2 font-semibold text-[12px] mb-5 px-3 py-1.5 rounded-[50px]"
-                  style={{ background: "rgb(var(--primary-rgb) / 12%)", color: "#9A5D00" }}
+                  style={{ background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)", color: "var(--color-status-warning-solid)" }}
                 >
                   {step}
                 </div>
                 <h3
                   className="font-display font-bold text-[1.3rem] mb-3 leading-[1.3]"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {title}
                 </h3>
-                <p className="text-[14px] leading-[1.75] mb-5" style={{ color: "var(--muted-foreground)" }}>
+                <p className="text-[14px] leading-[1.75] mb-5" style={{ color: "var(--color-text-muted)" }}>
                   {desc}
                 </p>
                 <div
                   className="inline-flex items-center gap-1.5 font-semibold text-[12px] px-3 py-1 rounded-full"
-                  style={{ background: "var(--background)", color: "var(--primary)" }}
+                  style={{ background: "var(--color-surface-page)", color: "var(--color-action-primary)" }}
                 >
                   <Clock className="w-3 h-3" />
                   {time}
@@ -289,22 +289,22 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 4: Core Modules ────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
             >
               13 Production Modules
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               Everything a secondary school needs
             </h2>
-            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
               11 integrated modules, built for Kenyan secondary education from the ground up.
             </p>
           </div>
@@ -359,18 +359,18 @@ export default function SecondarySchoolsPage() {
               <div
                 key={title}
                 className="rounded-2xl p-6 bg-card"
-                style={{ border: "1px solid var(--border)", boxShadow: "0 2px 16px rgba(6,26,18,0.05)" }}
+                style={{ border: "1px solid var(--color-border-default)", boxShadow: "0 2px 16px color-mix(in srgb, var(--color-surface-page) 5%, transparent)" }}
               >
                 <div className="mb-4">
-                  <Icon className="w-8 h-8" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+                  <Icon className="w-8 h-8" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
                 </div>
                 <h3
                   className="font-display font-bold text-[1.1rem] mb-2 leading-[1.3]"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {title}
                 </h3>
-                <p className="text-[14px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="text-[14px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
                   {desc}
                 </p>
               </div>
@@ -380,19 +380,19 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 5: KCSE & Timetabling Deep-Dive ──────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--muted)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-sunken)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-14">
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               Two capabilities that{" "}
-              <em className="italic" style={{ color: "var(--primary)" }}>
+              <em className="italic" style={{ color: "var(--color-action-primary)" }}>
                 define a secondary school.
               </em>
             </h2>
-            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="text-[16px] leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
               Deep-dive into the modules that matter most.
             </p>
           </div>
@@ -400,17 +400,17 @@ export default function SecondarySchoolsPage() {
             {/* LEFT: KCSE Gradebook */}
             <div
               className="rounded-2xl p-8"
-              style={{ background: "var(--card)", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
+              style={{ background: "var(--color-surface-default)", boxShadow: "0 4px 24px color-mix(in srgb, var(--color-surface-page) 8%, transparent)" }}
             >
               <div
                 className="inline-flex items-center gap-2 font-semibold text-[12px] mb-5 px-3 py-1.5 rounded-[50px]"
-                style={{ background: "rgb(var(--primary-rgb) / 12%)", color: "#9A5D00" }}
+                style={{ background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)", color: "var(--color-status-warning-solid)" }}
               >
                 KCSE &amp; CBC Senior Gradebook
               </div>
               <h3
                 className="font-display font-bold text-[1.4rem] mb-5 leading-[1.3]"
-                style={{ color: "var(--foreground)" }}
+                style={{ color: "var(--color-text-default)" }}
               >
                 Grades, ranks, and report cards — automated.
               </h3>
@@ -427,9 +427,9 @@ export default function SecondarySchoolsPage() {
                     <CheckCircle2
                       className="w-4 h-4 mt-0.5 flex-shrink-0"
                       strokeWidth={2}
-                      style={{ color: "var(--primary)" }}
+                      style={{ color: "var(--color-action-primary)" }}
                     />
-                    <span className="text-[14px] leading-[1.7]" style={{ color: "var(--foreground)" }}>
+                    <span className="text-[14px] leading-[1.7]" style={{ color: "var(--color-text-default)" }}>
                       {item}
                     </span>
                   </li>
@@ -440,17 +440,17 @@ export default function SecondarySchoolsPage() {
             {/* RIGHT: Auto-Timetabling */}
             <div
               className="rounded-2xl p-8"
-              style={{ background: "var(--card)", boxShadow: "0 4px 24px rgba(6,26,18,0.08)" }}
+              style={{ background: "var(--color-surface-default)", boxShadow: "0 4px 24px color-mix(in srgb, var(--color-surface-page) 8%, transparent)" }}
             >
               <div
                 className="inline-flex items-center gap-2 font-semibold text-[12px] mb-5 px-3 py-1.5 rounded-[50px]"
-                style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
               >
                 Auto-Timetabling
               </div>
               <h3
                 className="font-display font-bold text-[1.4rem] mb-5 leading-[1.3]"
-                style={{ color: "var(--foreground)" }}
+                style={{ color: "var(--color-text-default)" }}
               >
                 Two weeks of work done in under an hour.
               </h3>
@@ -467,9 +467,9 @@ export default function SecondarySchoolsPage() {
                     <CheckCircle2
                       className="w-4 h-4 mt-0.5 flex-shrink-0"
                       strokeWidth={2}
-                      style={{ color: "var(--primary)" }}
+                      style={{ color: "var(--color-action-primary)" }}
                     />
-                    <span className="text-[14px] leading-[1.7]" style={{ color: "var(--foreground)" }}>
+                    <span className="text-[14px] leading-[1.7]" style={{ color: "var(--color-text-default)" }}>
                       {item}
                     </span>
                   </li>
@@ -481,12 +481,12 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 6: Payroll Deep-Dive ──────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-6">
             <h2
               className="font-display font-bold leading-[1.2] mb-5"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-inverse)" }}
             >
               Payroll that&apos;s actually accurate.
             </h2>
@@ -494,14 +494,14 @@ export default function SecondarySchoolsPage() {
           <div
             className="max-w-[800px] mx-auto rounded-2xl p-8 mb-12 text-center"
             style={{
-              background: "rgb(var(--primary-rgb) / 8%)",
-              border: "1px solid rgb(var(--primary-rgb) / 25%)",
+              background: "color-mix(in srgb, var(--color-action-primary) 8%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--color-action-primary) 25%, transparent)",
             }}
           >
-            <p className="text-[16px] leading-[1.9]" style={{ color: "var(--foreground)" }}>
+            <p className="text-[16px] leading-[1.9]" style={{ color: "var(--color-text-default)" }}>
               Most Kenyan schools overpay or underpay statutory deductions because they use outdated
               calculators.{" "}
-              <strong style={{ color: "var(--accent-foreground)" }}>
+              <strong style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 EduMyles is updated whenever PAYE, SHA, or NSSF rates change
               </strong>{" "}
               — so your payroll is always compliant, without any manual intervention.
@@ -534,23 +534,23 @@ export default function SecondarySchoolsPage() {
                 key={title}
                 className="rounded-2xl p-6"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 5%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
                 }}
               >
                 <div
                   className="font-display font-bold text-[1.5rem] mb-1"
-                  style={{ color: "var(--accent-foreground)" }}
+                  style={{ color: "var(--color-text-on-primary-subtle)" }}
                 >
                   {title}
                 </div>
                 <div
                   className="font-semibold text-[12px] uppercase tracking-wider mb-3"
-                  style={{ color: "var(--muted-foreground)" }}
+                  style={{ color: "var(--color-text-muted)" }}
                 >
                   {subtitle}
                 </div>
-                <p className="text-[13px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="text-[13px] leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
                   {desc}
                 </p>
               </div>
@@ -560,7 +560,7 @@ export default function SecondarySchoolsPage() {
             <Link
               href="/blog/how-kenyan-schools-manage-payroll"
               className="inline-flex items-center gap-2 font-semibold text-[14px] no-underline"
-              style={{ color: "var(--accent-foreground)" }}
+              style={{ color: "var(--color-text-on-primary-subtle)" }}
             >
               See payroll docs →
             </Link>
@@ -569,7 +569,7 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 7: Results / Stats Bar ────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-action-primary)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
             {[
@@ -581,11 +581,11 @@ export default function SecondarySchoolsPage() {
               <div key={stat}>
                 <div
                   className="font-display font-bold mb-2"
-                  style={{ fontSize: "clamp(2rem,4vw,2.75rem)", color: "var(--primary-foreground)" }}
+                  style={{ fontSize: "clamp(2rem,4vw,2.75rem)", color: "var(--color-text-on-primary)" }}
                 >
                   {stat}
                 </div>
-                <div className="text-[14px] font-medium leading-[1.5]" style={{ color: "var(--primary-foreground)" }}>
+                <div className="text-[14px] font-medium leading-[1.5]" style={{ color: "var(--color-text-on-primary)" }}>
                   {label}
                 </div>
               </div>
@@ -595,14 +595,14 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 8: Testimonial ────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--muted)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-sunken)" }}>
         <div className="max-w-[820px] mx-auto text-center">
-          <div className="text-[5rem] leading-none mb-4" style={{ color: "var(--accent-foreground)" }}>
+          <div className="text-[5rem] leading-none mb-4" style={{ color: "var(--color-text-on-primary-subtle)" }}>
             &ldquo;
           </div>
           <blockquote
             className="font-display italic leading-[1.85] mb-8"
-            style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.1rem,2vw,1.4rem)", color: "var(--color-text-default)" }}
           >
             Our school has 1,100 students across 12 streams. Timetabling used to take our deputy
             principal two weeks. EduMyles generates a conflict-free timetable in under an hour. That
@@ -611,13 +611,13 @@ export default function SecondarySchoolsPage() {
           <div className="inline-flex items-center gap-3 mx-auto">
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-[1rem] flex-shrink-0"
-              style={{ background: "var(--primary)", color: "var(--foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-default)" }}
             >
               SK
             </div>
-            <p className="font-semibold text-[14px] text-left" style={{ color: "var(--primary)" }}>
+            <p className="font-semibold text-[14px] text-left" style={{ color: "var(--color-action-primary)" }}>
               Sarah K.
-              <span className="block font-normal text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+              <span className="block font-normal text-[13px]" style={{ color: "var(--color-text-muted)" }}>
                 Deputy Principal, Upperhill Secondary School, Nairobi
               </span>
             </p>
@@ -626,36 +626,36 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 9: Comparison Table ───────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[1000px] mx-auto">
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)", color: "var(--color-status-warning-solid)" }}
             >
               EduMyles vs Traditional
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               See the difference clearly
             </h2>
           </div>
-          <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid var(--border)" }}>
+          <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid var(--color-border-default)" }}>
             <table className="w-full text-[14px]" style={{ borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ background: "var(--platform-chrome)" }}>
+                <tr style={{ background: "var(--color-chrome-platform)" }}>
                   <th
                     className="text-left px-6 py-4 font-semibold"
-                    style={{ color: "#F4F8F7", width: "30%" }}
+                    style={{ color: "var(--color-surface-page)", width: "30%" }}
                   >
                     Feature
                   </th>
-                  <th className="text-left px-6 py-4 font-semibold" style={{ color: "#D5E1DE" }}>
+                  <th className="text-left px-6 py-4 font-semibold" style={{ color: "var(--color-action-primary-disabled)" }}>
                     Manual / Traditional
                   </th>
-                  <th className="text-left px-6 py-4 font-semibold" style={{ color: "#B9CBD6" }}>
+                  <th className="text-left px-6 py-4 font-semibold" style={{ color: "var(--color-text-muted)" }}>
                     EduMyles
                   </th>
                 </tr>
@@ -696,21 +696,21 @@ export default function SecondarySchoolsPage() {
                   <tr
                     key={feature}
                     style={{
-                      background: i % 2 === 0 ? "var(--card)" : "var(--muted)",
-                      borderTop: "1px solid var(--border)",
+                      background: i % 2 === 0 ? "var(--color-surface-default)" : "var(--color-surface-sunken)",
+                      borderTop: "1px solid var(--color-border-default)",
                     }}
                   >
-                    <td className="px-6 py-4 font-semibold" style={{ color: "var(--foreground)" }}>
+                    <td className="px-6 py-4 font-semibold" style={{ color: "var(--color-text-default)" }}>
                       {feature}
                     </td>
-                    <td className="px-6 py-4" style={{ color: "#888" }}>
+                    <td className="px-6 py-4" style={{ color: "var(--color-text-disabled)" }}>
                       <span className="flex items-center gap-2">
-                        <span style={{ color: "#d32f2f" }}>✗</span> {manual}
+                        <span style={{ color: "var(--color-status-danger-solid)" }}>✗</span> {manual}
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-medium" style={{ color: "var(--primary)" }}>
+                    <td className="px-6 py-4 font-medium" style={{ color: "var(--color-action-primary)" }}>
                       <span className="flex items-center gap-2">
-                        <span style={{ color: "var(--primary)" }}>✓</span> {edumyles}
+                        <span style={{ color: "var(--color-action-primary)" }}>✓</span> {edumyles}
                       </span>
                     </td>
                   </tr>
@@ -722,18 +722,18 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 10: FAQ ───────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[800px] mx-auto">
           <div className="text-center mb-12">
             <div
               className="inline-flex items-center gap-2 font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
             >
               Frequently Asked Questions
             </div>
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
             >
               Questions from secondary school leaders
             </h2>
@@ -768,15 +768,15 @@ export default function SecondarySchoolsPage() {
               <div
                 key={i}
                 className="rounded-2xl p-7 bg-card"
-                style={{ border: "1px solid var(--border)", boxShadow: "0 2px 8px rgba(6,26,18,0.04)" }}
+                style={{ border: "1px solid var(--color-border-default)", boxShadow: "0 2px 8px color-mix(in srgb, var(--color-surface-page) 4%, transparent)" }}
               >
                 <h3
                   className="font-display font-bold text-[1.05rem] mb-3 leading-[1.4]"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {q}
                 </h3>
-                <p className="text-[14px] leading-[1.8]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="text-[14px] leading-[1.8]" style={{ color: "var(--color-text-muted)" }}>
                   {a}
                 </p>
               </div>
@@ -786,17 +786,17 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 11: Integrations ──────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--muted)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-sunken)" }}>
         <div className="max-w-[1000px] mx-auto text-center">
           <p
             className="font-semibold text-[13px] uppercase tracking-[0.12em] mb-4"
-            style={{ color: "var(--primary)" }}
+            style={{ color: "var(--color-action-primary)" }}
           >
             Integrations
           </p>
           <h2
             className="font-display font-bold leading-[1.2] mb-8"
-            style={{ fontSize: "clamp(1.5rem,2.5vw,2.25rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.5rem,2.5vw,2.25rem)", color: "var(--color-text-default)" }}
           >
             Connects with the tools your school already uses
           </h2>
@@ -815,9 +815,9 @@ export default function SecondarySchoolsPage() {
                 key={tool}
                 className="font-semibold text-[13px] px-5 py-2.5 rounded-[50px]"
                 style={{
-                  background: "var(--card)",
-                  border: "1px solid rgba(15,76,42,0.2)",
-                  color: "var(--primary)",
+                  background: "var(--color-surface-default)",
+                  border: "1px solid color-mix(in srgb, var(--color-status-success-on-subtle) 20%, transparent)",
+                  color: "var(--color-action-primary)",
                 }}
               >
                 {tool}
@@ -828,22 +828,22 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 12: Pricing Callout ───────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[900px] mx-auto">
           <div className="text-center mb-10">
             <div
               className="inline-flex items-center gap-2 font-semibold text-[13px] mb-5 px-4 py-2 rounded-[50px]"
-              style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "#9A5D00" }}
+              style={{ background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)", color: "var(--color-status-warning-solid)" }}
             >
               Pricing for Secondary Schools
             </div>
             <h2
               className="font-display font-bold leading-[1.2] mb-3"
-              style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
             >
               Transparent, all-inclusive pricing
             </h2>
-            <p className="text-[16px] leading-[1.8]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="text-[16px] leading-[1.8]" style={{ color: "var(--color-text-muted)" }}>
               Transparent school pricing with the production modules available by plan.
             </p>
           </div>
@@ -851,29 +851,29 @@ export default function SecondarySchoolsPage() {
             {/* Growth */}
             <div
               className="rounded-2xl p-8"
-              style={{ border: "2px solid var(--border)", boxShadow: "0 4px 24px rgba(6,26,18,0.06)" }}
+              style={{ border: "2px solid var(--color-border-default)", boxShadow: "0 4px 24px color-mix(in srgb, var(--color-surface-page) 6%, transparent)" }}
             >
               <div
                 className="inline-flex items-center gap-2 font-semibold text-[12px] mb-4 px-3 py-1.5 rounded-[50px]"
-                style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
               >
                 Growth
               </div>
               <div className="mb-1">
                 <span
                   className="font-display font-bold"
-                  style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "var(--foreground)" }}
+                  style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "var(--color-text-default)" }}
                 >
                   KES 21,500
                 </span>
-                <span className="text-[14px] ml-1" style={{ color: "#888" }}>
+                <span className="text-[14px] ml-1" style={{ color: "var(--color-text-disabled)" }}>
                   /month
                 </span>
               </div>
-              <p className="text-[13px] mb-5" style={{ color: "var(--muted-foreground)" }}>
+              <p className="text-[13px] mb-5" style={{ color: "var(--color-text-muted)" }}>
                 Up to 1,000 students
               </p>
-              <ul className="space-y-2 text-[14px]" style={{ color: "var(--foreground)" }}>
+              <ul className="space-y-2 text-[14px]" style={{ color: "var(--color-text-default)" }}>
                 {[
                   "13 production modules",
                   "HR & payroll (BOM staff)",
@@ -886,7 +886,7 @@ export default function SecondarySchoolsPage() {
                     <CheckCircle2
                       className="w-4 h-4 flex-shrink-0"
                       strokeWidth={2}
-                      style={{ color: "var(--primary)" }}
+                      style={{ color: "var(--color-action-primary)" }}
                     />
                     {item}
                   </li>
@@ -898,21 +898,21 @@ export default function SecondarySchoolsPage() {
             <div
               className="rounded-2xl p-8"
               style={{
-                background: "var(--card)",
-                border: "2px solid var(--primary)",
-                boxShadow: "0 4px 32px rgb(var(--primary-rgb) / 15%)",
+                background: "var(--color-surface-default)",
+                border: "2px solid var(--color-action-primary)",
+                boxShadow: "0 4px 32px color-mix(in srgb, var(--color-action-primary) 15%, transparent)",
               }}
             >
               <div className="flex items-center gap-3 mb-4">
                 <div
                   className="inline-flex items-center gap-2 font-semibold text-[12px] px-3 py-1.5 rounded-[50px]"
-                  style={{ background: "rgb(var(--primary-rgb) / 15%)", color: "var(--accent-foreground)" }}
+                  style={{ background: "color-mix(in srgb, var(--color-action-primary) 15%, transparent)", color: "var(--color-text-on-primary-subtle)" }}
                 >
                   Professional
                 </div>
                 <span
                   className="font-semibold text-[11px] px-2.5 py-1 rounded-full"
-                  style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                  style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
                 >
                   Most Popular
                 </span>
@@ -920,18 +920,18 @@ export default function SecondarySchoolsPage() {
               <div className="mb-1">
                 <span
                   className="font-display font-bold"
-                  style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "var(--accent-foreground)" }}
+                  style={{ fontSize: "clamp(2rem,3.5vw,2.75rem)", color: "var(--color-text-on-primary-subtle)" }}
                 >
                   KES 38,900
                 </span>
-                <span className="text-[14px] ml-1" style={{ color: "var(--muted-foreground)" }}>
+                <span className="text-[14px] ml-1" style={{ color: "var(--color-text-muted)" }}>
                   /month
                 </span>
               </div>
-              <p className="text-[13px] mb-5" style={{ color: "var(--muted-foreground)" }}>
+              <p className="text-[13px] mb-5" style={{ color: "var(--color-text-muted)" }}>
                 Up to 3,000 students
               </p>
-              <ul className="space-y-2 text-[14px]" style={{ color: "#d4e8da" }}>
+              <ul className="space-y-2 text-[14px]" style={{ color: "var(--color-action-primary-disabled)" }}>
                 {[
                   "Everything in Growth",
                   "Priority support & SLA",
@@ -944,7 +944,7 @@ export default function SecondarySchoolsPage() {
                     <CheckCircle2
                       className="w-4 h-4 flex-shrink-0"
                       strokeWidth={2}
-                      style={{ color: "var(--accent-foreground)" }}
+                      style={{ color: "var(--color-text-on-primary-subtle)" }}
                     />
                     {item}
                   </li>
@@ -956,7 +956,7 @@ export default function SecondarySchoolsPage() {
             <Link
               href="/pricing"
               className="inline-flex items-center gap-2 font-semibold text-[14px] no-underline"
-              style={{ color: "var(--primary)" }}
+              style={{ color: "var(--color-action-primary)" }}
             >
               See full pricing breakdown →
             </Link>
@@ -965,39 +965,39 @@ export default function SecondarySchoolsPage() {
       </section>
 
       {/* ── SECTION 13: Final CTA ─────────────────────────────────────── */}
-      <section className="py-24 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-24 px-4" style={{ background: "var(--color-action-primary)" }}>
         <div className="max-w-[720px] mx-auto text-center">
           <div
             className="inline-block font-semibold text-[13px] mb-6 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgb(var(--primary-rgb) / 15%)",
-              border: "1px solid rgb(var(--primary-rgb) / 30%)",
-              color: "var(--primary-foreground)",
+              background: "color-mix(in srgb, var(--color-action-primary) 15%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--color-action-primary) 30%, transparent)",
+              color: "var(--color-text-on-primary)",
             }}
           >
             For Secondary Schools
           </div>
           <h2
             className="font-display font-bold leading-[1.2] mb-5"
-            style={{ fontSize: "clamp(1.9rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.9rem,3.5vw,3rem)", color: "var(--color-text-on-primary)" }}
           >
             Ready to bring your secondary school{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary)" }}>
               into the digital age?
             </em>
           </h2>
-          <p className="text-[17px] leading-[1.8] mb-4" style={{ color: "var(--primary-foreground)" }}>
+          <p className="text-[17px] leading-[1.8] mb-4" style={{ color: "var(--color-text-on-primary)" }}>
             Join hundreds of Kenyan secondary schools already using EduMyles to manage timetables,
             grades, fees, and payroll — all in one place.
           </p>
-          <p className="text-[14px] mb-10 font-medium" style={{ color: "var(--primary-foreground)" }}>
+          <p className="text-[14px] mb-10 font-medium" style={{ color: "var(--color-text-on-primary)" }}>
             Free trial · No credit card required · Go live in 3–4 weeks
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-bold text-[15px] px-9 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              style={{ background: "var(--color-text-on-primary)", color: "var(--color-action-primary)" }}
             >
               Start Free Trial →
             </a>
@@ -1006,8 +1006,8 @@ export default function SecondarySchoolsPage() {
               className="inline-flex items-center gap-2 font-semibold text-[15px] px-9 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid color-mix(in srgb, var(--color-text-on-primary) 45%, transparent)",
+                color: "var(--color-text-on-primary)",
               }}
             >
               Book a Demo

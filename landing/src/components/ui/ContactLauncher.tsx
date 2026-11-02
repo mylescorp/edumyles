@@ -103,7 +103,7 @@ function readAttribution() {
 
 function launcherClass(mode: ContactMode) {
   return [
-    "fixed inset-x-4 bottom-24 z-[9997] mx-auto max-w-[460px] overflow-hidden rounded-xl border border-border bg-card shadow-[0_24px_70px_-28px_rgba(15,23,42,0.55)] md:mx-0",
+    "fixed inset-x-4 bottom-24 z-[9997] mx-auto max-w-[460px] overflow-hidden rounded-xl border border-border bg-card shadow-[0_24px_70px_-28px_color-mix(in_srgb,var(--color-surface-page)_55%,transparent)] md:mx-0",
     mode === "whatsapp" ? "md:left-8 md:right-auto" : "md:left-auto md:right-8",
   ].join(" ");
 }
@@ -323,8 +323,8 @@ function ContactLauncherPanel({
         aria-hidden={!isOpen}
       >
         <div
-          className="border-b border-border px-5 py-4 text-white"
-          style={{ background: "var(--platform-chrome)" }}
+          className="border-b border-border px-5 py-4 text-[var(--color-text-on-primary)]"
+          style={{ background: "var(--color-chrome-platform)" }}
         >
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -340,7 +340,7 @@ function ContactLauncherPanel({
                   <p className="text-sm font-semibold">
                     {mode === "whatsapp" ? "WhatsApp EduMyles" : "EduMyles live chat"}
                   </p>
-                  <p className="text-xs text-white/55">
+                  <p className="text-xs text-[color-mix(in_srgb,var(--color-text-on-primary)_55%,transparent)]">
                     {mode === "whatsapp"
                       ? "Send a complete prefilled message."
                       : hasActiveChat
@@ -353,13 +353,13 @@ function ContactLauncherPanel({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md p-1 text-white/70 hover:bg-card/10 hover:text-white"
+              className="rounded-md p-1 text-[color-mix(in_srgb,var(--color-text-on-primary)_70%,transparent)] hover:bg-card/10 hover:text-[var(--color-text-on-primary)]"
               aria-label="Close contact form"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 bg-card/[0.06] px-3 py-2 text-xs text-white/70">
+          <div className="mt-4 flex items-center gap-2 rounded-lg border border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] bg-card/[0.06] px-3 py-2 text-xs text-[color-mix(in_srgb,var(--color-text-on-primary)_70%,transparent)]">
             <ShieldCheck className="h-4 w-4 text-emerald-300" />
             Your contact details are used only so our team can respond accurately.
           </div>
@@ -412,7 +412,7 @@ function ContactLauncherPanel({
                       className={[
                         "max-w-[82%] rounded-xl px-3.5 py-2 text-sm leading-6 shadow-sm",
                         item.sender === "visitor"
-                          ? "rounded-br-sm bg-emerald-700 text-white"
+                          ? "rounded-br-sm bg-[var(--color-action-primary)] text-[var(--color-text-on-primary)]"
                           : "rounded-bl-sm border border-border bg-card text-card-foreground",
                       ].join(" ")}
                     >
@@ -450,7 +450,7 @@ function ContactLauncherPanel({
                 <button
                   type="submit"
                   disabled={!reply.trim()}
-                  className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-700 text-white transition hover:bg-emerald-800 disabled:bg-muted disabled:text-muted-foreground"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--color-action-primary)] text-[var(--color-text-on-primary)] transition hover:bg-[var(--color-action-primary-hover)] disabled:bg-muted disabled:text-muted-foreground"
                   aria-label="Send chat reply"
                 >
                   <Send className="h-4 w-4" />

@@ -152,7 +152,7 @@ export default function Navbar() {
             <Link
               href="/features"
               className="text-[14px] font-medium text-foreground no-underline transition-colors duration-300 hover:text-accent-foreground"
-              style={activeLink === "features" ? { color: "var(--accent-foreground)" } : {}}
+              style={activeLink === "features" ? { color: "var(--color-text-on-primary-subtle)" } : {}}
             >
               Features
             </Link>
@@ -165,8 +165,8 @@ export default function Navbar() {
                 className="flex items-center gap-1 text-[14px] font-medium text-foreground no-underline transition-colors duration-300 hover:text-accent-foreground bg-transparent border-none cursor-pointer p-0"
                 style={
                   solutionsOpen ||
-                  pathname.startsWith("/solutions")
-                    ? { color: "var(--accent-foreground)" }
+                  activeLink.startsWith("solutions")
+                    ? { color: "var(--color-text-on-primary-subtle)" }
                     : {}
                 }
                 aria-haspopup="true"
@@ -185,7 +185,7 @@ export default function Navbar() {
 
               {solutionsOpen && (
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-gray-100 dark:border-white/10 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-gray-100 dark:border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
                   style={{ minWidth: "380px" }}
                 >
                   <div className="col-span-1 grid grid-cols-1 gap-2">
@@ -198,15 +198,15 @@ export default function Navbar() {
                       >
                         <div
                           className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
-                          style={{ background: "rgba(26,122,74,0.08)" }}
+                          style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 8%, transparent)" }}
                         >
-                          <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+                          <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
                         </div>
                         <div className="flex flex-col">
-                          <span className="font-jakarta font-semibold text-[14px] text-foreground leading-tight group-hover:text-[var(--primary)] transition-colors duration-150">
+                          <span className="font-jakarta font-semibold text-[14px] text-foreground leading-tight group-hover:text-[var(--color-action-primary)] transition-colors duration-150">
                             {item.label}
                           </span>
-                          <span className="font-jakarta text-[12px] leading-snug mt-1" style={{ color: "var(--muted-foreground)" }}>
+                          <span className="font-jakarta text-[12px] leading-snug mt-1" style={{ color: "var(--color-text-muted)" }}>
                             {item.subtitle}
                           </span>
                         </div>
@@ -227,7 +227,7 @@ export default function Navbar() {
                   partnersOpen ||
                   pathname.startsWith("/partners") || ["partners", "developers", "affiliate", "reseller", "resellers"].includes(activeLink) ||
                   activeLink.startsWith("apply")
-                    ? { color: "var(--accent-foreground)" }
+                    ? { color: "var(--color-text-on-primary-subtle)" }
                     : {}
                 }
                 aria-haspopup="true"
@@ -246,7 +246,7 @@ export default function Navbar() {
 
               {partnersOpen && (
                 <div
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-gray-100 dark:border-white/10 shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-card rounded-xl border border-gray-100 dark:border-[color-mix(in_srgb,var(--color-text-inverse)_10%,transparent)] shadow-lg z-50 p-4 grid grid-cols-1 gap-2"
                   style={{ minWidth: "380px" }}
                 >
                   <div className="col-span-1 grid grid-cols-1 gap-2">
@@ -259,15 +259,15 @@ export default function Navbar() {
                       >
                         <div
                           className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
-                          style={{ background: "rgb(var(--primary-rgb) / 8%)" }}
+                          style={{ background: "color-mix(in srgb, var(--color-action-primary) 8%, transparent)" }}
                         >
-                          <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
+                          <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-text-on-primary-subtle)" }} />
                         </div>
                         <div className="flex flex-col">
                           <span className="font-jakarta font-semibold text-[14px] text-foreground leading-tight group-hover:text-accent-foreground transition-colors duration-150">
                             {item.label}
                           </span>
-                          <span className="font-jakarta text-[12px] leading-snug mt-1" style={{ color: "var(--muted-foreground)" }}>
+                          <span className="font-jakarta text-[12px] leading-snug mt-1" style={{ color: "var(--color-text-muted)" }}>
                             {item.subtitle}
                           </span>
                         </div>
@@ -289,7 +289,7 @@ export default function Navbar() {
                   style={
                     activeLink === link.href.replace("/", "") ||
                     (link.label === "Resellers" && activeLink === "partners")
-                      ? { color: "var(--accent-foreground)" }
+                      ? { color: "var(--color-text-on-primary-subtle)" }
                       : {}
                   }
                 >
@@ -305,18 +305,18 @@ export default function Navbar() {
               href={demoCtaHref}
               className="font-jakarta font-bold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
               style={{
-                background: "var(--primary)",
-                color: "var(--primary-foreground)",
-                border: "1.5px solid var(--primary)",
+                background: "var(--color-action-primary)",
+                color: "var(--color-text-on-primary)",
+                border: "1.5px solid var(--color-action-primary)",
                 lineHeight: "1",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "var(--primary)";
-                e.currentTarget.style.borderColor = "var(--primary)";
+                e.currentTarget.style.background = "var(--color-action-primary)";
+                e.currentTarget.style.borderColor = "var(--color-action-primary)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "var(--accent-foreground)";
-                e.currentTarget.style.borderColor = "var(--accent-foreground)";
+                e.currentTarget.style.background = "var(--color-text-on-primary-subtle)";
+                e.currentTarget.style.borderColor = "var(--color-text-on-primary-subtle)";
               }}
             >
               Book a Demo
@@ -325,18 +325,18 @@ export default function Navbar() {
               href={waitlistCtaHref}
               className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
               style={{
-                background: "var(--primary)",
-                color: "var(--primary-foreground)",
-                border: "1.5px solid var(--primary)",
+                background: "var(--color-action-primary)",
+                color: "var(--color-text-on-primary)",
+                border: "1.5px solid var(--color-action-primary)",
                 lineHeight: "1",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "var(--primary)";
-                e.currentTarget.style.borderColor = "var(--primary)";
+                e.currentTarget.style.background = "var(--color-action-primary)";
+                e.currentTarget.style.borderColor = "var(--color-action-primary)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "var(--primary)";
-                e.currentTarget.style.borderColor = "var(--primary)";
+                e.currentTarget.style.background = "var(--color-action-primary)";
+                e.currentTarget.style.borderColor = "var(--color-action-primary)";
               }}
             >
                   Join Waitlist
@@ -357,7 +357,7 @@ export default function Navbar() {
             <span
               className="w-6 h-[3px] rounded-sm transition-all duration-300"
               style={{
-                background: "var(--primary)",
+                background: "var(--color-action-primary)",
                 transform: mobileOpen
                   ? "rotate(45deg) translate(8px, 8px)"
                   : "none",
@@ -366,14 +366,14 @@ export default function Navbar() {
             <span
               className="w-6 h-[3px] rounded-sm transition-all duration-300"
               style={{
-                background: "var(--primary)",
+                background: "var(--color-action-primary)",
                 opacity: mobileOpen ? 0 : 1,
               }}
             />
             <span
               className="w-6 h-[3px] rounded-sm transition-all duration-300"
               style={{
-                background: "var(--primary)",
+                background: "var(--color-action-primary)",
                 transform: mobileOpen
                   ? "rotate(-45deg) translate(7px, -7px)"
                   : "none",
@@ -387,7 +387,7 @@ export default function Navbar() {
       {mobileOpen && (
         <div
           className="lg:hidden fixed inset-0 z-[999] flex flex-col p-8 overflow-y-auto"
-          style={{ top: "70px", background: "var(--background)" }}
+          style={{ top: "70px", background: "var(--color-surface-page)" }}
         >
           <div className="flex items-center justify-between border-b border-border pb-4 mb-2 text-foreground">
             <span className="font-medium">Appearance</span>
@@ -464,7 +464,7 @@ export default function Navbar() {
               href={demoCtaHref}
               onClick={() => setMobileOpen(false)}
               className="font-jakarta font-bold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
-              style={{ background: "var(--accent-foreground)", color: "var(--foreground)", border: "1.5px solid var(--accent-foreground)" }}
+              style={{ background: "var(--color-text-on-primary-subtle)", color: "var(--color-text-default)", border: "1.5px solid var(--color-text-on-primary-subtle)" }}
             >
               Book a Demo
             </Link>
@@ -472,7 +472,7 @@ export default function Navbar() {
               href={waitlistCtaHref}
               onClick={() => setMobileOpen(false)}
               className="font-jakarta font-semibold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)", border: "1.5px solid var(--primary)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)", border: "1.5px solid var(--color-action-primary)" }}
             >
                 Join Waitlist
             </Link>

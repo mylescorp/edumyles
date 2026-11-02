@@ -46,16 +46,16 @@ export default function HowItWorks() {
       id="how-it-works"
       className="px-4 sm:px-8 py-16"
       aria-label="How it works"
-      style={{ background: "var(--card)" }}
+      style={{ background: "var(--color-surface-default)" }}
     >
       <div className="max-w-[1200px] mx-auto">
         {/* Heading */}
         <h2
           className="font-display font-bold leading-[1.2] mb-12"
-          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--foreground)" }}
+          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--color-text-default)" }}
         >
           Get Your School Running on EduMyles in{" "}
-          <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+          <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
             3 Simple Steps
           </em>
         </h2>
@@ -75,7 +75,7 @@ export default function HowItWorks() {
               {i < steps.length - 1 && (
                 <span
                   className="hidden md:block absolute top-[30px] text-[28px] font-bold"
-                  style={{ right: "-2rem", color: "var(--accent-foreground)", zIndex: 1 }}
+                  style={{ right: "-2rem", color: "var(--color-text-on-primary-subtle)", zIndex: 1 }}
                 >
                   →
                 </span>
@@ -84,27 +84,27 @@ export default function HowItWorks() {
               {i < steps.length - 1 && (
                 <div
                   className="md:hidden w-px h-8 mt-4"
-                  style={{ background: "rgb(var(--primary-rgb) / 30%)" }}
+                  style={{ background: "color-mix(in_srgb,_var(--color-action-primary)_30%,_transparent)" }}
                 />
               )}
 
               {/* Step number */}
               <div
                 className="w-[60px] h-[60px] rounded-full flex items-center justify-center text-[28px] font-bold mx-auto mb-4"
-                style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
               >
                 {step.number}
               </div>
 
               <h3
                 className="font-display font-bold text-[20px] mb-3 mt-4"
-                style={{ color: "var(--foreground)" }}
+                style={{ color: "var(--color-text-default)" }}
               >
                 {step.title}
               </h3>
               <p
                 className="text-[14px] leading-[1.6] max-w-[280px] md:max-w-none"
-                style={{ color: "var(--muted-foreground)" }}
+                style={{ color: "var(--color-text-muted)" }}
               >
                 {step.description}
               </p>
@@ -112,7 +112,7 @@ export default function HowItWorks() {
           ))}
         </div>
 
-        <p className="text-center mt-12 text-[14px]" style={{ color: "var(--muted-foreground)" }}>
+        <p className="text-center mt-12 text-[14px]" style={{ color: "var(--color-text-muted)" }}>
           Our team supports you at every step. Most schools go live in under 2 weeks.
         </p>
       </div>

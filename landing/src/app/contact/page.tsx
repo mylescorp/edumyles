@@ -132,13 +132,13 @@ const faqs = [
 
 export default function ContactPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "400px",
         }}
@@ -146,7 +146,7 @@ export default function ContactPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -154,25 +154,25 @@ export default function ContactPage() {
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgb(var(--primary-rgb) / 12%)",
-              border: "1px solid var(--accent-foreground)",
-              color: "var(--accent-foreground)",
+              background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+              border: "1px solid var(--color-text-on-primary-subtle)",
+              color: "var(--color-text-on-primary-subtle)",
             }}
           >
             Get in Touch
           </div>
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--color-text-default)" }}
           >
             Let&apos;s get your school{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               running on EduMyles.
             </em>
           </h1>
           <p
             className="font-jakarta font-light leading-[1.8] mx-auto"
-            style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "560px" }}
+            style={{ fontSize: "18px", color: "var(--color-text-muted)", maxWidth: "560px" }}
           >
             Whether you want to start a free trial, book a demo, or just ask a question — our team
             is ready.
@@ -181,7 +181,7 @@ export default function ContactPage() {
       </section>
 
       {/* ── 3 Option Cards ────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--background)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="grid md:grid-cols-3 gap-6">
             {options.map((opt) => (
@@ -189,25 +189,25 @@ export default function ContactPage() {
                 key={opt.title}
                 className="rounded-2xl p-7 flex flex-col gap-4"
                 style={{
-                  background: opt.primary ? "var(--primary)" : "var(--card)",
-                  border: opt.primary ? "2px solid var(--primary)" : "1px solid var(--border)",
+                  background: opt.primary ? "var(--color-action-primary)" : "var(--color-surface-default)",
+                  border: opt.primary ? "2px solid var(--color-action-primary)" : "1px solid var(--color-border-default)",
                   boxShadow: opt.primary
-                    ? "0 16px 48px rgba(6,26,18,0.25)"
-                    : "0 4px 16px rgba(6,26,18,0.06)",
+                    ? "0 16px 48px color-mix(in srgb, var(--color-surface-page) 25%, transparent)"
+                    : "0 4px 16px color-mix(in srgb, var(--color-surface-page) 6%, transparent)",
                 }}
               >
-                <div style={{ color: opt.primary ? "var(--primary-foreground)" : "var(--primary)" }}>
+                <div style={{ color: opt.primary ? "var(--color-text-on-primary)" : "var(--color-action-primary)" }}>
                   <opt.icon className="w-8 h-8" strokeWidth={1.5} />
                 </div>
                 <h3
                   className="font-display font-bold text-[22px]"
-                  style={{ color: opt.primary ? "var(--primary-foreground)" : "var(--foreground)" }}
+                  style={{ color: opt.primary ? "var(--color-text-on-primary)" : "var(--color-text-default)" }}
                 >
                   {opt.title}
                 </h3>
                 <p
                   className="font-jakarta text-[14px] leading-[1.7]"
-                  style={{ color: opt.primary ? "var(--primary-foreground)" : "var(--muted-foreground)", opacity: opt.primary ? 0.84 : 1 }}
+                  style={{ color: opt.primary ? "var(--color-text-on-primary)" : "var(--color-text-muted)", opacity: opt.primary ? 0.84 : 1 }}
                 >
                   {opt.desc}
                 </p>
@@ -216,9 +216,9 @@ export default function ContactPage() {
                     <li
                       key={b}
                       className="flex items-start gap-2 font-jakarta text-[13px]"
-                      style={{ color: opt.primary ? "var(--primary-foreground)" : "var(--foreground)" }}
+                      style={{ color: opt.primary ? "var(--color-text-on-primary)" : "var(--color-text-default)" }}
                     >
-                      <span style={{ color: "#26A65B", fontWeight: 700, flexShrink: 0 }}>✓</span>{" "}
+                      <span style={{ color: "var(--color-status-success-solid)", fontWeight: 700, flexShrink: 0 }}>✓</span>{" "}
                       {b}
                     </li>
                   ))}
@@ -228,8 +228,8 @@ export default function ContactPage() {
                   className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-[50px] no-underline mt-2 transition-all duration-200"
                   style={
                     opt.primary
-                      ? { background: "var(--primary)", color: "var(--primary-foreground)" }
-                      : { background: "var(--primary)", color: "var(--primary-foreground)" }
+                      ? { background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }
+                      : { background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }
                   }
                 >
                   {opt.cta}
@@ -244,23 +244,23 @@ export default function ContactPage() {
       <ContactForm />
 
       {/* ── WhatsApp Quick Contact ─────────────────────────── */}
-      <section className="py-14 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-14 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[860px] mx-auto">
           <div
             className="rounded-2xl p-8 flex flex-col md:flex-row items-center gap-6"
             style={{
-              background: "linear-gradient(135deg, var(--primary) 0%, var(--primary) 100%)",
-              boxShadow: "0 8px 32px rgba(6,26,18,0.2)",
+              background: "linear-gradient(135deg, var(--color-action-primary) 0%, var(--color-action-primary) 100%)",
+              boxShadow: "0 8px 32px color-mix(in srgb, var(--color-surface-page) 20%, transparent)",
             }}
           >
-            <div style={{ color: "var(--primary-foreground)" }}>
+            <div style={{ color: "var(--color-text-on-primary)" }}>
               <MessageCircle className="w-12 h-12" strokeWidth={1.5} />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h3 className="font-display font-bold text-[24px] mb-2" style={{ color: "var(--primary-foreground)" }}>
+              <h3 className="font-display font-bold text-[24px] mb-2" style={{ color: "var(--color-text-on-primary)" }}>
                 Chat with us on WhatsApp
               </h3>
-              <p className="font-jakarta text-[15px] leading-[1.7]" style={{ color: "var(--primary-foreground)", opacity: 0.84 }}>
+              <p className="font-jakarta text-[15px] leading-[1.7]" style={{ color: "var(--color-text-on-primary)", opacity: 0.84 }}>
                 Get a quick answer from our team — usually within minutes during business hours.
               </p>
             </div>
@@ -269,7 +269,7 @@ export default function ContactPage() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-7 py-3.5 rounded-[50px] no-underline flex-shrink-0"
-              style={{ background: "#25D366", color: "#052E16" }}
+              style={{ background: "var(--color-status-success-solid)", color: "var(--color-status-success-on-solid)" }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
@@ -281,14 +281,14 @@ export default function ContactPage() {
       </section>
 
       {/* ── Contact Info + Office ──────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--background)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="grid md:grid-cols-2 gap-10 items-start">
             {/* Contact channels */}
             <div>
-              <h2 className="font-display font-bold text-[28px] mb-8" style={{ color: "var(--foreground)" }}>
+              <h2 className="font-display font-bold text-[28px] mb-8" style={{ color: "var(--color-text-default)" }}>
                 Contact{" "}
-                <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+                <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                   Information
                 </em>
               </h2>
@@ -298,28 +298,28 @@ export default function ContactPage() {
                     key={c.label}
                     href={c.href}
                     className="flex items-start gap-4 p-5 rounded-2xl no-underline transition-all duration-200 group"
-                    style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                    style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                   >
                     <div
                       className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0"
-                      style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+                      style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
                     >
                       <c.icon className="w-5 h-5" strokeWidth={1.5} />
                     </div>
                     <div>
                       <div
                         className="font-jakarta font-bold text-[13px] mb-0.5"
-                        style={{ color: "var(--muted-foreground)" }}
+                        style={{ color: "var(--color-text-muted)" }}
                       >
                         {c.label}
                       </div>
                       <div
-                        className="font-jakarta font-semibold text-[15px] mb-0.5 group-hover:text-[var(--accent-foreground)] transition-colors"
-                        style={{ color: "var(--foreground)" }}
+                        className="font-jakarta font-semibold text-[15px] mb-0.5 group-hover:text-[var(--color-text-on-primary-subtle)] transition-colors"
+                        style={{ color: "var(--color-text-default)" }}
                       >
                         {c.value}
                       </div>
-                      <div className="font-jakarta text-[13px]" style={{ color: "#8a8a8a" }}>
+                      <div className="font-jakarta text-[13px]" style={{ color: "var(--color-text-disabled)" }}>
                         {c.desc}
                       </div>
                     </div>
@@ -330,68 +330,68 @@ export default function ContactPage() {
 
             {/* Office */}
             <div>
-              <h2 className="font-display font-bold text-[28px] mb-8" style={{ color: "var(--foreground)" }}>
+              <h2 className="font-display font-bold text-[28px] mb-8" style={{ color: "var(--color-text-default)" }}>
                 Our{" "}
-                <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+                <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                   Office
                 </em>
               </h2>
               <div
                 className="rounded-2xl p-7"
                 style={{
-                  background: "var(--card)",
-                  border: "1px solid var(--border)",
-                  boxShadow: "0 4px 16px rgba(6,26,18,0.06)",
+                  background: "var(--color-surface-default)",
+                  border: "1px solid var(--color-border-default)",
+                  boxShadow: "0 4px 16px color-mix(in srgb, var(--color-surface-page) 6%, transparent)",
                 }}
               >
                 <div className="flex flex-col gap-5">
                   <div className="flex items-start gap-3">
-                    <span style={{ color: "var(--primary)", marginTop: "2px" }}>
+                    <span style={{ color: "var(--color-action-primary)", marginTop: "2px" }}>
                       <MapPin className="w-5 h-5" strokeWidth={1.5} />
                     </span>
                     <div>
                       <div
                         className="font-jakarta font-bold text-[15px] mb-0.5"
-                        style={{ color: "var(--foreground)" }}
+                        style={{ color: "var(--color-text-default)" }}
                       >
                         WesternHeights
                       </div>
-                      <div className="font-jakarta text-[14px]" style={{ color: "var(--muted-foreground)" }}>
+                      <div className="font-jakarta text-[14px]" style={{ color: "var(--color-text-muted)" }}>
                         Nairobi, Kenya
                       </div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <span style={{ color: "var(--primary)", marginTop: "2px" }}>
+                    <span style={{ color: "var(--color-action-primary)", marginTop: "2px" }}>
                       <Clock className="w-5 h-5" strokeWidth={1.5} />
                     </span>
                     <div>
                       <div
                         className="font-jakarta font-bold text-[15px] mb-0.5"
-                        style={{ color: "var(--foreground)" }}
+                        style={{ color: "var(--color-text-default)" }}
                       >
                         Business Hours
                       </div>
-                      <div className="font-jakarta text-[14px]" style={{ color: "var(--muted-foreground)" }}>
+                      <div className="font-jakarta text-[14px]" style={{ color: "var(--color-text-muted)" }}>
                         Monday – Friday: 8:00 AM – 6:00 PM EAT
                       </div>
-                      <div className="font-jakarta text-[14px]" style={{ color: "var(--muted-foreground)" }}>
+                      <div className="font-jakarta text-[14px]" style={{ color: "var(--color-text-muted)" }}>
                         Saturday: 9:00 AM – 1:00 PM EAT
                       </div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <span style={{ color: "var(--primary)", marginTop: "2px" }}>
+                    <span style={{ color: "var(--color-action-primary)", marginTop: "2px" }}>
                       <Globe className="w-5 h-5" strokeWidth={1.5} />
                     </span>
                     <div>
                       <div
                         className="font-jakarta font-bold text-[15px] mb-0.5"
-                        style={{ color: "var(--foreground)" }}
+                        style={{ color: "var(--color-text-default)" }}
                       >
                         Service Area
                       </div>
-                      <div className="font-jakarta text-[14px]" style={{ color: "var(--muted-foreground)" }}>
+                      <div className="font-jakarta text-[14px]" style={{ color: "var(--color-text-muted)" }}>
                         Kenya · Uganda · Tanzania · Rwanda · Zambia
                       </div>
                     </div>
@@ -401,11 +401,11 @@ export default function ContactPage() {
                 {/* Map placeholder */}
                 <div
                   className="mt-6 rounded-xl flex items-center justify-center"
-                  style={{ background: "var(--background)", border: "1px dashed var(--primary)", height: "160px" }}
+                  style={{ background: "var(--color-surface-page)", border: "1px dashed var(--color-action-primary)", height: "160px" }}
                 >
                   <div className="text-center flex flex-col items-center gap-2">
-                    <Map className="w-12 h-12" strokeWidth={1.5} style={{ color: "var(--muted-foreground)" }} />
-                    <p className="font-jakarta text-[13px]" style={{ color: "var(--muted-foreground)" }}>
+                    <Map className="w-12 h-12" strokeWidth={1.5} style={{ color: "var(--color-text-muted)" }} />
+                    <p className="font-jakarta text-[13px]" style={{ color: "var(--color-text-muted)" }}>
                       Nairobi, Kenya
                     </p>
                   </div>
@@ -417,15 +417,15 @@ export default function ContactPage() {
       </section>
 
       {/* ── FAQ ───────────────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[860px] mx-auto">
           <div className="text-center mb-10">
             <h2
               className="font-display font-bold leading-[1.2]"
-              style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
             >
               Common{" "}
-              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+              <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 questions
               </em>
             </h2>
@@ -435,15 +435,15 @@ export default function ContactPage() {
               <div
                 key={faq.q}
                 className="rounded-2xl p-6"
-                style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+                style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
               >
                 <h3
                   className="font-display font-bold text-[17px] mb-2"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {faq.q}
                 </h3>
-                <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="font-jakarta text-[14px] leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
                   {faq.a}
                 </p>
               </div>
@@ -453,18 +453,18 @@ export default function ContactPage() {
       </section>
 
       {/* ── CTA ───────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-action-primary)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--color-text-on-primary)" }}
           >
             Ready to transform{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary)" }}>
               your school?
             </em>
           </h2>
-          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)" }}>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--color-text-on-primary)" }}>
             Start your free 30-day trial today. No credit card. No setup fees. Full support from day
             one.
           </p>
@@ -472,7 +472,7 @@ export default function ContactPage() {
             <a
               href="/waitlist"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              style={{ background: "var(--color-text-on-primary)", color: "var(--color-action-primary)" }}
             >
               Start Free Trial →
             </a>
@@ -481,8 +481,8 @@ export default function ContactPage() {
               className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid color-mix(in srgb, var(--color-text-on-primary) 45%, transparent)",
+                color: "var(--color-text-on-primary)",
               }}
             >
               Call Us Now

@@ -19,20 +19,20 @@ export const metadata: Metadata = {
 
 export default function CBCGradingGuide() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* Hero Section */}
       <section
         className="relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
+          background: "linear-gradient(135deg, var(--color-chrome-platform) 0%, var(--color-action-primary) 100%)",
           padding: "6rem 2rem 4rem",
         }}
       >
         <div className="absolute inset-0 opacity-10">
           <div
             style={{
-              backgroundImage: `radial-gradient(circle at 20% 50%, rgb(var(--primary-rgb) / 30%) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+              backgroundImage: `radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--color-action-primary) 30%, transparent) 0%, transparent 50%),
+                            radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--color-text-on-primary) 10%, transparent) 0%, transparent 50%)`,
               width: "100%",
               height: "100%",
             }}
@@ -44,7 +44,7 @@ export default function CBCGradingGuide() {
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 font-jakarta text-sm px-4 py-2 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.1)", color: "var(--muted-foreground)" }}
+              style={{ background: "color-mix(in srgb, var(--color-surface-default) 10%, transparent)", color: "var(--color-text-muted)" }}
             >
               ← Back to Blog
             </Link>
@@ -53,31 +53,31 @@ export default function CBCGradingGuide() {
           <div className="max-w-[800px]">
             <h1
               className="font-display font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "#ffffff" }}
+              style={{ fontSize: "clamp(2.5rem,5vw,3.5rem)", color: "var(--color-text-inverse)" }}
             >
-              CBC Gradebook in EduMyles: <span style={{ color: "var(--accent-foreground)" }}>Complete Guide</span>
+              CBC Gradebook in EduMyles: <span style={{ color: "var(--color-text-on-primary-subtle)" }}>Complete Guide</span>
             </h1>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" style={{ color: "var(--accent-foreground)" }} />
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <BookOpen className="w-5 h-5" style={{ color: "var(--color-text-on-primary-subtle)" }} />
+                <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                   CBC
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                   9 min read
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                   February 2026
                 </span>
               </div>
             </div>
 
-            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
               Everything you need to know about setting up competency-based assessment, learning
               areas, and strand reports. Master CBC implementation with EduMyles.
             </p>
@@ -86,17 +86,17 @@ export default function CBCGradingGuide() {
       </section>
 
       {/* Content */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[800px] mx-auto">
           {/* Introduction */}
           <div className="mb-12">
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--color-text-muted)" }}>
               The Competency-Based Curriculum (CBC) has transformed how Kenyan schools assess
               student learning. But tracking competencies, strands, and learning outcomes across
               multiple subjects can be overwhelming without the right tools.
             </p>
 
-            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg leading-[1.8] mb-6" style={{ color: "var(--color-text-muted)" }}>
               EduMyles was built specifically for CBC implementation. Our gradebook handles
               everything from PP1 to Grade 8, automatically organizes assessments by strands, and
               generates KNEC-compliant report cards. This guide shows you how to leverage every
@@ -106,13 +106,13 @@ export default function CBCGradingGuide() {
             <div
               className="p-6 rounded-2xl mb-8"
               style={{
-                background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                background: "linear-gradient(135deg, var(--color-surface-default) 0%, var(--color-surface-sunken) 100%)",
+                border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
               }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <Award className="w-6 h-6" style={{ color: "var(--accent-foreground)" }} />
-                <h3 className="font-display font-bold text-xl" style={{ color: "var(--foreground)" }}>
+                <Award className="w-6 h-6" style={{ color: "var(--color-text-on-primary-subtle)" }} />
+                <h3 className="font-display font-bold text-xl" style={{ color: "var(--color-text-default)" }}>
                   CBC Compliance Features
                 </h3>
               </div>
@@ -125,8 +125,8 @@ export default function CBCGradingGuide() {
                   "Parent-friendly progress reports",
                 ].map((feature) => (
                   <li key={feature} className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "var(--accent-foreground)" }} />
-                    <span className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "var(--color-text-on-primary-subtle)" }} />
+                    <span className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                       {feature}
                     </span>
                   </li>
@@ -137,7 +137,7 @@ export default function CBCGradingGuide() {
 
           {/* Understanding CBC Structure */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Understanding CBC Structure in EduMyles
             </h2>
 
@@ -162,12 +162,12 @@ export default function CBCGradingGuide() {
                 <div
                   key={level.title}
                   className="p-5 rounded-xl"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
-                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "var(--foreground)" }}>
+                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "var(--color-text-default)" }}>
                     {level.title}
                   </h3>
-                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--muted-foreground)" }}>
+                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--color-text-muted)" }}>
                     {level.description}
                   </p>
                   <div className="space-y-1">
@@ -175,7 +175,7 @@ export default function CBCGradingGuide() {
                       <div
                         key={example}
                         className="text-xs px-2 py-1 rounded"
-                        style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                        style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
                       >
                         {example}
                       </div>
@@ -188,7 +188,7 @@ export default function CBCGradingGuide() {
 
           {/* Setup Guide */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Setting Up Your CBC Gradebook
             </h2>
 
@@ -250,29 +250,29 @@ export default function CBCGradingGuide() {
                   ],
                 },
               ].map((step) => (
-                <div key={step.step} className="border-l-4 pl-6" style={{ borderColor: "var(--primary)" }}>
+                <div key={step.step} className="border-l-4 pl-6" style={{ borderColor: "var(--color-action-primary)" }}>
                   <div className="flex items-center gap-3 mb-3">
                     <span
                       className="font-jakarta font-bold text-sm px-3 py-1 rounded-full"
-                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                      style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
                     >
                       {step.step}
                     </span>
                   </div>
-                  <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--foreground)" }}>
+                  <h3 className="font-display font-bold text-xl mb-3" style={{ color: "var(--color-text-default)" }}>
                     {step.title}
                   </h3>
                   <p
                     className="font-jakarta text-base leading-[1.7] mb-4"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   >
                     {step.content}
                   </p>
                   <div className="space-y-2">
                     {step.tips.map((tip) => (
                       <div key={tip} className="flex items-center gap-2 text-sm">
-                        <Target className="w-4 h-4 flex-shrink-0" style={{ color: "var(--primary)" }} />
-                        <span style={{ color: "var(--muted-foreground)" }}>{tip}</span>
+                        <Target className="w-4 h-4 flex-shrink-0" style={{ color: "var(--color-action-primary)" }} />
+                        <span style={{ color: "var(--color-text-muted)" }}>{tip}</span>
                       </div>
                     ))}
                   </div>
@@ -283,7 +283,7 @@ export default function CBCGradingGuide() {
 
           {/* Assessment Types */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               CBC Assessment Types in EduMyles
             </h2>
 
@@ -330,30 +330,30 @@ export default function CBCGradingGuide() {
                 <div
                   key={assessment.type}
                   className="p-5 rounded-xl"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
-                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "var(--foreground)" }}>
+                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "var(--color-text-default)" }}>
                     {assessment.type}
                   </h3>
-                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--muted-foreground)" }}>
+                  <p className="font-jakarta text-sm mb-3" style={{ color: "var(--color-text-muted)" }}>
                     {assessment.description}
                   </p>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span style={{ color: "var(--muted-foreground)" }}>Frequency:</span>
-                      <span className="font-semibold" style={{ color: "var(--primary)" }}>
+                      <span style={{ color: "var(--color-text-muted)" }}>Frequency:</span>
+                      <span className="font-semibold" style={{ color: "var(--color-action-primary)" }}>
                         {assessment.frequency}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span style={{ color: "var(--muted-foreground)" }}>Weight:</span>
-                      <span className="font-semibold" style={{ color: "var(--primary)" }}>
+                      <span style={{ color: "var(--color-text-muted)" }}>Weight:</span>
+                      <span className="font-semibold" style={{ color: "var(--color-action-primary)" }}>
                         {assessment.weight}
                       </span>
                     </div>
                   </div>
-                  <div className="mt-3 pt-3 border-t" style={{ borderColor: "var(--border)" }}>
-                    <div className="text-xs font-semibold mb-2" style={{ color: "var(--foreground)" }}>
+                  <div className="mt-3 pt-3 border-t" style={{ borderColor: "var(--color-border-default)" }}>
+                    <div className="text-xs font-semibold mb-2" style={{ color: "var(--color-text-default)" }}>
                       Examples:
                     </div>
                     <div className="flex flex-wrap gap-1">
@@ -361,7 +361,7 @@ export default function CBCGradingGuide() {
                         <span
                           key={example}
                           className="text-xs px-2 py-1 rounded"
-                          style={{ background: "rgba(26,122,74,0.1)", color: "var(--primary)" }}
+                          style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
                         >
                           {example}
                         </span>
@@ -375,20 +375,20 @@ export default function CBCGradingGuide() {
 
           {/* Report Cards */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Generating KNEC-Compliant Report Cards
             </h2>
 
             <div
               className="p-6 rounded-2xl mb-6"
               style={{
-                background: "linear-gradient(135deg, var(--card) 0%, var(--muted) 100%)",
-                border: "1px solid rgba(26,122,74,0.2)",
+                background: "linear-gradient(135deg, var(--color-surface-default) 0%, var(--color-surface-sunken) 100%)",
+                border: "1px solid color-mix(in srgb, var(--color-status-success-solid) 20%, transparent)",
               }}
             >
               <div className="flex items-center gap-3 mb-4">
-                <FileText className="w-6 h-6" style={{ color: "var(--primary)" }} />
-                <h3 className="font-display font-bold text-xl" style={{ color: "var(--foreground)" }}>
+                <FileText className="w-6 h-6" style={{ color: "var(--color-action-primary)" }} />
+                <h3 className="font-display font-bold text-xl" style={{ color: "var(--color-text-default)" }}>
                   Report Card Features
                 </h3>
               </div>
@@ -396,7 +396,7 @@ export default function CBCGradingGuide() {
                 <div>
                   <h4
                     className="font-jakarta font-semibold text-base mb-3"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
                     Academic Performance
                   </h4>
@@ -410,9 +410,9 @@ export default function CBCGradingGuide() {
                       <li key={item} className="flex items-center gap-2 text-sm">
                         <CheckCircle2
                           className="w-4 h-4 flex-shrink-0"
-                          style={{ color: "var(--primary)" }}
+                          style={{ color: "var(--color-action-primary)" }}
                         />
-                        <span style={{ color: "var(--muted-foreground)" }}>{item}</span>
+                        <span style={{ color: "var(--color-text-muted)" }}>{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -420,7 +420,7 @@ export default function CBCGradingGuide() {
                 <div>
                   <h4
                     className="font-jakarta font-semibold text-base mb-3"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
                     Holistic Development
                   </h4>
@@ -434,9 +434,9 @@ export default function CBCGradingGuide() {
                       <li key={item} className="flex items-center gap-2 text-sm">
                         <CheckCircle2
                           className="w-4 h-4 flex-shrink-0"
-                          style={{ color: "var(--primary)" }}
+                          style={{ color: "var(--color-action-primary)" }}
                         />
-                        <span style={{ color: "var(--muted-foreground)" }}>{item}</span>
+                        <span style={{ color: "var(--color-text-muted)" }}>{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -465,22 +465,22 @@ export default function CBCGradingGuide() {
                 <div
                   key={feature.title}
                   className="flex gap-4 p-4 rounded-xl"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: "rgba(26,122,74,0.1)" }}
+                    style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
                   >
-                    <TrendingUp className="w-5 h-5" style={{ color: "var(--primary)" }} />
+                    <TrendingUp className="w-5 h-5" style={{ color: "var(--color-action-primary)" }} />
                   </div>
                   <div>
                     <h3
                       className="font-jakarta font-semibold text-base mb-1"
-                      style={{ color: "var(--foreground)" }}
+                      style={{ color: "var(--color-text-default)" }}
                     >
                       {feature.title}
                     </h3>
-                    <p className="font-jakarta text-sm" style={{ color: "var(--muted-foreground)" }}>
+                    <p className="font-jakarta text-sm" style={{ color: "var(--color-text-muted)" }}>
                       {feature.description}
                     </p>
                   </div>
@@ -491,20 +491,20 @@ export default function CBCGradingGuide() {
 
           {/* Parent Portal Integration */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Parent Portal Integration
             </h2>
 
             <div
               className="p-8 rounded-2xl"
               style={{
-                background: "linear-gradient(135deg, var(--platform-chrome) 0%, var(--primary) 100%)",
-                color: "#ffffff",
+                background: "linear-gradient(135deg, var(--color-chrome-platform) 0%, var(--color-action-primary) 100%)",
+                color: "var(--color-text-inverse)",
               }}
             >
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="font-display font-bold text-xl mb-4" style={{ color: "var(--accent-foreground)" }}>
+                  <h3 className="font-display font-bold text-xl mb-4" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                     What Parents See
                   </h3>
                   <ul className="space-y-3">
@@ -519,7 +519,7 @@ export default function CBCGradingGuide() {
                       <li key={item} className="flex items-center gap-2">
                         <CheckCircle2
                           className="w-4 h-4 flex-shrink-0"
-                          style={{ color: "var(--accent-foreground)" }}
+                          style={{ color: "var(--color-text-on-primary-subtle)" }}
                         />
                         <span className="font-jakarta text-sm">{item}</span>
                       </li>
@@ -528,7 +528,7 @@ export default function CBCGradingGuide() {
                 </div>
 
                 <div>
-                  <h3 className="font-display font-bold text-xl mb-4" style={{ color: "var(--accent-foreground)" }}>
+                  <h3 className="font-display font-bold text-xl mb-4" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                     Benefits for Schools
                   </h3>
                   <ul className="space-y-3">
@@ -541,7 +541,7 @@ export default function CBCGradingGuide() {
                       "Better student outcomes",
                     ].map((item) => (
                       <li key={item} className="flex items-center gap-2">
-                        <Users className="w-4 h-4 flex-shrink-0" style={{ color: "var(--accent-foreground)" }} />
+                        <Users className="w-4 h-4 flex-shrink-0" style={{ color: "var(--color-text-on-primary-subtle)" }} />
                         <span className="font-jakarta text-sm">{item}</span>
                       </li>
                     ))}
@@ -553,7 +553,7 @@ export default function CBCGradingGuide() {
 
           {/* Success Stories */}
           <div className="mb-12">
-            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-6" style={{ color: "var(--color-text-default)" }}>
               Success Stories: CBC Implementation
             </h2>
 
@@ -582,33 +582,33 @@ export default function CBCGradingGuide() {
                 <div
                   key={story.school}
                   className="p-5 rounded-xl"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
-                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "var(--foreground)" }}>
+                  <h3 className="font-jakarta font-bold text-lg mb-2" style={{ color: "var(--color-text-default)" }}>
                     {story.school}
                   </h3>
                   <div className="space-y-3">
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "#ef4444" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--color-status-danger-solid)" }}>
                         Challenge:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--color-text-muted)" }}>
                         {story.challenge}
                       </span>
                     </div>
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "var(--primary)" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--color-action-primary)" }}>
                         Solution:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--color-text-muted)" }}>
                         {story.solution}
                       </span>
                     </div>
                     <div>
-                      <span className="font-semibold text-sm" style={{ color: "var(--accent-foreground)" }}>
+                      <span className="font-semibold text-sm" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                         Results:
                       </span>
-                      <span className="text-sm ml-2" style={{ color: "var(--muted-foreground)" }}>
+                      <span className="text-sm ml-2" style={{ color: "var(--color-text-muted)" }}>
                         {story.results}
                       </span>
                     </div>
@@ -620,16 +620,16 @@ export default function CBCGradingGuide() {
 
           {/* CTA */}
           <div className="text-center py-12">
-            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-2xl mb-4" style={{ color: "var(--color-text-default)" }}>
               Ready to Master CBC Implementation?
             </h2>
-            <p className="font-jakarta text-lg mb-6" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-lg mb-6" style={{ color: "var(--color-text-muted)" }}>
               Join 300+ Kenyan schools using EduMyles for seamless CBC gradebook management.
             </p>
             <Link
               href="/book-demo"
               className="inline-flex items-center gap-2 font-jakarta font-bold text-[16px] px-8 py-4 rounded-xl no-underline"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
             >
               Book a CBC Demo
               <ArrowRight className="w-5 h-5" />

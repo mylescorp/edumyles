@@ -387,7 +387,7 @@ export function TenantProvisioningWizard({ className = "" }: { className?: strin
       : subdomainAvailability === undefined
         ? "text-[var(--platform-accent)]"
         : subdomainAvailability.available
-          ? "text-[var(--em-success)]"
+          ? "text-[var(--color-status-success-solid)]"
           : "text-destructive";
   const regionOptions = regions;
 

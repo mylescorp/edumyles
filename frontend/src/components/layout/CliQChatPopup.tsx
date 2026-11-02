@@ -57,8 +57,8 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
       )}
       style={{
         width: 240,
-        background: "var(--card)",
-        border: "1px solid var(--border)",
+        background: "var(--color-surface-default)",
+        border: "1px solid var(--color-border-default)",
         borderBottom: "none",
       }}
     >
@@ -66,8 +66,8 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
       <div
         className="flex items-center gap-2 px-2.5 py-2 shrink-0 cursor-pointer select-none"
         style={{
-          background: "var(--muted)",
-          borderBottom: minimized ? "none" : "1px solid var(--border)",
+          background: "var(--color-surface-sunken)",
+          borderBottom: minimized ? "none" : "1px solid var(--color-border-default)",
         }}
         onClick={() => setMinimized((v) => !v)}
       >
@@ -156,7 +156,7 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
           {/* ── Actions bar ── */}
           <div
             className="shrink-0 flex items-center justify-end px-2 py-1"
-            style={{ borderTop: "1px solid var(--border)" }}
+            style={{ borderTop: "1px solid var(--color-border-default)" }}
           >
             <div className="relative">
               <button
@@ -167,7 +167,7 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
                 <ChevronDown className="h-3 w-3" />
               </button>
               {actionsOpen && (
-                <div className="absolute bottom-full right-0 mb-1 w-36 bg-card border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50">
+                <div className="absolute bottom-full right-0 mb-1 w-36 bg-[var(--color-surface-default)] border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50">
                   {["Remind me", "Star message", "Forward", "Copy link"].map(
                     (action) => (
                       <button
@@ -187,7 +187,7 @@ export function CliQChatPopup({ chat, onClose }: CliQChatPopupProps) {
           {/* ── Input area ── */}
           <div
             className="shrink-0 flex items-center gap-1.5 px-2 py-2"
-            style={{ borderTop: "1px solid var(--border)" }}
+            style={{ borderTop: "1px solid var(--color-border-default)" }}
           >
             <button className="h-6 w-6 shrink-0 flex items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
               <Paperclip className="h-3.5 w-3.5" />

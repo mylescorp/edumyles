@@ -190,12 +190,12 @@ export default function CRMPipelinePage() {
         </Card>
       ) : (
         <>
-          <Card className="overflow-hidden border-emerald-100 surface-gradient">
+          <Card className="overflow-hidden border-emerald-100 bg-[radial-gradient(circle_at_top_left,color-mix(in srgb, var(--color-status-success-solid) 16%, transparent),transparent_32%),linear-gradient(180deg,color-mix(in srgb, var(--color-text-default) 82%, transparent),color-mix(in srgb, var(--color-text-on-primary) 98%, transparent))]">
             <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.2fr_0.8fr]">
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge className="border-0 bg-emerald-600/10 text-emerald-700">Drag & drop board</Badge>
-                  <Badge variant="outline" className="border-slate-300 bg-card/80">
+                  <Badge variant="outline" className="border-slate-300 bg-[var(--color-surface-default)]">
                     <Sparkles className="mr-1.5 h-3.5 w-3.5" />
                     Live Convex pipeline
                   </Badge>
@@ -239,7 +239,7 @@ export default function CRMPipelinePage() {
                 return (
                   <div
                     key={bucket.stage.slug}
-                    className={`w-[320px] shrink-0 rounded-[28px] border bg-card shadow-sm transition ${
+                    className={`w-[320px] shrink-0 rounded-[28px] border bg-[var(--color-surface-default)] shadow-sm transition ${
                       isActiveDrop ? "border-emerald-400 bg-emerald-50/50 shadow-emerald-100" : "border-slate-200"
                     }`}
                     onDragOver={(event) => {
@@ -262,10 +262,10 @@ export default function CRMPipelinePage() {
                       className="rounded-t-[28px] border-b px-5 py-4"
                       style={{
                         background: isToneWon
-                          ? "linear-gradient(135deg, color-mix(in srgb, var(--success) 12%, var(--card)), var(--card))"
+                          ? "linear-gradient(135deg, color-mix(in srgb, var(--color-status-success-solid) 12%, transparent), color-mix(in srgb, var(--color-text-on-primary) 95%, transparent))"
                           : isToneLost
-                            ? "linear-gradient(135deg, color-mix(in srgb, var(--danger) 12%, var(--card)), var(--card))"
-                            : `linear-gradient(135deg, color-mix(in srgb, ${bucket.stage.color} 10%, var(--card)), var(--card))`,
+                            ? "linear-gradient(135deg, color-mix(in srgb, var(--color-status-danger-solid) 12%, transparent), color-mix(in srgb, var(--color-text-on-primary) 95%, transparent))"
+                            : `linear-gradient(135deg, ${bucket.stage.color}18, color-mix(in srgb, var(--color-text-inverse) 96%, transparent))`,
                       }}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -308,7 +308,7 @@ export default function CRMPipelinePage() {
                               draggable={movable}
                               onDragStart={() => setDraggedLeadId(lead._id)}
                               onDragEnd={resetDnD}
-                              className={`group rounded-2xl border bg-card p-4 transition ${
+                              className={`group rounded-2xl border bg-[var(--color-surface-default)] p-4 transition ${
                                 dragging
                                   ? "cursor-grabbing border-emerald-400 opacity-65 shadow-lg"
                                   : movable
@@ -398,7 +398,7 @@ export default function CRMPipelinePage() {
 
 function PipelineStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/70 bg-card/90 p-4">
+    <div className="rounded-2xl border border-[color-mix(in_srgb,var(--color-text-inverse)_70%,transparent)] bg-[var(--color-surface-default)] p-4">
       <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
       <p className="mt-3 text-xl font-semibold text-foreground">{value}</p>
     </div>

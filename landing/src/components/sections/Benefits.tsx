@@ -62,10 +62,10 @@ export default function Benefits() {
         {/* Heading */}
         <h2
           className="font-display font-bold leading-[1.2] mb-12"
-          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--foreground)" }}
+          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--color-text-default)" }}
         >
           Built for{" "}
-          <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+          <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
             Everyone in Your School
           </em>
         </h2>
@@ -80,12 +80,12 @@ export default function Benefits() {
               }}
               className="fade-in rounded-[12px] p-8"
               style={{
-                background: "var(--background)",
-                border: "1px solid var(--border)",
+                background: "var(--color-surface-page)",
+                border: "1px solid var(--color-border-default)",
                 transitionDelay: `${i * 0.1}s`,
               }}
             >
-              <h3 className="font-display font-bold text-[22px] mb-4" style={{ color: "var(--foreground)" }}>
+              <h3 className="font-display font-bold text-[22px] mb-4" style={{ color: "var(--color-text-default)" }}>
                 {role.title}
               </h3>
               <ul className="list-none p-0 m-0">
@@ -93,9 +93,9 @@ export default function Benefits() {
                   <li
                     key={item}
                     className="text-[14px] leading-relaxed mb-3 pl-6 relative"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
-                    <span className="absolute left-0 font-bold" style={{ color: "#26A65B" }}>
+                    <span className="absolute left-0 font-bold" style={{ color: "var(--color-status-success-solid)" }}>
                       ✓
                     </span>
                     {item}
@@ -105,9 +105,9 @@ export default function Benefits() {
               <a
                 href="#demo"
                 className="inline-block mt-4 text-[14px] font-semibold no-underline transition-colors duration-300"
-                style={{ color: "var(--primary)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
+                style={{ color: "var(--color-action-primary)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-status-success-solid)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-action-primary)")}
               >
                 See how it works →
               </a>

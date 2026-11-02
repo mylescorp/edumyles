@@ -500,7 +500,7 @@ export default function AdvancedAnalyticsPage() {
                   <div className="font-medium">{opportunity.tenantName}</div>
                   <div className="text-sm text-muted-foreground">
                     {opportunity.recommendedActions?.map((action: string, actionIndex: number) => (
-                      <div key={actionIndex}>&#8226; {action}</div>
+                      <div key={actionIndex}>&var(--color-status-danger-on-subtle); {action}</div>
                     ))}
                   </div>
                 </div>

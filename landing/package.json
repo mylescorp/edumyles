@@ -23,7 +23,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "resend": "^6.9.3",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "@edumyles/design-system": "*"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

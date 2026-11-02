@@ -33,13 +33,13 @@ interface Column {
 }
 
 const tagStyles: Record<TagType, { bg: string; color: string }> = {
-  Feature: { bg: "#dcfce7", color: "#166534" },
-  AI: { bg: "#f3e8ff", color: "#7c2d8e" },
-  Enhancement: { bg: "#dbeafe", color: "#1e40af" },
-  Compliance: { bg: "#fef3c7", color: "#92400e" },
-  Platform: { bg: "#fef9c3", color: "#854d0e" },
-  Accessibility: { bg: "#ccfbf1", color: "#065f46" },
-  Reliability: { bg: "#f1f5f9", color: "#475569" },
+  Feature: { bg: "var(--color-status-success-subtle)", color: "var(--color-status-success-on-subtle)" },
+  AI: { bg: "var(--color-action-primary-subtle)", color: "var(--color-text-muted)" },
+  Enhancement: { bg: "var(--color-status-info-subtle)", color: "var(--color-action-primary-hover)" },
+  Compliance: { bg: "var(--color-status-warning-subtle)", color: "var(--color-status-warning-on-subtle)" },
+  Platform: { bg: "var(--color-status-warning-subtle)", color: "var(--color-status-warning-on-subtle)" },
+  Accessibility: { bg: "var(--color-status-success-subtle)", color: "var(--color-status-success-on-subtle)" },
+  Reliability: { bg: "var(--color-surface-page)", color: "var(--color-text-muted)" },
 };
 
 const columns: Column[] = [
@@ -47,8 +47,8 @@ const columns: Column[] = [
     label: "Shipped",
     emoji: "✅",
     Icon: CheckCircle2,
-    headerBg: "var(--primary)",
-    headerText: "#ffffff",
+    headerBg: "var(--color-action-primary)",
+    headerText: "var(--color-text-on-primary)",
     items: [
       {
         title: "Multi-Campus Support",
@@ -82,8 +82,8 @@ const columns: Column[] = [
     label: "In Progress",
     emoji: "🔄",
     Icon: Clock,
-    headerBg: "#1e40af",
-    headerText: "#ffffff",
+    headerBg: "var(--color-action-primary-hover)",
+    headerText: "var(--color-text-on-primary)",
     items: [
       {
         title: "AI Timetabling Assistant",
@@ -117,8 +117,8 @@ const columns: Column[] = [
     label: "Planned",
     emoji: "🔮",
     Icon: Star,
-    headerBg: "var(--accent-foreground)",
-    headerText: "var(--foreground)",
+    headerBg: "var(--color-text-on-primary-subtle)",
+    headerText: "var(--color-text-default)",
     items: [
       {
         title: "AI Report Writing Assistant",
@@ -151,13 +151,13 @@ const columns: Column[] = [
 
 export default function RoadmapPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "420px",
         }}
@@ -165,7 +165,7 @@ export default function RoadmapPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -173,25 +173,25 @@ export default function RoadmapPage() {
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgb(var(--primary-rgb) / 12%)",
-              border: "1px solid var(--accent-foreground)",
-              color: "var(--accent-foreground)",
+              background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+              border: "1px solid var(--color-text-on-primary-subtle)",
+              color: "var(--color-text-on-primary-subtle)",
             }}
           >
             Product Roadmap
           </div>
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--color-text-default)" }}
           >
             What we&apos;re{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               building next.
             </em>
           </h1>
           <p
             className="font-jakarta font-light leading-[1.8] mx-auto mb-8"
-            style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "560px" }}
+            style={{ fontSize: "18px", color: "var(--color-text-muted)", maxWidth: "560px" }}
           >
             Our public roadmap. Shipped, in progress, and planned. Updated quarterly.
           </p>
@@ -199,9 +199,9 @@ export default function RoadmapPage() {
             <span
               className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full"
               style={{
-                background: "rgba(255,255,255,0.07)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "#E8E8E8",
+                background: "color-mix(in srgb, var(--color-surface-default) 7%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-surface-default) 15%, transparent)",
+                color: "var(--color-action-primary-disabled)",
               }}
             >
               Last updated: March 2026
@@ -211,14 +211,14 @@ export default function RoadmapPage() {
       </section>
 
       {/* ── Roadmap Kanban ────────────────────────────────── */}
-      <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--color-surface-default)", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {columns.map(({ label, emoji, Icon, headerBg, headerText, items }) => (
               <div
                 key={label}
                 className="rounded-2xl overflow-hidden"
-                style={{ border: "1px solid #e4ede8" }}
+                style={{ border: "1px solid var(--color-status-success-subtle)" }}
               >
                 {/* Column header */}
                 <div className="px-5 py-4 flex items-center gap-3" style={{ background: headerBg }}>
@@ -232,7 +232,7 @@ export default function RoadmapPage() {
                   <span
                     className="ml-auto font-jakarta font-semibold text-[12px] px-2 py-0.5 rounded-full"
                     style={{
-                      background: "rgba(255,255,255,0.15)",
+                      background: "color-mix(in srgb, var(--color-surface-default) 15%, transparent)",
                       color: headerText,
                     }}
                   >
@@ -241,19 +241,19 @@ export default function RoadmapPage() {
                 </div>
 
                 {/* Items */}
-                <div className="p-3 space-y-2.5" style={{ background: "#f9fcfa" }}>
+                <div className="p-3 space-y-2.5" style={{ background: "var(--color-text-default)" }}>
                   {items.map((item) => {
                     const ts = tagStyles[item.tag];
                     return (
                       <div
                         key={item.title}
                         className="rounded-xl p-4 transition-transform duration-150 hover:-translate-y-0.5"
-                        style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                        style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                       >
                         <div className="flex items-start justify-between gap-2 mb-1.5">
                           <div
                             className="font-jakarta font-bold"
-                            style={{ fontSize: "14px", color: "var(--foreground)", lineHeight: 1.4 }}
+                            style={{ fontSize: "14px", color: "var(--color-text-default)", lineHeight: 1.4 }}
                           >
                             {item.title}
                           </div>
@@ -271,7 +271,7 @@ export default function RoadmapPage() {
                         </div>
                         <p
                           className="font-jakarta"
-                          style={{ fontSize: "12.5px", color: "#6b7280", lineHeight: 1.6 }}
+                          style={{ fontSize: "12.5px", color: "var(--color-text-disabled)", lineHeight: 1.6 }}
                         >
                           {item.description}
                         </p>
@@ -286,17 +286,17 @@ export default function RoadmapPage() {
       </section>
 
       {/* ── Feedback Section ──────────────────────────────── */}
-      <section style={{ background: "var(--background)", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--color-surface-page)", padding: "5rem 2rem" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold mb-4"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
           >
             Suggest a feature
           </h2>
           <p
             className="font-jakarta font-light mb-8 mx-auto"
-            style={{ fontSize: "17px", color: "#4a7a5a", maxWidth: "540px", lineHeight: 1.8 }}
+            style={{ fontSize: "17px", color: "var(--color-text-muted)", maxWidth: "540px", lineHeight: 1.8 }}
           >
             Our roadmap is shaped by what schools need. Vote on upcoming features or tell us what to
             build next.
@@ -304,7 +304,7 @@ export default function RoadmapPage() {
           <Link
             href="/contact?subject=feature-request"
             className="inline-block font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-opacity hover:opacity-90"
-            style={{ background: "var(--primary)", color: "var(--primary-foreground)", fontSize: "15px" }}
+            style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)", fontSize: "15px" }}
           >
             Submit Feature Request →
           </Link>
@@ -314,25 +314,25 @@ export default function RoadmapPage() {
       {/* ── CTA ───────────────────────────────────────────── */}
       <section
         className="relative overflow-hidden"
-        style={{ background: "var(--card)", padding: "5rem 2rem" }}
+        style={{ background: "var(--color-surface-default)", padding: "5rem 2rem" }}
       >
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
         <div className="relative max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold mb-4"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
           >
             Start using EduMyles today — and shape what we build tomorrow.
           </h2>
           <p
             className="font-jakarta font-light mb-8"
-            style={{ fontSize: "17px", color: "var(--muted-foreground)" }}
+            style={{ fontSize: "17px", color: "var(--color-text-muted)" }}
           >
             Join schools already running better with EduMyles.
           </p>
@@ -340,7 +340,7 @@ export default function RoadmapPage() {
             <Link
               href="/waitlist"
               className="font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-opacity hover:opacity-90"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)", fontSize: "15px" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)", fontSize: "15px" }}
             >
               Start Free Trial →
             </Link>
@@ -349,8 +349,8 @@ export default function RoadmapPage() {
               className="font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-colors"
               style={{
                 background: "transparent",
-                border: "1.5px solid var(--border)",
-                color: "var(--foreground)",
+                border: "1.5px solid var(--color-border-default)",
+                color: "var(--color-text-default)",
                 fontSize: "15px",
               }}
             >

@@ -12,8 +12,8 @@ export default function CallbackLoading() {
         <div
           className="h-12 w-12 animate-spin rounded-full border-4 border-transparent"
           style={{
-            borderTopColor: "var(--primary)",
-            borderRightColor: "rgb(var(--primary-rgb) / 30%)",
+            borderTopColor: "var(--color-action-primary)",
+            borderRightColor: "color-mix(in srgb, var(--color-action-primary) 30%, transparent)",
           }}
         />
         <div className="space-y-1">
@@ -33,7 +33,7 @@ export default function CallbackLoading() {
             key={i}
             className="h-2 w-2 rounded-full animate-bounce"
             style={{
-              background: "var(--primary)",
+              background: "var(--color-action-primary)",
               animationDelay: `${i * 150}ms`,
               opacity: 0.4 + i * 0.2,
             }}

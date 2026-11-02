@@ -49,8 +49,8 @@ export function WhatsNewNavLink({
           "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
           collapsed && "justify-center",
           active
-            ? "bg-[var(--sidebar-accent-hover)] text-white"
-            : "text-[var(--sidebar-text)] hover:bg-white/8 hover:text-white"
+            ? "bg-[var(--sidebar-accent-hover)] text-[var(--color-text-on-primary)]"
+            : "text-[var(--sidebar-text)] hover:bg-[color-mix(in_srgb,var(--sidebar-text)_8%,transparent)] hover:text-[var(--color-text-on-primary)]"
         )}
       >
         <Sparkles className="h-[18px] w-[18px] flex-none text-[var(--platform-highlight)]" />

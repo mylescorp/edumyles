@@ -93,12 +93,12 @@ function ItemRow({
   return (
     <button
       onClick={() => onClick(item)}
-      className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-white/6 transition-colors duration-100 text-left"
+      className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-[var(--color-surface-default)] transition-colors duration-100 text-left"
     >
       <ItemAvatar item={item} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
-          <span className="text-[12px] font-medium text-white/85 truncate">
+          <span className="text-[12px] font-medium text-[var(--color-text-on-primary)] truncate">
             {item.name}
           </span>
           {item.unread && item.unread > 0 ? (
@@ -107,7 +107,7 @@ function ItemRow({
             </span>
           ) : null}
         </div>
-        <p className="text-[11px] text-white/40 truncate">{item.subtitle}</p>
+        <p className="text-[11px] text-[var(--color-text-on-primary)] truncate">{item.subtitle}</p>
       </div>
     </button>
   );
@@ -185,7 +185,7 @@ export function CliQDrawer({
             <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-emerald-400 border border-[var(--em-forest-deep)]" />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-white/85 truncate leading-tight">
+            <p className="text-[11px] font-semibold text-[var(--color-text-on-primary)] truncate leading-tight">
               {userName}
             </p>
             <p className="text-[10px] text-emerald-400 leading-tight">
@@ -194,12 +194,12 @@ export function CliQDrawer({
           </div>
         </div>
         <div className="flex items-center gap-0.5 shrink-0">
-          <button className="h-6 w-6 flex items-center justify-center rounded text-white/40 hover:text-[var(--topnav-text-active)] hover:bg-white/8 transition-colors">
+          <button className="h-6 w-6 flex items-center justify-center rounded text-[var(--color-text-on-primary)] hover:text-[var(--topnav-text-active)] hover:bg-[var(--color-surface-default)] transition-colors">
             <Plus className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={onClose}
-            className="h-6 w-6 flex items-center justify-center rounded text-white/40 hover:text-[var(--topnav-text-active)] hover:bg-white/8 transition-colors"
+            className="h-6 w-6 flex items-center justify-center rounded text-[var(--color-text-on-primary)] hover:text-[var(--topnav-text-active)] hover:bg-[var(--color-surface-default)] transition-colors"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -212,19 +212,19 @@ export function CliQDrawer({
         style={{ borderColor: "var(--sidebar-border)" }}
       >
         <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-white/30 pointer-events-none" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-[var(--color-text-on-primary)] pointer-events-none" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={searchPlaceholder}
-            className="w-full h-7 pl-7 pr-2 text-[11px] rounded-md bg-white/6 border border-white/8 text-white/80 placeholder:text-white/30 outline-none focus:border-[var(--ring)] transition-colors"
+            className="w-full h-7 pl-7 pr-2 text-[11px] rounded-md bg-[var(--color-surface-default)] border border-[color-mix(in_srgb,var(--color-text-inverse)_8%,transparent)] text-[var(--color-text-on-primary)] placeholder:text-[var(--color-text-on-primary)] outline-none focus:border-[var(--color-focus-ring)] transition-colors"
           />
         </div>
       </div>
 
       {/* Section label */}
       <div className="px-3 pt-2.5 pb-1">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-white/35">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-on-primary)]">
           {sectionLabel}
         </span>
       </div>
@@ -232,7 +232,7 @@ export function CliQDrawer({
       {/* Items */}
       <div className="flex-1 overflow-y-auto">
         {items.length === 0 ? (
-          <p className="px-3 py-4 text-[11px] text-white/35 text-center">
+          <p className="px-3 py-4 text-[11px] text-[var(--color-text-on-primary)] text-center">
             No results
           </p>
         ) : (

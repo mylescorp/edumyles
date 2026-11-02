@@ -24,12 +24,12 @@ import { TrendingUp, TrendingDown, DollarSign, Users, MessageSquare, FileText } 
 
 // EduMyles Design System v3 Chart Colors
 const chartColors = {
-  categorical: ["var(--primary)", "var(--success)", "var(--info)", "var(--warning)", "var(--accent-foreground)", "var(--danger)"],
-  sequential: ["var(--danger-muted)", "var(--warning-muted)", "var(--warning-muted-foreground)", "var(--success-muted)", "var(--success)"],
-  grid: "var(--border)",
-  axis: "var(--muted-foreground)",
-  tooltip_bg: "var(--popover)",
-  tooltip_text: "var(--popover-foreground)",
+  categorical: ["var(--color-action-primary)", "var(--color-status-success-solid)", "var(--color-status-info-solid)", "var(--color-status-warning-solid)", "var(--color-text-on-primary-subtle)", "var(--color-status-danger-solid)"],
+  sequential: ["var(--color-status-danger-subtle)", "var(--color-status-warning-subtle)", "var(--color-status-warning-on-subtle)", "var(--color-status-success-subtle)", "var(--color-status-success-solid)"],
+  grid: "var(--color-border-default)",
+  axis: "var(--color-text-muted)",
+  tooltip_bg: "var(--color-surface-raised)",
+  tooltip_text: "var(--color-text-default)",
 };
 
 function RevenueByPlanTooltip({ active, payload }: any) {
@@ -413,7 +413,7 @@ export function RevenueByPlanChart({ data, isLoading }: RevenueByPlanChartProps)
               labelLine={false}
               label={renderCustomLabel}
               outerRadius={80}
-              fill="var(--info)"
+              fill="var(--color-status-info-solid)"
               dataKey="value"
             >
               {pieData.map((entry, index) => (

@@ -1,0 +1,11 @@
+{
+  "source": ["tokens/primitives.tokens.json", "tokens/semantic.tokens.json", "tokens/component.tokens.json"],
+  "platforms": {
+    "css":     { "transformGroup": "css",     "buildPath": "build/css/",     "files": [{ "destination": "tokens.css", "format": "css/variables", "options": { "outputReferences": true } }] },
+    "ts":      { "transformGroup": "js",      "buildPath": "build/ts/",      "files": [{ "destination": "tokens.ts",  "format": "javascript/es6" }] },
+    "android": { "transformGroup": "android", "buildPath": "build/android/", "files": [{ "destination": "colors.xml", "format": "android/colors" }] },
+    "ios":     { "transformGroup": "ios-swift","buildPath": "build/ios/",    "files": [{ "destination": "Tokens.swift", "format": "ios-swift/class.swift" }] },
+    "email":   { "transformGroup": "css",     "buildPath": "build/email/",   "files": [{ "destination": "email-tokens.json", "format": "json/flat" }] }
+  },
+  "note": "Light and dark live under $value.light / $value.dark. Add a small custom transform that emits one block per mode (:root and [data-theme=dark]). Run in CI; fail the build if any component token resolves to a literal hex."
+}

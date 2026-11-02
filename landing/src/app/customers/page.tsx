@@ -102,13 +102,13 @@ const schoolTypes = [
 
 export default function CustomersPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "420px",
         }}
@@ -116,7 +116,7 @@ export default function CustomersPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -124,26 +124,26 @@ export default function CustomersPage() {
           <div
             className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
             style={{
-              background: "rgb(var(--primary-rgb) / 12%)",
-              border: "1px solid var(--accent-foreground)",
-              color: "var(--accent-foreground)",
+              background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+              border: "1px solid var(--color-text-on-primary-subtle)",
+              color: "var(--color-text-on-primary-subtle)",
             }}
           >
             Our Customers
           </div>
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--color-text-default)" }}
           >
             Schools that{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               run better
             </em>{" "}
             with EduMyles.
           </h1>
           <p
             className="font-jakarta font-light leading-[1.8] mx-auto mb-8"
-            style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "580px" }}
+            style={{ fontSize: "18px", color: "var(--color-text-muted)", maxWidth: "580px" }}
           >
             schools across East Africa trust EduMyles to manage their students, fees, and staff.
           </p>
@@ -153,9 +153,9 @@ export default function CustomersPage() {
                 key={pill}
                 className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#E8E8E8",
+                  background: "color-mix(in srgb, var(--color-surface-default) 7%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-surface-default) 15%, transparent)",
+                  color: "var(--color-action-primary-disabled)",
                 }}
               >
                 {pill}
@@ -168,9 +168,9 @@ export default function CustomersPage() {
       {/* ── Stats Bar ─────────────────────────────────────── */}
       <section
         style={{
-          background: "rgba(26,122,74,0.06)",
-          borderTop: "1px solid rgba(26,122,74,0.12)",
-          borderBottom: "1px solid rgba(26,122,74,0.12)",
+          background: "color-mix(in srgb, var(--color-status-success-solid) 6%, transparent)",
+          borderTop: "1px solid color-mix(in srgb, var(--color-status-success-solid) 12%, transparent)",
+          borderBottom: "1px solid color-mix(in srgb, var(--color-status-success-solid) 12%, transparent)",
           padding: "3rem 2rem",
         }}
       >
@@ -179,13 +179,13 @@ export default function CustomersPage() {
             <div key={s.label} className="text-center">
               <div
                 className="font-display font-bold"
-                style={{ fontSize: "2.25rem", color: "var(--accent-foreground)", lineHeight: 1.1 }}
+                style={{ fontSize: "2.25rem", color: "var(--color-text-on-primary-subtle)", lineHeight: 1.1 }}
               >
                 {s.value}
               </div>
               <div
                 className="font-jakarta font-semibold mt-1"
-                style={{ fontSize: "14px", color: "var(--foreground)" }}
+                style={{ fontSize: "14px", color: "var(--color-text-default)" }}
               >
                 {s.label}
               </div>
@@ -195,11 +195,11 @@ export default function CustomersPage() {
       </section>
 
       {/* ── Customer Wall ─────────────────────────────────── */}
-      <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--color-surface-default)", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <h2
             className="font-display font-bold text-center mb-8"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
           >
             Schools Using EduMyles Today
           </h2>
@@ -211,9 +211,9 @@ export default function CustomersPage() {
                 key={c.label}
                 className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full cursor-default"
                 style={{
-                  background: "rgba(6,26,18,0.04)",
-                  border: "1px solid rgba(6,26,18,0.1)",
-                  color: "var(--foreground)",
+                  background: "color-mix(in srgb, var(--color-surface-page) 4%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-surface-page) 10%, transparent)",
+                  color: "var(--color-text-default)",
                 }}
               >
                 {c.flag} {c.label} ({c.count})
@@ -228,15 +228,15 @@ export default function CustomersPage() {
                 key={school.name}
                 className="rounded-xl p-4 text-center transition-transform duration-200 hover:-translate-y-0.5"
                 style={{
-                  background: "var(--card)",
-                  border: "1px solid var(--border)",
+                  background: "var(--color-surface-default)",
+                  border: "1px solid var(--color-border-default)",
                 }}
               >
                 <div
                   className="w-10 h-10 rounded-lg font-display font-bold flex items-center justify-center mx-auto mb-2"
                   style={{
-                    background: "var(--primary)",
-                    color: "var(--accent-foreground)",
+                    background: "var(--color-action-primary)",
+                    color: "var(--color-text-on-primary-subtle)",
                     fontSize: school.initials.length > 2 ? "11px" : "14px",
                   }}
                 >
@@ -244,11 +244,11 @@ export default function CustomersPage() {
                 </div>
                 <div
                   className="font-jakarta font-semibold"
-                  style={{ fontSize: "12.5px", color: "var(--foreground)", lineHeight: 1.4 }}
+                  style={{ fontSize: "12.5px", color: "var(--color-text-default)", lineHeight: 1.4 }}
                 >
                   {school.name}
                 </div>
-                <div className="mt-1" style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
+                <div className="mt-1" style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
                   {school.flag}
                 </div>
               </div>
@@ -258,11 +258,11 @@ export default function CustomersPage() {
       </section>
 
       {/* ── Testimonials ──────────────────────────────────── */}
-      <section style={{ background: "var(--background)", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--color-surface-page)", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <h2
             className="font-display font-bold text-center mb-12"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
           >
             What school leaders say
           </h2>
@@ -274,12 +274,12 @@ export default function CustomersPage() {
                 style={
                   t.featured
                     ? {
-                        background: "var(--card)",
-                        border: "2px solid rgb(var(--primary-rgb) / 40%)",
+                        background: "var(--color-surface-default)",
+                        border: "2px solid color-mix(in srgb, var(--color-action-primary) 40%, transparent)",
                       }
                     : {
-                        background: "var(--card)",
-                        border: "1px solid var(--border)",
+                        background: "var(--color-surface-default)",
+                        border: "1px solid var(--color-border-default)",
                       }
                 }
               >
@@ -288,7 +288,7 @@ export default function CustomersPage() {
                   className="font-display font-bold leading-none mb-3"
                   style={{
                     fontSize: "4rem",
-                    color: t.featured ? "rgb(var(--primary-rgb) / 40%)" : "rgba(26,122,74,0.2)",
+                    color: t.featured ? "color-mix(in srgb, var(--color-action-primary) 40%, transparent)" : "color-mix(in srgb, var(--color-status-success-solid) 20%, transparent)",
                     lineHeight: 0.8,
                   }}
                 >
@@ -298,7 +298,7 @@ export default function CustomersPage() {
                   className="font-display italic flex-1 mb-5"
                   style={{
                     fontSize: "18px",
-                    color: t.featured ? "#E8E8E8" : "#2d4a38",
+                    color: t.featured ? "var(--color-action-primary-disabled)" : "var(--color-border-default)",
                     lineHeight: 1.7,
                   }}
                 >
@@ -308,8 +308,8 @@ export default function CustomersPage() {
                   <div
                     className="w-9 h-9 rounded-lg font-display font-bold flex items-center justify-center shrink-0"
                     style={{
-                      background: t.featured ? "var(--primary)" : "var(--primary)",
-                      color: t.featured ? "var(--foreground)" : "var(--accent-foreground)",
+                      background: t.featured ? "var(--color-action-primary)" : "var(--color-action-primary)",
+                      color: t.featured ? "var(--color-text-default)" : "var(--color-text-on-primary-subtle)",
                       fontSize: "12px",
                     }}
                   >
@@ -318,13 +318,13 @@ export default function CustomersPage() {
                   <div>
                     <div
                       className="font-jakarta font-semibold"
-                      style={{ fontSize: "13px", color: t.featured ? "#ffffff" : "var(--foreground)" }}
+                      style={{ fontSize: "13px", color: t.featured ? "var(--color-text-inverse)" : "var(--color-text-default)" }}
                     >
                       {t.name}
                     </div>
                     <div
                       className="font-jakarta"
-                      style={{ fontSize: "12px", color: t.featured ? "#90CAF9" : "var(--muted-foreground)" }}
+                      style={{ fontSize: "12px", color: t.featured ? "var(--color-action-primary-hover)" : "var(--color-text-muted)" }}
                     >
                       {t.role}
                     </div>
@@ -337,11 +337,11 @@ export default function CustomersPage() {
       </section>
 
       {/* ── School Types ──────────────────────────────────── */}
-      <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
+      <section style={{ background: "var(--color-surface-default)", padding: "5rem 2rem" }}>
         <div className="max-w-[1200px] mx-auto">
           <h2
             className="font-display font-bold text-center mb-12"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--color-text-default)" }}
           >
             Schools we work with
           </h2>
@@ -350,23 +350,23 @@ export default function CustomersPage() {
               <div
                 key={type}
                 className="rounded-2xl p-6"
-                style={{ background: "#F8FDF9", border: "1px solid var(--border)" }}
+                style={{ background: "var(--color-text-default)", border: "1px solid var(--color-border-default)" }}
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: "rgba(15,76,42,0.1)" }}
+                  style={{ background: "color-mix(in srgb, var(--color-status-success-on-subtle) 10%, transparent)" }}
                 >
-                  <Icon size={22} style={{ color: "var(--primary)" }} />
+                  <Icon size={22} style={{ color: "var(--color-action-primary)" }} />
                 </div>
                 <div
                   className="font-display font-bold mb-0.5"
-                  style={{ fontSize: "2rem", color: "var(--accent-foreground)" }}
+                  style={{ fontSize: "2rem", color: "var(--color-text-on-primary-subtle)" }}
                 >
                   {count}
                 </div>
                 <div
                   className="font-jakarta font-semibold mb-3"
-                  style={{ fontSize: "15px", color: "var(--foreground)" }}
+                  style={{ fontSize: "15px", color: "var(--color-text-default)" }}
                 >
                   {type}
                 </div>
@@ -375,11 +375,11 @@ export default function CustomersPage() {
                     <li
                       key={f}
                       className="font-jakarta flex items-center gap-2"
-                      style={{ fontSize: "13px", color: "#4a7a5a" }}
+                      style={{ fontSize: "13px", color: "var(--color-text-muted)" }}
                     >
                       <span
                         className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ background: "var(--primary)" }}
+                        style={{ background: "var(--color-action-primary)" }}
                       />
                       {f}
                     </li>
@@ -394,25 +394,25 @@ export default function CustomersPage() {
       {/* ── CTA ───────────────────────────────────────────── */}
       <section
         className="relative overflow-hidden"
-        style={{ background: "var(--card)", padding: "5rem 2rem" }}
+        style={{ background: "var(--color-surface-default)", padding: "5rem 2rem" }}
       >
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
         <div className="relative max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold mb-4"
-            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3vw,2.75rem)", color: "var(--color-text-default)" }}
           >
             Join schools already running better.
           </h2>
           <p
             className="font-jakarta font-light mb-8"
-            style={{ fontSize: "17px", color: "var(--muted-foreground)" }}
+            style={{ fontSize: "17px", color: "var(--color-text-muted)" }}
           >
             Get your school set up in under two weeks.
           </p>
@@ -420,7 +420,7 @@ export default function CustomersPage() {
             <Link
               href="/waitlist"
               className="font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-opacity hover:opacity-90"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)", fontSize: "15px" }}
+              style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)", fontSize: "15px" }}
             >
               Start Free Trial →
             </Link>
@@ -429,8 +429,8 @@ export default function CustomersPage() {
               className="font-jakarta font-semibold px-7 py-3.5 rounded-xl transition-colors"
               style={{
                 background: "transparent",
-                border: "1.5px solid var(--border)",
-                color: "var(--foreground)",
+                border: "1.5px solid var(--color-border-default)",
+                color: "var(--color-text-default)",
                 fontSize: "15px",
               }}
             >

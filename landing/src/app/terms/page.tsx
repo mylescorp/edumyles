@@ -33,13 +33,13 @@ const schoolPricingPlans = PUBLIC_PRICING_PLANS;
 
 export default function TermsPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* Hero */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "5rem 2rem 4rem",
           minHeight: "320px",
         }}
@@ -47,7 +47,7 @@ export default function TermsPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -55,9 +55,9 @@ export default function TermsPage() {
           <div
             className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-5 px-4 py-2 rounded-full"
             style={{
-              background: "rgb(var(--primary-rgb) / 12%)",
-              border: "1px solid var(--accent-foreground)",
-              color: "var(--accent-foreground)",
+              background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+              border: "1px solid var(--color-text-on-primary-subtle)",
+              color: "var(--color-text-on-primary-subtle)",
             }}
           >
             <FileText className="w-3.5 h-3.5" strokeWidth={2} />
@@ -65,14 +65,14 @@ export default function TermsPage() {
           </div>
           <h1
             className="font-display font-bold leading-tight mb-4"
-            style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--color-text-default)" }}
           >
             Fair, transparent{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               terms.
             </em>
           </h1>
-          <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--color-text-muted)" }}>
             Last updated: March 2026 · Effective: 1 January 2025
           </p>
           {/* Quick nav */}
@@ -83,9 +83,9 @@ export default function TermsPage() {
                 href={`#${s.id}`}
                 className="font-jakarta font-medium text-[12px] px-4 py-2 rounded-full no-underline transition-colors duration-200"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "var(--muted-foreground)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 7%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-surface-default) 12%, transparent)",
+                  color: "var(--color-text-muted)",
                 }}
               >
                 {s.label}
@@ -100,9 +100,9 @@ export default function TermsPage() {
         {/* Intro */}
         <div
           className="rounded-2xl p-6"
-          style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+          style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
         >
-          <p className="font-jakarta text-[14px] leading-[1.9]" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[14px] leading-[1.9]" style={{ color: "var(--color-text-muted)" }}>
             These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of EduMyles,
             a school management platform operated by <strong>MylesCorp Technologies Ltd</strong>,
             incorporated in Kenya. By using EduMyles you agree to be bound by these Terms. Please
@@ -115,38 +115,38 @@ export default function TermsPage() {
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <CheckCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <CheckCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Acceptance of Terms
             </h2>
           </div>
           <div className="flex flex-col gap-4">
-            <p className="font-jakarta text-[14px] leading-[1.85]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-[14px] leading-[1.85]" style={{ color: "var(--color-text-muted)" }}>
               By accessing or using EduMyles — whether by creating an account, clicking
               &ldquo;Accept&rdquo;, or simply using the platform — you agree to these Terms and our{" "}
-              <Link href="/privacy" style={{ color: "var(--primary)" }}>
+              <Link href="/privacy" style={{ color: "var(--color-action-primary)" }}>
                 Privacy Policy
               </Link>
               .
             </p>
             <div
               className="rounded-xl p-5"
-              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
             >
-              <p className="font-jakarta font-bold text-[13.5px] mb-2" style={{ color: "var(--primary)" }}>
+              <p className="font-jakarta font-bold text-[13.5px] mb-2" style={{ color: "var(--color-action-primary)" }}>
                 Accepting on behalf of a school or institution
               </p>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
                 If you are accepting these Terms on behalf of a school, college, or other
                 institution, you represent and warrant that you have the authority to bind that
                 institution to these Terms. In that case, &ldquo;you&rdquo; and &ldquo;your&rdquo;
                 refer to that institution.
               </p>
             </div>
-            <p className="font-jakarta text-[14px] leading-[1.85]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-[14px] leading-[1.85]" style={{ color: "var(--color-text-muted)" }}>
               We may update these Terms from time to time. We will notify you of material changes by
               email and/or by posting a notice on the platform. Continued use after the effective
               date of an update constitutes acceptance of the new Terms.
@@ -154,22 +154,22 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }} />
 
         {/* 2 — Services */}
         <section id="services" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Services
             </h2>
           </div>
-          <p className="font-jakarta text-[14px] leading-[1.85] mb-5" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[14px] leading-[1.85] mb-5" style={{ color: "var(--color-text-muted)" }}>
             EduMyles provides a cloud-based school management platform. Services are delivered on a
             subscription basis and include:
           </p>
@@ -204,39 +204,39 @@ export default function TermsPage() {
               <div
                 key={svc.title}
                 className="rounded-xl p-4"
-                style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
               >
-                <p className="font-jakarta font-bold text-[13px] mb-1" style={{ color: "var(--foreground)" }}>
+                <p className="font-jakarta font-bold text-[13px] mb-1" style={{ color: "var(--color-text-default)" }}>
                   {svc.title}
                 </p>
                 <p
                   className="font-jakarta text-[12.5px] leading-[1.6]"
-                  style={{ color: "var(--muted-foreground)" }}
+                  style={{ color: "var(--color-text-muted)" }}
                 >
                   {svc.detail}
                 </p>
               </div>
             ))}
           </div>
-          <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
             We reserve the right to modify, suspend, or discontinue any feature with reasonable
             notice. We target live status monitoring and will communicate planned maintenance at least 48
             hours in advance.
           </p>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }} />
 
         {/* 3 — Accounts */}
         <section id="accounts" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Account Registration
             </h2>
           </div>
@@ -271,18 +271,18 @@ export default function TermsPage() {
               <li
                 key={item.point}
                 className="flex items-start gap-3 rounded-xl p-4"
-                style={{ background: "var(--background)", border: "1px solid var(--border)", listStyle: "none" }}
+                style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)", listStyle: "none" }}
               >
                 <span
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
                 >
                   <span
                     style={{
                       width: 6,
                       height: 6,
                       borderRadius: "50%",
-                      background: "var(--primary)",
+                      background: "var(--color-action-primary)",
                       display: "block",
                     }}
                   />
@@ -290,13 +290,13 @@ export default function TermsPage() {
                 <div>
                   <p
                     className="font-jakarta font-bold text-[13px] mb-1"
-                    style={{ color: "var(--foreground)" }}
+                    style={{ color: "var(--color-text-default)" }}
                   >
                     {item.point}
                   </p>
                   <p
                     className="font-jakarta text-[13px] leading-[1.7]"
-                    style={{ color: "var(--muted-foreground)" }}
+                    style={{ color: "var(--color-text-muted)" }}
                   >
                     {item.detail}
                   </p>
@@ -306,36 +306,36 @@ export default function TermsPage() {
           </ul>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }} />
 
         {/* 4 — Billing */}
         <section id="billing" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <CreditCard className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <CreditCard className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Subscription &amp; Billing
             </h2>
           </div>
 
           {/* Pricing table */}
-          <div className="rounded-2xl overflow-hidden mb-6" style={{ border: "1px solid var(--border)" }}>
+          <div className="rounded-2xl overflow-hidden mb-6" style={{ border: "1px solid var(--color-border-default)" }}>
             <table className="w-full border-collapse">
               <thead>
-                <tr style={{ background: "var(--card)" }}>
+                <tr style={{ background: "var(--color-surface-default)" }}>
                   <th
                     className="font-jakarta font-bold text-[12px] text-left px-5 py-3"
-                    style={{ color: "var(--accent-foreground)" }}
+                    style={{ color: "var(--color-text-on-primary-subtle)" }}
                   ></th>
                   {schoolPricingPlans.map((plan) => (
                     <th
                       key={plan.key}
                       className="font-jakarta font-bold text-[12px] text-left px-5 py-3"
-                      style={{ color: "var(--accent-foreground)" }}
+                      style={{ color: "var(--color-text-on-primary-subtle)" }}
                     >
                       {plan.name}
                     </th>
@@ -360,10 +360,10 @@ export default function TermsPage() {
                   ],
                   ["Free trial", "30 days", "30 days", "Custom demo"],
                 ].map(([label, ...values], i) => (
-                  <tr key={label} style={{ background: i % 2 === 0 ? "var(--card)" : "var(--muted)" }}>
+                  <tr key={label} style={{ background: i % 2 === 0 ? "var(--color-surface-default)" : "var(--color-surface-sunken)" }}>
                     <td
                       className="font-jakarta font-semibold text-[13px] px-5 py-3"
-                      style={{ color: "var(--foreground)" }}
+                      style={{ color: "var(--color-text-default)" }}
                     >
                       {label}
                     </td>
@@ -371,7 +371,7 @@ export default function TermsPage() {
                       <td
                         key={`${label}-${value}`}
                         className="font-jakarta text-[13px] px-5 py-3"
-                        style={{ color: value === "Custom" ? "var(--muted-foreground)" : "var(--muted-foreground)" }}
+                        style={{ color: value === "Custom" ? "var(--color-text-muted)" : "var(--color-text-muted)" }}
                       >
                         {value}
                       </td>
@@ -396,18 +396,18 @@ export default function TermsPage() {
               <div
                 key={term}
                 className="flex items-start gap-3 font-jakarta text-[13.5px] leading-[1.75]"
-                style={{ color: "var(--muted-foreground)" }}
+                style={{ color: "var(--color-text-muted)" }}
               >
                 <span
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
                 >
                   <span
                     style={{
                       width: 6,
                       height: 6,
                       borderRadius: "50%",
-                      background: "var(--primary)",
+                      background: "var(--color-action-primary)",
                       display: "block",
                     }}
                   />
@@ -418,26 +418,26 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }} />
 
         {/* 5 — Data Ownership */}
         <section id="data" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <Database className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <Database className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Data Ownership
             </h2>
           </div>
           <div
             className="rounded-2xl p-5 mb-5"
-            style={{ background: "var(--background)", border: "2px solid var(--border)" }}
+            style={{ background: "var(--color-surface-page)", border: "2px solid var(--color-border-default)" }}
           >
-            <p className="font-jakarta font-bold text-[14px]" style={{ color: "var(--primary)" }}>
+            <p className="font-jakarta font-bold text-[14px]" style={{ color: "var(--color-action-primary)" }}>
               Your school owns all data entered into EduMyles — full stop.
             </p>
           </div>
@@ -467,15 +467,15 @@ export default function TermsPage() {
               <div
                 key={item.title}
                 className="rounded-xl p-5"
-                style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                style={{ background: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }}
               >
                 <h3
                   className="font-jakarta font-bold text-[13.5px] mb-1.5"
-                  style={{ color: "var(--primary)" }}
+                  style={{ color: "var(--color-action-primary)" }}
                 >
                   {item.title}
                 </h3>
-                <p className="font-jakarta text-[13px] leading-[1.7]" style={{ color: "var(--muted-foreground)" }}>
+                <p className="font-jakarta text-[13px] leading-[1.7]" style={{ color: "var(--color-text-muted)" }}>
                   {item.detail}
                 </p>
               </div>
@@ -483,33 +483,33 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }} />
 
         {/* 6 — Intellectual Property */}
         <section id="ip" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <Code2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <Code2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Intellectual Property
             </h2>
           </div>
           <div className="flex flex-col gap-4">
             <div
               className="rounded-xl p-5"
-              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-2"
-                style={{ color: "var(--primary)" }}
+                style={{ color: "var(--color-action-primary)" }}
               >
                 EduMyles platform &amp; brand
               </h3>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
                 The EduMyles platform, including its software, source code, user interface, brand
                 identity, logo, and all associated intellectual property, is owned exclusively by{" "}
                 <strong>MylesCorp Technologies Ltd</strong> and protected by Kenyan and
@@ -518,15 +518,15 @@ export default function TermsPage() {
             </div>
             <div
               className="rounded-xl p-5"
-              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-2"
-                style={{ color: "var(--primary)" }}
+                style={{ color: "var(--color-action-primary)" }}
               >
                 Licence granted to schools
               </h3>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
                 We grant you a limited, non-exclusive, non-transferable licence to access and use
                 EduMyles solely for your school&apos;s internal administration during the term of
                 your subscription.
@@ -535,13 +535,13 @@ export default function TermsPage() {
             <div
               className="rounded-xl p-5"
               style={{
-                background: "rgb(var(--primary-rgb) / 6%)",
-                border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                background: "color-mix(in_srgb,_var(--color-action-primary)_6%,_transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
               }}
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-2"
-                style={{ color: "#7A4A00" }}
+                style={{ color: "var(--color-status-warning-on-subtle)" }}
               >
                 Restrictions
               </h3>
@@ -555,9 +555,9 @@ export default function TermsPage() {
                   <li
                     key={r}
                     className="flex items-start gap-2 font-jakarta text-[13px]"
-                    style={{ color: "var(--muted-foreground)", listStyle: "none" }}
+                    style={{ color: "var(--color-text-muted)", listStyle: "none" }}
                   >
-                    <span style={{ color: "var(--accent-foreground)", flexShrink: 0 }}>×</span>
+                    <span style={{ color: "var(--color-text-on-primary-subtle)", flexShrink: 0 }}>×</span>
                     {r}
                   </li>
                 ))}
@@ -565,15 +565,15 @@ export default function TermsPage() {
             </div>
             <div
               className="rounded-xl p-5"
-              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-2"
-                style={{ color: "var(--primary)" }}
+                style={{ color: "var(--color-action-primary)" }}
               >
                 School-generated content
               </h3>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
                 All content generated by your school using EduMyles — including academic reports,
                 fee statements, attendance records, and communications — belongs to your school.
                 EduMyles claims no ownership over your school&apos;s data or documents.
@@ -582,33 +582,33 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }} />
 
         {/* 7 — Termination */}
         <section id="termination" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <XCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <XCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Termination
             </h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-4 mb-5">
             <div
               className="rounded-xl p-5"
-              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-3"
-                style={{ color: "var(--primary)" }}
+                style={{ color: "var(--color-action-primary)" }}
               >
                 Termination by either party
               </h3>
-              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+              <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
                 Either party may terminate this agreement with{" "}
                 <strong>30 days&apos; written notice</strong>. Schools may cancel through the
                 account settings or by emailing support@edumyles.com.
@@ -617,13 +617,13 @@ export default function TermsPage() {
             <div
               className="rounded-xl p-5"
               style={{
-                background: "rgb(var(--primary-rgb) / 6%)",
-                border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                background: "color-mix(in_srgb,_var(--color-action-primary)_6%,_transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
               }}
             >
               <h3
                 className="font-jakarta font-bold text-[13.5px] mb-3"
-                style={{ color: "#7A4A00" }}
+                style={{ color: "var(--color-status-warning-on-subtle)" }}
               >
                 Immediate termination by EduMyles
               </h3>
@@ -637,9 +637,9 @@ export default function TermsPage() {
                   <li
                     key={r}
                     className="flex items-start gap-2 font-jakarta text-[13px]"
-                    style={{ color: "var(--muted-foreground)", listStyle: "none" }}
+                    style={{ color: "var(--color-text-muted)", listStyle: "none" }}
                   >
-                    <span style={{ color: "var(--accent-foreground)", flexShrink: 0 }}>!</span>
+                    <span style={{ color: "var(--color-text-on-primary-subtle)", flexShrink: 0 }}>!</span>
                     {r}
                   </li>
                 ))}
@@ -648,14 +648,14 @@ export default function TermsPage() {
           </div>
           <div
             className="rounded-xl p-4 flex items-start gap-3"
-            style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+            style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
           >
             <Database
               className="w-4 h-4 flex-shrink-0 mt-0.5"
               strokeWidth={1.5}
-              style={{ color: "var(--primary)" }}
+              style={{ color: "var(--color-action-primary)" }}
             />
-            <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
               <strong>Data after termination:</strong> Upon termination for any reason, you have{" "}
               <strong>30 days</strong> to export your school&apos;s data. After this window, all
               data is permanently deleted. We strongly recommend exporting your data before
@@ -664,25 +664,25 @@ export default function TermsPage() {
           </div>
         </section>
 
-        <div style={{ borderTop: "1px solid #f0f0f0" }} />
+        <div style={{ borderTop: "1px solid var(--color-surface-sunken)" }} />
 
         {/* 8 — Governing Law */}
         <section id="law" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-              style={{ background: "rgba(26,122,74,0.1)" }}
+              style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)" }}
             >
-              <Scale className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
+              <Scale className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--color-action-primary)" }} />
             </div>
-            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+            <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
               Governing Law
             </h2>
           </div>
           <div className="flex flex-col gap-4">
             <div
               className="rounded-2xl p-6"
-              style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
             >
               <div className="grid sm:grid-cols-3 gap-5">
                 {[
@@ -705,13 +705,13 @@ export default function TermsPage() {
                   <div key={item.label}>
                     <p
                       className="font-jakarta font-bold text-[12px] uppercase tracking-wider mb-2"
-                      style={{ color: "var(--accent-foreground)" }}
+                      style={{ color: "var(--color-text-on-primary-subtle)" }}
                     >
                       {item.label}
                     </p>
                     <p
                       className="font-jakarta text-[13px] leading-[1.7]"
-                      style={{ color: "var(--muted-foreground)" }}
+                      style={{ color: "var(--color-text-muted)" }}
                     >
                       {item.detail}
                     </p>
@@ -719,7 +719,7 @@ export default function TermsPage() {
                 ))}
               </div>
             </div>
-            <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--muted-foreground)" }}>
+            <p className="font-jakarta text-[13px] leading-[1.75]" style={{ color: "var(--color-text-muted)" }}>
               Nothing in these Terms limits or excludes liability for death or personal injury
               caused by negligence, fraud, or any other liability that cannot be limited under
               Kenyan law.
@@ -728,18 +728,18 @@ export default function TermsPage() {
         </section>
 
         {/* Bottom CTA */}
-        <div className="rounded-2xl p-8 text-center" style={{ background: "var(--card)" }}>
+        <div className="rounded-2xl p-8 text-center" style={{ background: "var(--color-surface-default)" }}>
           <h3 className="font-display font-bold text-[20px] text-foreground mb-2">
             Questions about these terms?
           </h3>
-          <p className="font-jakarta text-[14px] mb-5" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[14px] mb-5" style={{ color: "var(--color-text-muted)" }}>
             Our legal team is happy to clarify anything. We typically respond within 2 business
             days.
           </p>
           <Link
             href="/contact"
             className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
-            style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+            style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
           >
             Contact Us
           </Link>

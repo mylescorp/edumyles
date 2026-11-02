@@ -14,29 +14,29 @@ export default function MobileTeaser() {
       id="mobile"
       className="py-16 px-4 sm:px-8"
       aria-label="Mobile-first experience"
-      style={{ background: "var(--card)" }}
+      style={{ background: "var(--color-surface-default)" }}
     >
       <div className="max-w-[1200px] mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* LEFT — Text */}
         <div>
           <span
             className="inline-block text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full mb-6"
-            style={{ background: "rgb(var(--primary-rgb) / 15%)", color: "var(--accent-foreground)" }}
+            style={{ background: "color-mix(in srgb, var(--color-action-primary) 15%, transparent)", color: "var(--color-text-on-primary-subtle)" }}
           >
             Mobile-First
           </span>
 
           <h2
             className="font-display font-bold leading-[1.2] mb-5"
-            style={{ fontSize: "clamp(1.75rem, 3vw, 2.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem, 3vw, 2.75rem)", color: "var(--color-text-default)" }}
           >
             Runs on any device.{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               Works anywhere in Kenya.
             </em>
           </h2>
 
-          <p className="text-base leading-relaxed mb-7" style={{ color: "var(--muted-foreground)" }}>
+          <p className="text-base leading-relaxed mb-7" style={{ color: "var(--color-text-muted)" }}>
             EduMyles is fully responsive — works perfectly on any phone, tablet, or computer. No app
             download required. Just open your browser and go.
           </p>
@@ -44,10 +44,10 @@ export default function MobileTeaser() {
           <ul className="flex flex-col gap-3 mb-8">
             {bullets.map((bullet) => (
               <li key={bullet} className="flex items-start gap-3">
-                <span className="text-[var(--accent-foreground)] font-bold text-sm mt-0.5 flex-shrink-0">✓</span>
+                <span className="text-[var(--color-text-on-primary-subtle)] font-bold text-sm mt-0.5 flex-shrink-0">✓</span>
                 <span
                   className="text-sm leading-relaxed"
-                  style={{ color: "var(--foreground)" }}
+                  style={{ color: "var(--color-text-default)" }}
                 >
                   {bullet}
                 </span>
@@ -59,9 +59,9 @@ export default function MobileTeaser() {
             <span
               className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full"
               style={{
-                background: "rgba(255,255,255,0.08)",
-                color: "var(--muted-foreground)",
-                border: "1px solid rgba(255,255,255,0.12)",
+                background: "color-mix(in srgb, var(--color-surface-default) 8%, transparent)",
+                color: "var(--color-text-muted)",
+                border: "1px solid color-mix(in srgb, var(--color-text-on-primary) 12%, transparent)",
               }}
             >
               📱 Native iOS &amp; Android app — Coming Q4 2026
@@ -71,7 +71,7 @@ export default function MobileTeaser() {
           <Link
             href="/waitlist"
             className="inline-flex items-center gap-2 font-semibold text-sm px-6 py-3 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+            style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
           >
             Try it on your phone →
           </Link>
@@ -83,7 +83,7 @@ export default function MobileTeaser() {
           <div
             className="relative"
             style={{
-              filter: "drop-shadow(0 0 40px rgb(var(--primary-rgb) / 25%))",
+              filter: "drop-shadow(0 0 40px color-mix(in srgb, var(--color-action-primary) 25%, transparent))",
             }}
           >
             {/* Phone outer */}
@@ -93,9 +93,9 @@ export default function MobileTeaser() {
                 width: "192px",
                 height: "384px",
                 borderRadius: "2.5rem",
-                border: "4px solid var(--accent-foreground)",
-                background: "var(--primary)",
-                boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
+                border: "4px solid var(--color-text-on-primary-subtle)",
+                background: "var(--color-action-primary)",
+                boxShadow: "0 25px 60px color-mix(in srgb, var(--color-surface-page) 50%, transparent)",
               }}
             >
               {/* Inner screen */}
@@ -103,7 +103,7 @@ export default function MobileTeaser() {
                 style={{
                   margin: "8px",
                   borderRadius: "2rem",
-                  background: "var(--card)",
+                  background: "var(--color-surface-default)",
                   overflow: "hidden",
                   height: "calc(100% - 16px)",
                   display: "flex",
@@ -116,7 +116,7 @@ export default function MobileTeaser() {
                     display: "flex",
                     justifyContent: "center",
                     padding: "6px 0 4px",
-                    background: "var(--card)",
+                    background: "var(--color-surface-default)",
                   }}
                 >
                   <div
@@ -124,7 +124,7 @@ export default function MobileTeaser() {
                       width: "48px",
                       height: "6px",
                       borderRadius: "3px",
-                      background: "var(--card)",
+                      background: "var(--color-surface-default)",
                     }}
                   />
                 </div>
@@ -132,7 +132,7 @@ export default function MobileTeaser() {
                 {/* App header */}
                 <div
                   style={{
-                    background: "var(--card)",
+                    background: "var(--color-surface-default)",
                     padding: "6px 10px",
                     display: "flex",
                     alignItems: "center",
@@ -141,7 +141,7 @@ export default function MobileTeaser() {
                 >
                   <span
                     style={{
-                      color: "var(--accent-foreground)",
+                      color: "var(--color-text-on-primary-subtle)",
                       fontSize: "9px",
                       fontWeight: 700,
                       letterSpacing: "0.05em",
@@ -149,7 +149,7 @@ export default function MobileTeaser() {
                   >
                     EduMyles
                   </span>
-                  <span style={{ color: "var(--muted-foreground)", fontSize: "8px" }}>9:41 AM</span>
+                  <span style={{ color: "var(--color-text-muted)", fontSize: "8px" }}>9:41 AM</span>
                 </div>
 
                 {/* Screen content */}
@@ -165,24 +165,24 @@ export default function MobileTeaser() {
                   {/* Attendance card */}
                   <div
                     style={{
-                      background: "var(--background)",
+                      background: "var(--color-surface-page)",
                       borderRadius: "8px",
                       padding: "8px",
-                      border: "1px solid var(--border)",
+                      border: "1px solid var(--color-border-default)",
                     }}
                   >
                     <p
                       style={{
                         fontSize: "8px",
                         fontWeight: 600,
-                        color: "var(--foreground)",
+                        color: "var(--color-text-default)",
                         marginBottom: "4px",
                       }}
                     >
                       Attendance Today
                     </p>
                     <p
-                      style={{ fontSize: "14px", fontWeight: 800, color: "var(--primary)", lineHeight: 1 }}
+                      style={{ fontSize: "14px", fontWeight: 800, color: "var(--color-action-primary)", lineHeight: 1 }}
                     >
                       94%
                     </p>
@@ -192,7 +192,7 @@ export default function MobileTeaser() {
                         marginTop: "5px",
                         height: "4px",
                         borderRadius: "2px",
-                        background: "var(--border)",
+                        background: "var(--color-border-default)",
                         overflow: "hidden",
                       }}
                     >
@@ -201,7 +201,7 @@ export default function MobileTeaser() {
                           width: "94%",
                           height: "100%",
                           borderRadius: "2px",
-                          background: "var(--primary)",
+                          background: "var(--color-action-primary)",
                         }}
                       />
                     </div>
@@ -212,8 +212,8 @@ export default function MobileTeaser() {
                     style={{
                       borderRadius: "8px",
                       padding: "8px",
-                      border: "1px solid var(--warning)",
-                      background: "var(--warning-muted)",
+                      border: "1px solid var(--color-status-warning-solid)",
+                      background: "var(--color-status-warning-subtle)",
                       display: "flex",
                       alignItems: "center",
                       gap: "6px",
@@ -221,20 +221,20 @@ export default function MobileTeaser() {
                   >
                     <span style={{ fontSize: "12px" }}>🔔</span>
                     <div>
-                      <p style={{ fontSize: "8px", fontWeight: 700, color: "var(--foreground)" }}>
+                      <p style={{ fontSize: "8px", fontWeight: 700, color: "var(--color-text-default)" }}>
                         3 fee alerts
                       </p>
-                      <p style={{ fontSize: "7px", color: "var(--warning-muted-foreground)" }}>Pending collections</p>
+                      <p style={{ fontSize: "7px", color: "var(--color-status-warning-on-subtle)" }}>Pending collections</p>
                     </div>
                   </div>
 
                   {/* Messages card */}
                   <div
                     style={{
-                      background: "var(--background)",
+                      background: "var(--color-surface-page)",
                       borderRadius: "8px",
                       padding: "8px",
-                      border: "1px solid var(--border)",
+                      border: "1px solid var(--color-border-default)",
                       display: "flex",
                       alignItems: "center",
                       gap: "6px",
@@ -242,10 +242,10 @@ export default function MobileTeaser() {
                   >
                     <span style={{ fontSize: "12px" }}>💬</span>
                     <div>
-                      <p style={{ fontSize: "8px", fontWeight: 700, color: "var(--foreground)" }}>
+                      <p style={{ fontSize: "8px", fontWeight: 700, color: "var(--color-text-default)" }}>
                         2 new messages
                       </p>
-                      <p style={{ fontSize: "7px", color: "#64748b" }}>from parents</p>
+                      <p style={{ fontSize: "7px", color: "var(--color-text-disabled)" }}>from parents</p>
                     </div>
                   </div>
                 </div>
@@ -256,7 +256,7 @@ export default function MobileTeaser() {
                     display: "flex",
                     justifyContent: "space-around",
                     padding: "8px 4px",
-                    borderTop: "1px solid var(--border)",
+                    borderTop: "1px solid var(--color-border-default)",
                     marginTop: "auto",
                   }}
                 >
@@ -266,7 +266,7 @@ export default function MobileTeaser() {
                       style={{
                         width: "14px",
                         height: "14px",
-                        color: i === 0 ? "var(--primary)" : "#94a3b8",
+                        color: i === 0 ? "var(--color-action-primary)" : "var(--color-text-muted)",
                       }}
                       strokeWidth={1.5}
                     />
@@ -283,7 +283,7 @@ export default function MobileTeaser() {
               height: "20px",
               borderRadius: "50%",
               background:
-                "radial-gradient(ellipse at center, rgb(var(--primary-rgb) / 35%) 0%, transparent 70%)",
+                "radial-gradient(ellipse at center, color-mix(in srgb, var(--color-action-primary) 35%, transparent) 0%, transparent 70%)",
               marginTop: "-4px",
             }}
           />

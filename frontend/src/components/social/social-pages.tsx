@@ -70,7 +70,7 @@ type BestTimeSuggestion = {
   reason: string;
 };
 
-const PLATFORM_COLORS = ["var(--primary)", "var(--warning)", "var(--success)", "var(--info)", "var(--danger)", "var(--info)", "var(--warning)", "var(--primary)"];
+const PLATFORM_COLORS = ["var(--color-action-primary)", "var(--color-status-warning-solid)", "var(--color-status-success-solid)", "var(--color-status-info-solid)", "var(--color-status-danger-solid)", "var(--color-status-info-solid)", "var(--color-status-warning-solid)", "var(--color-action-primary)"];
 const WEEKDAY_INDEX: Record<string, number> = {
   Sunday: 0,
   Monday: 1,
@@ -340,14 +340,14 @@ export function SocialDashboardPage({ scope }: { scope: SocialScope }) {
                 <AreaChart data={trend}>
                   <defs>
                     <linearGradient id="reachGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.45} />
-                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.02} />
+                      <stop offset="0%" stopColor="var(--color-action-primary)" stopOpacity={0.45} />
+                      <stop offset="100%" stopColor="var(--color-action-primary)" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="label" tickLine={false} axisLine={false} />
                   <RechartsTooltip />
-                  <Area type="monotone" dataKey="reach" stroke="var(--primary)" fill="url(#reachGradient)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="reach" stroke="var(--color-action-primary)" fill="url(#reachGradient)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -1552,15 +1552,15 @@ export function SocialAnalyticsPage({ scope }: { scope: SocialScope }) {
                 <AreaChart data={trend}>
                   <defs>
                     <linearGradient id="engagementGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--success)" stopOpacity={0.45} />
-                      <stop offset="100%" stopColor="var(--success)" stopOpacity={0.04} />
+                      <stop offset="0%" stopColor="var(--color-status-success-solid)" stopOpacity={0.45} />
+                      <stop offset="100%" stopColor="var(--color-status-success-solid)" stopOpacity={0.04} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="label" tickLine={false} axisLine={false} />
                   <RechartsTooltip />
-                  <Area type="monotone" dataKey="reach" stroke="var(--primary)" strokeWidth={2} fillOpacity={0} />
-                  <Area type="monotone" dataKey="engagements" stroke="var(--success)" strokeWidth={2} fill="url(#engagementGradient)" />
+                  <Area type="monotone" dataKey="reach" stroke="var(--color-action-primary)" strokeWidth={2} fillOpacity={0} />
+                  <Area type="monotone" dataKey="engagements" stroke="var(--color-status-success-solid)" strokeWidth={2} fill="url(#engagementGradient)" />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -1621,8 +1621,8 @@ export function SocialAnalyticsPage({ scope }: { scope: SocialScope }) {
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="platform" tickLine={false} axisLine={false} />
                       <RechartsTooltip />
-                      <Bar dataKey="impressions" radius={[8, 8, 0, 0]} fill="var(--primary)" />
-                      <Bar dataKey="engagements" radius={[8, 8, 0, 0]} fill="var(--success)" />
+                      <Bar dataKey="impressions" radius={[8, 8, 0, 0]} fill="var(--color-action-primary)" />
+                      <Bar dataKey="engagements" radius={[8, 8, 0, 0]} fill="var(--color-status-success-solid)" />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -1979,7 +1979,7 @@ export function SocialCalendarPage({ scope }: { scope: SocialScope }) {
                     href={`${socialBasePath(scope)}/posts/${post._id}`}
                     draggable
                     onDragStart={() => setDraggingPostId(String(post._id))}
-                    className="block rounded-lg border bg-card/90 p-2 text-xs transition hover:border-primary/50"
+                    className="block rounded-lg border bg-[var(--color-surface-default)] p-2 text-xs transition hover:border-primary/50"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="line-clamp-2 font-medium">{post.title}</p>

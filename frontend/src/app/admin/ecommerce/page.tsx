@@ -285,7 +285,7 @@ export default function ECommercePage() {
                         <Link href="/admin/ecommerce/products">
                             <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                                 <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-3">
-                                    <Package className="h-6 w-6 text-white" />
+                                    <Package className="h-6 w-6 text-[var(--color-text-on-primary)]" />
                                 </div>
                                 <h3 className="font-medium text-center">Manage Products</h3>
                                 <p className="text-sm text-muted-foreground text-center mt-1">
@@ -296,7 +296,7 @@ export default function ECommercePage() {
                         <Link href="/admin/ecommerce/orders">
                             <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                                 <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-3">
-                                    <ShoppingCart className="h-6 w-6 text-white" />
+                                    <ShoppingCart className="h-6 w-6 text-[var(--color-text-on-primary)]" />
                                 </div>
                                 <h3 className="font-medium text-center">Process Orders</h3>
                                 <p className="text-sm text-muted-foreground text-center mt-1">
@@ -307,7 +307,7 @@ export default function ECommercePage() {
                         <Link href="/admin/ecommerce/analytics">
                             <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                                 <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-3">
-                                    <BarChart3 className="h-6 w-6 text-white" />
+                                    <BarChart3 className="h-6 w-6 text-[var(--color-text-on-primary)]" />
                                 </div>
                                 <h3 className="font-medium text-center">Analytics</h3>
                                 <p className="text-sm text-muted-foreground text-center mt-1">
@@ -318,7 +318,7 @@ export default function ECommercePage() {
                         <Link href="/admin/ecommerce/settings">
                             <div className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                                 <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mb-3">
-                                    <Settings className="h-6 w-6 text-white" />
+                                    <Settings className="h-6 w-6 text-[var(--color-text-on-primary)]" />
                                 </div>
                                 <h3 className="font-medium text-center">Settings</h3>
                                 <p className="text-sm text-muted-foreground text-center mt-1">

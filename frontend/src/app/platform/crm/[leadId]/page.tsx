@@ -462,7 +462,7 @@ export default function LeadDetailPage() {
 
       <div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
         <div className="space-y-6">
-          <Card className="border-emerald-100 surface-gradient">
+          <Card className="border-emerald-100 bg-[linear-gradient(180deg,color-mix(in_srgb,_var(--color-text-default)_60%,_transparent),color-mix(in_srgb,_var(--color-surface-default)_98%,_transparent))]">
             <CardContent className="grid gap-4 p-6 md:grid-cols-2 xl:grid-cols-4">
               <Metric label="Stage" value={lead.lead.stage} tone="emerald" />
               <Metric label="Qualification score" value={String(lead.lead.qualificationScore ?? 0)} tone="sky" />
@@ -983,7 +983,7 @@ function Metric({
   } as const;
 
   return (
-    <div className="rounded-2xl border bg-card/90 p-4">
+    <div className="rounded-2xl border bg-[var(--color-surface-default)] p-4">
       <div className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${tones[tone]}`}>{label}</div>
       <p className="mt-4 text-2xl font-semibold">{value}</p>
     </div>

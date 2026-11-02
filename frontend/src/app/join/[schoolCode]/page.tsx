@@ -121,9 +121,9 @@ export default function ParentJoinPage() {
   }
 
   return (
-    <div className="min-h-screen page-gradient px-4 py-10">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_color-mix(in_srgb,_var(--color-status-success-subtle)_14%,_transparent),_transparent_34%),linear-gradient(180deg,_#f5faf7_0%,_#edf5ef_100%)] px-4 py-10">
       <div className="mx-auto max-w-3xl">
-        <Card className="border-emerald-100 bg-card/95 shadow-xl">
+        <Card className="border-emerald-100 bg-[var(--color-surface-default)] shadow-xl">
           <CardHeader className="space-y-4">
             <Badge variant="outline" className="w-fit border-emerald-200 text-emerald-900">
               Parent Access
@@ -184,7 +184,7 @@ export default function ParentJoinPage() {
                   </div>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     {lookup.matches.map((match: any) => (
-                      <div key={String(match.guardianId)} className="rounded-xl border border-emerald-200 bg-card p-4">
+                      <div key={String(match.guardianId)} className="rounded-xl border border-emerald-200 bg-[var(--color-surface-default)] p-4">
                         <p className="text-sm font-semibold text-slate-900">{match.guardianName}</p>
                         <p className="mt-1 text-xs text-slate-500">{match.relationship}</p>
                         <div className="mt-3 space-y-2">
@@ -221,7 +221,7 @@ export default function ParentJoinPage() {
             ) : null}
 
             {requestResult ? (
-              <form onSubmit={handleVerifyOtp} className="space-y-4 rounded-2xl border border-slate-200 bg-card p-5">
+              <form onSubmit={handleVerifyOtp} className="space-y-4 rounded-2xl border border-slate-200 bg-[var(--color-surface-default)] p-5">
                 <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
                   {requestResult.deliveryChannel === "email" ? (
                     <Mail className="h-4 w-4 text-emerald-700" />

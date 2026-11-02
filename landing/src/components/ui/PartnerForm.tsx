@@ -52,18 +52,18 @@ export default function PartnerForm() {
     return (
       <div
         className="rounded-2xl p-10 flex flex-col items-center gap-4 text-center"
-        style={{ background: "var(--background)", border: "1px solid var(--border)" }}
+        style={{ background: "var(--color-surface-page)", border: "1px solid var(--color-border-default)" }}
       >
         <div
           className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
-          style={{ background: "var(--success)", color: "var(--success-foreground)" }}
+          style={{ background: "var(--color-status-success-solid)", color: "var(--color-status-success-on-solid)" }}
         >
           ✓
         </div>
-        <h3 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+        <h3 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
           Application received!
         </h3>
-        <p className="font-jakarta text-[16px]" style={{ color: "var(--muted-foreground)" }}>
+        <p className="font-jakarta text-[16px]" style={{ color: "var(--color-text-muted)" }}>
           Our partnerships team will be in touch within 48 hours.
         </p>
       </div>
@@ -75,8 +75,8 @@ export default function PartnerForm() {
       {/* Row: Full Name + Email */}
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
-          <label htmlFor="partner-name" className={labelClass} style={{ color: "var(--foreground)" }}>
-            Full Name <span style={{ color: "var(--accent-foreground)" }}>*</span>
+          <label htmlFor="partner-name" className={labelClass} style={{ color: "var(--color-text-default)" }}>
+            Full Name <span style={{ color: "var(--color-text-on-primary-subtle)" }}>*</span>
           </label>
           <input
             id="partner-name"
@@ -87,12 +87,12 @@ export default function PartnerForm() {
             onChange={handleChange}
             placeholder="e.g. James Otieno"
             className={inputClass}
-            style={{ color: "var(--foreground)" }}
+            style={{ color: "var(--color-text-default)" }}
           />
         </div>
         <div>
-          <label htmlFor="partner-email" className={labelClass} style={{ color: "var(--foreground)" }}>
-            Email Address <span style={{ color: "var(--accent-foreground)" }}>*</span>
+          <label htmlFor="partner-email" className={labelClass} style={{ color: "var(--color-text-default)" }}>
+            Email Address <span style={{ color: "var(--color-text-on-primary-subtle)" }}>*</span>
           </label>
           <input
             id="partner-email"
@@ -103,14 +103,14 @@ export default function PartnerForm() {
             onChange={handleChange}
             placeholder="you@company.com"
             className={inputClass}
-            style={{ color: "var(--foreground)" }}
+            style={{ color: "var(--color-text-default)" }}
           />
         </div>
       </div>
 
       {/* Company */}
       <div>
-        <label htmlFor="partner-company" className={labelClass} style={{ color: "var(--foreground)" }}>
+        <label htmlFor="partner-company" className={labelClass} style={{ color: "var(--color-text-default)" }}>
           Company / Organisation
         </label>
         <input
@@ -121,15 +121,15 @@ export default function PartnerForm() {
           onChange={handleChange}
           placeholder="e.g. Apex EdTech Solutions"
           className={inputClass}
-          style={{ color: "var(--foreground)" }}
+          style={{ color: "var(--color-text-default)" }}
         />
       </div>
 
       {/* Row: Country + Partner Type */}
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
-          <label htmlFor="partner-country" className={labelClass} style={{ color: "var(--foreground)" }}>
-            Country <span style={{ color: "var(--accent-foreground)" }}>*</span>
+          <label htmlFor="partner-country" className={labelClass} style={{ color: "var(--color-text-default)" }}>
+            Country <span style={{ color: "var(--color-text-on-primary-subtle)" }}>*</span>
           </label>
           <select
             id="partner-country"
@@ -138,7 +138,7 @@ export default function PartnerForm() {
             value={fields.country}
             onChange={handleChange}
             className={inputClass}
-            style={{ color: fields.country ? "var(--foreground)" : "#9ca3af" }}
+            style={{ color: fields.country ? "var(--color-text-default)" : "var(--color-text-muted)" }}
           >
             <option value="">Select country…</option>
             <option value="Kenya">Kenya</option>
@@ -150,8 +150,8 @@ export default function PartnerForm() {
           </select>
         </div>
         <div>
-          <label htmlFor="partner-type" className={labelClass} style={{ color: "var(--foreground)" }}>
-            Partner Type <span style={{ color: "var(--accent-foreground)" }}>*</span>
+          <label htmlFor="partner-type" className={labelClass} style={{ color: "var(--color-text-default)" }}>
+            Partner Type <span style={{ color: "var(--color-text-on-primary-subtle)" }}>*</span>
           </label>
           <select
             id="partner-type"
@@ -160,7 +160,7 @@ export default function PartnerForm() {
             value={fields.partnerType}
             onChange={handleChange}
             className={inputClass}
-            style={{ color: fields.partnerType ? "var(--foreground)" : "#9ca3af" }}
+            style={{ color: fields.partnerType ? "var(--color-text-default)" : "var(--color-text-muted)" }}
           >
             <option value="">Select type…</option>
             <option value="Referral Partner">Referral Partner</option>
@@ -172,8 +172,8 @@ export default function PartnerForm() {
 
       {/* Message */}
       <div>
-        <label htmlFor="partner-message" className={labelClass} style={{ color: "var(--foreground)" }}>
-          How do you plan to bring schools to EduMyles? <span style={{ color: "var(--accent-foreground)" }}>*</span>
+        <label htmlFor="partner-message" className={labelClass} style={{ color: "var(--color-text-default)" }}>
+          How do you plan to bring schools to EduMyles? <span style={{ color: "var(--color-text-on-primary-subtle)" }}>*</span>
         </label>
         <textarea
           id="partner-message"
@@ -184,17 +184,17 @@ export default function PartnerForm() {
           onChange={handleChange}
           placeholder="Tell us about your network, approach, and the opportunity you see…"
           className={inputClass}
-          style={{ color: "var(--foreground)", resize: "vertical" }}
+          style={{ color: "var(--color-text-default)", resize: "vertical" }}
         />
       </div>
 
       {/* Error state */}
       {formState === "error" && (
-        <p className="font-jakarta text-[14px]" style={{ color: "var(--danger)" }}>
+        <p className="font-jakarta text-[14px]" style={{ color: "var(--color-status-danger-solid)" }}>
           Something went wrong. Please try again or email us at{" "}
           <a
             href="mailto:partners@edumyles.com"
-            style={{ color: "var(--danger)", textDecoration: "underline" }}
+            style={{ color: "var(--color-status-danger-solid)", textDecoration: "underline" }}
           >
             partners@edumyles.com
           </a>
@@ -209,22 +209,22 @@ export default function PartnerForm() {
           disabled={formState === "loading"}
           className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] transition-colors duration-200"
           style={{
-            background: formState === "loading" ? "var(--muted-foreground)" : "var(--primary)",
-            color: "var(--primary-foreground)",
+            background: formState === "loading" ? "var(--color-text-muted)" : "var(--color-action-primary)",
+            color: "var(--color-text-on-primary)",
             cursor: formState === "loading" ? "not-allowed" : "pointer",
             border: "none",
             minWidth: "220px",
           }}
           onMouseEnter={(e) => {
             if (formState !== "loading") {
-              e.currentTarget.style.background = "var(--primary)";
-              e.currentTarget.style.color = "var(--primary-foreground)";
+              e.currentTarget.style.background = "var(--color-action-primary)";
+              e.currentTarget.style.color = "var(--color-text-on-primary)";
             }
           }}
           onMouseLeave={(e) => {
             if (formState !== "loading") {
-              e.currentTarget.style.background = "var(--primary)";
-              e.currentTarget.style.color = "var(--primary-foreground)";
+              e.currentTarget.style.background = "var(--color-action-primary)";
+              e.currentTarget.style.color = "var(--color-text-on-primary)";
             }
           }}
         >

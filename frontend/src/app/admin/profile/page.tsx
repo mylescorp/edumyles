@@ -276,7 +276,7 @@ export default function AdminProfilePage() {
               {/* Avatar */}
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
-                  <AvatarFallback className="text-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                  <AvatarFallback className="text-xl bg-gradient-to-br from-blue-500 to-purple-600 text-[var(--color-text-on-primary)]">
                     {initials}
                   </AvatarFallback>
                 </Avatar>

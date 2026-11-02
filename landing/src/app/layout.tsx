@@ -112,13 +112,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const googleTagId = gaId ?? adsId;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" dir="ltr" data-density="comfortable" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           dangerouslySetInnerHTML={{
-          __html: `(function(){try{var t=localStorage.getItem('em-site-theme');if(t!=='light'&&t!=='dark'){t=localStorage.getItem('em-theme');if(t==='light'||t==='dark')localStorage.setItem('em-site-theme',t);else t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';}document.documentElement.dataset.theme=t;document.documentElement.classList.toggle('dark',t==='dark');}catch(e){}})();`,
+            __html: `(function(){var r=document.documentElement,t;try{var m=document.cookie.match(/(?:^|;\\s*)em-theme=(light|dark|system)(?:;|$)/);t=m&&m[1]||localStorage.getItem('em-theme');if(t!=='light'&&t!=='dark'&&t!=='system')t='system';var d=t==='dark'||t==='system'&&matchMedia('(prefers-color-scheme:dark)').matches;r.classList.toggle('dark',d);r.setAttribute('data-theme',d?'dark':'light')}catch(e){r.setAttribute('data-theme','light')}})();`,
           }}
         />
         {googleTagId ? (

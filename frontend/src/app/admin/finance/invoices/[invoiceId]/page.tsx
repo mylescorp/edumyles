@@ -40,11 +40,11 @@ function printReceipt(receipt: Record<string, any>) {
   <style>
     body { font-family: sans-serif; max-width: 480px; margin: 40px auto; padding: 24px; }
     h1 { font-size: 22px; margin-bottom: 4px; }
-    .sub { color: #666; font-size: 13px; margin-bottom: 24px; }
-    .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; }
+    .sub { color: var(--color-text-muted); font-size: 13px; margin-bottom: 24px; }
+    .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--color-surface-sunken); }
     .bold { font-weight: 600; }
     .total { font-size: 18px; font-weight: 700; margin-top: 12px; }
-    .stamp { text-align: center; margin-top: 32px; color: #16a34a; font-size: 22px; font-weight: 800; border: 3px solid #16a34a; padding: 8px 24px; display: inline-block; transform: rotate(-5deg); }
+    .stamp { text-align: center; margin-top: 32px; color: var(--color-status-success-solid); font-size: 22px; font-weight: 800; border: 3px solid var(--color-status-success-solid); padding: 8px 24px; display: inline-block; transform: rotate(-5deg); }
     @media print { body { margin: 0; } }
   </style>
 </head>

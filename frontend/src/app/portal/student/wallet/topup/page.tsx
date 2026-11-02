@@ -141,7 +141,7 @@ export default function WalletTopupPage() {
 
       <div className="max-w-lg space-y-6">
         {/* Current balance */}
-        <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+        <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-[var(--color-text-on-primary)]">
           <CardContent className="flex items-center gap-4 p-6">
             <Wallet className="h-8 w-8" />
             <div>

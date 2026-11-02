@@ -207,7 +207,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                     className={cn(
                       "flex h-4 w-4 items-center justify-center rounded transition-all duration-150",
                         disabledByPermission
-                          ? "text-white/25"
+                          ? "text-[var(--color-text-on-primary)]"
                           : isActive
                           ? "text-[var(--platform-highlight)]"
                           : "text-sidebar-icon group-hover:text-[var(--platform-highlight)]"
@@ -216,7 +216,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                     {disabledByPermission ? <Lock className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                   </div>
                   {!collapsed && (
-                    <span className={cn("truncate", disabledByPermission && "text-white/35")}>
+                    <span className={cn("truncate", disabledByPermission && "text-[var(--color-text-on-primary)]")}>
                       {item.label}
                     </span>
                   )}
@@ -268,10 +268,10 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                   ? "cursor-not-allowed opacity-80"
                   : "hover:bg-[var(--platform-highlight-soft)] hover:translate-x-0.5",
                 isActive && !disabledByPermission
-                  ? "bg-[var(--platform-highlight-soft)] text-white shadow-sm border-l-2 border-[var(--platform-highlight)]"
+                  ? "bg-[var(--platform-highlight-soft)] text-[var(--color-text-on-primary)] shadow-sm border-l-2 border-[var(--platform-highlight)]"
                   : disabledByPermission
-                    ? "text-white/40"
-                    : "text-sidebar-text hover:text-white"
+                    ? "text-[var(--color-text-on-primary)]"
+                    : "text-sidebar-text hover:text-[var(--color-text-on-primary)]"
               );
 
               const link = disabledByPermission ? (
@@ -301,7 +301,7 @@ export function Sidebar({ navItems, isMobile = false, onClose }: SidebarProps) {
                             <div className="flex items-center gap-2">
                               <span>{item.label}</span>
                               {disabledByPermission && (
-                                <span className="text-[10px] text-white/60">
+                                <span className="text-[10px] text-[var(--color-text-on-primary)]">
                                   Requires {item.permission}
                                 </span>
                               )}

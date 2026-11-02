@@ -1,0 +1,195 @@
+{
+ "$description": "Tier 3. Optional. Each token defaults to a semantic token. Used only where a component needs finer control. Tenants cannot override these.",
+ "button": {
+  "primary": {
+   "bg": {
+    "$value": "{color.action.primary}"
+   },
+   "bg-hover": {
+    "$value": "{color.action.primary-hover}"
+   },
+   "bg-pressed": {
+    "$value": "{color.action.primary-pressed}"
+   },
+   "bg-disabled": {
+    "$value": "{color.action.primary-disabled}"
+   },
+   "fg": {
+    "$value": "{color.text.on-primary}"
+   },
+   "fg-disabled": {
+    "$value": "{color.text.disabled}"
+   },
+   "border": {
+    "$value": "{color.action.primary-border}"
+   }
+  },
+  "secondary": {
+   "bg": {
+    "$value": "{color.surface.default}"
+   },
+   "fg": {
+    "$value": "{color.action.primary-text}"
+   },
+   "border": {
+    "$value": "{color.action.primary-border}"
+   },
+   "bg-hover": {
+    "$value": "{color.action.primary-subtle}"
+   }
+  },
+  "ghost": {
+   "bg-hover": {
+    "$value": "{color.surface.sunken}"
+   },
+   "fg": {
+    "$value": "{color.text.default}"
+   }
+  },
+  "danger": {
+   "bg": {
+    "$value": "{color.status.danger.solid}"
+   },
+   "fg": {
+    "$value": "{color.status.danger.on-solid}"
+   }
+  },
+  "height": {
+   "sm": {
+    "$value": "32px"
+   },
+   "md": {
+    "$value": "{density.comfortable.control-height}"
+   },
+   "lg": {
+    "$value": "44px"
+   },
+   "xl": {
+    "$value": "48px"
+   }
+  },
+  "radius": {
+   "$value": "{radius.control}"
+  },
+  "pad-x": {
+   "$value": "{density.comfortable.pad-x}"
+  }
+ },
+ "input": {
+  "bg": {
+   "$value": "{color.surface.default}"
+  },
+  "border": {
+   "$value": "{color.border.strong}"
+  },
+  "border-focus": {
+   "$value": "{color.focus.ring}"
+  },
+  "border-error": {
+   "$value": "{color.status.danger.solid}"
+  },
+  "fg": {
+   "$value": "{color.text.default}"
+  },
+  "placeholder": {
+   "$value": "{color.text.muted}"
+  },
+  "height": {
+   "$value": "{density.comfortable.control-height}"
+  },
+  "radius": {
+   "$value": "{radius.control}"
+  }
+ },
+ "card": {
+  "bg": {
+   "$value": "{color.surface.default}"
+  },
+  "border": {
+   "$value": "{color.border.default}"
+  },
+  "radius": {
+   "$value": "{radius.card}"
+  },
+  "shadow": {
+   "$value": "{elevation.card}"
+  },
+  "pad": {
+   "$value": "{space.6}"
+  }
+ },
+ "badge": {
+  "radius": {
+   "$value": "{radius.badge}"
+  },
+  "neutral-bg": {
+   "$value": "{color.surface.sunken}"
+  },
+  "brand-bg": {
+   "$value": "{color.action.primary-subtle}"
+  },
+  "brand-fg": {
+   "$value": "{color.text.on-primary-subtle}"
+  }
+ },
+ "nav-item": {
+  "bg-active": {
+   "$value": "{color.action.primary-subtle}"
+  },
+  "fg-active": {
+   "$value": "{color.text.on-primary-subtle}"
+  },
+  "indicator": {
+   "$value": "{color.action.primary}"
+  }
+ },
+ "tabs": {
+  "indicator": {
+   "$value": "{color.action.primary}"
+  },
+  "fg-active": {
+   "$value": "{color.action.primary-text}"
+  }
+ },
+ "dialog": {
+  "bg": {
+   "$value": "{color.surface.raised}"
+  },
+  "radius": {
+   "$value": "{radius.dialog}"
+  },
+  "shadow": {
+   "$value": "{elevation.dialog}"
+  },
+  "scrim": {
+   "$value": "{color.surface.overlay}"
+  }
+ },
+ "table": {
+  "header-bg": {
+   "$value": "{color.surface.sunken}"
+  },
+  "row-selected": {
+   "$value": "{color.action.primary-subtle}"
+  },
+  "row-height": {
+   "$value": "{density.comfortable.row-height}"
+  },
+  "border": {
+   "$value": "{color.border.default}"
+  }
+ },
+ "toast": {
+  "radius": {
+   "$value": "{radius.card}"
+  },
+  "shadow": {
+   "$value": "{elevation.popover}"
+  }
+ },
+ "link": {
+  "fg": {
+   "$value": "{color.action.primary-text}"
+  }
+ }
+}

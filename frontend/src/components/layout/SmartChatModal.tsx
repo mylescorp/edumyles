@@ -38,7 +38,7 @@ function MiniAvatar({ item }: { item: ChatItem }) {
         )}
       </div>
       {item.online && !item.isChannel && (
-        <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-white" />
+        <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-[var(--color-border-default)]" />
       )}
     </div>
   );
@@ -126,12 +126,12 @@ export function SmartChatModal({ open, onClose, onSelectChat }: SmartChatModalPr
     /* Backdrop */
     <div
       className="fixed inset-0 z-[9000] flex items-center justify-center"
-      style={{ background: "rgba(0,0,0,0.45)" }}
+      style={{ background: "color-mix(in srgb, var(--color-surface-page) 45%, transparent)" }}
       onClick={onClose}
     >
       {/* Modal panel */}
       <div
-        className="relative w-full max-w-[800px] mx-4 rounded-2xl bg-card shadow-2xl overflow-hidden"
+        className="relative w-full max-w-[800px] mx-4 rounded-2xl bg-[var(--color-surface-default)] shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search bar */}

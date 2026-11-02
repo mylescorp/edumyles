@@ -68,9 +68,9 @@ export default function StudentWalletPage() {
 
       <div className="space-y-6">
         {/* Balance Card */}
-        <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+        <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-[var(--color-text-on-primary)]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-white flex items-center space-x-2">
+            <CardTitle className="text-[var(--color-text-on-primary)] flex items-center space-x-2">
               <Wallet className="h-5 w-5" />
               <span>Current Balance</span>
             </CardTitle>
@@ -168,7 +168,7 @@ export default function StudentWalletPage() {
                     className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-card rounded-full">
+                      <div className="p-2 bg-[var(--color-surface-default)] rounded-full">
                         {getTransactionIcon(transaction.type)}
                       </div>
                       <div>

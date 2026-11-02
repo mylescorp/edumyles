@@ -45,7 +45,7 @@ const COUNTRY_OPTIONS = [
 ];
 
 const inputClass =
-  "w-full rounded-xl border border-[var(--border)] bg-card px-4 py-3.5 font-jakarta text-[15px] text-foreground outline-none transition-colors duration-200 focus:border-primary";
+  "w-full rounded-xl border border-[var(--color-border-default)] bg-card px-4 py-3.5 font-jakarta text-[15px] text-foreground outline-none transition-colors duration-200 focus:border-primary";
 
 export default function SignUpPage() {
   return (
@@ -170,30 +170,30 @@ function SignUpPageContent() {
   return (
     <main className="no-handoff-hero min-h-screen bg-background">
       <div className="grid min-h-screen xl:grid-cols-[minmax(0,1.7fr)_minmax(540px,0.95fr)]">
-        <section className="flex h-full flex-col bg-[linear-gradient(180deg,#072015_0%,#0A2A1C_55%,#0C301F_100%)] px-8 py-10 text-white sm:px-12 lg:px-16 xl:px-16 xl:py-14">
+        <section className="flex h-full flex-col bg-[linear-gradient(180deg,#072015_0%,#0A2A1C_55%,#0C301F_100%)] px-8 py-10 text-[var(--color-text-on-primary)] sm:px-12 lg:px-16 xl:px-16 xl:py-14">
           <div className="mb-10 flex items-center justify-between gap-4">
             <Logo size="md" />
             <Link
               href="/"
-              className="font-jakarta text-sm font-semibold text-[#A8E6C3] no-underline transition-colors hover:text-[var(--accent-foreground)]"
+              className="font-jakarta text-sm font-semibold text-[var(--color-status-success-on-subtle)] no-underline transition-colors hover:text-[var(--color-text-on-primary-subtle)]"
             >
               Back to site
             </Link>
           </div>
 
           <div className="max-w-3xl pt-8 xl:pt-20">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-foreground)] bg-[rgb(var(--primary-rgb)_/_12%)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-foreground)]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--color-text-on-primary-subtle)] bg-[color-mix(in_srgb,var(--color-action-primary)_12%,transparent)] px-4 py-2 font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-on-primary-subtle)]">
               <Sparkles className="h-4 w-4" />
               School Waitlist
             </div>
-            <h1 className="font-display text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-white">
+            <h1 className="font-display text-[clamp(2.4rem,5vw,5rem)] font-bold leading-[0.98] text-[var(--color-text-on-primary)]">
               Join the
               <br />
               EduMyles school
               <br />
               waitlist.
             </h1>
-            <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[#A8E6C3]">
+            <p className="mt-6 max-w-2xl font-jakarta text-[18px] leading-8 text-[var(--color-status-success-on-subtle)]">
               Share your school details once and we will add you to the EduMyles launch waitlist.
               Our team uses this information to prioritize onboarding, prepare the right rollout
               path, and reach out with next steps.
@@ -220,11 +220,11 @@ function SignUpPageContent() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-[24px] border border-[rgba(168,230,195,0.16)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
+                className="rounded-[24px] border border-[color-mix(in_srgb,_var(--color-status-success-on-subtle)_16%,_transparent)] bg-[color-mix(in_srgb,_var(--color-surface-default)_4%,_transparent)] p-6 backdrop-blur-sm"
               >
-                <item.icon className="h-6 w-6 text-[var(--accent-foreground)]" />
-                <h2 className="mt-3 font-jakarta text-[15px] font-bold text-white">{item.title}</h2>
-                <p className="mt-2 font-jakarta text-[13px] leading-6 text-[#A8E6C3]">
+                <item.icon className="h-6 w-6 text-[var(--color-text-on-primary-subtle)]" />
+                <h2 className="mt-3 font-jakarta text-[15px] font-bold text-[var(--color-text-on-primary)]">{item.title}</h2>
+                <p className="mt-2 font-jakarta text-[13px] leading-6 text-[var(--color-status-success-on-subtle)]">
                   {item.body}
                 </p>
               </div>
@@ -232,8 +232,8 @@ function SignUpPageContent() {
           </div>
 
           <div className="mt-12 grid max-w-5xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-[28px] border border-[rgba(168,230,195,0.14)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
-              <h2 className="font-display text-[28px] font-bold text-white">
+            <div className="rounded-[28px] border border-[color-mix(in_srgb,_var(--color-status-success-on-subtle)_14%,_transparent)] bg-[color-mix(in_srgb,_var(--color-surface-default)_4%,_transparent)] p-6 xl:p-8">
+              <h2 className="font-display text-[28px] font-bold text-[var(--color-text-on-primary)]">
                 What happens after you join
               </h2>
               <div className="mt-6 space-y-4">
@@ -244,22 +244,22 @@ function SignUpPageContent() {
                   "Once your slot is ready, we guide you through activation and setup.",
                 ].map((step, index) => (
                   <div key={step} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[rgb(var(--primary-rgb)_/_16%)] font-jakarta text-xs font-bold text-[var(--accent-foreground)]">
+                    <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-action-primary)_16%,transparent)] font-jakarta text-xs font-bold text-[var(--color-text-on-primary-subtle)]">
                       {index + 1}
                     </div>
-                    <p className="font-jakarta text-[14px] leading-7 text-[#D7F3E2]">{step}</p>
+                    <p className="font-jakarta text-[14px] leading-7 text-[var(--color-status-success-subtle)]">{step}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-8 rounded-[20px] border border-[rgb(var(--primary-rgb)_/_18%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-5">
+              <div className="mt-8 rounded-[20px] border border-[color-mix(in_srgb,var(--color-action-primary)_18%,transparent)] bg-[color-mix(in_srgb,var(--color-action-primary)_8%,transparent)] p-5">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--accent-foreground)]" />
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-text-on-primary-subtle)]" />
                   <div>
-                    <h3 className="font-jakarta text-[15px] font-bold text-[#F7C867]">
+                    <h3 className="font-jakarta text-[15px] font-bold text-[var(--color-status-warning-on-subtle)]">
                       Recommended for school leaders
                     </h3>
-                    <p className="mt-2 font-jakarta text-[14px] leading-7 text-[#E8F5EE]">
+                    <p className="mt-2 font-jakarta text-[14px] leading-7 text-[var(--color-status-success-subtle)]">
                       Include your institution name, learner volume, and current priority areas so
                       our team can prepare a sharper onboarding conversation.
                     </p>
@@ -268,32 +268,32 @@ function SignUpPageContent() {
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-[rgb(var(--primary-rgb)_/_22%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-6 xl:p-8">
-              <h2 className="font-jakarta text-[15px] font-bold text-[var(--accent-foreground)]">
+            <div className="rounded-[28px] border border-[color-mix(in_srgb,var(--color-action-primary)_22%,transparent)] bg-[color-mix(in_srgb,var(--color-action-primary)_8%,transparent)] p-6 xl:p-8">
+              <h2 className="font-jakarta text-[15px] font-bold text-[var(--color-text-on-primary-subtle)]">
                 Need to speak with us before activation?
               </h2>
-              <p className="mt-2 font-jakarta text-[14px] leading-7 text-[#D7F3E2]">
+              <p className="mt-2 font-jakarta text-[14px] leading-7 text-[var(--color-status-success-subtle)]">
                 Reach our onboarding or commercial team if you want to discuss timelines,
                 partnerships, or a guided demo before your waitlist entry is reviewed.
               </p>
-              <div className="mt-5 grid gap-3 text-sm text-[#F4F8F7] sm:grid-cols-2 xl:grid-cols-1">
+              <div className="mt-5 grid gap-3 text-sm text-[var(--color-surface-page)] sm:grid-cols-2 xl:grid-cols-1">
                 <a
                   href="mailto:sales@edumyles.com"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--accent-foreground)]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--color-text-on-primary-subtle)]"
                 >
                   <Mail className="h-4 w-4" />
                   sales@edumyles.com
                 </a>
                 <a
                   href="mailto:contact@edumyles.com"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--accent-foreground)]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--color-text-on-primary-subtle)]"
                 >
                   <Mail className="h-4 w-4" />
                   contact@edumyles.com
                 </a>
                 <a
                   href="tel:+254743993715"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--accent-foreground)]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--color-text-on-primary-subtle)]"
                 >
                   <Phone className="h-4 w-4" />
                   +254 743 993 715
@@ -302,7 +302,7 @@ function SignUpPageContent() {
                   href="https://wa.me/254743993715?text=Hello%20EduMyles%2C%20I%20just%20joined%20the%20school%20waitlist%20and%20would%20love%20to%20connect."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--accent-foreground)]"
+                  className="flex items-center gap-2 text-inherit no-underline hover:text-[var(--color-text-on-primary-subtle)]"
                 >
                   <MessageSquareText className="h-4 w-4" />
                   WhatsApp our team
@@ -312,8 +312,8 @@ function SignUpPageContent() {
           </div>
 
           <div className="mt-auto pt-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(168,230,195,0.15)] bg-[rgba(255,255,255,0.04)] px-4 py-2 font-jakarta text-[12px] font-semibold tracking-[0.08em] text-[#A8E6C3]">
-              <ArrowRight className="h-4 w-4 text-[var(--accent-foreground)]" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,_var(--color-status-success-on-subtle)_15%,_transparent)] bg-[color-mix(in srgb, var(--color-surface-default) 4%, transparent)] px-4 py-2 font-jakarta text-[12px] font-semibold tracking-[0.08em] text-[var(--color-status-success-on-subtle)]">
+              <ArrowRight className="h-4 w-4 text-[var(--color-text-on-primary-subtle)]" />
               Trusted onboarding for schools across East Africa
             </div>
           </div>
@@ -351,7 +351,7 @@ function SignUpPageContent() {
                       First name
                     </label>
                     <div className="relative">
-                      <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                      <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
                       <input
                         id="firstName"
                         name="firstName"
@@ -389,7 +389,7 @@ function SignUpPageContent() {
                     Work email
                   </label>
                   <div className="relative">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
                     <input
                       id="email"
                       name="email"
@@ -410,7 +410,7 @@ function SignUpPageContent() {
                     Phone number
                   </label>
                   <div className="relative">
-                    <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                    <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
                     <input
                       id="phone"
                       name="phone"
@@ -439,7 +439,7 @@ function SignUpPageContent() {
                       Country
                     </label>
                     <div className="relative">
-                      <Globe2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                      <Globe2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
                       <select
                         id="country"
                         name="country"
@@ -489,7 +489,7 @@ function SignUpPageContent() {
                     School or institution name
                   </label>
                   <div className="relative">
-                    <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                    <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
                     <input
                       id="schoolName"
                       name="schoolName"
@@ -510,7 +510,7 @@ function SignUpPageContent() {
                       Approximate student count
                     </label>
                     <div className="relative">
-                      <Users className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                      <Users className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
                       <input
                         id="studentCount"
                         name="studentCount"
@@ -586,14 +586,14 @@ function SignUpPageContent() {
                   className={`${inputClass} min-h-[140px] resize-y`}
                   placeholder="Example: We want to streamline admissions, fees, and parent communication across two campuses."
                 />
-                <p className="mt-2 font-jakarta text-[12px] leading-5 text-[#7b8f85]">
+                <p className="mt-2 font-jakarta text-[12px] leading-5 text-[var(--color-text-disabled)]">
                   This helps us prepare a more relevant onboarding conversation before we contact
                   you from the waitlist.
                 </p>
               </div>
 
               {error ? (
-                <div className="rounded-xl border border-[#f5c2c7] bg-[#fff5f5] px-4 py-3 font-jakarta text-sm text-[#9A1F2B]">
+                <div className="rounded-xl border border-[var(--color-status-danger-on-subtle)] bg-[var(--color-surface-page)] px-4 py-3 font-jakarta text-sm text-[var(--color-status-danger-on-subtle)]">
                   {error}
                 </div>
               ) : null}
@@ -606,8 +606,8 @@ function SignUpPageContent() {
                 {formState === "loading" ? "Joining the waitlist..." : "Join the waitlist"}
               </button>
 
-              <div className="rounded-[20px] border border-[#e3ece6] bg-card px-5 py-4">
-                <p className="font-jakarta text-[13px] leading-6 text-[var(--muted-foreground)]">
+              <div className="rounded-[20px] border border-[var(--color-border-default)] bg-card px-5 py-4">
+                <p className="font-jakarta text-[13px] leading-6 text-[var(--color-text-muted)]">
                   By joining, you’re adding your school to the EduMyles onboarding waitlist. We’ll
                   contact you with next steps, onboarding guidance, and any clarification we may
                   need before activation.
@@ -624,7 +624,7 @@ function SignUpPageContent() {
 function SignUpPageFallback() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8 sm:px-6 lg:px-8">
-      <div className="w-full max-w-xl rounded-[28px] bg-card px-8 py-12 text-center shadow-[0_24px_64px_rgba(6,26,18,0.08)]">
+      <div className="w-full max-w-xl rounded-[28px] bg-card px-8 py-12 text-center shadow-[0_24px_64px_color-mix(in srgb, var(--color-surface-page) 8%, transparent)]">
         <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-primary">
           Preparing waitlist form
         </p>

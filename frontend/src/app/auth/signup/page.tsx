@@ -43,7 +43,7 @@ export default function SignupPage() {
     <div className="flex min-h-screen">
       {/* ── Left brand panel ── */}
       <div
-        className="hidden flex-col justify-between bg-[var(--platform-chrome)] p-12 text-white lg:flex lg:w-[52%] xl:w-[55%] xl:p-16">
+        className="hidden flex-col justify-between bg-[var(--color-chrome-platform)] p-12 text-[var(--color-text-on-primary)] lg:flex lg:w-[52%] xl:w-[55%] xl:p-16">
         <div>
           <Logo variant="lockup" width={320} height={91} priority appearance="dark" href={null} />
         </div>
@@ -51,10 +51,10 @@ export default function SignupPage() {
         <div className="space-y-10">
           <div className="space-y-4">
             <h1
-              className="text-4xl font-bold leading-tight text-white xl:text-5xl">
+              className="text-4xl font-bold leading-tight text-[var(--color-text-on-primary)] xl:text-5xl">
               Every role. One platform.
             </h1>
-            <p className="text-white/80">
+            <p className="text-[var(--color-text-on-primary)]">
               Whether you are an administrator, teacher, student or parent — EduMyles has a portal
               built for your exact needs.
             </p>
@@ -66,21 +66,21 @@ export default function SignupPage() {
                 key={label}
                 className="flex items-center gap-3 rounded-xl px-4 py-3"
                 style={{
-                  background: "rgb(255 255 255 / 6%)",
-                  border: "1px solid rgb(255 255 255 / 14%)",
+                  background: "color-mix(in srgb, var(--color-surface-default) 6%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-surface-default) 14%, transparent)",
                 }}
               >
                 <span
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                  style={{ background: "rgb(255 255 255 / 14%)" }}
+                  style={{ background: "color-mix(in srgb, var(--color-surface-default) 14%, transparent)" }}
                 >
-                  <Icon className="h-4 w-4 text-white" />
+                  <Icon className="h-4 w-4 text-[var(--color-text-on-primary)]" />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-sm font-semibold text-[var(--color-text-on-primary)]">
                     {label}
                   </p>
-                  <p className="text-white/65">
+                  <p className="text-[var(--color-text-on-primary)]">
                     {desc}
                   </p>
                 </div>
@@ -89,7 +89,7 @@ export default function SignupPage() {
           </div>
         </div>
 
-        <p className="text-white/65">
+        <p className="text-[var(--color-text-on-primary)]">
           Set up takes less than 5 minutes · No credit card required to start
         </p>
       </div>

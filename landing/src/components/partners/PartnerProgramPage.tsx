@@ -118,20 +118,20 @@ function SectionHeader({
       <div
         className="mb-4 inline-flex items-center gap-2 rounded-[8px] px-3 py-2 font-jakarta text-[11px] font-bold uppercase tracking-[0.16em]"
         style={{
-          background: "rgb(var(--primary-rgb) / 12%)",
-          color: isDark ? "#B9CBD6" : "var(--accent-foreground)",
+          background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+          color: isDark ? "var(--color-text-muted)" : "var(--color-text-on-primary-subtle)",
         }}
       >
-        <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--primary)" }} />
+        <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--color-action-primary)" }} />
         {label}
       </div>
       <h2
         className="font-display font-bold leading-[1.12]"
-        style={{ color: isDark ? "#ffffff" : "var(--foreground)", fontSize: "clamp(1.9rem,3.8vw,3.15rem)" }}
+        style={{ color: isDark ? "var(--color-text-inverse)" : "var(--color-text-default)", fontSize: "clamp(1.9rem,3.8vw,3.15rem)" }}
       >
         {title}
       </h2>
-      <p className="mt-4 font-jakarta text-[16px] leading-8" style={{ color: isDark ? "#C4D4D0" : "var(--muted-foreground)" }}>
+      <p className="mt-4 font-jakarta text-[16px] leading-8" style={{ color: isDark ? "var(--color-action-primary-disabled)" : "var(--color-text-muted)" }}>
         {body}
       </p>
     </div>
@@ -149,10 +149,10 @@ function ButtonLink({
 }) {
   const styles =
     variant === "primary"
-      ? { background: "var(--primary)", color: "var(--primary-foreground)", border: "1px solid var(--accent-foreground)" }
+      ? { background: "var(--color-action-primary)", color: "var(--color-text-on-primary)", border: "1px solid var(--color-text-on-primary-subtle)" }
       : variant === "dark"
-        ? { background: "var(--platform-chrome)", color: "#ffffff", border: "1px solid var(--border)" }
-        : { background: "rgba(255,255,255,0.06)", color: "#ffffff", border: "1px solid rgba(255,255,255,0.24)" };
+        ? { background: "var(--color-chrome-platform)", color: "var(--color-surface-default)", border: "1px solid var(--color-border-default)" }
+        : { background: "color-mix(in srgb, var(--color-surface-default) 6%, transparent)", color: "var(--color-text-inverse)", border: "1px solid color-mix(in srgb, var(--color-surface-default) 24%, transparent)" };
 
   return (
     <Link
@@ -170,20 +170,20 @@ function ProgramDashboard({ config }: { config: PartnerProgramConfig }) {
   return (
     <div
       className="relative overflow-hidden rounded-[8px] border p-5 shadow-2xl"
-      style={{ background: "var(--card)", borderColor: "var(--border)" }}
+      style={{ background: "var(--color-surface-default)", borderColor: "var(--color-border-default)" }}
     >
       <div className="mb-5 flex items-center justify-between gap-4">
         <div>
-          <p className="font-jakarta text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--color-text-muted)" }}>
             Partner Console
           </p>
-          <h3 className="mt-1 font-display text-[22px] font-bold" style={{ color: "var(--foreground)" }}>
+          <h3 className="mt-1 font-display text-[22px] font-bold" style={{ color: "var(--color-text-default)" }}>
             {config.dashboardTitle}
           </h3>
         </div>
         <div
           className="flex h-11 w-11 items-center justify-center rounded-[8px]"
-          style={{ background: "var(--card)", color: "var(--accent-foreground)" }}
+          style={{ background: "var(--color-surface-default)", color: "var(--color-text-on-primary-subtle)" }}
         >
           <config.heroIcon className="h-5 w-5" />
         </div>
@@ -191,11 +191,11 @@ function ProgramDashboard({ config }: { config: PartnerProgramConfig }) {
 
       <div className="grid grid-cols-3 gap-3">
         {config.dashboardKpis.map((kpi) => (
-          <div key={kpi.label} className="rounded-[8px] border bg-card p-3" style={{ borderColor: "var(--border)" }}>
-            <p className="font-jakarta text-[11px] font-semibold" style={{ color: "var(--muted-foreground)" }}>
+          <div key={kpi.label} className="rounded-[8px] border bg-card p-3" style={{ borderColor: "var(--color-border-default)" }}>
+            <p className="font-jakarta text-[11px] font-semibold" style={{ color: "var(--color-text-muted)" }}>
               {kpi.label}
             </p>
-            <p className="mt-1 font-display text-[19px] font-bold" style={{ color: "var(--foreground)" }}>
+            <p className="mt-1 font-display text-[19px] font-bold" style={{ color: "var(--color-text-default)" }}>
               {kpi.value}
             </p>
           </div>
@@ -207,20 +207,20 @@ function ProgramDashboard({ config }: { config: PartnerProgramConfig }) {
           <div
             key={row}
             className="flex items-center justify-between gap-3 rounded-[8px] border bg-card px-4 py-3"
-            style={{ borderColor: index === 0 ? "rgb(var(--primary-rgb) / 48%)" : "var(--border)" }}
+            style={{ borderColor: index === 0 ? "color-mix(in srgb, var(--color-action-primary) 48%, transparent)" : "var(--color-border-default)" }}
           >
             <div className="flex items-center gap-3">
               <span
                 className="flex h-7 w-7 items-center justify-center rounded-[8px]"
-                style={{ background: index === 0 ? "rgb(var(--primary-rgb) / 14%)" : "var(--muted)" }}
+                style={{ background: index === 0 ? "color-mix(in srgb, var(--color-action-primary) 14%, transparent)" : "var(--color-surface-sunken)" }}
               >
-                <CheckCircle2 className="h-4 w-4" style={{ color: index === 0 ? "var(--accent-foreground)" : "var(--primary)" }} />
+                <CheckCircle2 className="h-4 w-4" style={{ color: index === 0 ? "var(--color-text-on-primary-subtle)" : "var(--color-action-primary)" }} />
               </span>
-              <span className="font-jakarta text-[13px] font-semibold" style={{ color: "var(--foreground)" }}>
+              <span className="font-jakarta text-[13px] font-semibold" style={{ color: "var(--color-text-default)" }}>
                 {row}
               </span>
             </div>
-            <span className="h-2 w-16 rounded-full" style={{ background: index === 0 ? "var(--primary)" : "#A8E6C3" }} />
+            <span className="h-2 w-16 rounded-full" style={{ background: index === 0 ? "var(--color-action-primary)" : "var(--color-status-success-on-subtle)" }} />
           </div>
         ))}
       </div>
@@ -230,34 +230,34 @@ function ProgramDashboard({ config }: { config: PartnerProgramConfig }) {
 
 export function PartnerProgramPage({ config }: { config: PartnerProgramConfig }) {
   return (
-    <main style={{ color: "var(--foreground)", background: "var(--card)" }}>
+    <main style={{ color: "var(--color-text-default)", background: "var(--color-surface-default)" }}>
       <section
         className="relative overflow-hidden px-4 py-20 sm:px-8 lg:py-24"
-        style={{ background: "var(--platform-chrome)", borderTop: "3px solid var(--primary)" }}
+        style={{ background: "var(--color-chrome-platform)", borderTop: "3px solid var(--color-action-primary)" }}
       >
         <div
           className="absolute inset-0 opacity-80"
           style={{
             background:
-              "linear-gradient(135deg, rgba(26,122,74,0.34), transparent 45%), radial-gradient(circle at 78% 18%, rgb(var(--primary-rgb) / 16%), transparent 28%)",
+              "linear-gradient(135deg, color-mix(in srgb, var(--color-status-success-solid) 34%, transparent), transparent 45%), radial-gradient(circle at 78% 18%, color-mix(in srgb, var(--color-action-primary) 16%, transparent), transparent 28%)",
           }}
         />
         <div className="relative mx-auto grid max-w-[1200px] items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <div
               className="mb-6 inline-flex items-center gap-2 rounded-[8px] border px-4 py-2 font-jakarta text-[12px] font-bold uppercase tracking-[0.18em]"
-              style={{ borderColor: "rgb(var(--primary-rgb) / 42%)", color: "#B9CBD6", background: "rgb(var(--primary-rgb) / 10%)" }}
+              style={{ borderColor: "color-mix(in srgb, var(--color-action-primary) 42%, transparent)", color: "var(--color-text-muted)", background: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)" }}
             >
               <Sparkles className="h-4 w-4" />
               {config.eyebrow}
             </div>
             <h1
               className="font-display font-bold leading-[0.98]"
-              style={{ color: "#ffffff", fontSize: "clamp(2.75rem,7vw,5.5rem)" }}
+              style={{ color: "var(--color-text-inverse)", fontSize: "clamp(2.75rem,7vw,5.5rem)" }}
             >
-              {config.title} <span style={{ color: "#B9CBD6" }}>{config.accent}</span>
+              {config.title} <span style={{ color: "var(--color-text-muted)" }}>{config.accent}</span>
             </h1>
-            <p className="mt-7 max-w-[680px] font-jakarta text-[18px] leading-8" style={{ color: "#C4D4D0" }}>
+            <p className="mt-7 max-w-[680px] font-jakarta text-[18px] leading-8" style={{ color: "var(--color-action-primary-disabled)" }}>
               {config.intro}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -268,11 +268,11 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
             </div>
             <div className="mt-10 grid max-w-[680px] grid-cols-2 gap-3 sm:grid-cols-4">
               {config.proof.map((item) => (
-                <div key={item.label} className="rounded-[8px] border p-4" style={{ borderColor: "rgba(168,230,195,0.18)", background: "rgba(255,255,255,0.04)" }}>
-                  <p className="font-display text-[24px] font-bold" style={{ color: "#ffffff" }}>
+                <div key={item.label} className="rounded-[8px] border p-4" style={{ borderColor: "color-mix(in_srgb,_var(--color-status-success-on-subtle)_18%,_transparent)", background: "color-mix(in srgb, var(--color-surface-default) 4%, transparent)" }}>
+                  <p className="font-display text-[24px] font-bold" style={{ color: "var(--color-text-inverse)" }}>
                     {item.value}
                   </p>
-                  <p className="mt-1 font-jakarta text-[12px] leading-5" style={{ color: "#C4D4D0" }}>
+                  <p className="mt-1 font-jakarta text-[12px] leading-5" style={{ color: "var(--color-action-primary-disabled)" }}>
                     {item.label}
                   </p>
                 </div>
@@ -283,17 +283,17 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
         </div>
       </section>
 
-        <section className="px-4 py-20 sm:px-8" style={{ background: "var(--card)" }}>
+        <section className="px-4 py-20 sm:px-8" style={{ background: "var(--color-surface-default)" }}>
         <div className="mx-auto max-w-[1200px]">
           <SectionHeader label="Who It Fits" title={config.fitTitle} body={config.fitIntro} center />
           <div className="grid gap-4 md:grid-cols-3">
             {config.fits.map((item) => (
-              <div key={item.title} className="rounded-[8px] border p-6" style={{ borderColor: "var(--border)", background: "var(--background)" }}>
-                <item.icon className="h-7 w-7" style={{ color: "var(--primary)" }} />
-                <h3 className="mt-5 font-display text-[20px] font-bold" style={{ color: "var(--foreground)" }}>
+              <div key={item.title} className="rounded-[8px] border p-6" style={{ borderColor: "var(--color-border-default)", background: "var(--color-surface-page)" }}>
+                <item.icon className="h-7 w-7" style={{ color: "var(--color-action-primary)" }} />
+                <h3 className="mt-5 font-display text-[20px] font-bold" style={{ color: "var(--color-text-default)" }}>
                   {item.title}
                 </h3>
-                <p className="mt-3 font-jakarta text-[14px] leading-7" style={{ color: "var(--muted-foreground)" }}>
+                <p className="mt-3 font-jakarta text-[14px] leading-7" style={{ color: "var(--color-text-muted)" }}>
                   {item.body}
                 </p>
               </div>
@@ -302,21 +302,21 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
         </div>
       </section>
 
-      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--background)" }}>
+      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--color-surface-page)" }}>
         <div className="mx-auto max-w-[1200px]">
           <SectionHeader label="Why Join" title={config.benefitsTitle} body={config.benefitsIntro} />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {config.benefits.map((item) => (
-              <div key={item.title} className="rounded-[8px] border bg-card p-6" style={{ borderColor: "var(--border)" }}>
+              <div key={item.title} className="rounded-[8px] border bg-card p-6" style={{ borderColor: "var(--color-border-default)" }}>
                 <div className="flex items-start gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px]" style={{ background: "rgb(var(--primary-rgb) / 12%)" }}>
-                    <item.icon className="h-5 w-5" style={{ color: "var(--accent-foreground)" }} />
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px]" style={{ background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)" }}>
+                    <item.icon className="h-5 w-5" style={{ color: "var(--color-text-on-primary-subtle)" }} />
                   </span>
                   <div>
-                    <h3 className="font-jakarta text-[16px] font-bold" style={{ color: "var(--foreground)" }}>
+                    <h3 className="font-jakarta text-[16px] font-bold" style={{ color: "var(--color-text-default)" }}>
                       {item.title}
                     </h3>
-                    <p className="mt-2 font-jakarta text-[13.5px] leading-7" style={{ color: "var(--muted-foreground)" }}>
+                    <p className="mt-2 font-jakarta text-[13.5px] leading-7" style={{ color: "var(--color-text-muted)" }}>
                       {item.body}
                     </p>
                   </div>
@@ -327,7 +327,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
         </div>
       </section>
 
-      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--card)" }}>
+      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--color-surface-default)" }}>
         <div className="mx-auto max-w-[1200px]">
           <SectionHeader label="Program Model" title={config.tiersTitle} body={config.tiersIntro} center />
           <div className="grid gap-5 lg:grid-cols-3">
@@ -336,22 +336,22 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
                 key={tier.title}
                 className="rounded-[8px] border p-7"
                 style={{
-                  background: index === 1 ? "var(--primary)" : "var(--background)",
-                  borderColor: index === 1 ? "var(--primary)" : "var(--border)",
-                  color: index === 1 ? "var(--primary-foreground)" : "var(--foreground)",
+                  background: index === 1 ? "var(--color-action-primary)" : "var(--color-surface-page)",
+                  borderColor: index === 1 ? "var(--color-action-primary)" : "var(--color-border-default)",
+                  color: index === 1 ? "var(--color-text-on-primary)" : "var(--color-text-default)",
                 }}
               >
-                <p className="font-jakarta text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: index === 1 ? "var(--primary-foreground)" : "var(--muted-foreground)" }}>
+                <p className="font-jakarta text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: index === 1 ? "var(--color-text-on-primary)" : "var(--color-text-muted)" }}>
                   {tier.label}
                 </p>
                 <h3 className="mt-3 font-display text-[24px] font-bold">{tier.title}</h3>
-                <p className="mt-3 font-jakarta text-[14px] leading-7" style={{ color: index === 1 ? "var(--primary-foreground)" : "var(--muted-foreground)", opacity: index === 1 ? 0.84 : 1 }}>
+                <p className="mt-3 font-jakarta text-[14px] leading-7" style={{ color: index === 1 ? "var(--color-text-on-primary)" : "var(--color-text-muted)", opacity: index === 1 ? 0.84 : 1 }}>
                   {tier.body}
                 </p>
                 <ul className="mt-6 space-y-3">
                   {tier.points.map((point) => (
-                    <li key={point} className="flex items-start gap-3 font-jakarta text-[13.5px] leading-6" style={{ listStyle: "none", color: index === 1 ? "var(--primary-foreground)" : "var(--foreground)" }}>
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--accent-foreground)" }} />
+                    <li key={point} className="flex items-start gap-3 font-jakarta text-[13.5px] leading-6" style={{ listStyle: "none", color: index === 1 ? "var(--color-text-on-primary)" : "var(--color-text-default)" }}>
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--color-text-on-primary-subtle)" }} />
                       {point}
                     </li>
                   ))}
@@ -362,21 +362,21 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
         </div>
       </section>
 
-      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--platform-chrome)" }}>
+      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--color-chrome-platform)" }}>
         <div className="mx-auto grid max-w-[1200px] gap-12 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
             <SectionHeader label="Launch Plan" title={config.processTitle} body={config.processIntro} tone="dark" />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             {config.steps.map((step, index) => (
-              <div key={step.title} className="rounded-[8px] border p-6" style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(168,230,195,0.16)" }}>
-                <span className="font-display text-[28px] font-bold" style={{ color: "#B9CBD6" }}>
+              <div key={step.title} className="rounded-[8px] border p-6" style={{ background: "color-mix(in_srgb,_var(--color-surface-default)_4%,_transparent)", borderColor: "color-mix(in srgb, var(--color-status-success-on-subtle) 16%, transparent)" }}>
+                <span className="font-display text-[28px] font-bold" style={{ color: "var(--color-text-muted)" }}>
                   0{index + 1}
                 </span>
-                <h3 className="mt-3 font-display text-[21px] font-bold" style={{ color: "#ffffff" }}>
+                <h3 className="mt-3 font-display text-[21px] font-bold" style={{ color: "var(--color-text-inverse)" }}>
                   {step.title}
                 </h3>
-                <p className="mt-3 font-jakarta text-[14px] leading-7" style={{ color: "#C4D4D0" }}>
+                <p className="mt-3 font-jakarta text-[14px] leading-7" style={{ color: "var(--color-action-primary-disabled)" }}>
                   {step.body}
                 </p>
               </div>
@@ -385,7 +385,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
         </div>
       </section>
 
-      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--background)" }}>
+      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--color-surface-page)" }}>
         <div className="mx-auto grid max-w-[1200px] gap-10 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
             <SectionHeader label="Included" title={config.toolkitTitle} body={config.toolkitIntro} />
@@ -398,9 +398,9 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {config.toolkit.map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded-[8px] border bg-card p-4" style={{ borderColor: "var(--border)" }}>
-                <PackageCheck className="h-5 w-5 shrink-0" style={{ color: "var(--primary)" }} />
-                <span className="font-jakarta text-[14px] font-semibold" style={{ color: "var(--foreground)" }}>
+              <div key={item} className="flex items-center gap-3 rounded-[8px] border bg-card p-4" style={{ borderColor: "var(--color-border-default)" }}>
+                <PackageCheck className="h-5 w-5 shrink-0" style={{ color: "var(--color-action-primary)" }} />
+                <span className="font-jakarta text-[14px] font-semibold" style={{ color: "var(--color-text-default)" }}>
                   {item}
                 </span>
               </div>
@@ -409,16 +409,16 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
         </div>
       </section>
 
-      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--card)" }}>
+      <section className="px-4 py-20 sm:px-8" style={{ background: "var(--color-surface-default)" }}>
         <div className="mx-auto max-w-[900px]">
           <SectionHeader label="FAQ" title={config.faqTitle} body="Straight answers before you apply." center />
           <div className="space-y-3">
             {config.faqs.map((faq) => (
-              <details key={faq.q} className="rounded-[8px] border p-5" style={{ borderColor: "var(--border)", background: "var(--background)" }}>
-                <summary className="cursor-pointer font-jakarta text-[15px] font-bold" style={{ color: "var(--foreground)" }}>
+              <details key={faq.q} className="rounded-[8px] border p-5" style={{ borderColor: "var(--color-border-default)", background: "var(--color-surface-page)" }}>
+                <summary className="cursor-pointer font-jakarta text-[15px] font-bold" style={{ color: "var(--color-text-default)" }}>
                   {faq.q}
                 </summary>
-                <p className="mt-3 font-jakarta text-[14px] leading-7" style={{ color: "var(--muted-foreground)" }}>
+                <p className="mt-3 font-jakarta text-[14px] leading-7" style={{ color: "var(--color-text-muted)" }}>
                   {faq.a}
                 </p>
               </details>
@@ -427,12 +427,12 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
         </div>
       </section>
 
-      <section className="px-4 pb-20 sm:px-8" style={{ background: "var(--platform-chrome)" }}>
-        <div className="mx-auto max-w-[1200px] rounded-[8px] p-8 text-center sm:p-12" style={{ background: "var(--platform-chrome)" }}>
-          <h2 className="font-display font-bold leading-tight" style={{ color: "#ffffff", fontSize: "clamp(2rem,4vw,3.25rem)" }}>
+      <section className="px-4 pb-20 sm:px-8" style={{ background: "var(--color-chrome-platform)" }}>
+        <div className="mx-auto max-w-[1200px] rounded-[8px] p-8 text-center sm:p-12" style={{ background: "var(--color-chrome-platform)" }}>
+          <h2 className="font-display font-bold leading-tight" style={{ color: "var(--color-text-inverse)", fontSize: "clamp(2rem,4vw,3.25rem)" }}>
             {config.finalTitle}
           </h2>
-          <p className="mx-auto mt-4 max-w-[680px] font-jakarta text-[16px] leading-8" style={{ color: "#C4D4D0" }}>
+          <p className="mx-auto mt-4 max-w-[680px] font-jakarta text-[16px] leading-8" style={{ color: "var(--color-action-primary-disabled)" }}>
             {config.finalBody}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">

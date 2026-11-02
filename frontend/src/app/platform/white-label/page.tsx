@@ -262,7 +262,7 @@ export default function WhiteLabelPage() {
               <Textarea
                 value={customCSS}
                 onChange={(e) => setCustomCSS(e.target.value)}
-                placeholder=":root { --primary: #276B63; }"
+                placeholder=":root { --primary: var(--color-status-success-solid); }"
                 rows={6}
                 className="font-mono text-sm"
               />
@@ -288,13 +288,13 @@ export default function WhiteLabelPage() {
             <CardContent>
               <div className="border rounded-lg overflow-hidden">
                 <div className="p-3" style={{ backgroundColor: primaryColor }}>
-                  <p className="text-white font-bold text-sm">{brandName || "School Name"}</p>
+                  <p className="text-[var(--color-text-on-primary)] font-bold text-sm">{brandName || "School Name"}</p>
                 </div>
                 <div className="p-4 space-y-3">
                   <div className="h-3 rounded" style={{ backgroundColor: secondaryColor, width: "60%" }} />
                   <div className="h-2 bg-gray-200 rounded w-full" />
                   <div className="h-2 bg-gray-200 rounded w-3/4" />
-                  <button className="px-3 py-1 rounded text-white text-xs" style={{ backgroundColor: accentColor }}>
+                  <button className="px-3 py-1 rounded text-[var(--color-text-on-primary)] text-xs" style={{ backgroundColor: accentColor }}>
                     Action
                   </button>
                 </div>

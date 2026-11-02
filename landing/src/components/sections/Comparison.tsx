@@ -69,13 +69,13 @@ export default function Comparison() {
       id="comparison"
       className="py-16 px-4 sm:px-8"
       aria-label="EduMyles vs alternatives comparison"
-      style={{ background: "var(--background)" }}
+      style={{ background: "var(--color-surface-page)" }}
     >
       <div className="max-w-[1200px] mx-auto">
         <div className="text-center mb-10">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--color-text-default)" }}
           >
             Why EduMyles?
           </h2>
@@ -87,22 +87,22 @@ export default function Comparison() {
         <div className="overflow-x-auto rounded-2xl shadow-sm">
           <table className="w-full min-w-[640px] bg-card text-sm">
             <thead>
-              <tr style={{ background: "var(--platform-chrome)" }}>
-                <th className="text-left px-5 py-4 text-white font-semibold w-[200px]">Feature</th>
-                <th className="text-left px-5 py-4 text-white font-semibold">
+              <tr style={{ background: "var(--color-chrome-platform)" }}>
+                <th className="text-left px-5 py-4 text-[var(--color-text-on-primary)] font-semibold w-[200px]">Feature</th>
+                <th className="text-left px-5 py-4 text-[var(--color-text-on-primary)] font-semibold">
                   ❌ Manual (Excel/WhatsApp)
                 </th>
-                <th className="text-left px-5 py-4 text-white font-semibold">⚠️ Generic SaaS</th>
-                <th className="text-left px-5 py-4 text-white font-semibold">✅ EduMyles</th>
+                <th className="text-left px-5 py-4 text-[var(--color-text-on-primary)] font-semibold">⚠️ Generic SaaS</th>
+                <th className="text-left px-5 py-4 text-[var(--color-text-on-primary)] font-semibold">✅ EduMyles</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row, i) => (
-                <tr key={row.feature} style={{ background: i % 2 === 0 ? "var(--card)" : "var(--muted)" }}>
+                <tr key={row.feature} style={{ background: i % 2 === 0 ? "var(--color-surface-default)" : "var(--color-surface-sunken)" }}>
                   <td className="px-5 py-3.5 font-medium text-foreground">{row.feature}</td>
-                  <td className="px-5 py-3.5" style={{ color: "var(--danger-muted-foreground)" }}>{row.manual}</td>
-                  <td className="px-5 py-3.5" style={{ color: "var(--warning-muted-foreground)" }}>{row.generic}</td>
-                  <td className="px-5 py-3.5 font-semibold" style={{ color: "var(--success-muted-foreground)" }}>{row.edumyles}</td>
+                  <td className="px-5 py-3.5" style={{ color: "var(--color-status-danger-on-subtle)" }}>{row.manual}</td>
+                  <td className="px-5 py-3.5" style={{ color: "var(--color-status-warning-on-subtle)" }}>{row.generic}</td>
+                  <td className="px-5 py-3.5 font-semibold" style={{ color: "var(--color-status-success-on-subtle)" }}>{row.edumyles}</td>
                 </tr>
               ))}
             </tbody>
@@ -114,7 +114,7 @@ export default function Comparison() {
           <Link
             href="/waitlist"
             className="inline-flex items-center gap-2 font-semibold text-sm px-6 py-3 rounded-full text-primary-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "var(--primary)" }}
+            style={{ background: "var(--color-action-primary)" }}
           >
             Start Free Trial →
           </Link>

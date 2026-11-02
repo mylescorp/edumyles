@@ -74,7 +74,7 @@ export function ImpersonationBanner() {
             <button
                 onClick={handleExitImpersonation}
                 disabled={exitLoading}
-                className="ml-4 rounded bg-warning px-3 py-0.5 text-xs font-semibold text-white hover:bg-warning disabled:opacity-60"
+                className="ml-4 rounded bg-warning px-3 py-0.5 text-xs font-semibold text-[var(--color-text-on-primary)] hover:bg-warning disabled:opacity-60"
             >
                 {exitLoading ? "Exiting..." : "Exit Impersonation"}
             </button>

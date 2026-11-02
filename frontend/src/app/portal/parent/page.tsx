@@ -228,7 +228,7 @@ export default function ParentDashboardPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="px-5 pb-5">
-          <div className="flex items-center justify-between p-3 rounded-lg border border-[rgba(21,101,192,0.2)] bg-[rgba(21,101,192,0.05)]">
+          <div className="flex items-center justify-between p-3 rounded-lg border border-[color-mix(in_srgb,_var(--color-action-primary-border)_20%,_transparent)] bg-[color-mix(in srgb, var(--color-action-primary) 5%, transparent)]">
             <p className="text-sm text-muted-foreground leading-relaxed">
               Visit Announcements to see the latest updates and notices from your school.
             </p>

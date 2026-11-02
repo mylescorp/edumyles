@@ -460,6 +460,7 @@ import type * as shared_permissions from "../shared/permissions.js";
 import type * as staffInvites from "../staffInvites.js";
 import type * as system_maintenance from "../system/maintenance.js";
 import type * as tenants from "../tenants.js";
+import type * as tenantThemes from "../tenantThemes.js";
 import type * as tickets from "../tickets.js";
 import type * as users from "../users.js";
 import type * as waitlist from "../waitlist.js";
@@ -923,6 +924,7 @@ declare const fullApi: ApiFromModules<{
   staffInvites: typeof staffInvites;
   "system/maintenance": typeof system_maintenance;
   tenants: typeof tenants;
+  tenantThemes: typeof tenantThemes;
   tickets: typeof tickets;
   users: typeof users;
   waitlist: typeof waitlist;

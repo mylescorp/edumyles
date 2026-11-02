@@ -1,0 +1,4 @@
+{ "schemaVersion":1, "tenantId":"neon-pink", "version":1,
+  "branding":{"schoolName":"Pinnacle Heights International School","logoUrl":"/tenants/neon-pink/logo.svg","faviconUrl":null},
+  "colors":{"primary":"#FF1493","accent":"#00E5FF"},
+  "typography":{"font":"Nunito Sans"}, "updatedAt":1793500000 }

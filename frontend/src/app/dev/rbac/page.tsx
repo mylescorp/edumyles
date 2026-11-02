@@ -39,7 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import type { DevRbacData, DevRbacRole, DevRbacUser } from "@/lib/dev/types";
 
-const DEFAULT_ROLE_COLOR = "#2563EB";
+const DEFAULT_ROLE_COLOR = "var(--color-action-primary-text)";
 const DEFAULT_ROLE_ICON = "shield-check";
 
 type RoleFormState = {

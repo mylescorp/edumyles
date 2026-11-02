@@ -460,7 +460,7 @@ export default function PMPage() {
         </Card>
       </div>
 
-      <Card className="overflow-hidden border-slate-200/80 surface-gradient">
+      <Card className="overflow-hidden border-slate-200/80 bg-[radial-gradient(circle_at_top_left,color-mix(in srgb, var(--color-surface-page) 7%, transparent),transparent_35%),linear-gradient(180deg,color-mix(in srgb, var(--color-text-default) 92%, transparent),color-mix(in srgb, var(--color-text-on-primary) 98%, transparent))]">
         <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <CardTitle>Kanban boards</CardTitle>
@@ -489,7 +489,7 @@ export default function PMPage() {
             activeProjects.map((project) => {
               const workspace = workspaceRows.find((row) => row._id === project.workspaceId);
               return (
-                <div key={project._id} className="rounded-2xl border border-slate-200 bg-card/90 p-4 shadow-sm">
+                <div key={project._id} className="rounded-2xl border border-slate-200 bg-[var(--color-surface-default)] p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-semibold text-foreground">{project.name}</p>

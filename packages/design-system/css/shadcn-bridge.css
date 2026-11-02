@@ -1,0 +1,24 @@
+/* Maps shadcn/ui variable names onto EduMyles semantic tokens. Tenant + dark mode flow through automatically.
+   Values are plain colours (not "H S L" triplets): use Tailwind v4 / current shadcn, or drop hsl() wrappers on v3. */
+:root {
+  --background: var(--color-surface-page);
+  --foreground: var(--color-text-default);
+  --card: var(--color-surface-default);
+  --card-foreground: var(--color-text-default);
+  --popover: var(--color-surface-raised);
+  --popover-foreground: var(--color-text-default);
+  --primary: var(--color-action-primary);
+  --primary-foreground: var(--color-text-on-primary);
+  --secondary: var(--color-surface-sunken);
+  --secondary-foreground: var(--color-text-default);
+  --muted: var(--color-surface-sunken);
+  --muted-foreground: var(--color-text-muted);
+  --accent: var(--color-action-primary-subtle);
+  --accent-foreground: var(--color-text-on-primary-subtle);
+  --destructive: var(--color-status-danger-solid);
+  --destructive-foreground: var(--color-status-danger-on-solid);
+  --border: var(--color-border-default);
+  --input: var(--color-border-strong);
+  --ring: var(--color-focus-ring);
+  --radius: var(--radius-control);
+}

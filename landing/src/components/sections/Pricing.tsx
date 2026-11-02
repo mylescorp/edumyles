@@ -14,17 +14,17 @@ export default function Pricing() {
       id="pricing"
       className="py-16 px-4 sm:px-8 relative overflow-hidden"
       aria-label="Pricing plans"
-      style={{ background: "var(--background)" }}
+      style={{ background: "var(--color-surface-page)" }}
     >
       <div className="relative max-w-[1200px] mx-auto">
         <div className="text-center mb-12">
           <div className="section-eyebrow justify-center mb-2">Pricing</div>
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--color-text-default)" }}
           >
             Simple,{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+            <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
               Transparent Pricing
             </em>
           </h2>
@@ -76,13 +76,13 @@ export default function Pricing() {
                   : "border shadow-card"
               }`}
               style={{
-                background: plan.featured ? "var(--primary)" : "var(--card)",
-                borderColor: plan.featured ? "var(--primary)" : "var(--border)",
+                background: plan.featured ? "var(--color-action-primary)" : "var(--color-surface-default)",
+                borderColor: plan.featured ? "var(--color-action-primary)" : "var(--color-border-default)",
               }}
             >
               {plan.featured && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-gold text-white font-inter font-semibold text-xs px-4 py-1.5 rounded-lg shadow-md whitespace-nowrap">
+                  <span className="bg-gold text-[var(--color-text-on-primary)] font-inter font-semibold text-xs px-4 py-1.5 rounded-lg shadow-md whitespace-nowrap">
                     ⭐ Most Popular
                   </span>
                 </div>
@@ -90,14 +90,14 @@ export default function Pricing() {
 
               <h3
                 className="font-jakarta font-bold text-2xl mb-1"
-                style={{ color: plan.featured ? "var(--primary-foreground)" : "var(--foreground)" }}
+                style={{ color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-default)" }}
               >
                 {plan.name}
               </h3>
               <p
                 className="font-inter text-xs mb-4"
                 style={{
-                  color: plan.featured ? "var(--primary-foreground)" : "var(--muted-foreground)",
+                  color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-muted)",
                   opacity: plan.featured ? 0.78 : 1,
                 }}
               >
@@ -108,7 +108,7 @@ export default function Pricing() {
                 {plan.monthlyPriceKes === null ? (
                   <div
                     className="font-jakarta font-bold text-4xl"
-                    style={{ color: plan.featured ? "var(--primary-foreground)" : "var(--foreground)" }}
+                    style={{ color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-default)" }}
                   >
                     Custom
                   </div>
@@ -116,7 +116,7 @@ export default function Pricing() {
                   <>
                     <div
                       className="font-jakarta font-extrabold text-4xl"
-                      style={{ color: plan.featured ? "var(--primary-foreground)" : "var(--foreground)" }}
+                      style={{ color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-default)" }}
                     >
                       {formatPublicKes(
                         annual ? plan.annualMonthlyPriceKes! : plan.monthlyPriceKes
@@ -125,7 +125,7 @@ export default function Pricing() {
                     <div
                       className="font-inter text-sm"
                       style={{
-                        color: plan.featured ? "var(--primary-foreground)" : "var(--muted-foreground)",
+                        color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-muted)",
                         opacity: plan.featured ? 0.78 : 1,
                       }}
                     >
@@ -138,7 +138,7 @@ export default function Pricing() {
               <p
                 className="font-inter text-sm leading-relaxed mb-6"
                 style={{
-                  color: plan.featured ? "var(--primary-foreground)" : "var(--muted-foreground)",
+                  color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-muted)",
                   opacity: plan.featured ? 0.84 : 1,
                 }}
               >
@@ -150,14 +150,14 @@ export default function Pricing() {
                   <li key={f} className="flex items-start gap-2">
                     <span
                       className="font-bold text-sm mt-0.5 flex-shrink-0"
-                      style={{ color: plan.featured ? "var(--primary-foreground)" : "var(--primary)" }}
+                      style={{ color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-action-primary)" }}
                     >
                       ✓
                     </span>
                     <span
                       className="font-inter text-sm"
                       style={{
-                        color: plan.featured ? "var(--primary-foreground)" : "var(--foreground)",
+                        color: plan.featured ? "var(--color-text-on-primary)" : "var(--color-text-default)",
                         opacity: plan.featured ? 0.92 : 1,
                       }}
                     >
@@ -174,7 +174,7 @@ export default function Pricing() {
                     ? "bg-primary hover:opacity-90 shadow-md"
                     : "bg-primary hover:opacity-90 border border-primary"
                 }`}
-                style={{ color: "var(--primary-foreground)" }}
+                style={{ color: "var(--color-text-on-primary)" }}
               >
                 {plan.cta}
               </Link>

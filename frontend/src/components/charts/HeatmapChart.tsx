@@ -21,11 +21,11 @@ export function HeatmapChart({ data, title }: HeatmapChartProps) {
   };
 
   const getColor = (intensity: number) => {
-    if (intensity === 0) return 'var(--muted)';
-    if (intensity < 0.3) return 'var(--success-muted)';
-    if (intensity < 0.6) return 'var(--warning-muted)';
-    if (intensity < 0.8) return 'var(--warning-muted-foreground)';
-    return 'var(--danger)';
+    if (intensity === 0) return 'var(--color-surface-sunken)';
+    if (intensity < 0.3) return 'var(--color-status-success-subtle)';
+    if (intensity < 0.6) return 'var(--color-status-warning-subtle)';
+    if (intensity < 0.8) return 'var(--color-status-warning-on-subtle)';
+    return 'var(--color-status-danger-solid)';
   };
 
   return (

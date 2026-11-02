@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://edumyles.com/schemas/tenant-theme/1.json",
+  "title": "EduMyles tenant theme (schema v1)",
+  "description": "Brand inputs only. The theme engine derives every other token. Locked tokens (status colours, focus ring, spacing, minimum font sizes, layout grid) are not accepted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "tenantId", "branding", "colors"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "tenantId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,62}$" },
+    "version": { "type": "integer", "minimum": 1, "description": "Incremented by the server on every published change; used in the cache key." },
+    "updatedAt": { "type": "integer", "description": "Unix seconds, server-set." },
+    "branding": {
+      "type": "object", "additionalProperties": false, "required": ["schoolName"],
+      "properties": {
+        "schoolName": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "logoUrl": { "type": ["string", "null"], "pattern": "^(/|https://)", "description": "Light-surface logo. SVG (sanitised) or PNG." },
+        "logoDarkUrl": { "type": ["string", "null"], "pattern": "^(/|https://)", "description": "Optional dark-surface logo. Falls back to a derived single-colour version." },
+        "markUrl": { "type": ["string", "null"], "pattern": "^(/|https://)", "description": "Square mark for the collapsed sidebar and avatars." },
+        "faviconUrl": { "type": ["string", "null"], "pattern": "^(/|https://)" }
+      }
+    },
+    "colors": {
+      "type": "object", "additionalProperties": false, "required": ["primary"],
+      "properties": {
+        "primary": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "accent": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$", "description": "Defaults to primary when omitted." }
+      }
+    },
+    "typography": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "font": { "enum": ["Inter", "Source Sans 3", "Noto Sans", "Nunito Sans"] } }
+    },
+    "loginImage": {
+      "type": "object", "additionalProperties": false, "required": ["url", "alt"],
+      "properties": {
+        "url": { "type": "string", "pattern": "^(/|https://)" },
+        "alt": { "type": "string", "maxLength": 140, "description": "Empty string allowed only if purely decorative; admin must confirm." },
+        "focalPoint": { "type": "array", "items": { "type": "number", "minimum": 0, "maximum": 1 }, "minItems": 2, "maxItems": 2 }
+      }
+    },
+    "email": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "headerLogoUrl": { "type": ["string", "null"], "pattern": "^https://" },
+        "footerText": { "type": "string", "maxLength": 300 },
+        "replyTo": { "type": "string", "format": "email" }
+      }
+    },
+    "plan": {
+      "type": "object", "additionalProperties": false,
+      "description": "Plan-gated features. Set by billing, never by the tenant admin form.",
+      "properties": {
+        "whiteLabel": { "type": "boolean", "default": false, "description": "Removes 'Powered by EduMyles'." },
+        "customDomain": { "type": ["string", "null"], "pattern": "^([a-z0-9-]+\\.)+[a-z]{2,}$" }
+      }
+    }
+  }
+}

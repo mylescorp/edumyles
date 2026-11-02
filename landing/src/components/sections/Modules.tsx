@@ -66,7 +66,7 @@ export default function Modules() {
       id="modules"
       className="px-4 sm:px-8 py-16"
       aria-label="Platform modules"
-      style={{ background: "var(--background)" }}
+      style={{ background: "var(--color-surface-page)" }}
     >
       <div className="max-w-[1200px] mx-auto">
         {/* Eyebrow */}
@@ -75,10 +75,10 @@ export default function Modules() {
         {/* Heading */}
         <h2
           className="font-display font-bold leading-[1.2] mb-12"
-          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--foreground)" }}
+          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--color-text-default)" }}
         >
           Everything Your School Needs,{" "}
-          <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+          <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
             In One Place
           </em>
         </h2>
@@ -93,12 +93,12 @@ export default function Modules() {
               }}
               className="fade-in bg-card rounded-[12px] p-8 text-center transition-all duration-300 cursor-default"
               style={{
-                border: "1px solid var(--border)",
+                border: "1px solid var(--color-border-default)",
                 transitionDelay: `${i * 0.08}s`,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-8px)";
-                e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.1)";
+                e.currentTarget.style.boxShadow = "0 12px 32px color-mix(in srgb, var(--color-surface-page) 10%, transparent)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
@@ -109,24 +109,24 @@ export default function Modules() {
               <div
                 className="w-[70px] h-[70px] rounded-[12px] flex items-center justify-center mx-auto mb-4"
                 style={{
-                  background: "linear-gradient(135deg, #26A65B, var(--primary))",
+                  background: "linear-gradient(135deg, var(--color-status-success-solid), var(--color-action-primary))",
                 }}
               >
-                <mod.icon className="w-7 h-7" strokeWidth={1.5} style={{ color: "#ffffff" }} />
+                <mod.icon className="w-7 h-7" strokeWidth={1.5} style={{ color: "var(--color-text-on-primary)" }} />
               </div>
 
               {/* Title */}
-              <h3 className="font-display font-bold text-[20px] mb-1" style={{ color: "var(--foreground)" }}>
+              <h3 className="font-display font-bold text-[20px] mb-1" style={{ color: "var(--color-text-default)" }}>
                 {mod.label}
               </h3>
 
               {/* Benefit tag */}
-              <div className="text-[14px] font-semibold mb-3" style={{ color: "var(--accent-foreground)" }}>
+              <div className="text-[14px] font-semibold mb-3" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 Included module
               </div>
 
               {/* Description */}
-              <p className="text-[14px] leading-[1.6] mb-6" style={{ color: "var(--muted-foreground)" }}>
+              <p className="text-[14px] leading-[1.6] mb-6" style={{ color: "var(--color-text-muted)" }}>
                 {mod.description}
               </p>
 
@@ -134,9 +134,9 @@ export default function Modules() {
               <a
                 href="/features"
                 className="text-[14px] font-semibold no-underline transition-colors duration-300"
-                style={{ color: "var(--primary)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
+                style={{ color: "var(--color-action-primary)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-status-success-solid)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-action-primary)")}
               >
                 Learn more →
               </a>
@@ -149,9 +149,9 @@ export default function Modules() {
           <a
             href="/features"
             className="text-[16px] font-bold no-underline transition-colors duration-300"
-            style={{ color: "var(--primary)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#26A65B")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--primary)")}
+            style={{ color: "var(--color-action-primary)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-status-success-solid)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-action-primary)")}
           >
             View all 13 modules →
           </a>

@@ -47,14 +47,15 @@ export default function Features() {
       id="features"
       className="handoff-problem-section"
       aria-label="Problems we solve"
+      style={{ background: "var(--color-chrome-platform)" }}
     >
       <div className="handoff-problem-band">
         {/* Eyebrow */}
         <div className="flex items-center gap-[10px] mb-[10px]">
-          <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "var(--primary)" }} />
+          <div className="w-[26px] h-[2px] flex-shrink-0" style={{ background: "var(--color-action-primary)" }} />
           <div
             className="text-[10px] font-bold tracking-[2.5px] uppercase"
-            style={{ color: "#B9CBD6" }}
+            style={{ color: "var(--color-text-muted)" }}
           >
             The Problem
           </div>
@@ -63,10 +64,10 @@ export default function Features() {
         {/* Heading */}
         <h2
           className="font-display font-bold leading-[1.2] mb-12"
-          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "#ffffff" }}
+          style={{ fontSize: "clamp(1.75rem, 3vw, 3rem)", color: "var(--color-text-inverse)" }}
         >
           Schools are drowning in paperwork.{" "}
-          <em className="italic" style={{ color: "#B9CBD6" }}>
+          <em className="italic" style={{ color: "var(--color-text-muted)" }}>
             EduMyles fixes that.
           </em>
         </h2>
@@ -81,25 +82,26 @@ export default function Features() {
               }}
               className="fade-in handoff-problem-card"
               style={{
-                border: "1px solid rgb(var(--primary-rgb) / 20%)",
+                background: "color-mix(in srgb, var(--color-surface-default) 5%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-action-primary) 20%, transparent)",
                 transitionDelay: `${i * 0.1}s`,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-5px)";
-                e.currentTarget.style.borderColor = "rgb(var(--primary-rgb) / 45%)";
+                e.currentTarget.style.borderColor = "color-mix(in srgb, var(--color-action-primary) 45%, transparent)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.borderColor = "rgb(var(--primary-rgb) / 20%)";
+                e.currentTarget.style.borderColor = "color-mix(in srgb, var(--color-action-primary) 20%, transparent)";
               }}
             >
-              <div className="mb-4" style={{ color: "#B9CBD6" }}>
+              <div className="mb-4" style={{ color: "var(--color-text-muted)" }}>
                 <problem.icon className="w-6 h-6" strokeWidth={1.5} />
               </div>
-              <h3 className="font-display font-bold text-[20px] mb-3" style={{ color: "#ffffff" }}>
+              <h3 className="font-display font-bold text-[20px] mb-3" style={{ color: "var(--color-text-inverse)" }}>
                 {problem.title}
               </h3>
-              <p className="text-[14px] leading-[1.6]" style={{ color: "#C4D4D0" }}>
+              <p className="text-[14px] leading-[1.6]" style={{ color: "var(--color-action-primary-disabled)" }}>
                 {problem.description}
               </p>
             </div>

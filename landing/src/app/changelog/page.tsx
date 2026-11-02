@@ -89,42 +89,42 @@ const tagConfig: Record<
   new: {
     icon: Sparkles,
     label: "New",
-    bg: "rgba(38,166,91,0.1)",
-    color: "var(--primary)",
-    border: "rgba(38,166,91,0.25)",
+    bg: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)",
+    color: "var(--color-action-primary)",
+    border: "color-mix(in srgb, var(--color-status-success-solid) 25%, transparent)",
   },
   improved: {
     icon: Star,
     label: "Improved",
-    bg: "rgb(var(--primary-rgb) / 10%)",
-    color: "#9A5D00",
-    border: "rgb(var(--primary-rgb) / 25%)",
+    bg: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)",
+    color: "var(--color-status-warning-solid)",
+    border: "color-mix(in srgb, var(--color-action-primary) 25%, transparent)",
   },
   fixed: {
     icon: Bug,
     label: "Fixed",
-    bg: "rgba(59,130,246,0.1)",
-    color: "#1e40af",
-    border: "rgba(59,130,246,0.25)",
+    bg: "color-mix(in srgb, var(--color-status-info-solid) 10%, transparent)",
+    color: "var(--color-action-primary-hover)",
+    border: "color-mix(in srgb, var(--color-status-info-solid) 25%, transparent)",
   },
   security: {
     icon: ShieldCheck,
     label: "Security",
-    bg: "rgba(139,92,246,0.1)",
-    color: "#6b21a8",
-    border: "rgba(139,92,246,0.25)",
+    bg: "color-mix(in srgb, var(--color-action-primary) 10%, transparent)",
+    color: "var(--color-text-disabled)",
+    border: "color-mix(in srgb, var(--color-focus-ring) 25%, transparent)",
   },
 };
 
 export default function ChangelogPage() {
   return (
-    <div style={{ color: "var(--foreground)" }}>
+    <div style={{ color: "var(--color-text-default)" }}>
       {/* ── Hero ───────────────────────────────────────────── */}
       <section
         className="relative flex items-center overflow-hidden"
         style={{
-          background: "var(--card)",
-          borderTop: "3px solid var(--primary)",
+          background: "var(--color-surface-default)",
+          borderTop: "3px solid var(--color-action-primary)",
           padding: "6rem 2rem 5rem",
           minHeight: "420px",
         }}
@@ -132,7 +132,7 @@ export default function ChangelogPage() {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `linear-gradient(0deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,rgb(var(--primary-rgb) / 4%) 25%,rgb(var(--primary-rgb) / 4%) 26%,transparent 27%,transparent 74%,rgb(var(--primary-rgb) / 4%) 75%,rgb(var(--primary-rgb) / 4%) 76%,transparent 77%)`,
+            backgroundImage: `linear-gradient(0deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%),linear-gradient(90deg,transparent 24%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 25%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 26%,transparent 27%,transparent 74%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 75%,color-mix(in srgb, var(--color-action-primary) 4%, transparent) 76%,transparent 77%)`,
             backgroundSize: "50px 50px",
           }}
         />
@@ -141,25 +141,25 @@ export default function ChangelogPage() {
             <div
               className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
               style={{
-                background: "rgb(var(--primary-rgb) / 12%)",
-                border: "1px solid var(--accent-foreground)",
-                color: "var(--accent-foreground)",
+                background: "color-mix(in srgb, var(--color-action-primary) 12%, transparent)",
+                border: "1px solid var(--color-text-on-primary-subtle)",
+                color: "var(--color-text-on-primary-subtle)",
               }}
             >
               Product Updates
             </div>
             <h1
               className="font-display font-bold leading-[1.15] mb-5"
-              style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
+              style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--color-text-default)" }}
             >
               What&apos;s new in{" "}
-              <em className="italic" style={{ color: "var(--accent-foreground)" }}>
+              <em className="italic" style={{ color: "var(--color-text-on-primary-subtle)" }}>
                 EduMyles
               </em>
             </h1>
             <p
               className="font-jakarta font-light leading-[1.8] mb-8"
-              style={{ fontSize: "18px", color: "var(--muted-foreground)", maxWidth: "540px" }}
+              style={{ fontSize: "18px", color: "var(--color-text-muted)", maxWidth: "540px" }}
             >
               We ship improvements every week. Here&apos;s everything that&apos;s been updated,
               fixed, or launched.
@@ -168,9 +168,9 @@ export default function ChangelogPage() {
               <span
                 className="inline-flex items-center gap-1.5 font-jakarta font-medium text-[13px] px-4 py-2 rounded-[50px]"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#E8E8E8",
+                  background: "color-mix(in srgb, var(--color-surface-default) 7%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-surface-default) 15%, transparent)",
+                  color: "var(--color-action-primary-disabled)",
                 }}
               >
                 <Rocket className="w-3.5 h-3.5" strokeWidth={1.5} /> Latest release: v2.4.0
@@ -178,9 +178,9 @@ export default function ChangelogPage() {
               <span
                 className="inline-flex items-center gap-1.5 font-jakarta font-medium text-[13px] px-4 py-2 rounded-[50px]"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#E8E8E8",
+                  background: "color-mix(in srgb, var(--color-surface-default) 7%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-surface-default) 15%, transparent)",
+                  color: "var(--color-action-primary-disabled)",
                 }}
               >
                 <CalendarDays className="w-3.5 h-3.5" strokeWidth={1.5} /> Last updated: March 2026
@@ -191,7 +191,7 @@ export default function ChangelogPage() {
       </section>
 
       {/* ── Changelog Timeline ─────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--card)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--color-surface-default)" }}>
         <div className="max-w-[820px] mx-auto">
           <div className="flex flex-col gap-0">
             {releases.map((release, i) => (
@@ -201,9 +201,9 @@ export default function ChangelogPage() {
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center font-jakarta font-bold text-[11px] z-10 flex-shrink-0"
                     style={{
-                      background: i === 0 ? "var(--primary)" : "var(--muted)",
-                      color: i === 0 ? "var(--primary-foreground)" : "var(--primary)",
-                      border: `2px solid ${i === 0 ? "var(--primary)" : "var(--border)"}`,
+                      background: i === 0 ? "var(--color-action-primary)" : "var(--color-surface-sunken)",
+                      color: i === 0 ? "var(--color-text-on-primary)" : "var(--color-action-primary)",
+                      border: `2px solid ${i === 0 ? "var(--color-action-primary)" : "var(--color-border-default)"}`,
                     }}
                   >
                     {release.version.replace("v", "")}
@@ -211,26 +211,26 @@ export default function ChangelogPage() {
                   {i < releases.length - 1 && (
                     <div
                       className="flex-1 my-2"
-                      style={{ width: "2px", background: "var(--border)", minHeight: "40px" }}
+                      style={{ width: "2px", background: "var(--color-border-default)", minHeight: "40px" }}
                     />
                   )}
                 </div>
                 {/* Entry content */}
                 <div className="pb-12 flex-1">
                   <div className="flex items-center gap-3 mb-4">
-                    <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--foreground)" }}>
+                    <h2 className="font-display font-bold text-[22px]" style={{ color: "var(--color-text-default)" }}>
                       {release.version}
                     </h2>
                     <span
                       className="font-jakarta text-[13px] font-medium px-3 py-1 rounded-full"
-                      style={{ background: "var(--background)", color: "var(--muted-foreground)" }}
+                      style={{ background: "var(--color-surface-page)", color: "var(--color-text-muted)" }}
                     >
                       {release.date}
                     </span>
                     {i === 0 && (
                       <span
                         className="font-jakarta font-bold text-[11px] px-3 py-1 rounded-full"
-                        style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                        style={{ background: "var(--color-action-primary)", color: "var(--color-text-on-primary)" }}
                       >
                         Latest
                       </span>
@@ -238,7 +238,7 @@ export default function ChangelogPage() {
                   </div>
                   <div
                     className="rounded-2xl p-6"
-                    style={{ background: "#fafafa", border: "1px solid #f0f0f0" }}
+                    style={{ background: "var(--color-text-default)", border: "1px solid var(--color-surface-sunken)" }}
                   >
                     <ul className="flex flex-col gap-3">
                       {release.changes.map((change, ci) => {
@@ -258,7 +258,7 @@ export default function ChangelogPage() {
                             </span>
                             <span
                               className="font-jakarta text-[14px] leading-[1.7]"
-                              style={{ color: "#3a3a3a" }}
+                              style={{ color: "var(--color-border-default)" }}
                             >
                               {change.text}
                             </span>
@@ -275,21 +275,21 @@ export default function ChangelogPage() {
       </section>
 
       {/* ── Subscribe Strip ────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--background)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--color-surface-page)" }}>
         <div className="max-w-[560px] mx-auto text-center">
           <div
             className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
-            style={{ background: "rgba(38,166,91,0.1)", color: "var(--primary)" }}
+            style={{ background: "color-mix(in srgb, var(--color-status-success-solid) 10%, transparent)", color: "var(--color-action-primary)" }}
           >
             Stay Updated
           </div>
           <h2
             className="font-display font-bold mb-3"
-            style={{ fontSize: "clamp(1.5rem,2.5vw,2rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(1.5rem,2.5vw,2rem)", color: "var(--color-text-default)" }}
           >
             Get notified of new releases
           </h2>
-          <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--muted-foreground)" }}>
+          <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--color-text-muted)" }}>
             No spam — just a short email when we ship something meaningful.
           </p>
           <SubscribeForm />
