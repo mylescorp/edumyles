@@ -71,7 +71,7 @@ export default function Comparison() {
       aria-label="EduMyles vs alternatives comparison"
       style={{ background: "var(--background)" }}
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-website mx-auto">
         <div className="text-center mb-10">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"

@@ -101,7 +101,7 @@ export default function PrivacyPage() {
         <section id="collection" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Database className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -201,7 +201,7 @@ export default function PrivacyPage() {
         <section id="usage" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Eye className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -252,7 +252,7 @@ export default function PrivacyPage() {
         <section id="sharing" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <FileText className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -315,7 +315,7 @@ export default function PrivacyPage() {
         <section id="rights" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <UserCheck className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -386,7 +386,7 @@ export default function PrivacyPage() {
         <section id="retention" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <FileText className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -461,7 +461,7 @@ export default function PrivacyPage() {
         <section id="security" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Lock className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -508,7 +508,7 @@ export default function PrivacyPage() {
         <section id="dpa" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Shield className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -553,7 +553,7 @@ export default function PrivacyPage() {
         <section id="contact" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Mail className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -618,7 +618,7 @@ export default function PrivacyPage() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
+            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-full no-underline"
             style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
           >
             Contact Us

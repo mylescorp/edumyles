@@ -116,7 +116,7 @@ function SectionHeader({
   return (
     <div className={center ? "mx-auto mb-12 max-w-[760px] text-center" : "mb-10 max-w-[760px]"}>
       <div
-        className="mb-4 inline-flex items-center gap-2 rounded-[8px] px-3 py-2 font-jakarta text-[11px] font-bold uppercase tracking-[0.16em]"
+        className="mb-4 inline-flex items-center gap-2 rounded-md px-3 py-2 font-jakarta text-[11px] font-bold uppercase tracking-[0.16em]"
         style={{
           background: "rgb(var(--primary-rgb) / 12%)",
           color: isDark ? "var(--ondeep)" : "var(--accent-foreground)",
@@ -157,7 +157,7 @@ function ButtonLink({
   return (
     <Link
       href={href}
-      className="inline-flex items-center justify-center gap-2 rounded-[8px] px-5 py-3 font-jakarta text-[14px] font-bold no-underline transition-transform duration-200 hover:-translate-y-0.5"
+      className="inline-flex items-center justify-center gap-2 rounded-md px-5 py-3 font-jakarta text-[14px] font-bold no-underline transition-transform duration-200 hover:-translate-y-0.5"
       style={styles}
     >
       {children}
@@ -169,7 +169,7 @@ function ButtonLink({
 function ProgramDashboard({ config }: { config: PartnerProgramConfig }) {
   return (
     <div
-      className="relative overflow-hidden rounded-[8px] border p-5 shadow-2xl"
+      className="relative overflow-hidden rounded-md border p-5 shadow-2xl"
       style={{ background: "var(--card)", borderColor: "var(--border)" }}
     >
       <div className="mb-5 flex items-center justify-between gap-4">
@@ -182,7 +182,7 @@ function ProgramDashboard({ config }: { config: PartnerProgramConfig }) {
           </h3>
         </div>
         <div
-          className="flex h-11 w-11 items-center justify-center rounded-[8px]"
+          className="flex h-11 w-11 items-center justify-center rounded-md"
           style={{ background: "var(--card)", color: "var(--accent-foreground)" }}
         >
           <config.heroIcon className="h-5 w-5" />
@@ -191,7 +191,7 @@ function ProgramDashboard({ config }: { config: PartnerProgramConfig }) {
 
       <div className="grid grid-cols-3 gap-3">
         {config.dashboardKpis.map((kpi) => (
-          <div key={kpi.label} className="rounded-[8px] border bg-card p-3" style={{ borderColor: "var(--border)" }}>
+          <div key={kpi.label} className="rounded-md border bg-card p-3" style={{ borderColor: "var(--border)" }}>
             <p className="font-jakarta text-[11px] font-semibold" style={{ color: "var(--muted-foreground)" }}>
               {kpi.label}
             </p>
@@ -206,12 +206,12 @@ function ProgramDashboard({ config }: { config: PartnerProgramConfig }) {
         {config.dashboardRows.map((row, index) => (
           <div
             key={row}
-            className="flex items-center justify-between gap-3 rounded-[8px] border bg-card px-4 py-3"
+            className="flex items-center justify-between gap-3 rounded-md border bg-card px-4 py-3"
             style={{ borderColor: index === 0 ? "rgb(var(--primary-rgb) / 48%)" : "var(--border)" }}
           >
             <div className="flex items-center gap-3">
               <span
-                className="flex h-7 w-7 items-center justify-center rounded-[8px]"
+                className="flex h-7 w-7 items-center justify-center rounded-md"
                 style={{ background: index === 0 ? "rgb(var(--primary-rgb) / 14%)" : "var(--muted)" }}
               >
                 <CheckCircle2 className="h-4 w-4" style={{ color: index === 0 ? "var(--accent-foreground)" : "var(--primary)" }} />
@@ -242,10 +242,10 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
               "linear-gradient(135deg, rgb(var(--primary-rgb) / 34%), transparent 45%), radial-gradient(circle at 78% 18%, rgb(var(--primary-rgb) / 16%), transparent 28%)",
           }}
         />
-        <div className="relative mx-auto grid max-w-[1200px] items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="relative mx-auto grid max-w-website items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <div
-              className="mb-6 inline-flex items-center gap-2 rounded-[8px] border px-4 py-2 font-jakarta text-[12px] font-bold uppercase tracking-[0.18em]"
+              className="mb-6 inline-flex items-center gap-2 rounded-md border px-4 py-2 font-jakarta text-[12px] font-bold uppercase tracking-[0.18em]"
               style={{ borderColor: "rgb(var(--primary-rgb) / 42%)", color: "var(--ondeep)", background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Sparkles className="h-4 w-4" />
@@ -268,7 +268,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
             </div>
             <div className="mt-10 grid max-w-[680px] grid-cols-2 gap-3 sm:grid-cols-4">
               {config.proof.map((item) => (
-                <div key={item.label} className="rounded-[8px] border p-4" style={{ borderColor: "color-mix(in srgb, var(--deepacc) 18%, transparent)", background: "rgba(255,255,255,0.04)" }}>
+                <div key={item.label} className="rounded-md border p-4" style={{ borderColor: "color-mix(in srgb, var(--deepacc) 18%, transparent)", background: "rgba(255,255,255,0.04)" }}>
                   <p className="font-display text-[24px] font-bold" style={{ color: "var(--ondeephi)" }}>
                     {item.value}
                   </p>
@@ -284,11 +284,11 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
       </section>
 
         <section className="px-4 py-20 sm:px-8" style={{ background: "var(--card)" }}>
-        <div className="mx-auto max-w-[1200px]">
+        <div className="mx-auto max-w-website">
           <SectionHeader label="Who It Fits" title={config.fitTitle} body={config.fitIntro} center />
           <div className="grid gap-4 md:grid-cols-3">
             {config.fits.map((item) => (
-              <div key={item.title} className="rounded-[8px] border p-6" style={{ borderColor: "var(--border)", background: "var(--background)" }}>
+              <div key={item.title} className="rounded-md border p-6" style={{ borderColor: "var(--border)", background: "var(--background)" }}>
                 <item.icon className="h-7 w-7" style={{ color: "var(--primary)" }} />
                 <h3 className="mt-5 font-display text-[20px] font-bold" style={{ color: "var(--foreground)" }}>
                   {item.title}
@@ -303,13 +303,13 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
       </section>
 
       <section className="px-4 py-20 sm:px-8" style={{ background: "var(--background)" }}>
-        <div className="mx-auto max-w-[1200px]">
+        <div className="mx-auto max-w-website">
           <SectionHeader label="Why Join" title={config.benefitsTitle} body={config.benefitsIntro} />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {config.benefits.map((item) => (
-              <div key={item.title} className="rounded-[8px] border bg-card p-6" style={{ borderColor: "var(--border)" }}>
+              <div key={item.title} className="rounded-md border bg-card p-6" style={{ borderColor: "var(--border)" }}>
                 <div className="flex items-start gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px]" style={{ background: "rgb(var(--primary-rgb) / 12%)" }}>
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md" style={{ background: "rgb(var(--primary-rgb) / 12%)" }}>
                     <item.icon className="h-5 w-5" style={{ color: "var(--accent-foreground)" }} />
                   </span>
                   <div>
@@ -328,13 +328,13 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
       </section>
 
       <section className="px-4 py-20 sm:px-8" style={{ background: "var(--card)" }}>
-        <div className="mx-auto max-w-[1200px]">
+        <div className="mx-auto max-w-website">
           <SectionHeader label="Program Model" title={config.tiersTitle} body={config.tiersIntro} center />
           <div className="grid gap-5 lg:grid-cols-3">
             {config.tiers.map((tier, index) => (
               <div
                 key={tier.title}
-                className="rounded-[8px] border p-7"
+                className="rounded-md border p-7"
                 style={{
                   background: index === 1 ? "var(--primary)" : "var(--background)",
                   borderColor: index === 1 ? "var(--primary)" : "var(--border)",
@@ -363,13 +363,13 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
       </section>
 
       <section className="px-4 py-20 sm:px-8" style={{ background: "var(--deep)" }}>
-        <div className="mx-auto grid max-w-[1200px] gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="mx-auto grid max-w-website gap-12 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
             <SectionHeader label="Launch Plan" title={config.processTitle} body={config.processIntro} tone="dark" />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             {config.steps.map((step, index) => (
-              <div key={step.title} className="rounded-[8px] border p-6" style={{ background: "rgba(255,255,255,0.04)", borderColor: "color-mix(in srgb, var(--deepacc) 16%, transparent)" }}>
+              <div key={step.title} className="rounded-md border p-6" style={{ background: "rgba(255,255,255,0.04)", borderColor: "color-mix(in srgb, var(--deepacc) 16%, transparent)" }}>
                 <span className="font-display text-[28px] font-bold" style={{ color: "var(--ondeep)" }}>
                   0{index + 1}
                 </span>
@@ -386,7 +386,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
       </section>
 
       <section className="px-4 py-20 sm:px-8" style={{ background: "var(--background)" }}>
-        <div className="mx-auto grid max-w-[1200px] gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="mx-auto grid max-w-website gap-10 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
             <SectionHeader label="Included" title={config.toolkitTitle} body={config.toolkitIntro} />
             <div className="flex flex-wrap gap-3">
@@ -398,7 +398,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {config.toolkit.map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded-[8px] border bg-card p-4" style={{ borderColor: "var(--border)" }}>
+              <div key={item} className="flex items-center gap-3 rounded-md border bg-card p-4" style={{ borderColor: "var(--border)" }}>
                 <PackageCheck className="h-5 w-5 shrink-0" style={{ color: "var(--primary)" }} />
                 <span className="font-jakarta text-[14px] font-semibold" style={{ color: "var(--foreground)" }}>
                   {item}
@@ -414,7 +414,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
           <SectionHeader label="FAQ" title={config.faqTitle} body="Straight answers before you apply." center />
           <div className="space-y-3">
             {config.faqs.map((faq) => (
-              <details key={faq.q} className="rounded-[8px] border p-5" style={{ borderColor: "var(--border)", background: "var(--background)" }}>
+              <details key={faq.q} className="rounded-md border p-5" style={{ borderColor: "var(--border)", background: "var(--background)" }}>
                 <summary className="cursor-pointer font-jakarta text-[15px] font-bold" style={{ color: "var(--foreground)" }}>
                   {faq.q}
                 </summary>
@@ -428,7 +428,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
       </section>
 
       <section className="px-4 pb-20 sm:px-8" style={{ background: "var(--deep)" }}>
-        <div className="mx-auto max-w-[1200px] rounded-[8px] p-8 text-center sm:p-12" style={{ background: "var(--deep)" }}>
+        <div className="mx-auto max-w-website rounded-md p-8 text-center sm:p-12" style={{ background: "var(--deep)" }}>
           <h2 className="font-display font-bold leading-tight" style={{ color: "var(--ondeephi)", fontSize: "clamp(2rem,4vw,3.25rem)" }}>
             {config.finalTitle}
           </h2>

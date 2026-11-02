@@ -56,7 +56,7 @@ export default function NotFound() {
           aria-label="EduMyles home"
         >
           <div
-            className="w-12 h-12 flex items-center justify-center rounded-[14px] font-display font-bold text-2xl"
+            className="w-12 h-12 flex items-center justify-center rounded-lg font-display font-bold text-2xl"
             style={{
               background: "linear-gradient(135deg,var(--primary),var(--primary))",
               border: "2px solid var(--primary)",
@@ -101,7 +101,7 @@ export default function NotFound() {
               }}
             >
               <div
-                className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
+                className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
                 style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
               >
                 <Icon className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
@@ -113,7 +113,7 @@ export default function NotFound() {
 
         <Link
           href="/"
-          className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-8 py-4 rounded-[50px] no-underline"
+          className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-8 py-4 rounded-full no-underline"
           style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
         >
           ← Back to Home

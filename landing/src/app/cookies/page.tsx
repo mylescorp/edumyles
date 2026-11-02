@@ -99,7 +99,7 @@ export default function CookiesPage() {
         <section id="what" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Cookie className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -179,7 +179,7 @@ export default function CookiesPage() {
         <section id="table" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Settings className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -321,7 +321,7 @@ export default function CookiesPage() {
         <section id="essential" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Shield className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -414,7 +414,7 @@ export default function CookiesPage() {
         <section id="third" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <BarChart2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -430,7 +430,7 @@ export default function CookiesPage() {
             >
               <div className="flex items-start gap-4">
                 <div
-                  className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0"
+                  className="w-9 h-9 rounded-md flex items-center justify-center flex-shrink-0"
                   style={{ background: "rgb(var(--primary-rgb) / 8%)", border: "1px solid var(--border)" }}
                 >
                   <BarChart2 className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -460,7 +460,7 @@ export default function CookiesPage() {
             >
               <div className="flex items-start gap-4">
                 <div
-                  className="w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0"
+                  className="w-9 h-9 rounded-md flex items-center justify-center flex-shrink-0"
                   style={{ background: "rgb(var(--primary-rgb) / 8%)", border: "1px solid var(--border)" }}
                 >
                   <BarChart2 className="w-4 h-4" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -511,7 +511,7 @@ export default function CookiesPage() {
         <section id="manage" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Settings className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -694,7 +694,7 @@ export default function CookiesPage() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
+            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-full no-underline"
             style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
           >
             Contact Us

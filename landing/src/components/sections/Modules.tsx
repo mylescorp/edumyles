@@ -68,7 +68,7 @@ export default function Modules() {
       aria-label="Platform modules"
       style={{ background: "var(--background)" }}
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-website mx-auto">
         {/* Eyebrow */}
         <div className="section-eyebrow mb-2">The Platform</div>
 
@@ -91,7 +91,7 @@ export default function Modules() {
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
-              className="fade-in bg-card rounded-[12px] p-8 text-center transition-all duration-300 cursor-default"
+              className="fade-in bg-card rounded-lg p-8 text-center transition-all duration-300 cursor-default"
               style={{
                 border: "1px solid var(--border)",
                 transitionDelay: `${i * 0.08}s`,
@@ -107,7 +107,7 @@ export default function Modules() {
             >
               {/* Icon */}
               <div
-                className="w-[70px] h-[70px] rounded-[12px] flex items-center justify-center mx-auto mb-4"
+                className="w-[70px] h-[70px] rounded-lg flex items-center justify-center mx-auto mb-4"
                 style={{
                   background: "linear-gradient(135deg, var(--success), var(--primary))",
                 }}

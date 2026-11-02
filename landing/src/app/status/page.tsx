@@ -56,7 +56,7 @@ function UptimeBar() {
           style={{
             width: "18px",
             height: "18px",
-            borderRadius: "3px",
+            borderRadius: "var(--radius-xs)",
             background: color === "green" ? "var(--success)" : "var(--border)",
             flexShrink: 0,
           }}
@@ -103,7 +103,7 @@ export default function StatusPage() {
             backgroundSize: "50px 50px",
           }}
         />
-        <div className="relative max-w-[1200px] mx-auto w-full text-center">
+        <div className="relative max-w-website mx-auto w-full text-center">
           <h1
             className="font-display font-bold leading-[1.2] mb-6"
             style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--foreground)" }}
@@ -111,7 +111,7 @@ export default function StatusPage() {
             System Status
           </h1>
           <div
-            className="inline-flex items-center gap-3 font-jakarta font-bold text-[18px] px-6 py-3 rounded-[50px] mb-4"
+            className="inline-flex items-center gap-3 font-jakarta font-bold text-[18px] px-6 py-3 rounded-full mb-4"
             style={{
               background: "var(--success-muted)",
               border: "1px solid color-mix(in srgb, var(--success) 40%, transparent)",
@@ -244,7 +244,7 @@ export default function StatusPage() {
                 style={{
                   width: "12px",
                   height: "12px",
-                  borderRadius: "2px",
+                  borderRadius: "var(--radius-xs)",
                   background: "var(--success)",
                 }}
               />
@@ -257,7 +257,7 @@ export default function StatusPage() {
                 style={{
                   width: "12px",
                   height: "12px",
-                  borderRadius: "2px",
+                  borderRadius: "var(--radius-xs)",
                   background: "var(--border)",
                 }}
               />
@@ -349,12 +349,12 @@ export default function StatusPage() {
             <input
               type="email"
               placeholder="you@school.ac.ke"
-              className="flex-1 min-w-0 border border-input rounded-[50px] px-5 py-3 font-jakarta text-[14px] outline-none focus:border-primary"
+              className="flex-1 min-w-0 border border-input rounded-full px-5 py-3 font-jakarta text-[14px] outline-none focus:border-primary"
               style={{ color: "var(--foreground)", minWidth: "220px" }}
             />
             <button
               type="submit"
-              className="font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] flex-shrink-0"
+              className="font-jakarta font-bold text-[14px] px-6 py-3 rounded-full flex-shrink-0"
               style={{ background: "var(--primary)", color: "var(--primary-foreground)", border: "none", cursor: "pointer" }}
             >
               Subscribe

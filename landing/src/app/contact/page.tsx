@@ -150,9 +150,9 @@ export default function ContactPage() {
             backgroundSize: "50px 50px",
           }}
         />
-        <div className="relative max-w-[1200px] mx-auto w-full text-center">
+        <div className="relative max-w-website mx-auto w-full text-center">
           <div
-            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
+            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-full"
             style={{
               background: "rgb(var(--primary-rgb) / 12%)",
               border: "1px solid var(--accent-foreground)",
@@ -182,7 +182,7 @@ export default function ContactPage() {
 
       {/* ── 3 Option Cards ────────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "var(--background)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="grid md:grid-cols-3 gap-6">
             {options.map((opt) => (
               <div
@@ -225,7 +225,7 @@ export default function ContactPage() {
                 </ul>
                 <a
                   href={opt.href}
-                  className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-[50px] no-underline mt-2 transition-all duration-200"
+                  className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-full no-underline mt-2 transition-all duration-200"
                   style={
                     opt.primary
                       ? { background: "var(--primary)", color: "var(--primary-foreground)" }
@@ -268,7 +268,7 @@ export default function ContactPage() {
               href="https://wa.me/254743993715?text=Hi%20EduMyles%2C%20I%27d%20like%20to%20learn%20more%20about%20your%20school%20management%20system."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-7 py-3.5 rounded-[50px] no-underline flex-shrink-0"
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-7 py-3.5 rounded-full no-underline flex-shrink-0"
               style={{ background: "#25D366", color: "#052E16" }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -282,7 +282,7 @@ export default function ContactPage() {
 
       {/* ── Contact Info + Office ──────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "var(--background)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="grid md:grid-cols-2 gap-10 items-start">
             {/* Contact channels */}
             <div>
@@ -301,7 +301,7 @@ export default function ContactPage() {
                     style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                   >
                     <div
-                      className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0"
+                      className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                       style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
                     >
                       <c.icon className="w-5 h-5" strokeWidth={1.5} />
@@ -453,36 +453,36 @@ export default function ContactPage() {
       </section>
 
       {/* ── CTA ───────────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--deep)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--ondeephi)" }}
           >
             Ready to transform{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--ondeephi)" }}>
               your school?
             </em>
           </h2>
-          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)" }}>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--ondeep)" }}>
             Start your free 30-day trial today. No credit card. No setup fees. Full support from day
             one.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
+              style={{ background: "var(--gold)", color: "#171717" }}
             >
               Start Free Trial →
             </a>
             <a
               href="tel:+254743993715"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-full no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid var(--deepbd2)",
+                color: "var(--ondeephi)",
               }}
             >
               Call Us Now

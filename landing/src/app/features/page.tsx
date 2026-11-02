@@ -398,9 +398,9 @@ export default function FeaturesPage() {
             backgroundSize: "50px 50px",
           }}
         />
-        <div className="relative max-w-[1200px] mx-auto w-full text-center">
+        <div className="relative max-w-website mx-auto w-full text-center">
           <div
-            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
+            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-full"
             style={{
               background: "rgb(var(--primary-rgb) / 12%)",
               border: "1px solid var(--accent-foreground)",
@@ -429,14 +429,14 @@ export default function FeaturesPage() {
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[8px] no-underline transition-colors duration-200"
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-md no-underline transition-colors duration-200"
               style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
             >
               Start Free Trial →
             </a>
             <Link
               href="/book-demo"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[8px] no-underline transition-all duration-200"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-md no-underline transition-all duration-200"
               style={{
                 background: "transparent",
                 border: "2px solid rgba(255,255,255,0.4)",
@@ -451,10 +451,10 @@ export default function FeaturesPage() {
 
       {/* ── Platform Highlights ───────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "var(--background)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-12">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
               style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               Built on a unified platform
@@ -482,7 +482,7 @@ export default function FeaturesPage() {
               >
                 {/* Icon circle */}
                 <div
-                  className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0 transition-colors duration-300"
+                  className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-300"
                   style={{ background: "rgb(var(--primary-rgb) / 8%)" }}
                 >
                   <h.icon className="w-6 h-6" strokeWidth={1.75} style={{ color: "var(--primary)" }} />
@@ -519,10 +519,10 @@ export default function FeaturesPage() {
 
       {/* ── All 13 Modules ────────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "var(--card)" }} id="modules">
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-14">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
               style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
             >
               All 13 Modules
@@ -560,7 +560,7 @@ export default function FeaturesPage() {
                 <div className="flex items-center justify-between">
                   {/* Large icon */}
                   <div
-                    className="w-14 h-14 rounded-[16px] flex items-center justify-center flex-shrink-0"
+                    className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{
                       background: mod.iconBg,
                       border: `1.5px solid ${tokenTint(mod.color, 13)}`,
@@ -570,7 +570,7 @@ export default function FeaturesPage() {
                   </div>
                   {/* Abbr chip */}
                   <span
-                    className="font-mono font-bold text-[11px] px-3 py-1 rounded-[6px] tracking-widest"
+                    className="font-mono font-bold text-[11px] px-3 py-1 rounded-sm tracking-widest"
                     style={{
                       background: tokenTint(mod.color, 10),
                       color: mod.color,
@@ -625,10 +625,10 @@ export default function FeaturesPage() {
 
       {/* ── Smart Automation / Deeply Integrated ──────────── */}
       <section className="py-20 px-4" style={{ background: "var(--card)" }} id="automation">
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-14">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
               style={{
                 background: "rgb(var(--primary-rgb) / 12%)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",
@@ -667,7 +667,7 @@ export default function FeaturesPage() {
               >
                 {/* Icon badge */}
                 <div
-                  className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0"
+                  className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{
                     background: "rgb(var(--primary-rgb) / 12%)",
                     border: "1px solid rgb(var(--primary-rgb) / 25%)",
@@ -697,10 +697,10 @@ export default function FeaturesPage() {
 
       {/* ── Integrations ──────────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "var(--background)" }} id="integrations">
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-14">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
               style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               Integrations
@@ -736,7 +736,7 @@ export default function FeaturesPage() {
                 <div className="flex items-center gap-3">
                   {/* Icon badge */}
                   <div
-                    className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+                    className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
                     style={{
                       background: "rgb(var(--primary-rgb) / 8%)",
                       border: "1px solid rgb(var(--primary-rgb) / 15%)",
@@ -777,35 +777,35 @@ export default function FeaturesPage() {
       </section>
 
       {/* ── Final CTA ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--deep)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--ondeephi)" }}
           >
             Ready to see it{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--ondeephi)" }}>
               in action?
             </em>
           </h2>
-          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)", opacity: 0.84 }}>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--ondeep)", opacity: 0.84 }}>
             Start your free 30-day trial or book a personalised demo with our school-tech experts.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[8px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-md no-underline"
+              style={{ background: "var(--gold)", color: "#171717" }}
             >
               Start Free Trial →
             </a>
             <Link
               href="/book-demo"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[8px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-md no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid var(--deepbd2)",
+                color: "var(--ondeephi)",
               }}
             >
               Book a Demo

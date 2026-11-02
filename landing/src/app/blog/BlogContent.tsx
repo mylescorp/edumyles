@@ -132,14 +132,14 @@ export default function BlogContent() {
         className="py-8 px-4 border-b"
         style={{ background: "var(--card)", borderColor: "var(--border)" }}
       >
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => setActiveCategory(cat)}
-                className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-[50px] transition-all duration-200"
+                className="font-jakarta text-[13px] font-medium px-4 py-2 rounded-full transition-all duration-200"
                 style={
                   activeCategory === cat
                     ? { background: "var(--primary)", color: "var(--primary-foreground)" }
@@ -156,7 +156,7 @@ export default function BlogContent() {
       {/* ── Featured Post ─────────────────────────────────── */}
       {(activeCategory === "All" || activeCategory === "Product Update") && (
         <section className="py-12 px-4" style={{ background: "var(--background)" }}>
-          <div className="max-w-[1200px] mx-auto">
+          <div className="max-w-website mx-auto">
             <div
               className="rounded-2xl p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start"
               style={{
@@ -168,7 +168,7 @@ export default function BlogContent() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-4">
                   <span
-                    className="font-jakarta font-bold text-[11px] px-3 py-1 rounded-[20px] uppercase tracking-wider"
+                    className="font-jakarta font-bold text-[11px] px-3 py-1 rounded-2xl uppercase tracking-wider"
                     style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                   >
                     NEW
@@ -204,7 +204,7 @@ export default function BlogContent() {
                 </div>
                 <a
                   href={featured.slug}
-                  className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
+                  className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-full no-underline"
                   style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
                 >
                   Read Article →
@@ -226,7 +226,7 @@ export default function BlogContent() {
 
       {/* ── Post Grid ─────────────────────────────────────── */}
       <section className="py-12 px-4 pb-16" style={{ background: "var(--background)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <h2 className="font-display font-bold text-[24px] mb-8" style={{ color: "var(--foreground)" }}>
             {activeCategory === "All" ? "Latest articles" : activeCategory}
           </h2>
@@ -272,7 +272,7 @@ export default function BlogContent() {
                   <div className="flex flex-col gap-4 p-6 flex-1">
                     <div className="flex items-center justify-between">
                       <span
-                        className="font-jakarta font-semibold text-[11px] px-3 py-1.5 rounded-[20px]"
+                        className="font-jakarta font-semibold text-[11px] px-3 py-1.5 rounded-2xl"
                         style={{ background: "rgb(var(--primary-rgb) / 15%)", color: "var(--warning-muted-foreground)" }}
                       >
                         {post.category}
@@ -350,7 +350,7 @@ export default function BlogContent() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Your school email address"
-              className="flex-1 font-jakarta text-[15px] px-5 py-3.5 rounded-[50px] outline-none"
+              className="flex-1 font-jakarta text-[15px] px-5 py-3.5 rounded-full outline-none"
               style={{
                 background: "rgba(255,255,255,0.08)",
                 border: "1px solid rgba(255,255,255,0.2)",
@@ -359,7 +359,7 @@ export default function BlogContent() {
             />
             <button
               type="submit"
-              className="font-jakarta font-bold text-[14px] px-6 py-3.5 rounded-[50px] flex-shrink-0"
+              className="font-jakarta font-bold text-[14px] px-6 py-3.5 rounded-full flex-shrink-0"
               style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
             >
               Subscribe →
@@ -372,35 +372,35 @@ export default function BlogContent() {
       </section>
 
       {/* ── CTA ───────────────────────────────────────────── */}
-      <section className="py-16 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-16 px-4" style={{ background: "var(--deep)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--ondeephi)" }}
           >
             Ready to run your school{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--ondeephi)" }}>
               better?
             </em>
           </h2>
-          <p className="font-jakarta text-[16px] leading-[1.7] mb-7" style={{ color: "var(--primary-foreground)", opacity: 0.82 }}>
+          <p className="font-jakarta text-[16px] leading-[1.7] mb-7" style={{ color: "var(--ondeep)", opacity: 0.82 }}>
             Start your free 30-day trial. No credit card. No setup fees.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
+              style={{ background: "var(--gold)", color: "#171717" }}
             >
               Start Free Trial →
             </a>
             <Link
               href="/features"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-full no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid var(--deepbd2)",
+                color: "var(--ondeephi)",
               }}
             >
               See All Features

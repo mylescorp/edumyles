@@ -142,7 +142,7 @@ export default function Navbar() {
         role="banner"
         className="sticky top-0 bg-background border-b border-border z-[1000] px-4 sm:px-8 transition-colors duration-200"
       >
-        <div className="max-w-[1200px] mx-auto flex justify-between items-center gap-8 h-[70px]">
+        <div className="max-w-website mx-auto flex justify-between items-center gap-8 h-[70px]">
           {/* Logo */}
           <Logo size="md" />
 
@@ -194,10 +194,10 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setSolutionsOpen(false)}
-                        className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-muted group"
+                        className="flex items-start gap-3 p-3 rounded-dropdown no-underline transition-all duration-150 hover:bg-muted group"
                       >
                         <div
-                          className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
+                          className="w-10 h-10 rounded-md flex items-center justify-center flex-shrink-0 transition-colors duration-150"
                           style={{ background: "rgb(var(--primary-rgb) / 8%)" }}
                         >
                           <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -255,10 +255,10 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setPartnersOpen(false)}
-                        className="flex items-start gap-3 p-3 rounded-[10px] no-underline transition-all duration-150 hover:bg-muted group"
+                        className="flex items-start gap-3 p-3 rounded-dropdown no-underline transition-all duration-150 hover:bg-muted group"
                       >
                         <div
-                          className="w-10 h-10 rounded-[8px] flex items-center justify-center flex-shrink-0 transition-colors duration-150"
+                          className="w-10 h-10 rounded-md flex items-center justify-center flex-shrink-0 transition-colors duration-150"
                           style={{ background: "rgb(var(--primary-rgb) / 8%)" }}
                         >
                           <item.icon className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--accent-foreground)" }} />
@@ -303,7 +303,7 @@ export default function Navbar() {
             <ThemeToggle />
             <Link
               href={demoCtaHref}
-              className="font-jakarta font-bold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
+              className="font-jakarta font-bold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-md transition-all duration-200 inline-flex items-center"
               style={{
                 background: "var(--primary)",
                 color: "var(--primary-foreground)",
@@ -323,7 +323,7 @@ export default function Navbar() {
             </Link>
             <Link
               href={waitlistCtaHref}
-              className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-[8px] transition-all duration-200 inline-flex items-center"
+              className="font-jakarta font-semibold text-[14px] no-underline whitespace-nowrap px-5 py-[10px] rounded-md transition-all duration-200 inline-flex items-center"
               style={{
                 background: "var(--primary)",
                 color: "var(--primary-foreground)",
@@ -463,7 +463,7 @@ export default function Navbar() {
             <Link
               href={demoCtaHref}
               onClick={() => setMobileOpen(false)}
-              className="font-jakarta font-bold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
+              className="font-jakarta font-bold text-[15px] no-underline text-center py-3.5 px-6 rounded-md transition-all duration-200"
               style={{ background: "var(--accent-foreground)", color: "var(--foreground)", border: "1.5px solid var(--accent-foreground)" }}
             >
               Book a Demo
@@ -471,7 +471,7 @@ export default function Navbar() {
             <Link
               href={waitlistCtaHref}
               onClick={() => setMobileOpen(false)}
-              className="font-jakarta font-semibold text-[15px] no-underline text-center py-3.5 px-6 rounded-[8px] transition-all duration-200"
+              className="font-jakarta font-semibold text-[15px] no-underline text-center py-3.5 px-6 rounded-md transition-all duration-200"
               style={{ background: "var(--primary)", color: "var(--primary-foreground)", border: "1.5px solid var(--primary)" }}
             >
                 Join Waitlist

@@ -39,11 +39,11 @@ export default function BrandValues() {
       aria-label="Our mission, vision, and values"
       style={{ background: "var(--background)" }}
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-website mx-auto">
         {/* Section badge */}
         <div className="text-center mb-4">
           <div
-            className="inline-block font-jakarta font-semibold text-[13px] px-5 py-2 rounded-[50px]"
+            className="inline-block font-jakarta font-semibold text-[13px] px-5 py-2 rounded-full"
             style={{
               background: "rgb(var(--primary-rgb) / 12%)",
               border: "1px solid rgb(var(--primary-rgb) / 40%)",
@@ -76,7 +76,7 @@ export default function BrandValues() {
             }}
           >
             <div
-              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-[50px] uppercase tracking-wider"
+              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-full uppercase tracking-wider"
               style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
             >
               Our Mission
@@ -95,7 +95,7 @@ export default function BrandValues() {
             }}
           >
             <div
-              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-[50px] uppercase tracking-wider"
+              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-full uppercase tracking-wider"
               style={{ background: "rgb(var(--primary-rgb) / 8%)", color: "var(--primary)" }}
             >
               Our Vision
@@ -185,7 +185,7 @@ export default function BrandValues() {
           </div>
           <div>
             <div
-              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-[50px] uppercase tracking-wider"
+              className="inline-block font-jakarta font-semibold text-[12px] mb-4 px-3 py-1 rounded-full uppercase tracking-wider"
               style={{
                 background: "rgb(var(--primary-rgb) / 15%)",
                 border: "1px solid rgb(var(--primary-rgb) / 30%)",

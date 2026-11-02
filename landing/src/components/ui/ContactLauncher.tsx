@@ -103,7 +103,7 @@ function readAttribution() {
 
 function launcherClass(mode: ContactMode) {
   return [
-    "fixed inset-x-4 bottom-24 z-[9997] mx-auto max-w-[460px] overflow-hidden rounded-xl border border-border bg-card shadow-[0_24px_70px_-28px_rgba(15,23,42,0.55)] md:mx-0",
+    "fixed inset-x-4 bottom-24 z-[9997] mx-auto max-w-[460px] overflow-hidden rounded-xl border border-border bg-card shadow-xl md:mx-0",
     mode === "whatsapp" ? "md:left-8 md:right-auto" : "md:left-auto md:right-8",
   ].join(" ");
 }

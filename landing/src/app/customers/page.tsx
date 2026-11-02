@@ -120,9 +120,9 @@ export default function CustomersPage() {
             backgroundSize: "50px 50px",
           }}
         />
-        <div className="relative max-w-[1200px] mx-auto w-full text-center">
+        <div className="relative max-w-website mx-auto w-full text-center">
           <div
-            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
+            className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-full"
             style={{
               background: "rgb(var(--primary-rgb) / 12%)",
               border: "1px solid var(--accent-foreground)",
@@ -174,7 +174,7 @@ export default function CustomersPage() {
           padding: "3rem 2rem",
         }}
       >
-        <div className="max-w-[1200px] mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="max-w-website mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
               <div
@@ -196,7 +196,7 @@ export default function CustomersPage() {
 
       {/* ── Customer Wall ─────────────────────────────────── */}
       <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <h2
             className="font-display font-bold text-center mb-8"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
@@ -259,7 +259,7 @@ export default function CustomersPage() {
 
       {/* ── Testimonials ──────────────────────────────────── */}
       <section style={{ background: "var(--background)", padding: "5rem 2rem" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <h2
             className="font-display font-bold text-center mb-12"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}
@@ -338,7 +338,7 @@ export default function CustomersPage() {
 
       {/* ── School Types ──────────────────────────────────── */}
       <section style={{ background: "var(--card)", padding: "5rem 2rem" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <h2
             className="font-display font-bold text-center mb-12"
             style={{ fontSize: "clamp(1.75rem,3vw,2.5rem)", color: "var(--foreground)" }}

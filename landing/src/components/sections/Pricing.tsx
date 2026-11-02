@@ -16,7 +16,7 @@ export default function Pricing() {
       aria-label="Pricing plans"
       style={{ background: "var(--background)" }}
     >
-      <div className="relative max-w-[1200px] mx-auto">
+      <div className="relative max-w-website mx-auto">
         <div className="text-center mb-12">
           <div className="section-eyebrow justify-center mb-2">Pricing</div>
           <h2

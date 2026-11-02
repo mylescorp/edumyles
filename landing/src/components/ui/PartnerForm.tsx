@@ -207,7 +207,7 @@ export default function PartnerForm() {
         <button
           type="submit"
           disabled={formState === "loading"}
-          className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] transition-colors duration-200"
+          className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full transition-colors duration-200"
           style={{
             background: formState === "loading" ? "var(--muted-foreground)" : "var(--primary)",
             color: "var(--primary-foreground)",

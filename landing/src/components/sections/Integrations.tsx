@@ -23,7 +23,7 @@ export default function Integrations() {
       className="py-10 px-4 sm:px-8 bg-card border-t border-b border-border"
       aria-label="Integrations"
     >
-      <div className="max-w-[1200px] mx-auto text-center">
+      <div className="max-w-website mx-auto text-center">
         <p className="text-sm font-medium text-muted-foreground mb-6 tracking-wide uppercase">
           Integrates with tools schools already use
         </p>

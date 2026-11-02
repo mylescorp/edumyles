@@ -220,7 +220,7 @@ function SignUpPageContent() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-[24px] border border-[color-mix(in_srgb,var(--deepacc)_16%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
+                className="rounded-card border border-[color-mix(in_srgb,var(--deepacc)_16%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
               >
                 <item.icon className="h-6 w-6 text-[var(--accent-foreground)]" />
                 <h2 className="mt-3 font-jakarta text-[15px] font-bold text-[var(--ondeephi)]">{item.title}</h2>
@@ -232,7 +232,7 @@ function SignUpPageContent() {
           </div>
 
           <div className="mt-12 grid max-w-5xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-[28px] border border-[color-mix(in_srgb,var(--deepacc)_14%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
+            <div className="rounded-panel border border-[color-mix(in_srgb,var(--deepacc)_14%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
               <h2 className="font-display text-[28px] font-bold text-[var(--ondeephi)]">
                 What happens after you join
               </h2>
@@ -252,7 +252,7 @@ function SignUpPageContent() {
                 ))}
               </div>
 
-              <div className="mt-8 rounded-[20px] border border-[rgb(var(--primary-rgb)_/_18%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-5">
+              <div className="mt-8 rounded-2xl border border-[rgb(var(--primary-rgb)_/_18%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-5">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--accent-foreground)]" />
                   <div>
@@ -268,7 +268,7 @@ function SignUpPageContent() {
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-[rgb(var(--primary-rgb)_/_22%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-6 xl:p-8">
+            <div className="rounded-panel border border-[rgb(var(--primary-rgb)_/_22%)] bg-[rgb(var(--primary-rgb)_/_8%)] p-6 xl:p-8">
               <h2 className="font-jakarta text-[15px] font-bold text-[var(--accent-foreground)]">
                 Need to speak with us before activation?
               </h2>
@@ -601,12 +601,12 @@ function SignUpPageContent() {
               <button
                 type="submit"
                 disabled={formState === "loading"}
-                className="inline-flex w-full items-center justify-center rounded-[999px] border border-primary bg-primary px-6 py-4 font-jakarta text-[15px] font-bold text-primary-foreground transition-all duration-200 hover:border-primary hover:bg-primary disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex w-full items-center justify-center rounded-full border border-primary bg-primary px-6 py-4 font-jakarta text-[15px] font-bold text-primary-foreground transition-all duration-200 hover:border-primary hover:bg-primary disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {formState === "loading" ? "Joining the waitlist..." : "Join the waitlist"}
               </button>
 
-              <div className="rounded-[20px] border border-[var(--border)] bg-card px-5 py-4">
+              <div className="rounded-2xl border border-[var(--border)] bg-card px-5 py-4">
                 <p className="font-jakarta text-[13px] leading-6 text-[var(--muted-foreground)]">
                   By joining, you’re adding your school to the EduMyles onboarding waitlist. We’ll
                   contact you with next steps, onboarding guidance, and any clarification we may
@@ -624,7 +624,7 @@ function SignUpPageContent() {
 function SignUpPageFallback() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8 sm:px-6 lg:px-8">
-      <div className="w-full max-w-xl rounded-[28px] bg-card px-8 py-12 text-center shadow-[var(--shadow-xl)]">
+      <div className="w-full max-w-xl rounded-panel bg-card px-8 py-12 text-center shadow-[var(--shadow-xl)]">
         <p className="font-jakarta text-[12px] font-semibold uppercase tracking-[0.18em] text-primary">
           Preparing waitlist form
         </p>

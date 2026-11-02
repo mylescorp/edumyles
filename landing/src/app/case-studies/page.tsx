@@ -73,10 +73,10 @@ export default function CaseStudiesPage() {
             backgroundSize: "50px 50px",
           }}
         />
-        <div className="relative max-w-[1200px] mx-auto w-full">
+        <div className="relative max-w-website mx-auto w-full">
           <div className="max-w-[720px]">
             <div
-              className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
+              className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-full"
               style={{
                 background: "rgb(var(--primary-rgb) / 12%)",
                 border: "1px solid var(--accent-foreground)",
@@ -109,7 +109,7 @@ export default function CaseStudiesPage() {
               ].map((pill) => (
                 <span
                   key={pill}
-                  className="inline-flex items-center font-jakarta font-medium text-[13px] px-4 py-2 rounded-[50px]"
+                  className="inline-flex items-center font-jakarta font-medium text-[13px] px-4 py-2 rounded-full"
                   style={{
                     background: "rgba(255,255,255,0.07)",
                     border: "1px solid rgba(255,255,255,0.15)",
@@ -126,7 +126,7 @@ export default function CaseStudiesPage() {
 
       {/* ── Case Studies Grid ───────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "var(--card)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="grid md:grid-cols-3 gap-8">
             {caseStudies.map((cs) => (
               <div
@@ -195,10 +195,10 @@ export default function CaseStudiesPage() {
 
       {/* ── By the Numbers ─────────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "var(--background)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-12">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
               style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               Aggregate Results
@@ -257,14 +257,14 @@ export default function CaseStudiesPage() {
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
               style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
             >
               Start Free Trial →
             </a>
             <a
               href="/book-demo"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-full no-underline"
               style={{
                 background: "transparent",
                 border: "2px solid var(--border)",

@@ -189,10 +189,10 @@ export default function CalDemoEmbed({
   }, [demoRequestId, email, fullName, phone, schoolName]);
 
   return (
-    <div className="overflow-hidden rounded-[12px] border border-[var(--border)] bg-card shadow-sm">
+    <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-card shadow-sm">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3 px-4 pt-4">
-          <div className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-muted">
+          <div className="flex h-11 w-11 items-center justify-center rounded-dropdown bg-muted">
             {status === "booked" ? (
               <CalendarCheck2 className="h-5 w-5 text-primary" />
             ) : (
@@ -213,14 +213,14 @@ export default function CalDemoEmbed({
         <div className="mx-4 flex flex-wrap gap-2">
           <a
             href="tel:+254743993715"
-            className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--border)] px-3 py-2 font-jakarta text-[13px] font-semibold text-foreground no-underline transition-colors hover:border-primary hover:bg-muted"
+            className="inline-flex items-center gap-2 rounded-md border border-[var(--border)] px-3 py-2 font-jakarta text-[13px] font-semibold text-foreground no-underline transition-colors hover:border-primary hover:bg-muted"
           >
             <Phone className="h-4 w-4" />
             Call
           </a>
           <a
             href="mailto:demo@edumyles.com"
-            className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--border)] px-3 py-2 font-jakarta text-[13px] font-semibold text-foreground no-underline transition-colors hover:border-primary hover:bg-muted"
+            className="inline-flex items-center gap-2 rounded-md border border-[var(--border)] px-3 py-2 font-jakarta text-[13px] font-semibold text-foreground no-underline transition-colors hover:border-primary hover:bg-muted"
           >
             <Mail className="h-4 w-4" />
             Email

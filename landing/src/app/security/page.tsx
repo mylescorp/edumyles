@@ -81,10 +81,10 @@ export default function SecurityPage() {
             backgroundSize: "50px 50px",
           }}
         />
-        <div className="relative max-w-[1200px] mx-auto w-full">
+        <div className="relative max-w-website mx-auto w-full">
           <div className="max-w-[700px]">
             <div
-              className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
+              className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-full"
               style={{
                 background: "rgb(var(--primary-rgb) / 12%)",
                 border: "1px solid var(--accent-foreground)",
@@ -125,7 +125,7 @@ export default function SecurityPage() {
               ).map((badge) => (
                 <span
                   key={badge.label}
-                  className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] px-4 py-2 rounded-[50px]"
+                  className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] px-4 py-2 rounded-full"
                   style={{
                     background: "rgba(255,255,255,0.07)",
                     border: "1px solid rgba(255,255,255,0.2)",
@@ -143,10 +143,10 @@ export default function SecurityPage() {
 
       {/* ── Security Features Grid ──────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "var(--card)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-14">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
               style={{ background: "color-mix(in srgb, var(--primary) 10%, transparent)", color: "var(--primary)" }}
             >
               Built-In Protections
@@ -202,7 +202,7 @@ export default function SecurityPage() {
         <div className="max-w-[1000px] mx-auto">
           <div className="text-center mb-12">
             <div
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-[50px]"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[13px] mb-4 px-4 py-2 rounded-full"
               style={{ background: "rgb(var(--primary-rgb) / 10%)", color: "var(--warning-muted-foreground)" }}
             >
               Transparency
@@ -282,7 +282,7 @@ export default function SecurityPage() {
           </p>
           <a
             href="mailto:security@edumyles.com?subject=Security%20Vulnerability%20Report"
-            className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
+            className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
             style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
           >
             Report a security issue →

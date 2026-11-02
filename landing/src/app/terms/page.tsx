@@ -111,7 +111,7 @@ export default function TermsPage() {
         <section id="acceptance" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <CheckCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -157,7 +157,7 @@ export default function TermsPage() {
         <section id="services" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -228,7 +228,7 @@ export default function TermsPage() {
         <section id="accounts" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Building2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -309,7 +309,7 @@ export default function TermsPage() {
         <section id="billing" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <CreditCard className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -421,7 +421,7 @@ export default function TermsPage() {
         <section id="data" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Database className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -486,7 +486,7 @@ export default function TermsPage() {
         <section id="ip" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Code2 className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -585,7 +585,7 @@ export default function TermsPage() {
         <section id="termination" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <XCircle className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -667,7 +667,7 @@ export default function TermsPage() {
         <section id="law" className="scroll-mt-20">
           <div className="flex items-center gap-3 mb-6">
             <div
-              className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-dropdown flex items-center justify-center flex-shrink-0"
               style={{ background: "rgb(var(--primary-rgb) / 10%)" }}
             >
               <Scale className="w-5 h-5" strokeWidth={1.5} style={{ color: "var(--primary)" }} />
@@ -735,7 +735,7 @@ export default function TermsPage() {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-[50px] no-underline"
+            className="inline-flex items-center gap-2 font-jakarta font-bold text-[14px] px-6 py-3 rounded-full no-underline"
             style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
           >
             Contact Us

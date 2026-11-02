@@ -86,7 +86,7 @@
   flex: 0 0 36px;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: var(--radius-dropdown);
   background: color-mix(in srgb, var(--ondeephi) 10%, transparent);
   color: var(--ondeep);
 }
@@ -138,7 +138,7 @@
   gap: 10px;
   margin-top: 32px;
   border: 1px solid var(--pri);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--pri);
   color: var(--onpri);
   font-weight: 700;
@@ -161,7 +161,7 @@
   margin-top: 32px;
   padding: 22px;
   border: 1px solid var(--tint);
-  border-radius: 20px;
+  border-radius: var(--radius-2xl);
   background: var(--card);
 }
 

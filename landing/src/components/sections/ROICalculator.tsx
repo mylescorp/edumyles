@@ -56,7 +56,7 @@ export default function ROICalculator() {
       className="py-16 px-4 sm:px-8 bg-card"
       aria-label="ROI Calculator"
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-website mx-auto">
         <div className="text-center mb-10">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"

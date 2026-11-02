@@ -55,7 +55,7 @@ export default function Benefits() {
 
   return (
     <section id="benefits" className="px-4 sm:px-8 py-16 bg-card" aria-label="Benefits by role">
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-website mx-auto">
         {/* Eyebrow */}
         <div className="section-eyebrow mb-2">Built for Everyone</div>
 
@@ -78,7 +78,7 @@ export default function Benefits() {
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
-              className="fade-in rounded-[12px] p-8"
+              className="fade-in rounded-lg p-8"
               style={{
                 background: "var(--background)",
                 border: "1px solid var(--border)",

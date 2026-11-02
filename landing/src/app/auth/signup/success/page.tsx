@@ -21,7 +21,7 @@ function SignUpSuccessContent() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted px-4 py-10">
-      <div className="w-full max-w-3xl rounded-[32px] border border-[var(--border)] bg-card p-8 shadow-[var(--shadow-xl)] sm:p-10">
+      <div className="w-full max-w-3xl rounded-panel border border-[var(--border)] bg-card p-8 shadow-[var(--shadow-xl)] sm:p-10">
         <div className="mx-auto max-w-2xl text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <ShieldCheck className="h-8 w-8" />
@@ -73,7 +73,7 @@ function SignUpSuccessContent() {
             </div>
           </div>
 
-          <div className="mt-8 rounded-[24px] border border-primary bg-primary px-6 py-6 text-left text-primary-foreground">
+          <div className="mt-8 rounded-card border border-primary bg-primary px-6 py-6 text-left text-primary-foreground">
             <h2 className="font-jakarta text-[15px] font-bold text-[var(--accent-foreground)]">
               Need to reach us sooner?
             </h2>
@@ -118,13 +118,13 @@ function SignUpSuccessContent() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/"
-              className="inline-flex items-center justify-center rounded-[999px] border border-primary bg-primary px-6 py-3 font-jakarta text-sm font-bold text-primary-foreground no-underline transition-colors hover:bg-primary"
+              className="inline-flex items-center justify-center rounded-full border border-primary bg-primary px-6 py-3 font-jakarta text-sm font-bold text-primary-foreground no-underline transition-colors hover:bg-primary"
             >
               Return to landing page
             </Link>
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center rounded-[999px] border border-[var(--border)] bg-card px-6 py-3 font-jakarta text-sm font-semibold text-primary no-underline transition-colors hover:border-primary"
+              className="inline-flex items-center justify-center rounded-full border border-[var(--border)] bg-card px-6 py-3 font-jakarta text-sm font-semibold text-primary no-underline transition-colors hover:border-primary"
             >
               Contact our team
             </Link>
@@ -143,7 +143,7 @@ function SignUpSuccessContent() {
 function SignUpSuccessFallback() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted px-4 py-10">
-      <div className="w-full max-w-2xl rounded-[32px] border border-[var(--border)] bg-card p-8 text-center shadow-[var(--shadow-xl)] sm:p-10">
+      <div className="w-full max-w-2xl rounded-panel border border-[var(--border)] bg-card p-8 text-center shadow-[var(--shadow-xl)] sm:p-10">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
           <ShieldCheck className="h-8 w-8" />
         </div>

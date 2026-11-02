@@ -108,10 +108,10 @@ export default function TeamPage() {
             backgroundSize: "50px 50px",
           }}
         />
-        <div className="relative max-w-[1200px] mx-auto w-full">
+        <div className="relative max-w-website mx-auto w-full">
           <div className="max-w-[700px]">
             <div
-              className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-[50px]"
+              className="inline-block font-jakarta font-semibold text-[13px] mb-5 px-5 py-2 rounded-full"
               style={{
                 background: "rgb(var(--primary-rgb) / 12%)",
                 border: "1px solid var(--accent-foreground)",
@@ -146,9 +146,9 @@ export default function TeamPage() {
 
       {/* ── Founders Featured ─────────────────────────────── */}
       <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "var(--card)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div
-            className="inline-block font-jakarta font-semibold text-[13px] mb-3 px-4 py-1.5 rounded-[50px]"
+            className="inline-block font-jakarta font-semibold text-[13px] mb-3 px-4 py-1.5 rounded-full"
             style={{
               background: "rgb(var(--primary-rgb) / 10%)",
               border: "1px solid var(--accent-foreground)",
@@ -216,7 +216,7 @@ export default function TeamPage() {
                       style={{ color: "var(--primary)" }}
                     >
                       <span
-                        className="w-6 h-6 rounded-[6px] flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
+                        className="w-6 h-6 rounded-sm flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
                         style={{ background: "#0A66C2" }}
                       >
                         in
@@ -233,9 +233,9 @@ export default function TeamPage() {
 
       {/* ── Team Grid ─────────────────────────────────────── */}
       <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "var(--background)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div
-            className="inline-block font-jakarta font-semibold text-[13px] mb-3 px-4 py-1.5 rounded-[50px]"
+            className="inline-block font-jakarta font-semibold text-[13px] mb-3 px-4 py-1.5 rounded-full"
             style={{
               background: "rgb(var(--primary-rgb) / 10%)",
               border: "1px solid var(--primary)",
@@ -323,7 +323,7 @@ export default function TeamPage() {
                       style={{ color: "var(--primary)" }}
                     >
                       <span
-                        className="w-6 h-6 rounded-[6px] flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
+                        className="w-6 h-6 rounded-sm flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
                         style={{ background: "#0A66C2" }}
                       >
                         in
@@ -340,10 +340,10 @@ export default function TeamPage() {
 
       {/* ── Values ────────────────────────────────────────── */}
       <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "var(--card)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-10 sm:mb-14">
             <div
-              className="inline-block font-jakarta font-semibold text-[13px] mb-3 px-4 py-1.5 rounded-[50px]"
+              className="inline-block font-jakarta font-semibold text-[13px] mb-3 px-4 py-1.5 rounded-full"
               style={{
                 background: "rgb(var(--primary-rgb) / 10%)",
                 border: "1px solid var(--accent-foreground)",
@@ -387,35 +387,35 @@ export default function TeamPage() {
       </section>
 
       {/* ── Final CTA ─────────────────────────────────────── */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "var(--primary)" }}>
+      <section className="py-16 sm:py-20 px-4 sm:px-8" style={{ background: "var(--deep)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.6rem,3vw,2.5rem)", color: "var(--ondeephi)" }}
           >
             Want to know more about{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--ondeephi)" }}>
               what we&apos;re building?
             </em>
           </h2>
-          <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)", opacity: 0.84 }}>
+          <p className="font-jakarta text-[16px] leading-[1.7] mb-8" style={{ color: "var(--ondeep)", opacity: 0.84 }}>
             Book a demo, read our blog, or just say hello. We love talking to schools.
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
             <a
               href="/book-demo"
-              className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              className="inline-flex items-center justify-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
+              style={{ background: "var(--gold)", color: "#171717" }}
             >
               Book a Demo →
             </a>
             <Link
               href="/about"
-              className="inline-flex items-center justify-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
+              className="inline-flex items-center justify-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-full no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid var(--deepbd2)",
+                color: "var(--ondeephi)",
               }}
             >
               Our Story

@@ -223,7 +223,7 @@ function PublisherApplicationContent() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-[24px] border border-[color-mix(in_srgb,var(--deepacc)_16%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
+                className="rounded-card border border-[color-mix(in_srgb,var(--deepacc)_16%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 backdrop-blur-sm"
               >
                 <item.icon className="h-6 w-6 text-[var(--accent-foreground)]" />
                 <h2 className="mt-3 font-jakarta text-[15px] font-bold text-[var(--ondeephi)]">{item.title}</h2>
@@ -234,7 +234,7 @@ function PublisherApplicationContent() {
             ))}
           </div>
 
-          <div className="mt-12 rounded-[28px] border border-[color-mix(in_srgb,var(--deepacc)_14%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
+          <div className="mt-12 rounded-panel border border-[color-mix(in_srgb,var(--deepacc)_14%,transparent)] bg-[rgba(255,255,255,0.04)] p-6 xl:p-8">
             <h2 className="font-display text-[28px] font-bold text-[var(--ondeephi)]">
               {programTitle} Tiers
             </h2>
@@ -555,14 +555,14 @@ function PublisherApplicationContent() {
               <button
                 type="submit"
                 disabled={formState === "loading"}
-                className="inline-flex w-full items-center justify-center rounded-[999px] border border-primary bg-primary px-6 py-4 font-jakarta text-[15px] font-bold text-primary-foreground transition-all duration-200 hover:border-primary hover:bg-primary disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex w-full items-center justify-center rounded-full border border-primary bg-primary px-6 py-4 font-jakarta text-[15px] font-bold text-primary-foreground transition-all duration-200 hover:border-primary hover:bg-primary disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {formState === "loading"
                   ? "Submitting Application..."
                   : `Submit ${programTitle} Application`}
               </button>
 
-              <div className="rounded-[20px] border border-[var(--border)] bg-card px-5 py-4">
+              <div className="rounded-2xl border border-[var(--border)] bg-card px-5 py-4">
                 <p className="font-jakarta text-[13px] leading-6 text-[var(--muted-foreground)]">
                   By submitting this application, you agree to our {programLabel} terms and
                   conditions. We&apos;ll review your application and contact you within 3-5 business

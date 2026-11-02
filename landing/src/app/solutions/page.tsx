@@ -24,10 +24,10 @@ export default function SolutionsPage() {
         <p className="subtext mx-auto mt-5 max-w-[700px]">Configure EduMyles around the way your school works, from daily operations to the needs of each campus.</p>
       </section>
       <section className="content-section solutions-board-cards">
-        <div className="mx-auto grid max-w-[1120px] gap-5 md:grid-cols-2">{schools.map(({ icon: Icon, title, description, href }) => <Link key={title} href={href} className="solutions-board-card"><span><Icon size={24} /></span><div><h2>{title}</h2><p>{description}</p><b>Explore solution <ArrowRight size={16} /></b></div></Link>)}</div>
+        <div className="mx-auto grid max-w-website gap-5 md:grid-cols-2">{schools.map(({ icon: Icon, title, description, href }) => <Link key={title} href={href} className="solutions-board-card"><span><Icon size={24} /></span><div><h2>{title}</h2><p>{description}</p><b>Explore solution <ArrowRight size={16} /></b></div></Link>)}</div>
       </section>
       <section className="content-section solutions-board-modules">
-        <div className="mx-auto max-w-[1120px]"><div className="mb-9 text-center"><span className="board-eyebrow">One connected platform</span><h2>The same 13 modules, configured for you.</h2></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{modules.map((module) => <div className="solutions-board-module" key={module}><span aria-hidden="true">✓</span>{module}</div>)}</div></div>
+        <div className="mx-auto max-w-website"><div className="mb-9 text-center"><span className="board-eyebrow">One connected platform</span><h2>The same 13 modules, configured for you.</h2></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{modules.map((module) => <div className="solutions-board-module" key={module}><span aria-hidden="true">✓</span>{module}</div>)}</div></div>
       </section>
       <section className="solutions-board-cta"><span className="board-eyebrow">Your school, your setup</span><h2>Tell us about your school and we will map it.</h2><p>We will walk through your school type, curriculum and operating needs together.</p><Link href="/book-demo" className="mt-6 inline-flex items-center gap-2 rounded-full bg-card px-6 py-3 font-semibold text-foreground">Book a Demo <ArrowRight size={16} /></Link></section>
     </div>

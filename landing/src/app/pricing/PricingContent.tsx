@@ -78,7 +78,7 @@ export default function PricingContent() {
     <>
       {/* ── Pricing Cards ─────────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "var(--background)" }}>
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           {/* Billing toggle */}
           <div className="flex items-center justify-center gap-4 mb-12">
             <span
@@ -105,7 +105,7 @@ export default function PricingContent() {
             >
               Annual{" "}
               <span
-                className="text-[11px] font-bold px-2 py-0.5 rounded-[20px] ml-1"
+                className="text-[11px] font-bold px-2 py-0.5 rounded-2xl ml-1"
                 style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
               >
                 Save 20%
@@ -129,7 +129,7 @@ export default function PricingContent() {
                 {plan.highlight && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span
-                      className="font-jakarta font-bold text-[12px] px-4 py-1.5 rounded-[20px] whitespace-nowrap"
+                      className="font-jakarta font-bold text-[12px] px-4 py-1.5 rounded-2xl whitespace-nowrap"
                       style={{ background: "var(--gold)", color: "#171717" }}
                     >
                       <Star
@@ -208,7 +208,7 @@ export default function PricingContent() {
 
                 <a
                   href={plan.href}
-                  className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-[50px] no-underline transition-all duration-200"
+                  className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-full no-underline transition-all duration-200"
                   style={
                     plan.featured
                       ? { background: "var(--gold)", color: "#171717" }
@@ -229,7 +229,7 @@ export default function PricingContent() {
 
       {/* ── Comparison Table ──────────────────────────────── */}
       <section className="py-16 px-4" style={{ background: "var(--card)" }} id="compare">
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-website mx-auto">
           <div className="text-center mb-10">
             <h2
               className="font-display font-bold leading-[1.2]"
@@ -353,35 +353,35 @@ export default function PricingContent() {
       </section>
 
       {/* ── Final CTA ─────────────────────────────────────── */}
-      <section className="py-20 px-4" style={{ background: "var(--primary)" }}>
+      <section className="py-20 px-4" style={{ background: "var(--deep)" }}>
         <div className="max-w-[700px] mx-auto text-center">
           <h2
             className="font-display font-bold leading-[1.2] mb-4"
-            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--primary-foreground)" }}
+            style={{ fontSize: "clamp(1.75rem,3.5vw,3rem)", color: "var(--ondeephi)" }}
           >
             Ready to get started?{" "}
-            <em className="italic" style={{ color: "var(--primary-foreground)" }}>
+            <em className="italic" style={{ color: "var(--ondeephi)" }}>
               It&apos;s free for 30 days.
             </em>
           </h2>
-          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--primary-foreground)", opacity: 0.82 }}>
+          <p className="font-jakarta text-[17px] leading-[1.7] mb-8" style={{ color: "var(--ondeep)", opacity: 0.82 }}>
             No credit card required. No setup fees. Full access from day one.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="/waitlist"
-              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-[50px] no-underline"
-              style={{ background: "var(--primary-foreground)", color: "var(--primary)" }}
+              className="inline-flex items-center gap-2 font-jakarta font-bold text-[15px] px-8 py-4 rounded-full no-underline"
+              style={{ background: "var(--gold)", color: "#171717" }}
             >
               Start Free Trial →
             </a>
             <Link
               href="/contact?subject=pricing"
-              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-[50px] no-underline"
+              className="inline-flex items-center gap-2 font-jakarta font-semibold text-[15px] px-8 py-4 rounded-full no-underline"
               style={{
                 background: "transparent",
-                border: "2px solid rgb(var(--primary-foreground-rgb) / 45%)",
-                color: "var(--primary-foreground)",
+                border: "2px solid var(--deepbd2)",
+                color: "var(--ondeephi)",
               }}
             >
               Talk to Sales
