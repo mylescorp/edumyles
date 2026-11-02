@@ -46,7 +46,8 @@ jobs:
       - name: Deploy frontend preview
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          # Archive prebuilt output to stay below Vercel's per-file upload limit.
+          url=$(vercel deploy --prebuilt --archive=tgz --token=${{ secrets.VERCEL_TOKEN }})
           echo "frontend_url=$url" >> $GITHUB_OUTPUT
           echo "Frontend preview: $url"
         env:
@@ -89,7 +90,7 @@ jobs:
       - name: Deploy landing preview
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt --archive=tgz --token=${{ secrets.VERCEL_TOKEN }})
           echo "landing_url=$url" >> $GITHUB_OUTPUT
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
