@@ -119,20 +119,18 @@ export default function PricingContent() {
                 key={plan.name}
                 className="relative rounded-2xl flex flex-col"
                 style={{
-                  background: plan.featured ? "var(--primary)" : "var(--card)",
-                  border: plan.featured ? "2px solid var(--primary)" : "1px solid var(--border)",
+                  background: plan.featured ? "var(--deep)" : "var(--card)",
+                  border: plan.featured ? "1px solid var(--deep)" : "1px solid var(--border)",
                   padding: "2rem",
-                  boxShadow: plan.featured
-                    ? "0 20px 60px rgba(6,26,18,0.3)"
-                    : "0 4px 20px rgba(6,26,18,0.06)",
-                  transform: plan.featured ? "scale(1.02)" : "none",
+                  boxShadow: plan.featured ? "none" : "0 4px 20px rgba(6,26,18,0.06)",
+                  transform: "none",
                 }}
               >
                 {plan.highlight && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span
                       className="font-jakarta font-bold text-[12px] px-4 py-1.5 rounded-[20px] whitespace-nowrap"
-                      style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
+                      style={{ background: "var(--gold)", color: "#171717" }}
                     >
                       <Star
                         className="w-3 h-3 inline mr-1 -mt-0.5"
@@ -146,11 +144,11 @@ export default function PricingContent() {
 
                 <h3
                   className="font-display font-bold text-[24px] mb-1"
-                  style={{ color: plan.featured ? "var(--primary-foreground)" : "var(--foreground)" }}
+                  style={{ color: plan.featured ? "#ffffff" : "var(--foreground)" }}
                 >
                   {plan.name}
                 </h3>
-                <p className="font-jakarta text-[13px] mb-4" style={{ color: plan.featured ? "var(--primary-foreground)" : "var(--muted-foreground)", opacity: plan.featured ? 0.82 : 1 }}>
+                <p className="font-jakarta text-[13px] mb-4" style={{ color: plan.featured ? "var(--ondeep)" : "var(--muted-foreground)", opacity: 1 }}>
                   {plan.tagline}
                 </p>
 
@@ -158,7 +156,7 @@ export default function PricingContent() {
                   {plan.monthlyPriceKes === null ? (
                     <div
                       className="font-display font-bold text-[40px]"
-                      style={{ color: plan.featured ? "var(--primary-foreground)" : "var(--foreground)" }}
+                      style={{ color: plan.featured ? "#ffffff" : "var(--foreground)" }}
                     >
                       Custom
                     </div>
@@ -166,7 +164,7 @@ export default function PricingContent() {
                     <>
                       <div
                         className="font-display font-bold text-[38px]"
-                        style={{ color: plan.featured ? "var(--primary-foreground)" : "var(--foreground)" }}
+                        style={{ color: plan.featured ? "#ffffff" : "var(--foreground)" }}
                       >
                         {formatPublicKes(
                           annual ? plan.annualMonthlyPriceKes! : plan.monthlyPriceKes
@@ -174,7 +172,7 @@ export default function PricingContent() {
                       </div>
                       <div
                         className="font-jakarta text-[13px]"
-                        style={{ color: plan.featured ? "var(--primary-foreground)" : "var(--muted-foreground)", opacity: 0.82 }}
+                        style={{ color: plan.featured ? "var(--ondeep)" : "var(--muted-foreground)", opacity: 1 }}
                       >
                         per school / month {annual ? "(billed annually)" : ""}
                       </div>
@@ -184,7 +182,7 @@ export default function PricingContent() {
 
                 <p
                   className="font-jakarta text-[14px] leading-[1.7] mb-6"
-                  style={{ color: plan.featured ? "var(--primary-foreground)" : "var(--muted-foreground)", opacity: 0.86 }}
+                  style={{ color: plan.featured ? "var(--ondeep)" : "var(--muted-foreground)", opacity: 1 }}
                 >
                   {plan.description}
                 </p>
@@ -200,7 +198,7 @@ export default function PricingContent() {
                       </span>
                       <span
                         className="font-jakarta text-[14px]"
-                        style={{ color: plan.featured ? "var(--primary-foreground)" : "var(--foreground)", opacity: plan.featured ? 0.9 : 1 }}
+                        style={{ color: plan.featured ? "#ffffff" : "var(--foreground)", opacity: 1 }}
                       >
                         {f}
                       </span>
@@ -213,7 +211,7 @@ export default function PricingContent() {
                   className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-[50px] no-underline transition-all duration-200"
                   style={
                     plan.featured
-                      ? { background: "var(--primary)", color: "var(--primary-foreground)" }
+                      ? { background: "var(--gold)", color: "#171717" }
                       : { background: "var(--primary)", color: "var(--primary-foreground)" }
                   }
                 >

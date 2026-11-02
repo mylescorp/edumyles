@@ -38,7 +38,7 @@ export default function Logo({
       {variants.map((theme) => (
         <Image
           key={theme}
-          src={`/edumyles-${asset}-${theme}.png`}
+          src={`/brand/edumyles-${asset}-${theme}.png`}
           alt="EduMyles"
           width={imageWidth}
           height={imageHeight}

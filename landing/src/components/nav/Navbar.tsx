@@ -31,25 +31,25 @@ const solutionItems: SolutionItem[] = [
   {
     icon: School,
     label: "Primary Schools",
-    href: "/solutions/primary-schools",
+    href: "/solutions/primary",
     subtitle: "CBC-ready with M-Pesa integration & automated fee management",
   },
   {
     icon: GraduationCap,
     label: "Secondary Schools",
-    href: "/solutions/secondary-schools",
+    href: "/solutions/secondary",
     subtitle: "KCSE management, advanced timetabling & HR payroll systems",
   },
   {
     icon: Globe,
     label: "International Schools",
-    href: "/solutions/international-schools",
+    href: "/solutions/international",
     subtitle: "IGCSE support with SSO and white-label options",
   },
   {
     icon: Building2,
     label: "School Groups",
-    href: "/solutions/school-groups",
+    href: "/solutions/groups",
     subtitle: "Multi-campus management with consolidated reporting & analytics",
   },
   {
@@ -71,19 +71,19 @@ const partnerItems: PartnerItem[] = [
   {
     icon: Code,
     label: "Developers",
-    href: "/developers",
+    href: "/partners/developers",
     subtitle: "Build and sell educational modules on our marketplace",
   },
   {
     icon: Users,
     label: "Affiliates",
-    href: "/affiliate",
+    href: "/partners/affiliates",
     subtitle: "Earn commissions by referring schools to EduMyles",
   },
   {
     icon: Award,
     label: "Resellers",
-    href: "/reseller",
+    href: "/partners/resellers",
     subtitle: "Sell EduMyles solutions and earn recurring revenue",
   },
 ];
@@ -165,7 +165,7 @@ export default function Navbar() {
                 className="flex items-center gap-1 text-[14px] font-medium text-foreground no-underline transition-colors duration-300 hover:text-accent-foreground bg-transparent border-none cursor-pointer p-0"
                 style={
                   solutionsOpen ||
-                  activeLink.startsWith("solutions")
+                  pathname.startsWith("/solutions")
                     ? { color: "var(--accent-foreground)" }
                     : {}
                 }
@@ -225,7 +225,7 @@ export default function Navbar() {
                 className="flex items-center gap-1 text-[14px] font-medium text-foreground no-underline transition-colors duration-300 hover:text-accent-foreground bg-transparent border-none cursor-pointer p-0"
                 style={
                   partnersOpen ||
-                  ["partners", "developers", "affiliate", "reseller", "resellers"].includes(activeLink) ||
+                  pathname.startsWith("/partners") || ["partners", "developers", "affiliate", "reseller", "resellers"].includes(activeLink) ||
                   activeLink.startsWith("apply")
                     ? { color: "var(--accent-foreground)" }
                     : {}
