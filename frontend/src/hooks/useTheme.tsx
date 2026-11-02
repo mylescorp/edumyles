@@ -62,9 +62,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+    document.documentElement.dataset.theme = resolvedTheme;
     document.documentElement.style.colorScheme = resolvedTheme;
 
     try {
+      document.cookie = `em-theme=${theme}; path=/; max-age=31536000; samesite=lax`;
       if (theme === "system") {
         window.localStorage.removeItem(THEME_STORAGE_KEY);
       } else {

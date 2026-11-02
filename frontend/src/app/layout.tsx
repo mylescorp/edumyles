@@ -65,14 +65,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" dir="ltr" data-density="comfortable" suppressHydrationWarning>
       <head>
-        {/* Runs synchronously before paint — prevents dark-mode flash */}
-        <Script
-          id="em-theme-init"
-          strategy="beforeInteractive"
+        <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('em-theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+            __html: `(function(){var r=document.documentElement,t;try{var m=document.cookie.match(/(?:^|;\\s*)em-theme=(light|dark|system)(?:;|$)/);t=m&&m[1]||localStorage.getItem('em-theme');if(t!=='light'&&t!=='dark'&&t!=='system')t='system';var d=t==='dark'||t==='system'&&matchMedia('(prefers-color-scheme:dark)').matches;r.classList.toggle('dark',d);r.setAttribute('data-theme',d?'dark':'light')}catch(e){r.setAttribute('data-theme','light')}})();`,
           }}
         />
       </head>
