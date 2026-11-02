@@ -241,11 +241,11 @@ footer[role="contentinfo"] h4 {
 footer[role="contentinfo"] p,
 footer[role="contentinfo"] a,
 footer[role="contentinfo"] span {
-  color: var(--ondeep);
+  color: var(--ondeep) !important;
 }
 
 footer[role="contentinfo"] a:hover {
-  color: #fff;
+  color: #fff !important;
 }
 
 footer[role="contentinfo"] > div:last-child {

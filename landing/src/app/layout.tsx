@@ -118,7 +118,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           dangerouslySetInnerHTML={{
-          __html: `(function(){try{var t=localStorage.getItem('em-site-theme');if(t!=='light'&&t!=='dark')t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;document.documentElement.classList.toggle('dark',t==='dark');}catch(e){}})();`,
+          __html: `(function(){try{var t=localStorage.getItem('em-site-theme');if(t!=='light'&&t!=='dark'){t=localStorage.getItem('em-theme');if(t==='light'||t==='dark')localStorage.setItem('em-site-theme',t);else t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';}document.documentElement.dataset.theme=t;document.documentElement.classList.toggle('dark',t==='dark');}catch(e){}})();`,
           }}
         />
         {googleTagId ? (

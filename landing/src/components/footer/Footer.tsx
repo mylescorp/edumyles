@@ -386,7 +386,7 @@ export default function Footer() {
                 variant="full"
                 width={156}
                 height={44}
-                appearance="auto"
+                appearance="dark"
                 className="flex-shrink-0 transition-transform duration-200 group-hover:scale-[1.02]"
                 href={null}
               />

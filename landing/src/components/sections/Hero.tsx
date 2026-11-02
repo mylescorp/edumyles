@@ -32,7 +32,7 @@ export default function Hero() {
             in and designed for schools like yours.
           </p>
           <div className="handoff-home-actions">
-            <Link href="/waitlist" className="handoff-primary-button">Start Free Trial</Link>
+            <Link href="/waitlist" className="handoff-primary-button">Join the School Waitlist</Link>
             <Link href="/book-demo" className="handoff-secondary-button">Book a Demo</Link>
           </div>
         </div>
