@@ -214,7 +214,12 @@ function NewsletterStrip() {
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
         {/* Left: heading + description */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-jakarta font-bold text-[20px] text-foreground mb-1.5">Stay Connected</h3>
+          <h3
+            className="font-jakarta font-bold text-[20px] mb-1.5"
+            style={{ color: "var(--ondeephi)" }}
+          >
+            Stay Connected
+          </h3>
           <p className="font-jakarta text-[13px] leading-[1.8]" style={{ color: "var(--ondeep)" }}>
             Get the latest product updates, school management insights and education tips delivered
             to your inbox.{" "}
@@ -235,7 +240,7 @@ function NewsletterStrip() {
                 style={{ color: "var(--success)" }}
               />
               <div>
-                <p className="font-jakarta font-bold text-[14px] text-foreground">
+                <p className="font-jakarta font-bold text-[14px]" style={{ color: "var(--ondeephi)" }}>
                   You&apos;re subscribed!
                 </p>
                 <p className="font-jakarta text-[12px]" style={{ color: "var(--ondeep)" }}>
