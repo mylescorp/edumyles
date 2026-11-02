@@ -59,7 +59,7 @@ export default function Pricing() {
               className={`font-inter text-sm font-medium ${annual ? "text-foreground" : "text-mid-grey"}`}
             >
               Annual{" "}
-              <span className="bg-gold/10 text-gold px-1.5 py-0.5 rounded text-xs font-semibold ml-1">
+              <span className="bg-gold/10 text-[var(--link)] px-1.5 py-0.5 rounded text-xs font-semibold ml-1">
                 Save 20%
               </span>
             </span>
@@ -189,14 +189,14 @@ export default function Pricing() {
           <div className="flex justify-center gap-4 mt-4">
             <Link
               href="/contact?subject=pricing"
-              className="font-inter text-sm text-gold hover:underline"
+              className="font-inter text-sm text-[var(--link)] hover:underline"
             >
               Request custom pricing →
             </Link>
             <span className="text-light-grey">·</span>
             <Link
               href="/contact"
-              className="font-inter text-sm text-mid-grey hover:text-gold transition-colors"
+              className="font-inter text-sm text-mid-grey hover:text-[var(--prih)] transition-colors"
             >
               Talk to Sales
             </Link>
