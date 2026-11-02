@@ -29,6 +29,7 @@ import {
   Headphones,
   CheckCircle2,
 } from "lucide-react";
+import BoardSpotlight from "@/components/sections/BoardSpotlight";
 
 export const metadata: Metadata = {
   title: "Features — EduMyles School Management System",
@@ -407,7 +408,7 @@ export default function FeaturesPage() {
           </div>
           <h1
             className="font-display font-bold leading-[1.15] mb-5"
-            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)" }}
+            style={{ fontSize: "clamp(2.2rem,4.5vw,3.75rem)", color: "var(--foreground)", maxWidth: "860px", marginInline: "auto" }}
           >
             Everything your school needs.{" "}
             <em className="italic" style={{ color: "var(--accent-foreground)" }}>
@@ -502,6 +503,16 @@ export default function FeaturesPage() {
           </div>
         </div>
       </section>
+
+      <BoardSpotlight
+        eyebrow="One school, one view"
+        title="One dashboard for the whole school."
+        description="Bring the everyday picture of your school into one place, so your team can see what needs attention and act with context."
+        points={["Student and class information", "Fees and attendance at a glance", "Updates shared across school roles"]}
+        href="/book-demo"
+        linkLabel="See the platform"
+        kind="dashboard"
+      />
 
       {/* ── All 13 Modules ────────────────────────────────── */}
       <section className="py-20 px-4" style={{ background: "var(--card)" }} id="modules">

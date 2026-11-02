@@ -55,10 +55,7 @@ export default function PrivacyPage() {
             className="font-display font-bold leading-tight mb-4"
             style={{ fontSize: "clamp(2rem,4vw,3.25rem)", color: "var(--foreground)" }}
           >
-            Your data,{" "}
-            <em className="italic" style={{ color: "var(--accent-foreground)" }}>
-              protected.
-            </em>
+            Privacy Policy.
           </h1>
           <p className="font-jakarta text-[15px] mb-6" style={{ color: "var(--muted-foreground)" }}>
             Last updated: March 2026 · Effective: 1 January 2025

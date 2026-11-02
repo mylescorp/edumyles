@@ -253,7 +253,7 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
             </div>
             <h1
               className="font-display font-bold leading-[0.98]"
-              style={{ color: "#ffffff", fontSize: "clamp(2.75rem,7vw,5.5rem)" }}
+              style={{ color: "#ffffff", fontSize: "clamp(2.35rem,5.2vw,3.875rem)" }}
             >
               {config.title} <span style={{ color: "#B9CBD6" }}>{config.accent}</span>
             </h1>
@@ -449,8 +449,8 @@ export function PartnerProgramPage({ config }: { config: PartnerProgramConfig })
 
 export const developerProgram: PartnerProgramConfig = {
   eyebrow: "Developer Ecosystem",
-  title: "Build modules schools",
-  accent: "can trust",
+  title: "Build school software people can",
+  accent: "trust.",
   intro:
     "Create integrations, curriculum tools, analytics, and workflow extensions for the EduMyles school operating system. We give qualified builders the context, sandbox, APIs, review process, and distribution path needed to ship useful school software without starting from zero.",
   primaryCta: "Apply as developer",
@@ -552,8 +552,8 @@ export const developerProgram: PartnerProgramConfig = {
 
 export const affiliateProgram: PartnerProgramConfig = {
   eyebrow: "Affiliate Program",
-  title: "Refer schools and",
-  accent: "earn monthly",
+  title: "Earn when schools",
+  accent: "trust your recommendation.",
   intro:
     "The affiliate program is built for educators, creators, consultants, alumni networks, and community leaders who can introduce EduMyles to schools. Share tracked referrals, help the right schools discover the platform, and earn commission when they subscribe.",
   primaryCta: "Apply as affiliate",
@@ -643,8 +643,8 @@ export const affiliateProgram: PartnerProgramConfig = {
 
 export const resellerProgram: PartnerProgramConfig = {
   eyebrow: "Reseller Program",
-  title: "Sell EduMyles with",
-  accent: "local strength",
+  title: "Sell and support EduMyles",
+  accent: "with local strength.",
   intro:
     "The reseller program is for ICT firms, school suppliers, implementation consultants, and education technology companies that want to sell, implement, and support EduMyles in their market. Build recurring revenue while helping schools modernize core operations.",
   primaryCta: "Apply as reseller",
