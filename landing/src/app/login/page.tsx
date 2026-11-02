@@ -33,7 +33,16 @@ const outcomes = [
   "View reports, timetables and communications",
 ];
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ returnTo?: string }>;
+}) {
+  const { returnTo } = await searchParams;
+  const signInHref = returnTo
+    ? { pathname: "/auth/login", query: { returnTo } }
+    : "/auth/login";
+
   return (
     <main className="login-screen">
       <section className="login-story" aria-labelledby="login-story-heading">
@@ -64,7 +73,7 @@ export default function LoginPage() {
         <div className="login-panel-inner">
           <h2 id="login-heading">Welcome back</h2>
           <p className="login-subtitle">Sign in to your EduMyles account to continue.</p>
-          <Link className="login-submit" href="/auth/login/api">
+          <Link className="login-submit" href={signInHref}>
             Continue to Sign In <ArrowRight aria-hidden="true" size={18} />
           </Link>
           <p className="login-secure">Secure sign-in powered by WorkOS</p>
@@ -85,7 +94,7 @@ export default function LoginPage() {
             New to EduMyles? <Link href="/waitlist">Create an account</Link>
           </p>
           <p className="login-footnote">
-            Forgot your password? <Link href="/auth/login/api">Reset it with WorkOS</Link>
+            Forgot your password? <Link href={signInHref}>Reset it with WorkOS</Link>
           </p>
           <p className="login-help">Need help? <a href="mailto:support@edumyles.com">support@edumyles.com</a></p>
         </div>

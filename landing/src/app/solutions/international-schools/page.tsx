@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   title: "EduMyles for International Schools — IGCSE School Management",
   description:
     "The premium school management platform for international and private schools in Africa. IGCSE curriculum, multi-currency fees, SSO, and white-label options.",
+  alternates: { canonical: "/solutions/international" },
 };
 
 /* ─── Data ─────────────────────────────────────────────────────── */

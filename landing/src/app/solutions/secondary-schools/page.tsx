@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   title: "EduMyles for Secondary Schools — KCSE, CBC Senior & Auto-Timetabling",
   description:
     "School management software built for Kenyan secondary schools. KCSE and CBC Senior workflows, auto-timetabling, M-Pesa fee collection, HR, payroll, and portal access.",
+  alternates: { canonical: "/solutions/secondary" },
 };
 
 export default function SecondarySchoolsPage() {

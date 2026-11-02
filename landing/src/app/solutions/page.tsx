@@ -27,7 +27,7 @@ const solutions = [
     title: "Primary Schools",
     description:
       "CBC-ready management system for PP1 to Class 8 with automated assessments and parent communication.",
-    href: "/solutions/primary-schools",
+    href: "/solutions/primary",
     features: [
       "CBC Gradebook & Assessments",
       "M-Pesa Fee Management",
@@ -49,7 +49,7 @@ const solutions = [
     title: "Secondary Schools",
     description:
       "Comprehensive KCSE management with advanced timetabling, HR payroll, and performance analytics.",
-    href: "/solutions/secondary-schools",
+    href: "/solutions/secondary",
     features: [
       "KCSE Exam Management",
       "Advanced Timetabling",
@@ -71,7 +71,7 @@ const solutions = [
     title: "International Schools",
     description:
       "IGCSE curriculum support with SSO, white-label options, and global standards compliance.",
-    href: "/solutions/international-schools",
+    href: "/solutions/international",
     features: [
       "IGCSE Curriculum",
       "Single Sign-On (SSO)",
@@ -93,7 +93,7 @@ const solutions = [
     title: "School Groups",
     description:
       "Multi-campus management with consolidated reporting, centralized administration, and scalable infrastructure.",
-    href: "/solutions/school-groups",
+    href: "/solutions/groups",
     features: [
       "Multi-Campus Management",
       "Consolidated Reporting",

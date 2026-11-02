@@ -130,7 +130,7 @@ export default function PricingContent() {
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span
                       className="font-jakarta font-bold text-[12px] px-4 py-1.5 rounded-[20px] whitespace-nowrap"
-                      style={{ background: "var(--gold)", color: "#171717" }}
+                      style={{ background: "var(--handoff-gold)", color: "#171717" }}
                     >
                       <Star
                         className="w-3 h-3 inline mr-1 -mt-0.5"
@@ -211,7 +211,7 @@ export default function PricingContent() {
                   className="block text-center font-jakarta font-bold text-[15px] py-3.5 rounded-[50px] no-underline transition-all duration-200"
                   style={
                     plan.featured
-                      ? { background: "var(--gold)", color: "#171717" }
+                      ? { background: "var(--handoff-gold)", color: "#171717" }
                       : { background: "var(--primary)", color: "var(--primary-foreground)" }
                   }
                 >

@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   title: "EduMyles for Primary Schools — CBC-Ready School Management",
   description:
     "School management software built for Kenyan primary schools. CBC gradebook, M-Pesa fees, parent communication, and NEMIS-ready reports. PP1 to Class 8.",
+  alternates: { canonical: "/solutions/primary" },
 };
 
 /* ── Data ──────────────────────────────────────────────────────────────── */

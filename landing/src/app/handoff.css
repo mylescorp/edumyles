@@ -12,7 +12,7 @@
   --onpri: #ffffff;
   --tint: #e3efec;
   --deep: #0f2a24;
-  --gold: #e8a317;
+  --handoff-gold: #e8a317;
   --em: #2f4f63;
   --fbd: #7c8b86;
   --link: #1e5a50;
@@ -65,7 +65,7 @@ html.dark {
   --accent: #263d5d;
   --afg: #bfdbfe;
   --deep: #1a395b;
-  --gold: #c79639;
+  --handoff-gold: #c79639;
   --em: #bfdbfe;
   --fbd: #6b7c93;
   --link: #6fa2f3;
@@ -234,6 +234,7 @@ footer[role="contentinfo"] > div:nth-child(2) {
   padding: 56px 24px 40px;
 }
 
+footer[role="contentinfo"] h3,
 footer[role="contentinfo"] h4 {
   color: var(--deepacc) !important;
 }
@@ -258,14 +259,10 @@ footer[role="contentinfo"] > div:last-child > div > p {
   text-align: center;
 }
 
-footer[role="contentinfo"] > div:last-child > div > div:last-child {
-  display: none;
-}
-
 .page-hero,
-main section:first-of-type:has(h1):not(#hero):not(.login-story),
-main > section:first-child:has(h1):not(#hero):not(.login-story),
-main > div > section:first-child:has(h1):not(#hero) {
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story),
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > section:first-child:has(h1):not(#hero):not(.login-story),
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > div > section:first-child:has(h1):not(#hero) {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -277,9 +274,9 @@ main > div > section:first-child:has(h1):not(#hero) {
 }
 
 html[data-theme] .page-hero,
-html[data-theme] main section:first-of-type:has(h1):not(#hero):not(.login-story),
-html[data-theme] main > section:first-child:has(h1):not(#hero):not(.login-story),
-html[data-theme] main > div > section:first-child:has(h1):not(#hero) {
+html[data-theme] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story),
+html[data-theme] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > section:first-child:has(h1):not(#hero):not(.login-story),
+html[data-theme] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > div > section:first-child:has(h1):not(#hero) {
   padding: 76px 24px 64px;
   background: var(--bg) !important;
   background-image: none !important;
@@ -287,9 +284,9 @@ html[data-theme] main > div > section:first-child:has(h1):not(#hero) {
 }
 
 html[data-theme] .page-hero h1,
-html[data-theme] main section:first-of-type:has(h1):not(#hero):not(.login-story) h1,
-html[data-theme] main > section:first-child:has(h1):not(#hero):not(.login-story) h1,
-html[data-theme] main > div > section:first-child:has(h1):not(#hero) h1 {
+html[data-theme] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story) h1,
+html[data-theme] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > section:first-child:has(h1):not(#hero):not(.login-story) h1,
+html[data-theme] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > div > section:first-child:has(h1):not(#hero) h1 {
   color: var(--ink) !important;
   font-size: clamp(38px, 5.4vw, 62px);
   line-height: 1.05;
@@ -298,18 +295,18 @@ html[data-theme] main > div > section:first-child:has(h1):not(#hero) h1 {
 }
 
 html[data-theme] .page-hero .subtext,
-html[data-theme] main section:first-of-type:has(h1):not(#hero):not(.login-story) p,
-html[data-theme] main > section:first-child:has(h1):not(#hero):not(.login-story) p,
-html[data-theme] main > div > section:first-child:has(h1):not(#hero) p {
+html[data-theme] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story) p,
+html[data-theme] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > section:first-child:has(h1):not(#hero):not(.login-story) p,
+html[data-theme] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > div > section:first-child:has(h1):not(#hero) p {
   color: var(--mut) !important;
   font-size: 19px !important;
   line-height: 1.55;
 }
 
 .page-hero::after,
-main section:first-of-type:has(h1):not(#hero):not(.login-story)::after,
-main > section:first-child:has(h1):not(#hero):not(.login-story)::after,
-main > div > section:first-child:has(h1):not(#hero)::after {
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story)::after,
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > section:first-child:has(h1):not(#hero):not(.login-story)::after,
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > div > section:first-child:has(h1):not(#hero)::after {
   content: "";
   position: absolute;
   z-index: -1;
@@ -323,20 +320,20 @@ main > div > section:first-child:has(h1):not(#hero)::after {
 }
 
 html[data-theme="dark"] .page-hero::after,
-html[data-theme="dark"] main section:first-of-type:has(h1):not(#hero):not(.login-story)::after,
-html[data-theme="dark"] main > section:first-child:has(h1):not(#hero):not(.login-story)::after,
-html[data-theme="dark"] main > div > section:first-child:has(h1):not(#hero)::after {
+html[data-theme="dark"] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story)::after,
+html[data-theme="dark"] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > section:first-child:has(h1):not(#hero):not(.login-story)::after,
+html[data-theme="dark"] main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > div > section:first-child:has(h1):not(#hero)::after {
   background-image: url("/brand/edumyles-mark-dark.png");
 }
 
-main section:first-of-type:has(h1):not(#hero):not(.login-story) .absolute,
-main > section:first-child:has(h1):not(#hero):not(.login-story) > .absolute,
-main > div > section:first-child:has(h1):not(#hero) > .absolute {
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story) .absolute,
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > section:first-child:has(h1):not(#hero):not(.login-story) > .absolute,
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) > div > section:first-child:has(h1):not(#hero) > .absolute {
   display: none;
 }
 
-main section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background:transparent"],
-main section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background: transparent"] {
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background:transparent"],
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background: transparent"] {
   border: 1px solid var(--border) !important;
   border-radius: 999px !important;
   background: var(--card) !important;
@@ -344,8 +341,8 @@ main section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="backgr
   box-shadow: 0 4px 14px rgb(15 42 36 / 6%);
 }
 
-main section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background:var(--primary)"],
-main section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background: var(--primary)"] {
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background:var(--primary)"],
+main:not(.no-handoff-hero):not(:has(.no-handoff-hero)) section:first-of-type:has(h1):not(#hero):not(.login-story) a[style*="background: var(--primary)"] {
   border-radius: 999px !important;
 }
 
