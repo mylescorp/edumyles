@@ -262,32 +262,77 @@ footer[role="contentinfo"] > div:last-child > div > div:last-child {
   display: none;
 }
 
-.page-hero {
+.page-hero,
+main section:first-of-type:has(h1):not(#hero),
+main > section:first-child:has(h1):not(#hero),
+main > div > section:first-child:has(h1):not(#hero) {
   position: relative;
+  isolation: isolate;
   overflow: hidden;
   padding: 76px 24px 64px;
-  background: transparent !important;
+  background: var(--bg) !important;
+  background-image: none !important;
   border: 0 !important;
+  text-align: center;
 }
 
-html[data-theme] .page-hero {
+html[data-theme] .page-hero,
+html[data-theme] main section:first-of-type:has(h1):not(#hero),
+html[data-theme] main > section:first-child:has(h1):not(#hero),
+html[data-theme] main > div > section:first-child:has(h1):not(#hero) {
   padding: 76px 24px 64px;
   background: var(--bg) !important;
   background-image: none !important;
   border: 0 !important;
 }
 
-html[data-theme] .page-hero h1 {
+html[data-theme] .page-hero h1,
+html[data-theme] main section:first-of-type:has(h1):not(#hero) h1,
+html[data-theme] main > section:first-child:has(h1):not(#hero) h1,
+html[data-theme] main > div > section:first-child:has(h1):not(#hero) h1 {
+  color: var(--ink) !important;
   font-size: clamp(38px, 5.4vw, 62px);
   line-height: 1.05;
   letter-spacing: -0.035em;
   font-weight: 700;
 }
 
-html[data-theme] .page-hero .subtext {
+html[data-theme] .page-hero .subtext,
+html[data-theme] main section:first-of-type:has(h1):not(#hero) p,
+html[data-theme] main > section:first-child:has(h1):not(#hero) p,
+html[data-theme] main > div > section:first-child:has(h1):not(#hero) p {
   color: var(--mut) !important;
-  font-size: 19px;
+  font-size: 19px !important;
   line-height: 1.55;
+}
+
+.page-hero::after,
+main section:first-of-type:has(h1):not(#hero)::after,
+main > section:first-child:has(h1):not(#hero)::after,
+main > div > section:first-child:has(h1):not(#hero)::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -70px;
+  right: 2%;
+  width: min(42vw, 520px);
+  aspect-ratio: 1;
+  opacity: 0.07;
+  pointer-events: none;
+  background: url("/brand/edumyles-mark-light.png") center / contain no-repeat;
+}
+
+html[data-theme="dark"] .page-hero::after,
+html[data-theme="dark"] main section:first-of-type:has(h1):not(#hero)::after,
+html[data-theme="dark"] main > section:first-child:has(h1):not(#hero)::after,
+html[data-theme="dark"] main > div > section:first-child:has(h1):not(#hero)::after {
+  background-image: url("/brand/edumyles-mark-dark.png");
+}
+
+main section:first-of-type:has(h1):not(#hero) .absolute,
+main > section:first-child:has(h1):not(#hero) > .absolute,
+main > div > section:first-child:has(h1):not(#hero) > .absolute {
+  display: none;
 }
 
 html[data-theme] .content-section {
